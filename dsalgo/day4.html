@@ -1,0 +1,2122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Day 4 · Strivers SDE Sheet · BuildLikeASenior</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" />
+<style>
+  :root{
+    --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+    --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+    --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+    --easy:#22c55e; --med:#f59e0b; --hard:#ef4444;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.6;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  header.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,212,170,.06),rgba(245,200,66,.04));pointer-events:none}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:760px;margin:0 auto;font-size:15px}
+  .meta{display:flex;gap:18px;justify-content:center;margin-top:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+  .meta b{color:var(--text)}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px}
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+  .q{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;box-shadow:0 10px 40px -20px rgba(0,0,0,.6);scroll-margin-top:20px}
+  .q .head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:6px}
+  .q h2{margin:0;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  .q h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .q .topic{color:var(--muted);font-size:12px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-left:8px;vertical-align:middle}
+  .pill.easy{background:rgba(34,197,94,.15);color:var(--easy);border:1px solid rgba(34,197,94,.3)}
+  .pill.med{background:rgba(245,158,11,.15);color:var(--med);border:1px solid rgba(245,158,11,.3)}
+  .pill.hard{background:rgba(239,68,68,.15);color:var(--hard);border:1px solid rgba(239,68,68,.3)}
+  .links{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .links a{font-size:12px;padding:5px 10px;border:1px solid var(--line);border-radius:8px;color:var(--muted)}
+  .links a:hover{border-color:var(--teal);color:var(--teal);text-decoration:none}
+  .section-title{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin:22px 0 8px;font-weight:700}
+  .problem{color:#cdd9ee}
+  .mental{background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:14px 18px;border-radius:8px;margin:6px 0}
+  .mental b{color:var(--gold)}
+  .alts{display:grid;gap:8px;margin:6px 0}
+  .alt{background:rgba(91,141,238,.06);border-left:3px solid var(--blue);padding:10px 14px;border-radius:8px;font-size:14px;color:#cfdcf2}
+  .alt b{color:var(--blue);margin-right:8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+  .approach ol{padding-left:20px}
+  .approach li{margin:6px 0}
+  .complexity{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px}
+  .complexity div{background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.2);border-radius:10px;padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:13px}
+  .complexity b{color:var(--teal)}
+  pre[class*="language-"]{border-radius:10px;font-size:13px;border:1px solid var(--line);background:#0a1428 !important;margin:8px 0}
+  .mermaid-wrap{background:#fff;border-radius:12px;padding:20px;margin:8px 0;overflow-x:auto;border:1px solid var(--line)}
+  .mermaid{display:flex;justify-content:center}
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="badge">Day 4 · BuildLikeASenior</span>
+  <h1 class="title">Strivers SDE Sheet — <span>Day 4</span></h1>
+  <p class="sub">Fourth question from every section. The "classic interview" round — Kadane, Trapping Rain Water, Edit Distance, Floyd-Warshall, Morris, Max Path Sum.</p>
+  <div class="meta"><span><b>27</b> questions</span><span><b>27</b> sections</span><span><b>~4 hrs</b> deep work</span></div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <h3>Today's Run-list</h3>
+  <ol>
+    <li><a href="#q1">Kadane's Algorithm</a></li>
+    <li><a href="#q2">Find the Duplicate Number</a></li>
+    <li><a href="#q3">Majority Element (&gt;N/3)</a></li>
+    <li><a href="#q4">Longest Subarray with Sum K</a></li>
+    <li><a href="#q5">Remove Nth Node from End of LL</a></li>
+    <li><a href="#q6">Palindrome Linked List</a></li>
+    <li><a href="#q7">Trapping Rain Water</a></li>
+    <li><a href="#q8">Fractional Knapsack</a></li>
+    <li><a href="#q9">Combination Sum II</a></li>
+    <li><a href="#q10">M-Coloring Problem</a></li>
+    <li><a href="#q11">Search in Rotated Sorted Array</a></li>
+    <li><a href="#q12">Merge K Sorted Arrays</a></li>
+    <li><a href="#q13">Queue using Stacks</a></li>
+    <li><a href="#q14">LFU Cache</a></li>
+    <li><a href="#q15">Integer to Roman</a></li>
+    <li><a href="#q16">Check Anagrams</a></li>
+    <li><a href="#q17">Morris Inorder Traversal</a></li>
+    <li><a href="#q18">Balanced Binary Tree</a></li>
+    <li><a href="#q19">Path to a Given Node in BT</a></li>
+    <li><a href="#q20">Validate Binary Search Tree</a></li>
+    <li><a href="#q21">LCA in BST</a></li>
+    <li><a href="#q22">Two Sum in BST</a></li>
+    <li><a href="#q23">Detect Cycle in Undirected Graph (BFS)</a></li>
+    <li><a href="#q24">Floyd Warshall</a></li>
+    <li><a href="#q25">Edit Distance</a></li>
+    <li><a href="#q26">Rod Cutting</a></li>
+    <li><a href="#q27">Longest String with All Prefixes (Trie)</a></li>
+  </ol>
+</nav>
+
+<!-- ================= Q1 ================= -->
+<article class="q" id="q1">
+  <div class="head"><h2><span class="num">01</span>Kadane's Algorithm <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Arrays</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/maximum-subarray/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/kadanes-algorithm-maximum-subarray-sum-in-an-array/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Find the contiguous subarray with the largest sum and return that sum.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>At every index ask: "is the running sum still helping me, or should I start fresh from here?"</b> If the running sum goes negative it can only drag future sums down — reset.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Try all O(n²) subarrays, sum each → <code>O(n²)</code>.</div>
+    <div class="alt"><b>Better</b> Divide & conquer → <code>O(n log n)</code>.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Walk left → right. Track <code>runningSum</code> (reset to <code>x</code> if it goes negative) and <code>bestSum</code>.</li>
+    <li>Update <code>bestSum = max(bestSum, runningSum)</code> each step.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  S["start: best = -∞, run = 0"] --> L["for each x"]
+  L --> A["run = max(x, run + x)"]
+  A --> B["best = max(best, run)"]
+  B --> L
+  L --> O["return best"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Kadane's algorithm: maximum contiguous subarray sum in O(n).
+ * Key insight: a running prefix only helps if it's positive — the moment it dips below
+ * zero, restarting from the current element strictly improves any future window.
+ */
+int maxSubArray(int[] numbers){
+  int bestSumSoFar = numbers[0];
+  int currentWindowSum = numbers[0];
+
+  for(int idx = 1; idx &lt; numbers.length; idx++){
+    int currentValue = numbers[idx];
+    // either extend the window or start fresh — whichever is larger
+    currentWindowSum = Math.max(currentValue, currentWindowSum + currentValue);
+    bestSumSoFar    = Math.max(bestSumSoFar, currentWindowSum);
+  }
+  return bestSumSoFar;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q2 ================= -->
+<article class="q" id="q2">
+  <div class="head"><h2><span class="num">02</span>Find the Duplicate Number <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Arrays Part-II</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/find-the-duplicate-number/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/find-the-duplicate-in-an-array-of-n1-integers/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Array of <code>n + 1</code> integers, each in <code>[1, n]</code>. Exactly one number repeats. Find it without modifying the array, in O(1) extra space.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Treat indices as next-pointers — <code>i → nums[i]</code> — and the array becomes a linked list whose cycle entrance is the duplicate.</b> Floyd's tortoise &amp; hare finds that entrance in O(n) time / O(1) space.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Sort → adjacent equal → <code>O(n log n)</code>, mutates array.</div>
+    <div class="alt"><b>Better</b> HashSet → <code>O(n)</code> time, <code>O(n)</code> space.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach (Floyd)</div>
+  <div class="approach"><ol>
+    <li>Phase 1: slow = nums[slow]; fast = nums[nums[fast]] — until they meet inside the cycle.</li>
+    <li>Phase 2: reset slow = 0; move both one step at a time — they meet at the cycle entrance = duplicate.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  S["slow = nums[0]; fast = nums[0]"] --> P1["loop: slow=nums[slow], fast=nums[nums[fast]] until equal"]
+  P1 --> R["slow = 0"]
+  R --> P2["loop: slow=nums[slow], fast=nums[fast] until equal"]
+  P2 --> O["meeting point = duplicate"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Find the unique duplicate among n+1 values in [1, n] using Floyd's cycle detection.
+ * Trick: interpreting index → nums[index] turns the array into a linked list with a
+ * guaranteed cycle; the cycle's entry node IS the duplicated value.
+ */
+int findDuplicate(int[] numbers){
+  // ---- phase 1: find a meeting point inside the cycle ----
+  int slowPointer = numbers[0];
+  int fastPointer = numbers[0];
+  do {
+    slowPointer = numbers[slowPointer];
+    fastPointer = numbers[numbers[fastPointer]];
+  } while(slowPointer != fastPointer);
+
+  // ---- phase 2: walk one pointer from start; both meet at cycle entrance ----
+  slowPointer = numbers[0];
+  while(slowPointer != fastPointer){
+    slowPointer = numbers[slowPointer];
+    fastPointer = numbers[fastPointer];
+  }
+  return slowPointer;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q3 ================= -->
+<article class="q" id="q3">
+  <div class="head"><h2><span class="num">03</span>Majority Element (&gt;N/3) <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Arrays Part-III</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/majority-element-ii/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/majority-elementsn-3-times-find-the-elements-that-appears-more-than-n-3-times-in-the-array/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Return all elements that appear strictly more than <code>⌊n/3⌋</code> times.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>At most 2 such elements can exist.</b> Boyer-Moore generalised: maintain 2 candidates and 2 counters; resolve clashes by decrementing both. Verify the survivors in a second pass.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Count every element → <code>O(n²)</code>.</div>
+    <div class="alt"><b>Better</b> HashMap of frequencies → <code>O(n)</code> time, <code>O(n)</code> space.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach (Boyer-Moore ×2)</div>
+  <div class="approach"><ol>
+    <li>Maintain (cand1, count1) and (cand2, count2).</li>
+    <li>If x matches a cand → increment its count. Else if a counter is 0 → claim that slot. Else → decrement both counts.</li>
+    <li>Second pass: count actual occurrences of cand1 / cand2; include those with count &gt; n/3.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  S["cand1=∅,c1=0; cand2=∅,c2=0"] --> L["for each x"]
+  L --> A{"x == cand1?"}
+  A -- yes --> A1["c1++"]
+  A -- no --> B{"x == cand2?"}
+  B -- yes --> B1["c2++"]
+  B -- no --> C{"c1 == 0?"}
+  C -- yes --> C1["cand1=x, c1=1"]
+  C -- no --> D{"c2 == 0?"}
+  D -- yes --> D1["cand2=x, c2=1"]
+  D -- no --> D2["c1--; c2--"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Boyer-Moore voting extended to find all elements appearing > n/3 times (at most 2).
+ * Two slots are enough: any third "candidate" would constantly cancel out the others
+ * given the n/3 threshold.
+ */
+List&lt;Integer&gt; majorityElementOverNBy3(int[] numbers){
+  int firstCandidate = Integer.MIN_VALUE, firstCount = 0;
+  int secondCandidate = Integer.MIN_VALUE, secondCount = 0;
+
+  // ---- pass 1: pick up to 2 candidates ----
+  for(int value : numbers){
+    if(value == firstCandidate)       firstCount++;
+    else if(value == secondCandidate) secondCount++;
+    else if(firstCount == 0)          { firstCandidate = value;  firstCount = 1; }
+    else if(secondCount == 0)         { secondCandidate = value; secondCount = 1; }
+    else                              { firstCount--; secondCount--; }   // cancel
+  }
+
+  // ---- pass 2: verify counts (>n/3) ----
+  firstCount = secondCount = 0;
+  for(int value : numbers){
+    if(value == firstCandidate)       firstCount++;
+    else if(value == secondCandidate) secondCount++;
+  }
+  int threshold = numbers.length / 3;
+  List&lt;Integer&gt; majorityElements = new ArrayList&lt;&gt;();
+  if(firstCount  &gt; threshold) majorityElements.add(firstCandidate);
+  if(secondCount &gt; threshold) majorityElements.add(secondCandidate);
+  return majorityElements;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q4 ================= -->
+<article class="q" id="q4">
+  <div class="head"><h2><span class="num">04</span>Longest Subarray with Sum K <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Arrays Part-IV</div>
+  <div class="links">
+    <a href="https://www.geeksforgeeks.org/longest-sub-array-sum-k/" target="_blank">GFG</a>
+    <a href="https://takeuforward.org/arrays/longest-subarray-with-given-sum-k/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given an array (may contain negatives) and target <code>k</code>, return length of the longest contiguous subarray whose sum equals <code>k</code>.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>If prefix sum at index <code>j</code> is <code>S</code>, then a subarray ending at <code>j</code> has sum <code>k</code> iff some earlier prefix sum equalled <code>S - k</code>.</b> Store the <i>earliest</i> index each prefix sum was seen → longest subarray.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Try all subarrays → <code>O(n²)</code> or <code>O(n³)</code>.</div>
+    <div class="alt"><b>Better (only positives)</b> Sliding window → <code>O(n)</code>, but breaks with negatives.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>HashMap <code>firstSeenIndex</code> of prefixSum → earliest index.</li>
+    <li>Walk i = 0..n-1: <code>prefix += a[i]</code>. If <code>prefix == k</code> → answer = i+1. Else if map has <code>prefix - k</code> → answer = max(answer, i - map.get(prefix - k)).</li>
+    <li>Store prefix in map only if absent (keep earliest index).</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  S["prefix = 0; map = {}; best = 0"] --> L["for i = 0..n-1"]
+  L --> A["prefix += a[i]"]
+  A --> B{"prefix == k?"}
+  B -- yes --> C["best = max(best, i+1)"]
+  B -- no --> D{"map has prefix - k?"}
+  D -- yes --> E["best = max(best, i - map[prefix-k])"]
+  D -- no --> F["skip"]
+  C --> G["if !map has prefix → map[prefix] = i"]
+  E --> G
+  F --> G
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Longest subarray with sum K — works for negative numbers via prefix-sum hashing.
+ * Trick: if prefix[j] - prefix[i] == k then sum(a[i+1..j]) == k. To maximise length we
+ * record only the FIRST occurrence of each prefix sum.
+ */
+int longestSubarrayWithSumK(int[] numbers, int targetSum){
+  Map&lt;Long, Integer&gt; firstSeenIndexByPrefix = new HashMap&lt;&gt;();
+  long runningPrefixSum = 0L;
+  int longestLengthSoFar = 0;
+
+  for(int idx = 0; idx &lt; numbers.length; idx++){
+    runningPrefixSum += numbers[idx];
+
+    if(runningPrefixSum == targetSum){
+      longestLengthSoFar = idx + 1;                                  // whole [0..idx]
+    }
+    Long lookupKey = runningPrefixSum - targetSum;
+    if(firstSeenIndexByPrefix.containsKey(lookupKey)){
+      longestLengthSoFar = Math.max(longestLengthSoFar, idx - firstSeenIndexByPrefix.get(lookupKey));
+    }
+    // store only the FIRST time we see this prefix → longest possible window later
+    firstSeenIndexByPrefix.putIfAbsent(runningPrefixSum, idx);
+  }
+  return longestLengthSoFar;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(n)</b></div></div>
+</article>
+
+<!-- ================= Q5 ================= -->
+<article class="q" id="q5">
+  <div class="head"><h2><span class="num">05</span>Remove Nth Node from End of LL <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Linked List</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/remove-nth-node-from-end-of-list/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/remove-n-th-node-from-the-end-of-a-linked-list/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given the head of a singly linked list, remove the <code>n</code>-th node from the end and return the head.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Two pointers with a head-start of <code>n</code>.</b> When the leader hits null, the trailer sits just before the node to remove → single pass, O(1) space.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Count length L → walk again to L-n → remove. — Two passes.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Dummy node before head (handles head removal).</li>
+    <li>Advance <code>leader</code> n steps forward.</li>
+    <li>Walk <code>leader</code> and <code>trailer</code> together until <code>leader.next == null</code>.</li>
+    <li><code>trailer.next = trailer.next.next</code>; return <code>dummy.next</code>.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  D["dummy"] --> A["1"] --> B["2"] --> C["3"] --> E["4"] --> F["5"] --> N["null"]
+  T["trailer (dummy)"] -.-> D
+  L["leader → advance n=2 steps"] -.-> B
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Remove the n-th node from the end in a single pass using the gap technique.
+ * Trick: a leader pointer starts n steps ahead. When the leader reaches the end, the
+ * trailer is exactly at the node BEFORE the one to delete — no length count needed.
+ */
+ListNode removeNthFromEnd(ListNode head, int nFromEnd){
+  ListNode dummyBeforeHead = new ListNode(0);
+  dummyBeforeHead.next = head;
+
+  ListNode leaderPointer  = dummyBeforeHead;
+  ListNode trailerPointer = dummyBeforeHead;
+
+  // give the leader an n-step head start
+  for(int step = 0; step &lt; nFromEnd; step++) leaderPointer = leaderPointer.next;
+
+  // walk both until leader is at the LAST node → trailer is just BEFORE the target
+  while(leaderPointer.next != null){
+    leaderPointer  = leaderPointer.next;
+    trailerPointer = trailerPointer.next;
+  }
+  trailerPointer.next = trailerPointer.next.next;     // splice out the target
+  return dummyBeforeHead.next;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(L)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q6 ================= -->
+<article class="q" id="q6">
+  <div class="head"><h2><span class="num">06</span>Palindrome Linked List <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Linked List Part-II</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/palindrome-linked-list/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/check-if-given-linked-list-is-plaindrome/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Return <code>true</code> if the linked list reads the same forward and backward. Do it in O(n) time, O(1) extra space.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Find the middle, reverse the second half, walk two halves in parallel.</b> If every paired value matches, it's a palindrome.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Copy values into an array, two-pointer check → <code>O(n)</code> time, <code>O(n)</code> space.</div>
+    <div class="alt"><b>Stack</b> Push first half, pop while walking second → same complexity.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Slow/fast to find middle (slow lands at midpoint for odd, just before for even).</li>
+    <li>Reverse the list starting at <code>slow.next</code>.</li>
+    <li>Compare from head and from reversed tail in lock-step.</li>
+    <li>(Optional) restore the second half.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  A["1"] --> B["2"] --> C["3"] --> D["2"] --> E["1"]
+  M["mid = C; reverse 2→1 after mid"] --> Cmp["compare head & reversed tail"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * O(1)-space palindrome check on a singly linked list.
+ * Trick: locate middle (slow/fast), reverse the second half in place, then walk both
+ * halves together. If every paired value matches → palindrome.
+ */
+boolean isPalindrome(ListNode head){
+  if(head == null || head.next == null) return true;
+
+  // 1) find middle using slow/fast
+  ListNode slowPointer = head, fastPointer = head;
+  while(fastPointer.next != null &amp;&amp; fastPointer.next.next != null){
+    slowPointer = slowPointer.next;
+    fastPointer = fastPointer.next.next;
+  }
+
+  // 2) reverse second half (starts at slow.next)
+  ListNode reversedSecondHalfHead = reverseList(slowPointer.next);
+
+  // 3) compare in lock-step
+  ListNode firstHalfPtr  = head;
+  ListNode secondHalfPtr = reversedSecondHalfHead;
+  while(secondHalfPtr != null){
+    if(firstHalfPtr.val != secondHalfPtr.val) return false;
+    firstHalfPtr  = firstHalfPtr.next;
+    secondHalfPtr = secondHalfPtr.next;
+  }
+  return true;
+}
+
+private ListNode reverseList(ListNode node){
+  ListNode previousNode = null;
+  while(node != null){
+    ListNode nextNode = node.next;
+    node.next = previousNode;
+    previousNode = node;
+    node = nextNode;
+  }
+  return previousNode;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q7 ================= -->
+<article class="q" id="q7">
+  <div class="head"><h2><span class="num">07</span>Trapping Rain Water <span class="pill hard">Hard</span></h2></div>
+  <div class="topic">Section · LL &amp; Arrays</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/trapping-rain-water/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/trapping-rainwater/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given <code>n</code> non-negative heights representing an elevation map, compute the amount of water that can be trapped after raining.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Water above index <code>i</code> = min(maxLeft[i], maxRight[i]) − height[i].</b> Two pointers compute these lazily: the smaller side is always limited by its own running max, so its water is decidable now.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> For each bar scan both sides for max → <code>O(n²)</code>.</div>
+    <div class="alt"><b>Better</b> Precompute <code>maxLeft[]</code> and <code>maxRight[]</code> arrays → <code>O(n)</code> time, <code>O(n)</code> space.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach (Two Pointers)</div>
+  <div class="approach"><ol>
+    <li>Two pointers <code>left</code>, <code>right</code> at ends; track <code>maxLeft</code>, <code>maxRight</code>.</li>
+    <li>Move the smaller side inward. If <code>height[left] &lt; height[right]</code>: if <code>height[left] &gt;= maxLeft</code> update <code>maxLeft</code>, else <code>water += maxLeft - height[left]</code>; <code>left++</code>. Symmetric on right.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  S["left=0, right=n-1, maxL=0, maxR=0, water=0"] --> L{"left &lt; right?"}
+  L -- no --> O["return water"]
+  L -- yes --> C{"height[left] &lt; height[right]?"}
+  C -- yes --> A{"height[left] &gt;= maxL?"}
+  A -- yes --> A1["maxL = height[left]"]
+  A -- no --> A2["water += maxL - height[left]"]
+  A1 --> M1["left++"] --> L
+  A2 --> M1
+  C -- no --> B{"height[right] &gt;= maxR?"}
+  B -- yes --> B1["maxR = height[right]"]
+  B -- no --> B2["water += maxR - height[right]"]
+  B1 --> M2["right--"] --> L
+  B2 --> M2
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Trapping Rain Water in O(n) time, O(1) space via two pointers.
+ * Trick: the side with the SMALLER current height is guaranteed to be bounded by its
+ * own running max — so we can settle its water contribution immediately and advance.
+ */
+int trap(int[] heights){
+  int leftPointer  = 0;
+  int rightPointer = heights.length - 1;
+  int maxHeightFromLeft  = 0;
+  int maxHeightFromRight = 0;
+  int totalTrappedWater  = 0;
+
+  while(leftPointer &lt; rightPointer){
+    if(heights[leftPointer] &lt; heights[rightPointer]){
+      // left side is the limiting wall
+      if(heights[leftPointer] &gt;= maxHeightFromLeft){
+        maxHeightFromLeft = heights[leftPointer];           // new tallest left wall
+      } else {
+        totalTrappedWater += maxHeightFromLeft - heights[leftPointer];
+      }
+      leftPointer++;
+    } else {
+      // right side is the limiting wall
+      if(heights[rightPointer] &gt;= maxHeightFromRight){
+        maxHeightFromRight = heights[rightPointer];
+      } else {
+        totalTrappedWater += maxHeightFromRight - heights[rightPointer];
+      }
+      rightPointer--;
+    }
+  }
+  return totalTrappedWater;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q8 ================= -->
+<article class="q" id="q8">
+  <div class="head"><h2><span class="num">08</span>Fractional Knapsack <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Greedy</div>
+  <div class="links">
+    <a href="https://www.geeksforgeeks.org/fractional-knapsack-problem/" target="_blank">GFG</a>
+    <a href="https://takeuforward.org/data-structure/fractional-knapsack-problem-greedy-approach/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Maximise value carried in a knapsack of capacity <code>W</code> when you may take <i>fractions</i> of items.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Always grab the highest "value-per-unit-weight" first.</b> Because fractions are allowed, the local greedy choice is globally optimal — unlike 0/1 knapsack.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Try all subsets and splits — exponential.</div>
+    <div class="alt"><b>DP</b> Doesn't apply: continuous capacity space.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Sort items by <code>value / weight</code> descending.</li>
+    <li>Take whole items while they fit. Fill remaining capacity with a fraction of the next.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  S["sort items by value/weight desc"] --> L["for each item"]
+  L --> F{"weight fits in capacity?"}
+  F -- yes --> T["take whole; capacity -= weight"]
+  F -- no --> P["take fraction = capacity / weight; STOP"]
+  T --> L
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Fractional Knapsack — greedy on value-per-unit-weight.
+ * Trick: because we can split items, the locally best ratio is also globally best.
+ * This breaks for 0/1 Knapsack where indivisibility forces DP.
+ */
+double fractionalKnapsack(int knapsackCapacity, int[] itemWeights, int[] itemValues){
+  int itemCount = itemWeights.length;
+  Integer[] itemOrderByRatio = new Integer[itemCount];
+  for(int i = 0; i &lt; itemCount; i++) itemOrderByRatio[i] = i;
+
+  // sort indices by value/weight DESC
+  Arrays.sort(itemOrderByRatio, (a, b) -&gt;
+      Double.compare((double) itemValues[b] / itemWeights[b],
+                     (double) itemValues[a] / itemWeights[a]));
+
+  double remainingCapacity = knapsackCapacity;
+  double totalValueCollected = 0.0;
+  for(int idx : itemOrderByRatio){
+    if(itemWeights[idx] &lt;= remainingCapacity){
+      totalValueCollected += itemValues[idx];
+      remainingCapacity   -= itemWeights[idx];
+    } else {
+      totalValueCollected += itemValues[idx] * (remainingCapacity / itemWeights[idx]);
+      break;                                    // bag is now full
+    }
+  }
+  return totalValueCollected;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n log n)</b></div><div>Space <b>O(n)</b></div></div>
+</article>
+
+<!-- ================= Q9 ================= -->
+<article class="q" id="q9">
+  <div class="head"><h2><span class="num">09</span>Combination Sum II <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Recursion</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/combination-sum-ii/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/combination-sum-ii-find-all-unique-combinations/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given <code>candidates</code> (may contain duplicates) and a <code>target</code>, return all <b>unique</b> combinations that sum to target. Each number may be used <b>at most once</b>.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Sort, then at each recursion level skip equal siblings.</b> Sorting groups duplicates, so we explore each distinct value once per level — preventing duplicate combinations without a global set.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Generate all subsets, dedupe with a HashSet of sorted tuples → exponential + extra memory.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Sort candidates ascending.</li>
+    <li>Backtrack(start): for <code>i</code> from start: if <code>i &gt; start &amp;&amp; cand[i] == cand[i-1]</code> skip. If <code>cand[i] &gt; remaining</code> break.</li>
+    <li>Push, recurse(i+1, remaining - cand[i]), pop.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  S["sort candidates"] --> R["recurse(start, remaining)"]
+  R --> L["for i = start..n-1"]
+  L --> D{"i &gt; start &amp;&amp; cand[i] == cand[i-1]?"}
+  D -- yes --> L
+  D -- no --> P{"cand[i] &gt; remaining?"}
+  P -- yes --> O["break (sorted, rest too big)"]
+  P -- no --> T["pick → recurse(i+1) → unpick"]
+  T --> L
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Combination Sum II — every number used at most once, all combinations must be unique.
+ * Trick: sort + "skip duplicate siblings at the SAME recursion level". We allow a
+ * duplicate value to appear in a combination only via different array positions reached
+ * through nested calls, never as a sibling choice at the same depth.
+ */
+List&lt;List&lt;Integer&gt;&gt; combinationSum2(int[] candidates, int target){
+  Arrays.sort(candidates);
+  List&lt;List&lt;Integer&gt;&gt; allCombinations = new ArrayList&lt;&gt;();
+  backtrack(candidates, 0, target, new ArrayDeque&lt;&gt;(), allCombinations);
+  return allCombinations;
+}
+
+private void backtrack(int[] candidates, int startIdx, int remainingTarget,
+                       Deque&lt;Integer&gt; currentCombination,
+                       List&lt;List&lt;Integer&gt;&gt; allCombinations){
+  if(remainingTarget == 0){
+    allCombinations.add(new ArrayList&lt;&gt;(currentCombination));
+    return;
+  }
+  for(int i = startIdx; i &lt; candidates.length; i++){
+    if(i &gt; startIdx &amp;&amp; candidates[i] == candidates[i - 1]) continue;   // dup sibling
+    if(candidates[i] &gt; remainingTarget) break;                          // sorted → prune
+
+    currentCombination.push(candidates[i]);
+    backtrack(candidates, i + 1, remainingTarget - candidates[i], currentCombination, allCombinations);
+    currentCombination.pop();
+  }
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(2ⁿ)</b> worst</div><div>Space <b>O(target)</b> depth</div></div>
+</article>
+
+<!-- ================= Q10 ================= -->
+<article class="q" id="q10">
+  <div class="head"><h2><span class="num">10</span>M-Coloring Problem <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Recursion &amp; Backtracking</div>
+  <div class="links">
+    <a href="https://www.geeksforgeeks.org/m-coloring-problem-backtracking-5/" target="_blank">GFG</a>
+    <a href="https://takeuforward.org/data-structure/m-coloring-problem/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given an undirected graph and <code>m</code> colors, decide whether you can color every vertex such that no two adjacent vertices share a color.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Backtracking: try each color 1..m on each vertex; before committing, check all already-colored neighbours.</b> Constraint propagation by neighbour scan prunes invalid branches early.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Enumerate all <code>mⁿ</code> colorings — same theoretical worst case but no pruning.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li><code>solve(v)</code>: if v == n → return true.</li>
+    <li>For color c in 1..m: if no neighbour has color c → assign c, recurse(v+1); if true → true; else unassign.</li>
+    <li>Return false.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  S["solve(v)"] --> E{"v == n?"}
+  E -- yes --> Y["return true"]
+  E -- no --> L["for c = 1..m"]
+  L --> C{"safe(v, c)?"}
+  C -- yes --> A["color[v] = c → solve(v+1)"]
+  A --> R{"recursion true?"}
+  R -- yes --> Y
+  R -- no --> U["color[v] = 0 → next c"]
+  C -- no --> L
+  L --> F["return false"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Decides if the graph is m-colorable via backtracking.
+ * Trick: try color c at vertex v ONLY if no already-colored neighbour uses c.
+ * Pruning at the constraint boundary is what makes this tractable in practice.
+ */
+boolean graphColoring(boolean[][] adjacencyMatrix, int colorCount){
+  int vertexCount = adjacencyMatrix.length;
+  int[] assignedColor = new int[vertexCount];               // 0 = uncolored
+  return tryColor(0, adjacencyMatrix, assignedColor, colorCount);
+}
+
+private boolean tryColor(int vertex, boolean[][] adjacencyMatrix, int[] assignedColor, int colorCount){
+  if(vertex == adjacencyMatrix.length) return true;          // all vertices colored ok
+
+  for(int color = 1; color &lt;= colorCount; color++){
+    if(isSafe(vertex, color, adjacencyMatrix, assignedColor)){
+      assignedColor[vertex] = color;
+      if(tryColor(vertex + 1, adjacencyMatrix, assignedColor, colorCount)) return true;
+      assignedColor[vertex] = 0;                             // undo + try next color
+    }
+  }
+  return false;
+}
+
+private boolean isSafe(int vertex, int color, boolean[][] adjacencyMatrix, int[] assignedColor){
+  for(int neighbour = 0; neighbour &lt; adjacencyMatrix.length; neighbour++){
+    if(adjacencyMatrix[vertex][neighbour] &amp;&amp; assignedColor[neighbour] == color) return false;
+  }
+  return true;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(mⁿ)</b> worst</div><div>Space <b>O(n)</b></div></div>
+</article>
+
+<!-- ================= Q11 ================= -->
+<article class="q" id="q11">
+  <div class="head"><h2><span class="num">11</span>Search in Rotated Sorted Array <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Binary Search</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/search-in-rotated-sorted-array/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/search-element-in-a-rotated-sorted-array/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Sorted unique array rotated at some pivot. Find target index in O(log n) or return -1.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>At every step, one half is guaranteed sorted.</b> Identify which half (compare <code>nums[lo]</code> and <code>nums[mid]</code>), check if target lies in that sorted range, then move there.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Linear scan → <code>O(n)</code>.</div>
+    <div class="alt"><b>Two-step BS</b> Find pivot first, then BS in the right half → also O(log n) but two passes.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Standard BS loop. Compute <code>mid</code>.</li>
+    <li>If <code>nums[lo] &lt;= nums[mid]</code> → left half sorted. If target in [nums[lo], nums[mid]) → hi = mid-1 else lo = mid+1.</li>
+    <li>Else right half sorted. If target in (nums[mid], nums[hi]] → lo = mid+1 else hi = mid-1.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  S["lo, hi"] --> M["mid = (lo+hi)/2"]
+  M --> E{"nums[mid] == target?"}
+  E -- yes --> O["return mid"]
+  E -- no --> H{"nums[lo] &lt;= nums[mid]? (left sorted)"}
+  H -- yes --> L{"target in [nums[lo], nums[mid])?"}
+  L -- yes --> A["hi = mid-1"]
+  L -- no --> B["lo = mid+1"]
+  H -- no --> R{"target in (nums[mid], nums[hi]]?"}
+  R -- yes --> C["lo = mid+1"]
+  R -- no --> D["hi = mid-1"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Search in a rotated sorted array of distinct values in O(log n).
+ * Trick: a rotated sorted array, when split at mid, ALWAYS has one sorted half. Pick
+ * the half whose sorted range contains the target.
+ */
+int searchInRotatedSortedArray(int[] numbers, int target){
+  int lo = 0, hi = numbers.length - 1;
+  while(lo &lt;= hi){
+    int mid = lo + (hi - lo) / 2;
+    if(numbers[mid] == target) return mid;
+
+    if(numbers[lo] &lt;= numbers[mid]){
+      // left half [lo..mid] is sorted
+      if(numbers[lo] &lt;= target &amp;&amp; target &lt; numbers[mid]) hi = mid - 1;
+      else                                                lo = mid + 1;
+    } else {
+      // right half [mid..hi] is sorted
+      if(numbers[mid] &lt; target &amp;&amp; target &lt;= numbers[hi]) lo = mid + 1;
+      else                                                hi = mid - 1;
+    }
+  }
+  return -1;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(log n)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q12 ================= -->
+<article class="q" id="q12">
+  <div class="head"><h2><span class="num">12</span>Merge K Sorted Arrays <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Heaps</div>
+  <div class="links">
+    <a href="https://www.geeksforgeeks.org/merge-k-sorted-arrays/" target="_blank">GFG</a>
+    <a href="https://leetcode.com/problems/merge-k-sorted-lists/" target="_blank">LeetCode (variant)</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given <code>k</code> sorted arrays, merge them into one sorted array.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Min-heap of (value, sourceArray, indexInArray) entries — pop the smallest, push its successor.</b> The heap stores at most <code>k</code> elements at once → O(N log k).</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Concatenate and sort → <code>O(N log N)</code>.</div>
+    <div class="alt"><b>Divide &amp; Conquer</b> Pair-wise merges → also <code>O(N log k)</code>.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Push the first element of each array into a min-heap.</li>
+    <li>Pop the smallest; append to output; push the next element from the same source if any.</li>
+    <li>Repeat until heap empty.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  S["seed heap with first of every array"] --> P["pop min (val, arr, idx)"]
+  P --> A["append val to output"]
+  A --> N{"more elements in arr?"}
+  N -- yes --> Q["push (arr[idx+1], arr, idx+1)"]
+  N -- no --> H{"heap empty?"}
+  Q --> H
+  H -- no --> P
+  H -- yes --> O["return output"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Merge k sorted arrays into one sorted array using a size-k min-heap.
+ * Trick: the global next-smallest must be among the K "frontier" values — one per
+ * source. A k-sized heap pops in O(log k); we do N pops total → O(N log k).
+ */
+int[] mergeKSortedArrays(int[][] sortedArrays){
+  PriorityQueue&lt;int[]&gt; frontierMinHeap =
+      new PriorityQueue&lt;&gt;((a, b) -&gt; Integer.compare(a[0], b[0]));   // {value, srcIdx, posInSrc}
+
+  int totalLength = 0;
+  for(int srcIdx = 0; srcIdx &lt; sortedArrays.length; srcIdx++){
+    if(sortedArrays[srcIdx].length &gt; 0){
+      frontierMinHeap.offer(new int[]{sortedArrays[srcIdx][0], srcIdx, 0});
+    }
+    totalLength += sortedArrays[srcIdx].length;
+  }
+
+  int[] mergedOutput = new int[totalLength];
+  int writeIdx = 0;
+  while(!frontierMinHeap.isEmpty()){
+    int[] smallestEntry = frontierMinHeap.poll();
+    int value = smallestEntry[0], srcIdx = smallestEntry[1], posInSrc = smallestEntry[2];
+    mergedOutput[writeIdx++] = value;
+
+    if(posInSrc + 1 &lt; sortedArrays[srcIdx].length){
+      frontierMinHeap.offer(new int[]{sortedArrays[srcIdx][posInSrc + 1], srcIdx, posInSrc + 1});
+    }
+  }
+  return mergedOutput;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(N log k)</b></div><div>Space <b>O(k)</b></div></div>
+</article>
+
+<!-- ================= Q13 ================= -->
+<article class="q" id="q13">
+  <div class="head"><h2><span class="num">13</span>Queue using Stacks <span class="pill easy">Easy</span></h2></div>
+  <div class="topic">Section · Stack &amp; Queue</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/implement-queue-using-stacks/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/implement-queue-using-stack/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Implement a FIFO queue using only stacks. Operations: <code>push</code>, <code>pop</code>, <code>peek</code>, <code>empty</code>.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Two stacks: an "input" stack for pushes and an "output" stack for pops.</b> When output is empty, drain input into output — order flips from LIFO to FIFO. Amortised O(1) per operation.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Push-costly</b> Move all elements to a helper stack on every push → push O(n).</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li><code>push(x)</code>: <code>in.push(x)</code>.</li>
+    <li><code>pop()</code> / <code>peek()</code>: if <code>out.empty()</code>, pop all from <code>in</code> into <code>out</code>. Then operate on <code>out</code>.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  In["input stack (push side)"] -. "drain when out empty" .-> Out["output stack (pop side)"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * FIFO queue built from two LIFO stacks with amortised O(1) operations.
+ * Trick: pushes always go to 'input'. Pops/peeks use 'output'. Whenever output is
+ * empty we drain input into output — reversing the order so the OLDEST element ends up
+ * on top of output, ready to be popped.
+ */
+class QueueUsingTwoStacks {
+  private final Deque&lt;Integer&gt; inputStack  = new ArrayDeque&lt;&gt;();
+  private final Deque&lt;Integer&gt; outputStack = new ArrayDeque&lt;&gt;();
+
+  void push(int value){ inputStack.push(value); }
+
+  int pop(){
+    moveInputToOutputIfNeeded();
+    return outputStack.pop();
+  }
+
+  int peek(){
+    moveInputToOutputIfNeeded();
+    return outputStack.peek();
+  }
+
+  boolean empty(){ return inputStack.isEmpty() &amp;&amp; outputStack.isEmpty(); }
+
+  private void moveInputToOutputIfNeeded(){
+    if(outputStack.isEmpty()){
+      while(!inputStack.isEmpty()) outputStack.push(inputStack.pop());   // reverse order
+    }
+  }
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(1) amortised</b></div><div>Space <b>O(n)</b></div></div>
+</article>
+
+<!-- ================= Q14 ================= -->
+<article class="q" id="q14">
+  <div class="head"><h2><span class="num">14</span>LFU Cache <span class="pill hard">Hard</span></h2></div>
+  <div class="topic">Section · Stack &amp; Queue Part-II</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/lfu-cache/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/implement-lfu-cache/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Design <code>get</code>/<code>put</code> in O(1). Evict the <b>least frequently used</b> key; break ties by least recently used.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>HashMap of key → node + HashMap of freq → doubly-linked-list of nodes at that frequency + a running <code>minFreq</code>.</b> Each access bumps freq → move node from <code>freqList[f]</code> to <code>freqList[f+1]</code>; eviction pops from <code>freqList[minFreq]</code>'s tail (oldest at that freq).</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>TreeMap</b> Order by (freq, lastAccess) → O(log n) per op.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li><code>get(k)</code>: if absent → -1. Else remove node from its freq-list, increment freq, append to next freq-list; maybe update minFreq.</li>
+    <li><code>put(k, v)</code>: if present → update value &amp; bump freq. Else evict tail of <code>freqList[minFreq]</code> when at capacity; insert new node with freq=1; <code>minFreq = 1</code>.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  K["keyMap: key → node"] --> N["Node(key,val,freq, prev, next)"]
+  F["freqMap: freq → DLL of nodes"] --> N
+  M["minFreq"] --> E["evict tail of freqMap[minFreq]"]
+  </pre></div>
+
+  <div class="section-title">Code (Java) — skeleton</div>
+<pre><code class="language-java">/**
+ * O(1) LFU cache.
+ * Layout: keyToNode (HashMap), freqToBucket (HashMap of DoublyLinkedList), running
+ * minFreq. Each access detaches a node from its freq bucket, increments freq, appends
+ * to the (freq+1) bucket. Eviction targets the OLDEST node in the lowest freq bucket.
+ */
+class LFUCache {
+  private final int capacity;
+  private int currentSize = 0;
+  private int minimumFrequency = 0;
+  private final Map&lt;Integer, Node&gt; keyToNode = new HashMap&lt;&gt;();
+  private final Map&lt;Integer, DoublyLinkedList&gt; frequencyToBucket = new HashMap&lt;&gt;();
+
+  LFUCache(int capacity){ this.capacity = capacity; }
+
+  int get(int key){
+    Node node = keyToNode.get(key);
+    if(node == null) return -1;
+    promoteFrequency(node);
+    return node.value;
+  }
+
+  void put(int key, int value){
+    if(capacity == 0) return;
+    Node existing = keyToNode.get(key);
+    if(existing != null){
+      existing.value = value;
+      promoteFrequency(existing);
+      return;
+    }
+    if(currentSize == capacity){
+      DoublyLinkedList lowestBucket = frequencyToBucket.get(minimumFrequency);
+      Node victim = lowestBucket.removeLast();           // LRU among LFU
+      keyToNode.remove(victim.key);
+      currentSize--;
+    }
+    Node fresh = new Node(key, value, 1);
+    keyToNode.put(key, fresh);
+    frequencyToBucket.computeIfAbsent(1, f -&gt; new DoublyLinkedList()).addFirst(fresh);
+    minimumFrequency = 1;
+    currentSize++;
+  }
+
+  private void promoteFrequency(Node node){
+    int oldFreq = node.freq;
+    DoublyLinkedList oldBucket = frequencyToBucket.get(oldFreq);
+    oldBucket.remove(node);
+    if(oldBucket.isEmpty() &amp;&amp; oldFreq == minimumFrequency) minimumFrequency++;
+    node.freq++;
+    frequencyToBucket.computeIfAbsent(node.freq, f -&gt; new DoublyLinkedList()).addFirst(node);
+  }
+
+  private static class Node {
+    int key, value, freq; Node prev, next;
+    Node(int k, int v, int f){ key = k; value = v; freq = f; }
+  }
+  // DoublyLinkedList: addFirst(Node), remove(Node), removeLast(), isEmpty() — all O(1)
+  private static class DoublyLinkedList { /* head/tail dummies + O(1) ops */ }
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(1)</b> per op</div><div>Space <b>O(capacity)</b></div></div>
+</article>
+
+<!-- ================= Q15 ================= -->
+<article class="q" id="q15">
+  <div class="head"><h2><span class="num">15</span>Integer to Roman <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · String</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/integer-to-roman/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/integer-to-roman/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Convert an integer in <code>[1, 3999]</code> to its Roman numeral representation.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Greedy with a value→symbol table that already includes subtractive forms (900, 400, 90, 40, 9, 4).</b> Repeatedly subtract the largest value that fits, appending its symbol — no special cases needed.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Digit-by-digit</b> Hard-code the symbols for thousands/hundreds/tens/units columns.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Two parallel arrays: <code>values = {1000,900,500,400,100,90,50,40,10,9,5,4,1}</code> and <code>symbols = {"M","CM",...}</code>.</li>
+    <li>Walk left → right. While <code>num &gt;= values[i]</code>: append <code>symbols[i]</code>; <code>num -= values[i]</code>.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  N["num = 1994"] --> M["≥ 1000 → M; num = 994"]
+  M --> CM["≥ 900 → CM; num = 94"]
+  CM --> XC["≥ 90 → XC; num = 4"]
+  XC --> IV["≥ 4 → IV; num = 0"]
+  IV --> R["MCMXCIV"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Integer to Roman via greedy subtraction with subtractive forms pre-baked into the table.
+ * Trick: by including {900, 400, 90, 40, 9, 4} alongside the standard values, the
+ * "subtractive notation" rule is handled by the same loop — no if-special-cases needed.
+ */
+String intToRoman(int number){
+  int[]    valueLadder  = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+  String[] symbolLadder = {"M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"};
+
+  StringBuilder romanBuilder = new StringBuilder();
+  int remainingValue = number;
+  for(int rung = 0; rung &lt; valueLadder.length; rung++){
+    while(remainingValue &gt;= valueLadder[rung]){
+      romanBuilder.append(symbolLadder[rung]);
+      remainingValue -= valueLadder[rung];
+    }
+  }
+  return romanBuilder.toString();
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(1)</b> (bounded ≤ 3999)</div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q16 ================= -->
+<article class="q" id="q16">
+  <div class="head"><h2><span class="num">16</span>Check Anagrams <span class="pill easy">Easy</span></h2></div>
+  <div class="topic">Section · String Part-II</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/valid-anagram/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/check-if-two-strings-are-anagrams-of-each-other/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given two strings, return true iff one is an anagram of the other (same characters, same counts).</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>A frequency-difference array of size 26.</b> Increment for chars of A, decrement for chars of B. The strings are anagrams iff every bucket is zero at the end.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Sort both strings and compare → <code>O(n log n)</code>.</div>
+    <div class="alt"><b>HashMap</b> Same idea but with a Map — heavier overhead for lowercase ASCII.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>If lengths differ → false.</li>
+    <li>int[26]: <code>++count[a.charAt(i)-'a']; --count[b.charAt(i)-'a']</code>.</li>
+    <li>Return true iff every count is 0.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  A["A: anagram"] --> C["count[a]+=, count[n]+=, ..."]
+  B["B: nagaram"] --> D["count[n]-=, count[a]-=, ..."]
+  C --> Z["all zero? → anagram"]
+  D --> Z
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Anagram check using a 26-bucket frequency-DIFFERENCE array.
+ * Trick: increment for A, decrement for B in the same array → final all-zero array
+ * means perfect cancellation = same multiset of letters.
+ */
+boolean isAnagram(String textA, String textB){
+  if(textA.length() != textB.length()) return false;
+
+  int[] characterDelta = new int[26];
+  for(int i = 0; i &lt; textA.length(); i++){
+    characterDelta[textA.charAt(i) - 'a']++;
+    characterDelta[textB.charAt(i) - 'a']--;
+  }
+  for(int bucketDelta : characterDelta){
+    if(bucketDelta != 0) return false;
+  }
+  return true;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q17 ================= -->
+<article class="q" id="q17">
+  <div class="head"><h2><span class="num">17</span>Morris Inorder Traversal <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Binary Tree</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/binary-tree-inorder-traversal/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/morris-inorder-traversal-of-a-binary-tree/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Inorder traversal in <b>O(1)</b> extra space (no stack, no recursion).</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Use the tree's null right pointers as temporary "threads" back to the inorder successor.</b> Each edge is traversed at most twice → O(n) time, O(1) space.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Recursive</b> O(h) call-stack space.</div>
+    <div class="alt"><b>Iterative w/ Stack</b> O(h) explicit stack.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach (Morris)</div>
+  <div class="approach"><ol>
+    <li>While <code>cur != null</code>: if no left → visit cur, go right.</li>
+    <li>Else find inorder predecessor (<code>cur.left</code>'s rightmost). If pred.right == null → thread it to cur, go left.</li>
+    <li>If pred.right == cur → remove thread, visit cur, go right.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  C["cur = root"] --> L{"cur.left == null?"}
+  L -- yes --> V["visit cur; cur = cur.right"]
+  L -- no --> P["pred = rightmost of cur.left"]
+  P --> T{"pred.right == null?"}
+  T -- yes --> A["pred.right = cur (thread); cur = cur.left"]
+  T -- no --> B["pred.right = null; visit cur; cur = cur.right"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Morris Inorder Traversal — O(n) time, O(1) space.
+ * Trick: temporarily "thread" the rightmost node of a left subtree to point back to the
+ * current node, so we can find our way home without a stack. The thread is removed on
+ * the second visit, restoring the tree.
+ */
+List&lt;Integer&gt; morrisInorder(TreeNode root){
+  List&lt;Integer&gt; inorderValues = new ArrayList&lt;&gt;();
+  TreeNode currentNode = root;
+
+  while(currentNode != null){
+    if(currentNode.left == null){
+      inorderValues.add(currentNode.val);                  // no left subtree → visit now
+      currentNode = currentNode.right;
+    } else {
+      TreeNode predecessor = currentNode.left;
+      while(predecessor.right != null &amp;&amp; predecessor.right != currentNode){
+        predecessor = predecessor.right;                   // walk to rightmost of left
+      }
+      if(predecessor.right == null){
+        predecessor.right = currentNode;                   // create thread back
+        currentNode = currentNode.left;
+      } else {
+        predecessor.right = null;                          // remove thread → restore tree
+        inorderValues.add(currentNode.val);                // left subtree fully visited
+        currentNode = currentNode.right;
+      }
+    }
+  }
+  return inorderValues;
+}</code></pre>
+
+  <div class="section-title">Variant — Morris Preorder</div>
+  <div class="mental"><b>Same algorithm, one line moved.</b> Visit <i>while laying</i> the thread (before going left) instead of when removing it. Morris preorder eats on the way down; Morris inorder eats on the way back up.</div>
+<pre><code class="language-java">/**
+ * Morris Preorder Traversal — O(n) time, O(1) space.
+ * Only difference from Morris inorder: visit happens BEFORE diving into the left subtree
+ * (when we create the thread), not AFTER returning (when we remove it).
+ */
+List&lt;Integer&gt; morrisPreorder(TreeNode root){
+  List&lt;Integer&gt; preorderValues = new ArrayList&lt;&gt;();
+  TreeNode currentNode = root;
+
+  while(currentNode != null){
+    if(currentNode.left == null){
+      preorderValues.add(currentNode.val);                 // no left → visit and go right
+      currentNode = currentNode.right;
+    } else {
+      TreeNode predecessor = currentNode.left;
+      while(predecessor.right != null &amp;&amp; predecessor.right != currentNode){
+        predecessor = predecessor.right;
+      }
+      if(predecessor.right == null){
+        preorderValues.add(currentNode.val);               // ← PREORDER: visit on the way DOWN
+        predecessor.right = currentNode;                   // lay thread
+        currentNode = currentNode.left;
+      } else {
+        predecessor.right = null;                          // just clean up; do NOT re-visit
+        currentNode = currentNode.right;
+      }
+    }
+  }
+  return preorderValues;
+}</code></pre>
+
+  <div class="section-title">Memory Hooks — All Five Traversal Patterns</div>
+  <div class="mental">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="text-align:left">
+        <th style="padding:4px 8px">Variant</th>
+        <th style="padding:4px 8px">One-line mantra</th>
+        <th style="padding:4px 8px">Visit moment</th>
+      </tr></thead>
+      <tbody>
+        <tr><td style="padding:4px 8px"><b>Iter inorder</b></td><td style="padding:4px 8px">Push lefts, pop, visit, go right</td><td style="padding:4px 8px">When you <b>pop</b></td></tr>
+        <tr><td style="padding:4px 8px"><b>Iter preorder</b></td><td style="padding:4px 8px">Pop, visit, push right then left</td><td style="padding:4px 8px">When you <b>pop</b></td></tr>
+        <tr><td style="padding:4px 8px"><b>Iter postorder</b></td><td style="padding:4px 8px">Mirrored preorder into 2nd stack, then drain</td><td style="padding:4px 8px">When you <b>drain output</b></td></tr>
+        <tr><td style="padding:4px 8px"><b>Morris inorder</b></td><td style="padding:4px 8px">Thread back, walk left, visit on the return trip</td><td style="padding:4px 8px">When <b>removing</b> thread</td></tr>
+        <tr><td style="padding:4px 8px"><b>Morris preorder</b></td><td style="padding:4px 8px">Same threading; visit on the way down</td><td style="padding:4px 8px">When <b>laying</b> thread</td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:8px"><b>Morris mantra:</b> <i>“Lay a breadcrumb in the rightmost-left-subtree node so I can climb back without a stack. Preorder eats on the way down; inorder eats on the way up.”</i></div>
+  </div>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q18 ================= -->
+<article class="q" id="q18">
+  <div class="head"><h2><span class="num">18</span>Balanced Binary Tree <span class="pill easy">Easy</span></h2></div>
+  <div class="topic">Section · Binary Tree Part-II</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/balanced-binary-tree/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/check-if-the-binary-tree-is-balanced-binary-tree/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">A binary tree is height-balanced iff for every node <code>abs(height(left) - height(right)) &le; 1</code>. Return true/false.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Single post-order DFS returns the height of a subtree — or a sentinel <code>-1</code> the moment any subtree is unbalanced.</b> Once -1 surfaces, every ancestor short-circuits without further work → O(n) instead of O(n log n).</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Naive</b> For every node compute left and right heights via separate recursion → O(n²).</div>
+  </div>
+
+  <div class="section-title">Optimal Approach (post-order DFS with sentinel)</div>
+  <div class="approach"><ol>
+    <li>height(null) = 0.</li>
+    <li>height(node): lh = height(left); if lh == -1 → return -1. rh = height(right); if rh == -1 → return -1.</li>
+    <li>If <code>|lh - rh| &gt; 1</code> → return -1; else return <code>1 + max(lh, rh)</code>.</li>
+    <li>isBalanced = height(root) != -1.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  N["node"] --> L["lh = height(left)"]
+  L --> X1{"lh == -1?"}
+  X1 -- yes --> F["return -1 (propagate)"]
+  X1 -- no --> R["rh = height(right)"]
+  R --> X2{"rh == -1 or abs(lh-rh) &gt; 1?"}
+  X2 -- yes --> F
+  X2 -- no --> H["return 1 + max(lh, rh)"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Height-balanced check in a single O(n) post-order DFS.
+ * Trick: instead of computing heights twice per node (O(n log n) worst), one DFS
+ * returns either the real height OR a sentinel -1 meaning "already unbalanced below".
+ * Once -1 appears, every ancestor short-circuits.
+ */
+boolean isBalanced(TreeNode root){
+  return heightOrMinusOne(root) != -1;
+}
+
+private int heightOrMinusOne(TreeNode node){
+  if(node == null) return 0;
+  int leftHeight  = heightOrMinusOne(node.left);
+  if(leftHeight  == -1) return -1;                              // short-circuit upward
+  int rightHeight = heightOrMinusOne(node.right);
+  if(rightHeight == -1) return -1;
+  if(Math.abs(leftHeight - rightHeight) &gt; 1) return -1;
+  return 1 + Math.max(leftHeight, rightHeight);
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b> recursion</div></div>
+</article>
+
+<!-- ================= Q19 ================= -->
+<article class="q" id="q19">
+  <div class="head"><h2><span class="num">19</span>Path to a Given Node in BT <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Binary Tree Part-III</div>
+  <div class="links">
+    <a href="https://www.interviewbit.com/problems/path-to-given-node/" target="_blank">InterviewBit</a>
+    <a href="https://takeuforward.org/data-structure/print-root-to-node-path-in-a-binary-tree/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Return the sequence of node values from the root to a target node in a binary tree.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>DFS that pushes the current node onto a path stack and pops on the way back unless the target was found.</b> Standard backtracking: if either subtree reports found, propagate; otherwise undo.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Parent map + BFS</b> Build parentMap via BFS, then climb from target.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>dfs(node, path): if node null → false.</li>
+    <li>Push node.val. If node.val == target → true.</li>
+    <li>If dfs(left) or dfs(right) → true.</li>
+    <li>Pop (backtrack) → false.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  D["dfs(node)"] --> P["push node.val"]
+  P --> M{"node.val == target?"}
+  M -- yes --> Y["return true"]
+  M -- no --> L{"dfs(left)?"}
+  L -- yes --> Y
+  L -- no --> R{"dfs(right)?"}
+  R -- yes --> Y
+  R -- no --> U["pop (undo) → return false"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Root-to-target path in a binary tree via DFS with backtracking.
+ * Trick: push on entry; if neither subtree finds the target, pop before returning false.
+ * Only paths that reach the target leave their nodes on the path list.
+ */
+List&lt;Integer&gt; pathToNode(TreeNode root, int targetValue){
+  List&lt;Integer&gt; rootToTargetPath = new ArrayList&lt;&gt;();
+  dfsBuildPath(root, targetValue, rootToTargetPath);
+  return rootToTargetPath;
+}
+
+private boolean dfsBuildPath(TreeNode node, int targetValue, List&lt;Integer&gt; pathSoFar){
+  if(node == null) return false;
+  pathSoFar.add(node.val);                                      // tentative include
+  if(node.val == targetValue) return true;
+  if(dfsBuildPath(node.left,  targetValue, pathSoFar)) return true;
+  if(dfsBuildPath(node.right, targetValue, pathSoFar)) return true;
+  pathSoFar.remove(pathSoFar.size() - 1);                       // backtrack
+  return false;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b></div></div>
+</article>
+
+<!-- ================= Q20 ================= -->
+<article class="q" id="q20">
+  <div class="head"><h2><span class="num">20</span>Validate Binary Search Tree <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · BST</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/validate-binary-search-tree/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/check-if-a-tree-is-a-bst-or-bt/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Determine if a binary tree is a valid BST (left subtree strictly less, right subtree strictly greater, recursive).</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Pass down an open interval <code>(low, high)</code>: every node must lie strictly inside its window.</b> Recursing into left tightens <code>high = node.val</code>; right tightens <code>low = node.val</code>.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Inorder streaming</b> Inorder of a BST is strictly increasing. Walk inorder iteratively, remembering the last popped value; if any node ≤ <code>prev</code> → not a BST. Short-circuits on the first violation, uses <code>O(h)</code> stack.
+<pre><code class="language-java">boolean isValidBST(TreeNode root){
+  Deque&lt;TreeNode&gt; stack = new ArrayDeque&lt;&gt;();
+  TreeNode current = root;
+  Integer previousValue = null;
+  while(current != null || !stack.isEmpty()){
+    while(current != null){ stack.push(current); current = current.left; }
+    current = stack.pop();
+    if(previousValue != null &amp;&amp; current.val &lt;= previousValue) return false;
+    previousValue = current.val;
+    current = current.right;
+  }
+  return true;
+}</code></pre>
+    </div>
+    <div class="alt"><b>Pitfall ⚠</b> Use <code>long</code> for the bounds (or boxed <code>Integer</code> with null sentinels) — a node with value <code>Integer.MIN_VALUE</code> at the root and any child below will false-positive against an <code>int</code>-typed <code>low</code>.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li><code>validate(node, low, high)</code>: null → true.</li>
+    <li>If <code>node.val &lt;= low</code> or <code>node.val &gt;= high</code> → false.</li>
+    <li>Return validate(left, low, node.val) &amp;&amp; validate(right, node.val, high).</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  V["validate(node, low, high)"] --> N{"node == null?"}
+  N -- yes --> T["return true"]
+  N -- no --> B{"low &lt; node.val &lt; high?"}
+  B -- no --> F["return false"]
+  B -- yes --> L["validate(left, low, node.val)"]
+  L --> R["validate(right, node.val, high)"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Validate BST by propagating allowable open intervals down the recursion.
+ * Trick: the property "left &lt; node &lt; right" must hold for the WHOLE left subtree and
+ * WHOLE right subtree — not just direct children. The (low, high) window enforces that.
+ */
+boolean isValidBST(TreeNode root){
+  return validateWithinRange(root, Long.MIN_VALUE, Long.MAX_VALUE);
+}
+
+private boolean validateWithinRange(TreeNode node, long openLowerBound, long openUpperBound){
+  if(node == null) return true;
+  if(node.val &lt;= openLowerBound || node.val &gt;= openUpperBound) return false;
+
+  return validateWithinRange(node.left,  openLowerBound, node.val)
+      &amp;&amp; validateWithinRange(node.right, node.val, openUpperBound);
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b></div></div>
+</article>
+
+<!-- ================= Q21 ================= -->
+<article class="q" id="q21">
+  <div class="head"><h2><span class="num">21</span>Lowest Common Ancestor in BST <span class="pill easy">Easy</span></h2></div>
+  <div class="topic">Section · BST Part-II</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/lca-in-binary-search-tree/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given a BST and two nodes <code>p</code> and <code>q</code>, return their lowest common ancestor.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>The first node whose value lies between <code>p</code> and <code>q</code> (inclusive) is the LCA.</b> Above it both targets are on one side; below it they would split into different subtrees.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Generic BT LCA</b> Works but ignores the BST ordering — slower.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Walk from root.</li>
+    <li>If both p,q &lt; node → go left. If both &gt; node → go right. Else return node.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  S["node = root"] --> C{"p &lt; node &amp;&amp; q &lt; node?"}
+  C -- yes --> L["node = node.left"] --> S
+  C -- no --> D{"p &gt; node &amp;&amp; q &gt; node?"}
+  D -- yes --> R["node = node.right"] --> S
+  D -- no --> O["return node"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * LCA in a BST — iterative, O(h) time, O(1) space.
+ * Trick: keep descending while BOTH targets lie strictly on the same side of the
+ * current node. The first node where they split (or one equals the node) is the LCA.
+ */
+TreeNode lowestCommonAncestorBST(TreeNode root, TreeNode p, TreeNode q){
+  TreeNode currentNode = root;
+  while(currentNode != null){
+    if(p.val &lt; currentNode.val &amp;&amp; q.val &lt; currentNode.val){
+      currentNode = currentNode.left;                  // both in left subtree
+    } else if(p.val &gt; currentNode.val &amp;&amp; q.val &gt; currentNode.val){
+      currentNode = currentNode.right;                 // both in right subtree
+    } else {
+      return currentNode;                              // split point — LCA
+    }
+  }
+  return null;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(h)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q22 ================= -->
+<article class="q" id="q22">
+  <div class="head"><h2><span class="num">22</span>Two Sum in BST <span class="pill easy">Easy</span></h2></div>
+  <div class="topic">Section · Binary Tree (Misc)</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/two-sum-iv-input-is-a-bst/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/two-sum-in-bst-input-is-a-bst/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given a BST and a target <code>k</code>, return true if there exist two distinct nodes whose values sum to <code>k</code>.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Two BST iterators: one yielding ascending (inorder) values, one descending (reverse inorder).</b> Run a classic two-pointer two-sum on these streams — O(n) time, O(h) space.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Flatten to sorted array, two-pointer → O(n) time but O(n) space.</div>
+    <div class="alt"><b>HashSet</b> Traverse storing complements → O(n)/O(n).</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Build "next" iterator (inorder, ascending) and "prev" iterator (reverse-inorder, descending).</li>
+    <li>While <code>asc != desc</code>: sum = asc + desc; if sum == k → true; if sum &lt; k → advance ascending; else advance descending.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  A["asc iterator (inorder)"] --> S{"asc + desc"}
+  D["desc iterator (reverse inorder)"] --> S
+  S -- "= k" --> T["true"]
+  S -- "&lt; k" --> An["asc.next()"] --> S
+  S -- "&gt; k" --> Dn["desc.next()"] --> S
+  </pre></div>
+
+  <div class="section-title">Code (Java) — sketch</div>
+<pre><code class="language-java">/**
+ * Two-Sum in a BST using two stack-based iterators walking from both ends.
+ * Trick: BSTIterator(asc) yields values in increasing order, BSTIterator(desc) in
+ * decreasing order — together they emulate the classic two-pointer two-sum on a
+ * sorted array, in O(h) extra space instead of O(n).
+ */
+boolean findTargetTwoSumInBST(TreeNode root, int targetSum){
+  BSTIterator ascendingIterator  = new BSTIterator(root, /*ascending*/ true);
+  BSTIterator descendingIterator = new BSTIterator(root, /*ascending*/ false);
+
+  int smallerCurrent = ascendingIterator.next();
+  int largerCurrent  = descendingIterator.next();
+  while(smallerCurrent &lt; largerCurrent){
+    int currentSum = smallerCurrent + largerCurrent;
+    if(currentSum == targetSum)        return true;
+    else if(currentSum &lt; targetSum)    smallerCurrent = ascendingIterator.next();
+    else                               largerCurrent  = descendingIterator.next();
+  }
+  return false;
+}
+
+/** BST iterator that yields values in ascending OR descending order using a stack of O(h). */
+class BSTIterator {
+  private final Deque&lt;TreeNode&gt; pendingStack = new ArrayDeque&lt;&gt;();
+  private final boolean ascendingOrder;
+  BSTIterator(TreeNode root, boolean ascendingOrder){
+    this.ascendingOrder = ascendingOrder;
+    pushBranch(root);
+  }
+  int next(){
+    TreeNode topNode = pendingStack.pop();
+    pushBranch(ascendingOrder ? topNode.right : topNode.left);
+    return topNode.val;
+  }
+  private void pushBranch(TreeNode node){
+    while(node != null){
+      pendingStack.push(node);
+      node = ascendingOrder ? node.left : node.right;
+    }
+  }
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b></div></div>
+</article>
+
+<!-- ================= Q23 ================= -->
+<article class="q" id="q23">
+  <div class="head"><h2><span class="num">23</span>Detect Cycle in Undirected Graph (BFS) <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Graph</div>
+  <div class="links">
+    <a href="https://www.geeksforgeeks.org/detect-cycle-in-an-undirected-graph-using-bfs/" target="_blank">GFG</a>
+    <a href="https://takeuforward.org/data-structure/detect-a-cycle-in-an-undirected-graph-using-bfs/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Decide whether an undirected graph contains a cycle.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>BFS each connected component carrying along the <i>parent</i> of every queued node.</b> If we encounter a visited neighbour that isn't our parent → cycle.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>DFS</b> Same parent-tracking idea — recursive.</div>
+    <div class="alt"><b>Union-Find</b> Union edges; if both endpoints already in same set → cycle.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>For every unvisited node, BFS from it with queue of (node, parent).</li>
+    <li>Mark on enqueue. For each neighbour: if not visited → enqueue with parent=current. Else if neighbour != parent → cycle found.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  S["BFS from start"] --> P["pop (node, parent)"]
+  P --> L["for each neighbour"]
+  L --> V{"visited?"}
+  V -- no --> E["enqueue (neighbour, node); mark visited"]
+  V -- yes --> N{"neighbour != parent?"}
+  N -- yes --> C["CYCLE!"]
+  N -- no --> L
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Detect a cycle in an undirected graph via BFS tracking each node's parent.
+ * Trick: in BFS, every cross-edge between two ALREADY-visited nodes (neither being the
+ * other's parent) closes a cycle. Use a parent array to recognize "this neighbour is
+ * not just where I came from".
+ */
+boolean hasCycleUndirected(int vertexCount, List&lt;List&lt;Integer&gt;&gt; adjacencyList){
+  boolean[] visitedVertices = new boolean[vertexCount];
+
+  for(int startVertex = 0; startVertex &lt; vertexCount; startVertex++){
+    if(visitedVertices[startVertex]) continue;
+    if(bfsFindsCycle(startVertex, adjacencyList, visitedVertices)) return true;
+  }
+  return false;
+}
+
+private boolean bfsFindsCycle(int startVertex, List&lt;List&lt;Integer&gt;&gt; adjacencyList, boolean[] visitedVertices){
+  Deque&lt;int[]&gt; bfsQueue = new ArrayDeque&lt;&gt;();      // each entry: {currentNode, parentNode}
+  bfsQueue.offer(new int[]{startVertex, -1});
+  visitedVertices[startVertex] = true;
+
+  while(!bfsQueue.isEmpty()){
+    int[] frame = bfsQueue.poll();
+    int currentNode = frame[0], parentNode = frame[1];
+
+    for(int neighbour : adjacencyList.get(currentNode)){
+      if(!visitedVertices[neighbour]){
+        visitedVertices[neighbour] = true;
+        bfsQueue.offer(new int[]{neighbour, currentNode});
+      } else if(neighbour != parentNode){
+        return true;                                    // back edge → cycle
+      }
+    }
+  }
+  return false;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(V + E)</b></div><div>Space <b>O(V)</b></div></div>
+</article>
+
+<!-- ================= Q24 ================= -->
+<article class="q" id="q24">
+  <div class="head"><h2><span class="num">24</span>Floyd-Warshall (All-Pairs Shortest Paths) <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Graph Part-II</div>
+  <div class="links">
+    <a href="https://www.geeksforgeeks.org/floyd-warshall-algorithm-dp-16/" target="_blank">GFG</a>
+    <a href="https://takeuforward.org/data-structure/floyd-warshall-algorithm-g-42/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Compute the shortest path between every pair of vertices in a weighted directed graph (no negative cycles).</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Dynamic programming over "intermediate vertex sets".</b> After loop iteration <code>k</code>, <code>dist[i][j]</code> holds the shortest path using only vertices <code>{0..k}</code> as intermediates. Final answer at <code>k = V - 1</code>.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Dijkstra from each node</b> Faster on sparse non-negative graphs — <code>O(V·(V+E) log V)</code>.</div>
+    <div class="alt"><b>Bellman-Ford from each node</b> Handles negatives — <code>O(V²·E)</code>.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Init <code>dist[i][j]</code> from edge weights; <code>dist[i][i] = 0</code>.</li>
+    <li>For <code>k = 0..V-1</code>: for <code>i</code>, <code>j</code>: if <code>dist[i][k] + dist[k][j] &lt; dist[i][j]</code> → relax.</li>
+    <li>Negative cycle iff any <code>dist[i][i] &lt; 0</code> after the loop.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  I["dist[][] from edges"] --> K["for k = 0..V-1"]
+  K --> R["for i, j: dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])"]
+  R --> N["after V rounds → dist holds all-pairs SP"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Floyd-Warshall all-pairs shortest paths.
+ * Trick: the k-th outer iteration relaxes shortest paths allowed to use vertices
+ * {0..k} as INTERMEDIATES. After V outer iterations every vertex has been considered.
+ */
+void floydWarshall(int[][] distanceMatrix){
+  int vertexCount = distanceMatrix.length;
+  final int INF = Integer.MAX_VALUE;
+
+  for(int intermediate = 0; intermediate &lt; vertexCount; intermediate++){
+    for(int source = 0; source &lt; vertexCount; source++){
+      for(int target = 0; target &lt; vertexCount; target++){
+        int viaIntermediate = (distanceMatrix[source][intermediate] == INF
+                            || distanceMatrix[intermediate][target] == INF)
+            ? INF
+            : distanceMatrix[source][intermediate] + distanceMatrix[intermediate][target];
+        if(viaIntermediate &lt; distanceMatrix[source][target]){
+          distanceMatrix[source][target] = viaIntermediate;
+        }
+      }
+    }
+  }
+  // (optional) negative cycle detection: any distanceMatrix[v][v] &lt; 0
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(V³)</b></div><div>Space <b>O(V²)</b></div></div>
+</article>
+
+<!-- ================= Q25 ================= -->
+<article class="q" id="q25">
+  <div class="head"><h2><span class="num">25</span>Edit Distance <span class="pill hard">Hard</span></h2></div>
+  <div class="topic">Section · Dynamic Programming</div>
+  <div class="links">
+    <a href="https://leetcode.com/problems/edit-distance/" target="_blank">LeetCode</a>
+    <a href="https://takeuforward.org/data-structure/edit-distance-dp-33/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Minimum operations (insert, delete, replace — each cost 1) to convert <code>word1</code> into <code>word2</code>.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b><code>dp[i][j]</code> = min ops to transform <code>word1[0..i-1]</code> → <code>word2[0..j-1]</code>.</b> If last chars match → no op (take diagonal). Else 1 + min(replace, delete, insert) = 1 + min(diag, up, left).</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Recursion over 3 choices → exponential.</div>
+    <div class="alt"><b>Better</b> Memoized recursion → <code>O(n·m)</code> time &amp; space.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Base: <code>dp[0][j] = j</code> (insert j chars); <code>dp[i][0] = i</code> (delete i chars).</li>
+    <li>If chars match → <code>dp[i][j] = dp[i-1][j-1]</code>.</li>
+    <li>Else <code>dp[i][j] = 1 + min(dp[i-1][j-1], dp[i-1][j], dp[i][j-1])</code>.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  C{"w1[i-1] == w2[j-1]?"} -- yes --> S["dp[i][j] = dp[i-1][j-1]"]
+  C -- no --> O["dp[i][j] = 1 + min(diag, up, left)"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Edit distance (Levenshtein) in O(n·m) time, O(m) space via 1D rolling DP.
+ * Trick: each cell needs only diag (dp[i-1][j-1]), up (dp[i-1][j]), and left (dp[i][j-1]).
+ * Keep one row and a saved "previousDiagonal" scalar to substitute for the full 2D grid.
+ */
+int minEditDistance(String word1, String word2){
+  int lenA = word1.length(), lenB = word2.length();
+  int[] currentRow = new int[lenB + 1];
+
+  for(int j = 0; j &lt;= lenB; j++) currentRow[j] = j;     // base row: dp[0][j] = j inserts
+
+  for(int i = 1; i &lt;= lenA; i++){
+    int previousDiagonal = currentRow[0];               // = dp[i-1][0]
+    currentRow[0] = i;                                  // dp[i][0] = i deletes
+    for(int j = 1; j &lt;= lenB; j++){
+      int storedAbove = currentRow[j];                  // = dp[i-1][j] before overwrite
+      if(word1.charAt(i - 1) == word2.charAt(j - 1)){
+        currentRow[j] = previousDiagonal;               // free move
+      } else {
+        currentRow[j] = 1 + Math.min(previousDiagonal,                       // replace
+                          Math.min(storedAbove,                               // delete
+                                   currentRow[j - 1]));                       // insert
+      }
+      previousDiagonal = storedAbove;
+    }
+  }
+  return currentRow[lenB];
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n·m)</b></div><div>Space <b>O(min(n,m))</b></div></div>
+</article>
+
+<!-- ================= Q26 ================= -->
+<article class="q" id="q26">
+  <div class="head"><h2><span class="num">26</span>Rod Cutting <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · DP Part-II</div>
+  <div class="links">
+    <a href="https://www.geeksforgeeks.org/cutting-a-rod-dp-13/" target="_blank">GFG</a>
+    <a href="https://takeuforward.org/data-structure/rod-cutting-problem-dp-24/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given prices for rod lengths <code>1..n</code>, maximise total revenue by cutting a rod of length <code>n</code> into pieces (any number of cuts, any sizes).</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Unbounded knapsack in disguise — each "length" is an item available infinitely.</b> 1D DP traversed <i>left-to-right</i> over capacity (the opposite of 0/1 knapsack) lets each length be reused.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Recursion over first-cut length → exponential.</div>
+    <div class="alt"><b>Striver pick / not-pick 2D</b> Treat each rod-length as an item with infinite supply. State <code>f(i, remaining)</code> = best revenue using lengths <code>0..i</code> in a rod of size <code>remaining</code>. NOT-pick → <code>f(i-1, remaining)</code>. PICK (stays on same index because unbounded) → <code>price[i] + f(i, remaining - (i+1))</code>.
+<pre><code class="language-java">int helper(int idx, int remainingLength, int[] price, int[][] memo){
+  if(idx == 0) return remainingLength * price[0];          // unlimited length-1 pieces
+  if(memo[idx][remainingLength] != -1) return memo[idx][remainingLength];
+
+  int notPick = helper(idx - 1, remainingLength, price, memo);
+  int pick    = Integer.MIN_VALUE;
+  int rodLen  = idx + 1;                                    // length represented by index idx
+  if(remainingLength &gt;= rodLen)
+    pick = price[idx] + helper(idx, remainingLength - rodLen, price, memo);
+
+  return memo[idx][remainingLength] = Math.max(notPick, pick);
+}</code></pre>
+    </div>
+    <div class="alt"><b>Better</b> Tabulated 2D DP <code>dp[i][len]</code> → O(n²) time &amp; space, then space-optimised to the 1D form shown below.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li><code>dp[0..n] = 0</code>.</li>
+    <li>For each piece length <code>p = 1..n</code>: for <code>len = p..n</code>: <code>dp[len] = max(dp[len], dp[len - p] + price[p-1])</code>.</li>
+    <li>Return <code>dp[n]</code>.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  I["dp[0..n] = 0"] --> L["for p = 1..n"]
+  L --> R["for len = p..n (LEFT → RIGHT)"]
+  R --> U["dp[len] = max(dp[len], dp[len - p] + price[p-1])"]
+  U --> R
+  R --> L
+  L --> O["return dp[n]"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Rod cutting maximum revenue — unbounded knapsack pattern.
+ * Trick: walk the capacity loop LEFT-TO-RIGHT so dp[len - piece] already reflects the
+ * "with current piece allowed" state — letting each piece length be reused freely.
+ */
+int rodCuttingMaxRevenue(int[] priceForLength){
+  int rodLength = priceForLength.length;
+  int[] bestRevenueAtLength = new int[rodLength + 1];
+
+  for(int pieceLength = 1; pieceLength &lt;= rodLength; pieceLength++){
+    int piecePrice = priceForLength[pieceLength - 1];
+    for(int currentLength = pieceLength; currentLength &lt;= rodLength; currentLength++){
+      int revenueIfCutPiece = bestRevenueAtLength[currentLength - pieceLength] + piecePrice;
+      bestRevenueAtLength[currentLength] = Math.max(bestRevenueAtLength[currentLength], revenueIfCutPiece);
+    }
+  }
+  return bestRevenueAtLength[rodLength];
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n²)</b></div><div>Space <b>O(n)</b></div></div>
+</article>
+
+<!-- ================= Q27 ================= -->
+<article class="q" id="q27">
+  <div class="head"><h2><span class="num">27</span>Longest String With All Prefixes (Trie) <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Trie</div>
+  <div class="links">
+    <a href="https://www.codingninjas.com/studio/problems/complete-string_2687860" target="_blank">Coding Ninjas</a>
+    <a href="https://takeuforward.org/data-structure/complete-string/" target="_blank">Article</a>
+  </div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given a list of strings, return the longest string such that <b>every prefix</b> of it is also present in the list. Tie-break: lexicographically smallest. Return "" if none.</p>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Insert all words into a trie. Then a word is "complete" iff every node on its path is marked end-of-word.</b> Scan words, keep the longest (lexicographically smallest on ties) that passes this check.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>HashSet</b> Store all words; for each word check every prefix in the set → O(Σ|w|²) char ops.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Insert every word into a trie marking <code>isEnd = true</code> at terminal nodes.</li>
+    <li>For each word, walk it from root — every intermediate node must have <code>isEnd</code>. If yes, candidate.</li>
+    <li>Keep the longest such word; on tie, pick the lexicographically smaller.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  R["root"] --> N1["n (end)"] --> N2["i (end)"] --> N3["n (end)"] --> N4["j (end)"] --> N5["a (end)"]
+  N5 --> O["niinja → every prefix ends → complete"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">/**
+ * Longest "complete" word — every prefix must also be in the dictionary.
+ * Trick: build a trie marking is-end on each inserted word; a word is complete iff
+ * walking it from root encounters is-end on EVERY node along the way.
+ */
+String longestStringWithAllPrefixes(String[] words){
+  TrieNode root = new TrieNode();
+  for(String word : words) insert(root, word);
+
+  String bestComplete = "";
+  for(String word : words){
+    if(!everyPrefixEndsHere(root, word)) continue;
+    // longer wins; on tie pick lexicographically smaller
+    if(word.length() &gt; bestComplete.length()
+       || (word.length() == bestComplete.length() &amp;&amp; word.compareTo(bestComplete) &lt; 0)){
+      bestComplete = word;
+    }
+  }
+  return bestComplete;
+}
+
+private boolean everyPrefixEndsHere(TrieNode root, String word){
+  TrieNode current = root;
+  for(int i = 0; i &lt; word.length(); i++){
+    current = current.children[word.charAt(i) - 'a'];
+    if(current == null || !current.isEndOfWord) return false;
+  }
+  return true;
+}
+
+private void insert(TrieNode root, String word){
+  TrieNode current = root;
+  for(int i = 0; i &lt; word.length(); i++){
+    int childIdx = word.charAt(i) - 'a';
+    if(current.children[childIdx] == null) current.children[childIdx] = new TrieNode();
+    current = current.children[childIdx];
+  }
+  current.isEndOfWord = true;
+}
+
+private static class TrieNode { TrieNode[] children = new TrieNode[26]; boolean isEndOfWord; }</code></pre>
+  <div class="complexity"><div>Time <b>O(Σ|w|)</b></div><div>Space <b>O(Σ|w|)</b></div></div>
+</article>
+
+
+</div>
+
+<button class="top" id="top" title="Back to top">↑</button>
+
+<footer>
+  Built with <b>BuildLikeASenior</b> · Day 4 of Strivers SDE Sheet · Think · Design · Grow Like a Senior Engineer
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#0f1f3d',
+      primaryTextColor: '#ffffff',
+      primaryBorderColor: '#00d4aa',
+      lineColor: '#5b8dee',
+      secondaryColor: '#142a52',
+      tertiaryColor: '#1a3060',
+      fontFamily: 'Inter, sans-serif'
+    },
+    flowchart:{ htmlLabels:true, curve:'basis' }
+  });
+</script>
+<script>
+  const top = document.getElementById('top');
+  window.addEventListener('scroll',()=>{
+    top.classList.toggle('show', window.scrollY > 600);
+  });
+  top.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+</script>
+
+</body>
+</html>
