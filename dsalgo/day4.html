@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Day 4 · Strivers SDE Sheet · BuildLikeASenior</title>
+<title>Day 4 · Ankit's SDE Sheet · BuildLikeASenior</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -74,7 +74,7 @@
 
 <header class="hero">
   <span class="badge">Day 4 · BuildLikeASenior</span>
-  <h1 class="title">Strivers SDE Sheet — <span>Day 4</span></h1>
+  <h1 class="title">Ankit's SDE Sheet — <span>Day 4</span></h1>
   <p class="sub">Fourth question from every section. The "classic interview" round — Kadane, Trapping Rain Water, Edit Distance, Floyd-Warshall, Morris, Max Path Sum.</p>
   <div class="meta"><span><b>27</b> questions</span><span><b>27</b> sections</span><span><b>~4 hrs</b> deep work</span></div>
 </header>
@@ -1946,7 +1946,7 @@ int minEditDistance(String word1, String word2){
   <div class="section-title">Other Approaches</div>
   <div class="alts">
     <div class="alt"><b>Brute</b> Recursion over first-cut length → exponential.</div>
-    <div class="alt"><b>Striver pick / not-pick 2D</b> Treat each rod-length as an item with infinite supply. State <code>f(i, remaining)</code> = best revenue using lengths <code>0..i</code> in a rod of size <code>remaining</code>. NOT-pick → <code>f(i-1, remaining)</code>. PICK (stays on same index because unbounded) → <code>price[i] + f(i, remaining - (i+1))</code>.
+    <div class="alt"><b>Ankit pick / not-pick 2D</b> Treat each rod-length as an item with infinite supply. State <code>f(i, remaining)</code> = best revenue using lengths <code>0..i</code> in a rod of size <code>remaining</code>. NOT-pick → <code>f(i-1, remaining)</code>. PICK (stays on same index because unbounded) → <code>price[i] + f(i, remaining - (i+1))</code>.
 <pre><code class="language-java">int helper(int idx, int remainingLength, int[] price, int[][] memo){
   if(idx == 0) return remainingLength * price[0];          // unlimited length-1 pieces
   if(memo[idx][remainingLength] != -1) return memo[idx][remainingLength];
@@ -2088,7 +2088,7 @@ private static class TrieNode { TrieNode[] children = new TrieNode[26]; boolean 
 <button class="top" id="top" title="Back to top">↑</button>
 
 <footer>
-  Built with <b>BuildLikeASenior</b> · Day 4 of Strivers SDE Sheet · Think · Design · Grow Like a Senior Engineer
+  Built with <b>BuildLikeASenior</b> · Day 4 of Ankit's SDE Sheet · Think · Design · Grow Like a Senior Engineer
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
