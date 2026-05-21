@@ -125,6 +125,20 @@
   <div class="section-title">Problem</div>
   <p class="problem">Three flavors: (a) value at <code>(r,c)</code>, (b) print the entire <code>r-th</code> row, (c) print the first <code>n</code> rows.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> value at <code>(r=4, c=2)</code>&nbsp;·&nbsp;<b>Output:</b> <code>6</code></p>
+    <ol>
+      <li><code>C(r, c) = C(r-1, c-1) · (r - c + 1) / c</code> walking <code>c</code> from 1 upward.</li>
+      <li><code>C(4,1)=4 → C(4,2)=4·(4-2+1)/2 = 12/2 = 6</code>.</li>
+    </ol>
+    <p><b>Input B (edge — first n rows, n=5):</b>&nbsp;·&nbsp;<b>Output:</b></p>
+    <ol>
+      <li>Row 0: <code>1</code>; Row 1: <code>1 1</code>; Row 2: <code>1 2 1</code>; Row 3: <code>1 3 3 1</code>; Row 4: <code>1 4 6 4 1</code>.</li>
+      <li>Each row generated in O(r) using the same multiplicative recurrence — no nested DP table needed.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Pascal's value is a binomial coefficient: <code>C(r-1, c-1)</code>.</b> A whole row can be generated in O(r) by sliding multiplication — no factorials, no DP table.</div>
 
@@ -195,6 +209,21 @@ List&lt;List&lt;Integer&gt;&gt; generate(int numRows){
 
   <div class="section-title">Problem</div>
   <p class="problem">Given an array of intervals <code>[start, end]</code>, merge all overlapping intervals and return the disjoint result.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[[1,3],[2,6],[8,10],[15,18]]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[[1,6],[8,10],[15,18]]</code></p>
+    <ol>
+      <li>Sort by start → already sorted. Initialize <code>cur=[1,3]</code>.</li>
+      <li><code>[2,6]</code>: <code>2 ≤ 3</code> overlap → <code>cur=[1, max(3,6)] = [1,6]</code>.</li>
+      <li><code>[8,10]</code>: <code>8 &gt; 6</code> → emit <code>[1,6]</code>; <code>cur=[8,10]</code>.</li>
+      <li><code>[15,18]</code>: <code>15 &gt; 10</code> → emit <code>[8,10]</code>; <code>cur=[15,18]</code>. Flush <code>[15,18]</code>.</li>
+    </ol>
+    <p><b>Input B (edge — fully nested):</b> <code>[[1,10],[2,3],[4,5]]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[[1,10]]</code></p>
+    <ol>
+      <li>Each subsequent interval starts inside <code>cur</code> and ends within → <code>max(end, e)</code> stays at 10. Single merged interval emitted.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Sort by start, then walk left-to-right merging on the fly.</b> If the next interval starts at or before the current end, extend the end; otherwise close the current and open a new one.</div>
@@ -274,6 +303,19 @@ int[][] merge(int[][] intervals){
   <div class="section-title">Problem</div>
   <p class="problem">Compute <code>x^n</code> for real <code>x</code> and (possibly negative) integer <code>n</code>.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>x=2.0, n=10</code>&nbsp;·&nbsp;<b>Output:</b> <code>1024.0</code></p>
+    <ol>
+      <li>Binary <code>n=1010</code>; multiply <code>result</code> only on set bits while squaring <code>base</code> each step.</li>
+      <li>bit 0 (=0): <code>base=4</code>. bit 1 (=1): <code>result=4</code>; <code>base=16</code>. bit 2 (=0): <code>base=256</code>. bit 3 (=1): <code>result=4·256=1024</code>.</li>
+    </ol>
+    <p><b>Input B (edge — negative exponent):</b> <code>x=2.0, n=-3</code>&nbsp;·&nbsp;<b>Output:</b> <code>0.125</code></p>
+    <ol>
+      <li>Use <code>long N=n</code> to safely negate (<code>Integer.MIN_VALUE</code> trap), compute <code>2^3=8</code>, return <code>1/8 = 0.125</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Binary exponentiation: peel off bits of <code>n</code>.</b> Square <code>x</code> at every step and multiply into the answer whenever the current bit is 1. Negative exponent → invert at the end.</div>
 
@@ -340,6 +382,20 @@ double myPow(double x, int n){
 
   <div class="section-title">Problem</div>
   <p class="problem">Find all <b>unique</b> quadruplets <code>(a, b, c, d)</code> in the array such that <code>a + b + c + d = target</code>.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>nums=[1,0,-1,0,-2,2], target=0</code>&nbsp;·&nbsp;<b>Output:</b> <code>[[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]</code></p>
+    <ol>
+      <li>Sort → <code>[-2,-1,0,0,1,2]</code>. Fix <code>i=0,j=1</code>; two-pointer over <code>(l, r)</code>.</li>
+      <li><code>i=-2,j=-1</code>: <code>l=2,r=5</code> → <code>-2-1+0+2=-1</code>↛ move <code>l</code>; <code>l=3</code>: <code>0+0=0…</code> sum=0 → <i>NB</i> with <code>j=-1</code>: pair <code>0,2</code> gives <code>-2-1+0+2=-1</code>; correct walk yields <code>(-2,-1,1,2)</code> when <code>l=4,r=5</code> → sum 0 ✓.</li>
+      <li>Skip duplicates at every level (<code>nums[i]==nums[i-1]</code> etc.) so triples like <code>(-2,0,0,2)</code> appear once.</li>
+    </ol>
+    <p><b>Input B (edge — fewer than 4 elements):</b> <code>nums=[1,2,3], target=6</code>&nbsp;·&nbsp;<b>Output:</b> <code>[]</code></p>
+    <ol>
+      <li>Outer guard <code>n &lt; 4</code> → return empty list, no loops entered.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Sort, then two nested loops fix the first two elements; collapse the remaining two with two-pointers.</b> Skip duplicates at each of the four levels to avoid repeating the same quadruplet.</div>
@@ -426,6 +482,19 @@ List&lt;List&lt;Integer&gt;&gt; fourSum(int[] numbers, int target){
   <div class="section-title">Problem</div>
   <p class="problem">Return the middle node of a singly linked list. For even length, return the <b>second</b> middle.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>1→2→3→4→5</code>&nbsp;·&nbsp;<b>Output:</b> node <code>3</code></p>
+    <ol>
+      <li>Slow/fast both at head. Each iteration: <code>slow=slow.next</code>, <code>fast=fast.next.next</code>.</li>
+      <li>Step 1: slow=2, fast=3. Step 2: slow=3, fast=5. Fast.next null → stop → return <b>slow=3</b>.</li>
+    </ol>
+    <p><b>Input B (edge — even length, picks second middle):</b> <code>1→2→3→4</code>&nbsp;·&nbsp;<b>Output:</b> node <code>3</code></p>
+    <ol>
+      <li>Step 1: slow=2, fast=3. Step 2: slow=3, fast=null → loop condition <code>fast!=null &amp;&amp; fast.next!=null</code> fails → return <b>slow=3</b>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Tortoise & hare.</b> Move a slow pointer 1 step and a fast pointer 2 steps. When fast reaches the end, slow sits on the middle — one traversal, no length count, no extra memory.</div>
 
@@ -485,6 +554,19 @@ ListNode middleNode(ListNode head){
   <div class="section-title">Problem</div>
   <p class="problem">Return <code>true</code> if the linked list has a cycle, else <code>false</code>.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>3→2→0→-4</code> with <code>-4.next → node 2</code> (cycle)&nbsp;·&nbsp;<b>Output:</b> <code>true</code></p>
+    <ol>
+      <li>Floyd's tortoise-hare: slow advances 1, fast advances 2.</li>
+      <li>Steps yield (slow, fast) = (2,0), (0,2), (-4,-4) → collision → return <b>true</b>.</li>
+    </ol>
+    <p><b>Input B (edge — acyclic):</b> <code>1→2</code>&nbsp;·&nbsp;<b>Output:</b> <code>false</code></p>
+    <ol>
+      <li>Fast quickly hits null (no cycle) → loop exits → return <b>false</b>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Floyd's cycle finding.</b> If two runners on a circular track move at different speeds, the faster <i>must</i> lap the slower. On a non-cyclic list, the faster simply falls off the end.</div>
 
@@ -535,6 +617,20 @@ boolean hasCycle(ListNode head){
 
   <div class="section-title">Problem</div>
   <p class="problem">Each node has <code>next</code> AND a <code>random</code> pointer (to any node or null). Return a deep copy.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> list <code>A→B→C</code> with <code>A.random=C</code>, <code>B.random=A</code>, <code>C.random=B</code>&nbsp;·&nbsp;<b>Output:</b> identical-shape clone</p>
+    <ol>
+      <li><b>Pass 1 — interleave:</b> insert clones in place → <code>A→A'→B→B'→C→C'</code>.</li>
+      <li><b>Pass 2 — wire randoms:</b> for each original <code>X</code>, <code>X'.random = X.random.next</code>. So <code>A'.random = C.next = C'</code>, etc. (no hash map needed).</li>
+      <li><b>Pass 3 — unweave:</b> separate the two lists; restore originals' <code>next</code>.</li>
+    </ol>
+    <p><b>Input B (edge — empty):</b> <code>head=null</code>&nbsp;·&nbsp;<b>Output:</b> <code>null</code></p>
+    <ol>
+      <li>Initial null check returns immediately; constant work.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Interleave clones into the original list to encode the mapping in pointer geometry itself.</b> Then random pointers can be copied as <code>orig.random.next</code> with zero hashing.</div>
@@ -613,6 +709,20 @@ Node copyRandomList(Node head){
   <div class="section-title">Problem</div>
   <p class="problem">Given arrival and departure times of trains, find the minimum number of platforms required so no train waits.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>arr=[900,940,950,1100,1500,1800], dep=[910,1200,1120,1130,1900,2000]</code>&nbsp;·&nbsp;<b>Output:</b> <code>3</code></p>
+    <ol>
+      <li>Sort both arrays. Two pointers <code>i, j</code>; counter <code>busy</code>, max <code>peak</code>.</li>
+      <li>Walk: 900 arr (busy=1, peak=1) → 910 dep (busy=0) → 940 arr (1) → 950 arr (2, peak=2) → 1100 arr (3, <b>peak=3</b>) → 1120 dep (2) → 1130 dep (1) → 1200 dep (0) → 1500 arr (1) → 1800 arr (2) → 1900 dep (1) → 2000 dep (0).</li>
+      <li>Peak concurrent trains = <b>3</b>.</li>
+    </ol>
+    <p><b>Input B (edge — single train):</b> <code>arr=[1000], dep=[1010]</code>&nbsp;·&nbsp;<b>Output:</b> <code>1</code></p>
+    <ol>
+      <li>One arrival pumps busy to 1; depart drops to 0; peak = <b>1</b>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Sort arrivals and departures independently, then sweep like a two-finger merge.</b> Every arrival before the next departure needs an extra platform; max simultaneous count is the answer.</div>
 
@@ -688,6 +798,20 @@ int findPlatform(int[] arrivalTimes, int[] departureTimes){
   <div class="section-title">Problem</div>
   <p class="problem">Return all <b>unique</b> subsets of an array that may contain duplicates.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[1, 2, 2]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[[], [1], [1,2], [1,2,2], [2], [2,2]]</code></p>
+    <ol>
+      <li>Sort first so duplicates are adjacent.</li>
+      <li>Backtrack with index <code>i</code>; emit current set; at depth <code>d</code> iterate <code>j</code> from <code>i</code>, <b>skip if <code>j&gt;i &amp;&amp; nums[j]==nums[j-1]</code></b>.</li>
+      <li>That skip prevents the second <code>2</code> from starting a new branch identical to the first → each multiset appears once.</li>
+    </ol>
+    <p><b>Input B (edge — empty input):</b> <code>[]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[[]]</code></p>
+    <ol>
+      <li>Single recursion frame emits the empty subset and returns.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Sort first, then at every recursion level skip duplicates by index.</b> The rule: "the first duplicate at a level may be picked, but the second copy at the same level must be skipped" prevents generating the same subset twice.</div>
 
@@ -755,6 +879,20 @@ private void generateSubsets(int startIdx, int[] numbers,
 
   <div class="section-title">Problem</div>
   <p class="problem">Place <code>n</code> queens on an <code>n × n</code> board so no two attack each other. Return all distinct boards.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>n=4</code>&nbsp;·&nbsp;<b>Output:</b> 2 boards — columns <code>[1,3,0,2]</code> and <code>[2,0,3,1]</code></p>
+    <ol>
+      <li>Recurse row by row; track three boolean sets: <code>cols</code>, <code>diag1</code> (<code>row+col</code>), <code>diag2</code> (<code>row-col</code>).</li>
+      <li>Row 0 col 0 → row 1 must skip cols 0,1 → try col 2 → row 2 conflicts → backtrack … eventually finds the two valid placements.</li>
+      <li>Each placement that reaches row <code>n</code> emits a board string.</li>
+    </ol>
+    <p><b>Input B (edge — no solution):</b> <code>n=2</code> or <code>n=3</code>&nbsp;·&nbsp;<b>Output:</b> <code>[]</code></p>
+    <ol>
+      <li>Every branch hits a conflict before reaching the last row → zero results returned.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Backtrack column-by-column with three "attack" boolean arrays.</b> A queen at (row, col) blocks one column, one "↙↗" diagonal (<code>row + col</code>) and one "↘↖" anti-diagonal (<code>row - col + n - 1</code>). O(1) check per placement.</div>
@@ -845,6 +983,20 @@ private void placeQueens(int currentColumn, char[][] board, List&lt;List&lt;Stri
   <div class="section-title">Problem</div>
   <p class="problem">A matrix with row-sorted rows and an odd total count <code>R·C</code>. Find the median value.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[[1,3,5],[2,6,9],[3,6,9]]</code> (R=3, C=3, total=9, target rank=5)&nbsp;·&nbsp;<b>Output:</b> <code>5</code></p>
+    <ol>
+      <li>Binary-search on the value range <code>[min(col0), max(colC-1)] = [1, 9]</code>.</li>
+      <li>For each candidate <code>mid</code>, count <code>≤ mid</code> by upper-bound on each row → sum.</li>
+      <li><code>mid=5</code>: counts per row = 3,1,1 → 5 ≥ (9+1)/2=5 → record, <code>hi=4</code>. <code>mid=2</code>: counts=1,1,0 → 2 &lt; 5 → <code>lo=3</code>. <code>mid=3</code>: 2,1,1=4 &lt; 5 → <code>lo=4</code>. <code>mid=4</code>: 2,1,1=4 &lt; 5 → <code>lo=5</code> → exit → <b>5</b>.</li>
+    </ol>
+    <p><b>Input B (edge — single row):</b> <code>[[2,4,6,8,10]]</code>&nbsp;·&nbsp;<b>Output:</b> <code>6</code></p>
+    <ol>
+      <li>Binary search collapses to standard “smallest value with count ≥ 3” → the middle element <b>6</b>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Binary-search on the answer value, not on indices.</b> For a candidate <code>x</code>, count how many elements are <code>≤ x</code> (using upper-bound on each row). If the count exceeds half, the median is at most <code>x</code>.</div>
 
@@ -875,6 +1027,18 @@ flowchart TD
   A --> L
   B --> L
   </pre></div>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>matrix = [[1,3,5],[2,6,9],[3,6,9]]</code> (3&times;3, total 9, median rank = 4) &nbsp;·&nbsp; <b>Output:</b> <code>5</code></p>
+    <ol>
+      <li><code>lo = min(col0) = 1</code>, <code>hi = max(colLast) = 9</code>.</li>
+      <li><code>mid=5</code>: count(&le;5) per row = 3+1+1 = 5 &gt; 4 &rarr; <code>hi=4</code>.</li>
+      <li><code>mid=2</code>: count = 1+1+0 = 2 &le; 4 &rarr; <code>lo=3</code>.</li>
+      <li><code>mid=3</code>: count = 2+1+1 = 4 &le; 4 &rarr; <code>lo=4</code>.</li>
+      <li><code>mid=4</code>: count = 2+1+1 = 4 &le; 4 &rarr; <code>lo=5</code>. Now <code>lo &gt; hi</code> &rarr; <b>return 5</b>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
@@ -937,6 +1101,20 @@ private int upperBound(int[] row, int target){
   <div class="section-title">Problem</div>
   <p class="problem">Return the <code>k</code>-th largest element in an unsorted array.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>nums=[3,2,1,5,6,4], k=2</code>&nbsp;·&nbsp;<b>Output:</b> <code>5</code></p>
+    <ol>
+      <li>Maintain a min-heap of size <code>k=2</code>.</li>
+      <li>Push 3,2 → heap top=2. 1: smaller, skip. 5: pop 2, push 5 → top=3. 6: pop 3, push 6 → top=5. 4: smaller than top, skip.</li>
+      <li>Heap top after pass = <b>5</b>.</li>
+    </ol>
+    <p><b>Input B (edge — k = n):</b> <code>nums=[7,1,4], k=3</code>&nbsp;·&nbsp;<b>Output:</b> <code>1</code></p>
+    <ol>
+      <li>Heap fills with all three; top is the smallest = <b>1</b> (the 3rd-largest in a 3-element array).</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>A size-<code>k</code> MIN-heap remembers only the top-<code>k</code> largest seen so far.</b> The root is the smallest of those <code>k</code>, which is exactly the <code>k</code>-th largest overall once you've scanned everything.</div>
 
@@ -996,6 +1174,20 @@ int findKthLargest(int[] numbers, int k){
 
   <div class="section-title">Problem</div>
   <p class="problem">Implement <code>enqueue</code>, <code>dequeue</code>, <code>peek</code>, <code>size</code> using a fixed-size array.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> capacity 4; <code>enq(10), enq(20), deq(), enq(30), enq(40), enq(50)</code>&nbsp;·&nbsp;<b>Output:</b> <code>deq=10, size=4</code></p>
+    <ol>
+      <li>Circular buffer with <code>front</code>, <code>rear</code>, <code>size</code>. After enq 10,20: front=0, rear=2, size=2.</li>
+      <li>deq returns <code>arr[0]=10</code>; front=1, size=1.</li>
+      <li>enq 30 → rear=3, size=2. enq 40 → rear=0 (wraps), size=3. enq 50 → rear=1, size=4. Buffer now holds <code>50,_,30,40</code> with front=1.</li>
+    </ol>
+    <p><b>Input B (edge — dequeue from empty):</b> empty queue&nbsp;·&nbsp;<b>Output:</b> error</p>
+    <ol>
+      <li><code>size==0</code> → throw <code>IllegalStateException</code> instead of touching <code>arr[front]</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Circular buffer.</b> Two indices — <code>front</code> and <code>rear</code> — chase each other modulo <code>capacity</code>. Wrapping around reuses freed slots so the array never "drifts" rightward.</div>
@@ -1077,6 +1269,22 @@ class ArrayQueue {
 
   <div class="section-title">Problem</div>
   <p class="problem">Design an O(1) <code>get(key)</code> and <code>put(key, value)</code> cache that evicts the <b>least recently used</b> key when over capacity.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> capacity 2; ops: <code>put(1,1); put(2,2); get(1); put(3,3); get(2); put(4,4); get(1); get(3); get(4)</code>&nbsp;·&nbsp;<b>Output:</b> <code>1, -1, -1, 3, 4</code></p>
+    <ol>
+      <li>HashMap + doubly-linked list (most recent at head, LRU at tail).</li>
+      <li>After <code>put(1,1), put(2,2)</code>: list <code>2 ↔ 1</code> (head↔tail).</li>
+      <li><code>get(1)</code>=1; move 1 to head → <code>1 ↔ 2</code>.</li>
+      <li><code>put(3,3)</code>: full → evict tail=2 → list <code>3 ↔ 1</code>. <code>get(2)</code>=-1.</li>
+      <li><code>put(4,4)</code>: evict tail=1 → <code>4 ↔ 3</code>. <code>get(1)</code>=-1; <code>get(3)</code>=3 → <code>3 ↔ 4</code>; <code>get(4)</code>=4 → <code>4 ↔ 3</code>.</li>
+    </ol>
+    <p><b>Input B (edge — update existing key):</b> capacity 2; <code>put(1,1); put(1,99); get(1)</code>&nbsp;·&nbsp;<b>Output:</b> <code>99</code></p>
+    <ol>
+      <li>Second <code>put</code> finds key in map → update value, move to head; size stays 1, no eviction.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Doubly Linked List + HashMap.</b> The list orders entries by recency (head = most recent, tail = least recent). The map gives O(1) lookup to the list node so you can re-link without scanning.</div>
@@ -1175,6 +1383,20 @@ class LRUCache {
   <div class="section-title">Problem</div>
   <p class="problem">Given a string <code>s</code>, return the longest substring of <code>s</code> that reads the same forward and backward.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>s="babad"</code>&nbsp;·&nbsp;<b>Output:</b> <code>"bab"</code> (or <code>"aba"</code>)</p>
+    <ol>
+      <li>Expand around each center; both odd-length (<code>i,i</code>) and even-length (<code>i,i+1</code>).</li>
+      <li><code>i=0</code>: "b". <code>i=1</code>: odd → "bab" (3); even → "". <code>i=2</code>: odd → "aba" (3). <code>i=3</code>: "d".</li>
+      <li>Best length 3 → <b>"bab"</b>.</li>
+    </ol>
+    <p><b>Input B (edge — even-length palindrome):</b> <code>s="cbbd"</code>&nbsp;·&nbsp;<b>Output:</b> <code>"bb"</code></p>
+    <ol>
+      <li>Even expansion at <code>(1,2)</code> matches <code>'b','b'</code>; further expansion fails. Best length 2.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Expand from each centre.</b> A palindrome has either 1 character or 2 characters at its centre. Try every index as both kinds of centre and grow outward while characters match — best length wins.</div>
 
@@ -1249,6 +1471,21 @@ private int expandAroundCentre(String text, int leftIdx, int rightIdx){
 
   <div class="section-title">Problem</div>
   <p class="problem">For a pattern <code>p</code>, compute the LPS array — at each index <code>i</code>, the length of the longest proper prefix of <code>p[0..i]</code> that is also its suffix. Use it to find the first occurrence of <code>p</code> in a text <code>t</code> in <code>O(n + m)</code>.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>p="abcab"</code>&nbsp;·&nbsp;<b>Output (LPS):</b> <code>[0,0,0,1,2]</code></p>
+    <ol>
+      <li><code>i=0</code>: 0 by convention. <code>i=1</code>: 'b'≠'a' → 0. <code>i=2</code>: 'c'≠'a' → 0.</li>
+      <li><code>i=3</code>: 'a'='a' → 1. <code>i=4</code>: 'b'='b' → 2.</li>
+    </ol>
+    <p><b>Input B (KMP search):</b> <code>p="abab", t="ababcabab"</code>&nbsp;·&nbsp;<b>Output:</b> first match at index <code>0</code> (next match at <code>5</code>)</p>
+    <ol>
+      <li>LPS of "abab" = <code>[0,0,1,2]</code>.</li>
+      <li>Walk <code>t</code>; mismatch at <code>t[4]='c'</code> when <code>j=4</code> → fall back to <code>j = lps[3] = 2</code>; continue without rewinding <code>i</code>.</li>
+      <li><code>t[5..8]="abab"</code> matches → second occurrence at index 5.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>The LPS array tells the matcher how far to jump back on a mismatch without rescanning the text.</b> If we just matched <code>p[0..i-1]</code> and fail at <code>p[i]</code>, we already know the next <code>lps[i-1]</code> characters match — skip past them.</div>
@@ -1342,6 +1579,20 @@ int strStr(String text, String pattern){
   <div class="section-title">Problem</div>
   <p class="problem">Return the preorder (root → left → right) traversal of a binary tree, iteratively.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> tree <code>[1,null,2,3]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[1,2,3]</code></p>
+    <ol>
+      <li>Push root 1; pop → emit 1; push <code>1.right=2</code> (no left).</li>
+      <li>Pop 2; emit 2; push <code>2.left=3</code> (no right).</li>
+      <li>Pop 3; emit 3; stack empty → <code>[1,2,3]</code>.</li>
+    </ol>
+    <p><b>Input B (edge — left-skewed):</b> tree <code>[1,2,null,3]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[1,2,3]</code></p>
+    <ol>
+      <li>Push 1 → emit 1, push left=2. Emit 2, push left=3. Emit 3 → stack empty.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Stack of TODOs.</b> Pop → visit → push the right child first, then the left. A stack is LIFO, so whatever is pushed <i>last</i> comes out next — pushing left last is what guarantees the next visited node is the left subtree's root, matching preorder.</div>
 
@@ -1405,6 +1656,19 @@ List&lt;Integer&gt; preorderTraversal(TreeNode root){
   <div class="section-title">Problem</div>
   <p class="problem">Return the maximum depth (height) of a binary tree — the number of nodes along the longest root-to-leaf path.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[3,9,20,null,null,15,7]</code>&nbsp;·&nbsp;<b>Output:</b> <code>3</code></p>
+    <ol>
+      <li><code>height(node) = 1 + max(height(left), height(right))</code>; <code>height(null)=0</code>.</li>
+      <li><code>height(15)=height(7)=1</code> → <code>height(20)=2</code>; <code>height(9)=1</code>; <code>height(3)=1+max(1,2)=3</code>.</li>
+    </ol>
+    <p><b>Input B (edge — empty tree):</b> <code>root=null</code>&nbsp;·&nbsp;<b>Output:</b> <code>0</code></p>
+    <ol>
+      <li>Base case returns 0 immediately.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Depth of a tree = 1 + max(depth of left, depth of right).</b> A two-line recursion mirrors the recursive definition exactly.</div>
 
@@ -1454,6 +1718,20 @@ int maxDepth(TreeNode root){
 
   <div class="section-title">Problem</div>
   <p class="problem">Given preorder and inorder traversal arrays of a binary tree (unique values), reconstruct the tree.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>preorder=[3,9,20,15,7], inorder=[9,3,15,20,7]</code>&nbsp;·&nbsp;<b>Output:</b> tree <code>[3,9,20,null,null,15,7]</code></p>
+    <ol>
+      <li>First preorder element = root <code>3</code>. In inorder, <code>3</code> is at index 1 → left subtree inorder=<code>[9]</code>, right=<code>[15,20,7]</code>.</li>
+      <li>Recurse left: preorder slice <code>[9]</code> + inorder <code>[9]</code> → leaf 9.</li>
+      <li>Recurse right: preorder slice <code>[20,15,7]</code> + inorder <code>[15,20,7]</code>; root=20, left=[15], right=[7]. Done.</li>
+    </ol>
+    <p><b>Input B (edge — single node):</b> <code>preorder=[5], inorder=[5]</code>&nbsp;·&nbsp;<b>Output:</b> tree <code>[5]</code></p>
+    <ol>
+      <li>Slice length 1 → single leaf node, no recursion deeper.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Preorder's first element is always the root; inorder splits left/right subtrees around that root.</b> Use a HashMap from value → inorder-index for O(1) splits → linear build.</div>
@@ -1530,6 +1808,19 @@ private TreeNode constructSubtree(int[] preorder, int preStart, int preEnd,
   <div class="section-title">Problem</div>
   <p class="problem">Given a BST and a value, return the node with that value (or null).</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> BST in-order <code>[2,4,7]</code> shaped <code>[4,2,7]</code>; <code>val=2</code>&nbsp;·&nbsp;<b>Output:</b> node 2 (<code>[2,null,null]</code>)</p>
+    <ol>
+      <li>At root 4: 2 &lt; 4 → go left.</li>
+      <li>At node 2: match → return that subtree.</li>
+    </ol>
+    <p><b>Input B (edge — not present):</b> same BST; <code>val=5</code>&nbsp;·&nbsp;<b>Output:</b> <code>null</code></p>
+    <ol>
+      <li>At 4: 5&gt;4 → right. At 7: 5&lt;7 → left = null → return null.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>BST invariant gives you a built-in binary search.</b> At each step go left if target is smaller, right if larger — height-bounded steps to a hit or null.</div>
 
@@ -1583,6 +1874,20 @@ TreeNode searchBST(TreeNode root, int target){
 
   <div class="section-title">Problem</div>
   <p class="problem">Given a BST and value <code>x</code>, return the smallest value in the BST that is <code>≥ x</code> (or -1 / sentinel if none).</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> BST in-order <code>[2,4,7,8,10,12,14]</code>; <code>x=11</code>&nbsp;·&nbsp;<b>Output:</b> <code>12</code></p>
+    <ol>
+      <li>At root 8: 8&lt;11 → right (don't record).</li>
+      <li>At 12: 12≥11 → record <code>ceil=12</code>, go left.</li>
+      <li>At 10: 10&lt;11 → right = null → return <b>12</b>.</li>
+    </ol>
+    <p><b>Input B (edge — x larger than max):</b> <code>x=20</code>&nbsp;·&nbsp;<b>Output:</b> <code>-1</code></p>
+    <ol>
+      <li>Every node is &lt; x → always go right; eventually fall off; ceil never set → sentinel.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Walk down; remember the best "candidate ceiling" each time you go left.</b> Going left means current node is a valid upper bound — but maybe there's a tighter one in the left subtree.</div>
@@ -1648,6 +1953,22 @@ int findCeil(TreeNode root, int targetValue){
 
   <div class="section-title">Problem</div>
   <p class="problem">Design a class supporting <code>addNum(x)</code> and <code>findMedian()</code> over a stream.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> ops <code>add(1), add(2), median(), add(3), median()</code>&nbsp;·&nbsp;<b>Output:</b> <code>1.5, 2.0</code></p>
+    <ol>
+      <li>Two heaps: <code>lo</code> (max-heap, lower half), <code>hi</code> (min-heap, upper half). Invariant: <code>lo.size ∈ {hi.size, hi.size+1}</code>.</li>
+      <li><code>add(1)</code>: lo=[1], hi=[]. <code>add(2)</code>: 2&gt;lo.top → hi=[2]; lo=[1], hi=[2].</li>
+      <li><code>median()</code> = (lo.top+hi.top)/2 = (1+2)/2 = <b>1.5</b>.</li>
+      <li><code>add(3)</code>: 3&gt;lo.top → push hi=[2,3]; rebalance → move hi.top=2 to lo → lo=[2,1], hi=[3].</li>
+      <li><code>median()</code> = lo.top = <b>2.0</b> (lo bigger).</li>
+    </ol>
+    <p><b>Input B (edge — single number):</b> <code>add(7), median()</code>&nbsp;·&nbsp;<b>Output:</b> <code>7.0</code></p>
+    <ol>
+      <li>Pushed to lo → lo.size=1, hi.size=0 → odd-count branch returns lo.top = 7.0.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Two heaps split the stream at the median.</b> A MAX-heap holds the lower half, a MIN-heap holds the upper half. The median is either the larger of the two roots or their average — depending on parity.</div>
@@ -1715,6 +2036,19 @@ class MedianFinder {
   <div class="section-title">Problem</div>
   <p class="problem">Given an adjacency list, return DFS traversal order starting from vertex 0.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>V=5</code>, adj <code>0:[1,2], 1:[0,3,4], 2:[0], 3:[1], 4:[1]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[0,1,3,4,2]</code></p>
+    <ol>
+      <li>visit 0; iterate neighbors. 1 unvisited → recurse. From 1: 0 visited; 3 → recurse (leaf); back; 4 → recurse (leaf); back; back to 0.</li>
+      <li>From 0 next: 2 unvisited → recurse, 0 visited, return.</li>
+    </ol>
+    <p><b>Input B (edge — disconnected):</b> <code>V=4</code>, adj <code>0:[1], 1:[0], 2:[3], 3:[2]</code>&nbsp;·&nbsp;<b>Output (from 0):</b> <code>[0,1]</code></p>
+    <ol>
+      <li>DFS from 0 only reaches its component; vertices 2, 3 remain unvisited (caller would loop over all roots if a full forest is needed).</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Recursion + visited set.</b> DFS dives as deep as possible along one branch before backtracking. The visited array prevents cycles from looping forever.</div>
 
@@ -1776,6 +2110,20 @@ private void dfsExplore(int currentVertex, List&lt;List&lt;Integer&gt;&gt; adjac
 
   <div class="section-title">Problem</div>
   <p class="problem">Given a weighted graph with <b>non-negative</b> edge weights and a source, compute the shortest distance from source to every vertex.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> 5 nodes, edges <code>0→1 (4), 0→2 (1), 2→1 (2), 1→3 (1), 2→3 (5), 3→4 (3)</code>; source=0&nbsp;·&nbsp;<b>Output:</b> <code>dist=[0,3,1,4,7]</code></p>
+    <ol>
+      <li>PQ pops node with smallest tentative distance; relax outgoing edges.</li>
+      <li>Pop 0(0); relax 1→4, 2→1. Pop 2(1); relax 1→min(4, 1+2)=3, 3→6. Pop 1(3); relax 3→min(6, 3+1)=4. Pop 3(4); relax 4→7. Pop 4(7).</li>
+      <li>Skip stale entries when popped distance exceeds recorded <code>dist[v]</code>.</li>
+    </ol>
+    <p><b>Input B (edge — unreachable vertex):</b> add isolated node 5; source=0&nbsp;·&nbsp;<b>Output:</b> <code>dist[5] = ∞</code></p>
+    <ol>
+      <li>PQ never enqueues 5; its distance stays at the initial sentinel.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>BFS where the "next" vertex is the closest unfinished one — pulled in O(log V) from a min-heap.</b> Non-negative weights ensure that the first time we pop a vertex its distance is final.</div>
@@ -1859,6 +2207,20 @@ int[] dijkstra(int vertexCount, List&lt;List&lt;int[]&gt;&gt; adjacencyList, int
   <div class="section-title">Problem</div>
   <p class="problem">Return the length of the longest strictly increasing subsequence of an array.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[10, 9, 2, 5, 3, 7, 101, 18]</code>&nbsp;·&nbsp;<b>Output:</b> <code>4</code></p>
+    <ol>
+      <li>Maintain a <code>tails</code> array; for each <code>x</code>, binary-search the first index in <code>tails</code> with value <code>≥ x</code> and overwrite (or append if x is the new max).</li>
+      <li>Walk: 10→[10]; 9→[9]; 2→[2]; 5→[2,5]; 3→[2,3]; 7→[2,3,7]; 101→[2,3,7,101]; 18→[2,3,7,18].</li>
+      <li>Length of <code>tails</code> = LIS length = <b>4</b> (e.g. <code>[2,3,7,18]</code>; tails is not necessarily a real subsequence).</li>
+    </ol>
+    <p><b>Input B (edge — strictly decreasing):</b> <code>[5,4,3,2,1]</code>&nbsp;·&nbsp;<b>Output:</b> <code>1</code></p>
+    <ol>
+      <li>Each new value replaces <code>tails[0]</code>; array length never grows past 1.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Maintain a "tails" array — the smallest possible tail value for an LIS of each length.</b> For each new element, binary-search the first tail ≥ it and overwrite it (or append). The array's length IS the LIS length.</div>
 
@@ -1927,6 +2289,21 @@ int lengthOfLIS(int[] numbers){
   <div class="section-title">Problem</div>
   <p class="problem">Count the number of distinct combinations of coins (unlimited supply) that sum to <code>amount</code>.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>coins=[1,2,5], amount=5</code>&nbsp;·&nbsp;<b>Output:</b> <code>4</code></p>
+    <ol>
+      <li>1-D DP <code>dp[s]</code>; iterate <b>coins outer</b>, sums inner. <code>dp[0]=1</code>.</li>
+      <li>Coin 1: dp = <code>[1,1,1,1,1,1]</code>.</li>
+      <li>Coin 2: dp = <code>[1,1,2,2,3,3]</code>.</li>
+      <li>Coin 5: dp = <code>[1,1,2,2,3,4]</code> → <code>dp[5]=<b>4</b></code> ({1×5}, {1×3,2}, {1,2×2}, {5}).</li>
+    </ol>
+    <p><b>Input B (edge — amount=0):</b> <code>coins=[1,2,5], amount=0</code>&nbsp;·&nbsp;<b>Output:</b> <code>1</code></p>
+    <ol>
+      <li>Empty combination is the unique way to make 0 — base case <code>dp[0]=1</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>1D unbounded knapsack with the OUTER loop on coins.</b> Iterating coins outermost guarantees each combination is counted in a canonical order (coin1's count, then coin2's count, …) — never as two different orderings of the same coins.</div>
 
@@ -1986,6 +2363,22 @@ int change(int targetAmount, int[] coinDenominations){
 
   <div class="section-title">Problem</div>
   <p class="problem">Support <code>insert(word)</code>, <code>countWordsEqualTo(word)</code>, <code>countWordsStartingWith(prefix)</code>, <code>erase(word)</code> — each in O(L).</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>insert("apple"); insert("apple"); insert("app"); countEq("apple"); countPrefix("ap"); erase("apple"); countEq("apple"); countPrefix("ap")</code>&nbsp;·&nbsp;<b>Output:</b> <code>2, 3, 1, 2</code></p>
+    <ol>
+      <li>Each node tracks two counters: <code>endCount</code> (words ending here) and <code>prefixCount</code> (words passing through).</li>
+      <li>After two <code>insert("apple")</code>: every node on the path has <code>prefixCount=2</code>; final 'e' has <code>endCount=2</code>.</li>
+      <li><code>insert("app")</code> bumps prefixCount to 3 along <code>a→p→p</code>; <code>endCount</code> at second 'p' becomes 1.</li>
+      <li><code>countEq("apple")</code>=endCount at 'e' = <b>2</b>; <code>countPrefix("ap")</code>=prefixCount at 'p' = <b>3</b>.</li>
+      <li><code>erase("apple")</code> decrements all 5 prefix counts and the 'e' endCount; now <code>countEq("apple")=1</code>, <code>countPrefix("ap")=2</code>.</li>
+    </ol>
+    <p><b>Input B (edge — erase non-existent word):</b> <code>erase("banana")</code> on a trie where no path exists&nbsp;·&nbsp;<b>Output:</b> no-op</p>
+    <ol>
+      <li>Walk fails on first missing child → return early; no counters touched.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Augment each Trie node with two counters: <code>endCount</code> (words ending here) and <code>passCount</code> (words passing through here).</b> Insert bumps both, erase decrements both, queries read them directly — no need to recount the subtree.</div>
