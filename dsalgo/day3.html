@@ -125,6 +125,20 @@
   <div class="section-title">Problem</div>
   <p class="problem">Rearrange numbers into the <b>lexicographically next greater</b> permutation. If no such permutation, rearrange to the lowest (sorted ascending). Do it <b>in place</b>.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[1,2,3]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[1,3,2]</code></p>
+    <ol>
+      <li>Scan from right; first index where <code>a[i] &lt; a[i+1]</code> is <code>i=1</code> (<code>2&lt;3</code>) — the <i>pivot</i>.</li>
+      <li>From the right, find first <code>j</code> with <code>a[j] &gt; a[1]=2</code> → <code>j=2</code>; swap → <code>[1,3,2]</code>.</li>
+      <li>Reverse suffix after pivot (length 1, no-op) → <code>[1,3,2]</code>.</li>
+    </ol>
+    <p><b>Input B (edge — already largest):</b> <code>[3,2,1]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[1,2,3]</code></p>
+    <ol>
+      <li>No pivot exists (strictly decreasing) → reverse the whole array → sorted ascending.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Find the rightmost "ascent", swap with the just-larger value to its right, then reverse the suffix.</b> The suffix after the swap is in descending order — reversing it makes it the smallest possible tail → smallest jump up.</div>
 
@@ -194,6 +208,20 @@ private void reverseRange(int[] a, int left, int right){
 
   <div class="section-title">Problem</div>
   <p class="problem">Two sorted arrays <code>A[n]</code>, <code>B[m]</code>. Modify them so that <code>A</code> contains the smaller <code>n</code> and <code>B</code> the larger <code>m</code>, each sorted.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>A=[1,4,7,8,10], B=[2,3,9]</code>&nbsp;·&nbsp;<b>Output:</b> <code>A=[1,2,3,4,7], B=[8,9,10]</code></p>
+    <ol>
+      <li>Use a Shell-sort gap sequence over the conceptual concatenation <code>A+B</code>; gap = <code>ceil((n+m)/2)</code>, then halve.</li>
+      <li>For each pair <code>(i, i+gap)</code>: if left&gt;right, swap. Cells beyond <code>n</code> live in <code>B[index-n]</code>.</li>
+      <li>After all gaps reach 0, the conceptual array is sorted globally → first <code>n</code> in A, last <code>m</code> in B.</li>
+    </ol>
+    <p><b>Input B (edge — already split):</b> <code>A=[1,2,3], B=[4,5]</code>&nbsp;·&nbsp;<b>Output:</b> unchanged</p>
+    <ol>
+      <li>Every gap-pair check finds left&lt;right; no swaps; algorithm exits in O((n+m) log(n+m)) work but mutates nothing.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Gap method (Shell-sort-style).</b> Compare elements spaced <code>gap = ceil((n+m)/2)</code> apart across the conceptual combined array; halve the gap each pass. No extra memory and faster than swap-and-bubble.</div>
@@ -271,6 +299,20 @@ private void swapAt(int i, int j, int[] a, int[] b, int sizeA){
   <div class="section-title">Problem</div>
   <p class="problem">Find the element appearing more than <code>⌊n/2⌋</code> times. Assume one always exists.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[2,2,1,1,1,2,2]</code>&nbsp;·&nbsp;<b>Output:</b> <code>2</code></p>
+    <ol>
+      <li>Boyer-Moore: candidate <code>cand</code>, count <code>c=0</code>.</li>
+      <li>2: c=0 → cand=2, c=1. 2: same → c=2. 1: diff → c=1. 1: diff → c=0. 1: c=0 → cand=1, c=1. 2: diff → c=0. 2: c=0 → cand=2, c=1.</li>
+      <li>Final cand=<b>2</b>. (Optional verify pass confirms count &gt; 7/2.)</li>
+    </ol>
+    <p><b>Input B (edge — single element):</b> <code>[5]</code>&nbsp;·&nbsp;<b>Output:</b> <code>5</code></p>
+    <ol>
+      <li>cand=5, c=1; loop ends → return 5.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Boyer-Moore voting.</b> Pair each occurrence of the majority with one non-majority element — the majority still has surplus left. Track a candidate and a counter; reset when count hits zero.</div>
 
@@ -333,6 +375,20 @@ int majorityElement(int[] numbers){
 
   <div class="section-title">Problem</div>
   <p class="problem">Given an unsorted array of integers, return the length of the longest sequence of consecutive integers (e.g., <code>{100,4,200,1,3,2}</code> → <code>4</code> for <code>1,2,3,4</code>).</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[100, 4, 200, 1, 3, 2]</code>&nbsp;·&nbsp;<b>Output:</b> <code>4</code></p>
+    <ol>
+      <li>Insert all into a <code>HashSet</code>: <code>{100, 4, 200, 1, 3, 2}</code>.</li>
+      <li>For each <code>x</code> in set, only start counting if <code>x-1</code> is <b>not</b> in the set (true sequence start).</li>
+      <li>Starts: 100 (no 99), 1 (no 0), 200 (no 199). Walk 1→2→3→4 → length 4. Others give 1.</li>
+    </ol>
+    <p><b>Input B (edge — duplicates):</b> <code>[1, 2, 0, 1]</code>&nbsp;·&nbsp;<b>Output:</b> <code>3</code></p>
+    <ol>
+      <li>Set deduplicates to <code>{0,1,2}</code>; only start at 0 → 0,1,2 → length <b>3</b>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>HashSet + "start a streak only at the smallest element".</b> If <code>x-1</code> is in the set, skip — we'll count this streak when we reach the smallest member. This caps total work at O(n).</div>
@@ -401,6 +457,20 @@ int longestConsecutive(int[] numbers){
   <div class="section-title">Problem</div>
   <p class="problem">Merge two sorted singly linked lists into one sorted list. Reuse the existing nodes (no copies).</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>L1: 1→2→4; L2: 1→3→4</code>&nbsp;·&nbsp;<b>Output:</b> <code>1→1→2→3→4→4</code></p>
+    <ol>
+      <li>Dummy head; tail pointer. Compare heads; splice the smaller and advance.</li>
+      <li>Steps: pick L1.1 → L2.1 → L1.2 → L2.3 → L1.4 → L2.4 → done.</li>
+      <li>Return <code>dummy.next</code>.</li>
+    </ol>
+    <p><b>Input B (edge — one empty):</b> <code>L1: null; L2: 5→7</code>&nbsp;·&nbsp;<b>Output:</b> <code>5→7</code></p>
+    <ol>
+      <li>While loop never enters; remaining-tail attach picks up <code>L2</code> directly.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Use a dummy head; weave the two lists with a tail pointer.</b> Always extend the tail to the smaller of the two current heads, then advance that list. The dummy simplifies the "where does the merged list start?" edge case.</div>
 
@@ -466,6 +536,20 @@ ListNode mergeTwoLists(ListNode headA, ListNode headB){
   <div class="section-title">Problem</div>
   <p class="problem">If a linked list has a cycle, return the node where the cycle begins. Else return null.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>3→2→0→-4</code> with <code>-4.next → node 2</code>&nbsp;·&nbsp;<b>Output:</b> node <code>2</code></p>
+    <ol>
+      <li>Phase 1 — Floyd's: slow/fast collide inside the cycle (e.g., at node <code>-4</code>).</li>
+      <li>Phase 2: reset slow to head; advance both 1 step at a time. Math says they meet exactly at the cycle entrance.</li>
+      <li>Walk: <code>head=3, slow=-4 → 2, slow=2,fast=2</code> → collide → return node <b>2</b>.</li>
+    </ol>
+    <p><b>Input B (edge — acyclic):</b> <code>1→2→3</code>&nbsp;·&nbsp;<b>Output:</b> <code>null</code></p>
+    <ol>
+      <li>Phase 1 fast pointer reaches null first → return null without entering phase 2.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Floyd's Algorithm — Phase 2.</b> After slow & fast meet inside the cycle, restart one pointer at head and walk both at speed 1. They meet exactly at the cycle's entry. (Math: distance from head to cycle start equals distance from meeting point to cycle start when traversed around.)</div>
 
@@ -527,6 +611,22 @@ ListNode detectCycle(ListNode head){
 
   <div class="section-title">Problem</div>
   <p class="problem">Return all <b>unique</b> triplets <code>(a, b, c)</code> in the array such that <code>a + b + c = 0</code>.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>nums=[-1,0,1,2,-1,-4]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[[-1,-1,2], [-1,0,1]]</code></p>
+    <ol>
+      <li>Sort → <code>[-4,-1,-1,0,1,2]</code>.</li>
+      <li>Fix <code>i=0 (-4)</code>; two-pointer never finds sum 4 in remainder.</li>
+      <li>Fix <code>i=1 (-1)</code>; <code>l=2 (-1), r=5 (2)</code> → sum=0 → record <code>[-1,-1,2]</code>; advance both, skip duplicates.</li>
+      <li><code>l=3 (0), r=4 (1)</code> → sum=0 → record <code>[-1,0,1]</code>.</li>
+      <li>Skip <code>i=2</code> (duplicate -1); <code>i=3 (0)</code>: <code>l=4,r=5</code> → 0+1+2=3 → no.</li>
+    </ol>
+    <p><b>Input B (edge — all zeros):</b> <code>[0,0,0,0]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[[0,0,0]]</code></p>
+    <ol>
+      <li>Sorted same; <code>i=0</code>: l=1, r=3 → 0+0+0 → record. Skip duplicates at all levels → single triplet.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Sort, fix one, two-pointer the rest.</b> A sorted array makes the "needed sum" monotonic — moving left/right pointers always trims toward the target. Skip duplicates at every level to avoid repeated triplets.</div>
@@ -604,6 +704,23 @@ List&lt;List&lt;Integer&gt;&gt; threeSum(int[] numbers){
   <div class="section-title">Problem</div>
   <p class="problem">Each job has a deadline <code>d</code> and profit <code>p</code>. Schedule at most one job per time-slot to maximize total profit; every job takes 1 unit of time.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> jobs (id, d, p) = <code>[(1,4,20), (2,1,10), (3,1,40), (4,1,30)]</code>&nbsp;·&nbsp;<b>Output:</b> <code>2 jobs, profit=60</code></p>
+    <ol>
+      <li>Sort by profit desc: <code>(3,1,40), (4,1,30), (1,4,20), (2,1,10)</code>.</li>
+      <li>Slot array of size <code>maxDeadline=4</code>, all free.</li>
+      <li>Job 3 d=1: try slot 1 → free → take, profit=40.</li>
+      <li>Job 4 d=1: slot 1 taken → skip.</li>
+      <li>Job 1 d=4: try 4→3→2→1 → slot 4 free → take, profit=60.</li>
+      <li>Job 2 d=1: slot 1 taken → skip. Total <b>2 jobs, 60</b>.</li>
+    </ol>
+    <p><b>Input B (edge — all same deadline=1):</b> <code>[(A,1,5),(B,1,3)]</code>&nbsp;·&nbsp;<b>Output:</b> <code>1 job, profit=5</code></p>
+    <ol>
+      <li>Only one slot exists; greedy picks the higher profit and skips the other.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Sort by profit DESC and greedily place each job into the latest free slot ≤ its deadline.</b> Latest slot keeps earlier slots open for less-flexible (smaller-deadline) jobs we'll see next.</div>
 
@@ -678,6 +795,21 @@ int[] jobSequencing(int[][] jobs){      // jobs[i] = {jobId, deadline, profit}
   <div class="section-title">Problem</div>
   <p class="problem">Given a set of <b>distinct</b> positive integers and a target, return every unique combination summing to target. The same number can be picked unlimited times.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>candidates=[2,3,6,7], target=7</code>&nbsp;·&nbsp;<b>Output:</b> <code>[[2,2,3], [7]]</code></p>
+    <ol>
+      <li>Sort to enable early pruning. Backtrack with index <code>i</code>: at depth <code>d</code> iterate <code>j ≥ i</code>.</li>
+      <li>Pick 2 → remaining 5; pick 2 again → remaining 3; pick 3 → remaining 0 → record <code>[2,2,3]</code>.</li>
+      <li>Backtrack; pick 3 (remaining 4) → dead-ends. Pick 7 (remaining 0) → record <code>[7]</code>.</li>
+      <li>Reusing the same index allows repeats; advancing prevents duplicate combinations.</li>
+    </ol>
+    <p><b>Input B (edge — no solution):</b> <code>candidates=[2,4], target=3</code>&nbsp;·&nbsp;<b>Output:</b> <code>[]</code></p>
+    <ol>
+      <li>Every branch overshoots or stalls → base case never records anything.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Pick-or-move backtracking.</b> At each index either "pick this number" (don't advance index — repeats allowed) or "skip to next index". Recursion's natural ordering gives unique combinations without dedup.</div>
 
@@ -751,6 +883,20 @@ private void exploreCombinations(int currentIdx, int remainingTarget,
 
   <div class="section-title">Problem</div>
   <p class="problem">Solve a partially-filled 9×9 Sudoku in place. Each digit 1-9 appears exactly once per row, column, and 3×3 sub-grid.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> standard Sudoku puzzle with ~30 givens&nbsp;·&nbsp;<b>Output:</b> filled board</p>
+    <ol>
+      <li>Find next empty cell (row-major); for each digit 1–9, check row/col/box validity.</li>
+      <li>If valid, place it and recurse; if recursion succeeds, propagate true; else undo and try next digit.</li>
+      <li>Three boolean grids (<code>rowUsed[9][10]</code>, <code>colUsed</code>, <code>boxUsed</code>) make each validity check O(1).</li>
+    </ol>
+    <p><b>Input B (edge — already solved):</b> board with no empty cells&nbsp;·&nbsp;<b>Output:</b> immediate true</p>
+    <ol>
+      <li>Empty-cell finder returns null on first scan → base case returns true without modifying anything.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Backtrack cell-by-cell: try 1-9, recurse, undo on failure.</b> Validity is a constant-time check per digit (scan row, column, and 3×3 block). Returning a boolean lets the recursion short-circuit when a solution is found.</div>
@@ -831,6 +977,22 @@ private boolean isPlacementValid(char[][] board, int row, int col, char digit){
   <div class="section-title">Problem</div>
   <p class="problem">Sorted array where every element appears exactly twice except one. Find the lone element in <code>O(log n)</code>.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[1,1,2,3,3,4,4,8,8]</code>&nbsp;·&nbsp;<b>Output:</b> <code>2</code></p>
+    <ol>
+      <li>Before the unique element, pairs start at <b>even</b> indices (0,2,4…); after it, they start at <b>odd</b> indices.</li>
+      <li>Binary-search on this parity flip. <code>lo=0, hi=8</code>.</li>
+      <li><code>mid=4</code>; make even by <code>mid^1=5</code>; <code>a[4]=3, a[5]=4</code> differ → unique is at or before mid → <code>hi=4</code>.</li>
+      <li><code>mid=2</code>; <code>mid^1=3</code>; <code>a[2]=2, a[3]=3</code> differ → <code>hi=2</code>.</li>
+      <li><code>mid=1</code>; <code>mid^1=0</code>; <code>a[1]=1, a[0]=1</code> equal → unique is to the right → <code>lo=2</code>. Loop exits → <code>a[2]=<b>2</b></code>.</li>
+    </ol>
+    <p><b>Input B (edge — unique at end):</b> <code>[1,1,2,2,5]</code>&nbsp;·&nbsp;<b>Output:</b> <code>5</code></p>
+    <ol>
+      <li>All pair-pairs are even-aligned until index 4; binary search converges to <code>lo=4</code> → <b>5</b>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Pairs sit at <code>(even, odd)</code> indices BEFORE the single element and <code>(odd, even)</code> AFTER it.</b> Binary search using this parity invariant: check if <code>mid</code> still has its pair partner; if yes, the unique element is to the right.</div>
 
@@ -842,46 +1004,67 @@ private boolean isPlacementValid(char[][] board, int row, int col, char digit){
 
   <div class="section-title">Optimal Approach</div>
   <div class="approach"><ol>
-    <li><code>lo = 0, hi = n - 2</code> (avoid out-of-bounds for <code>mid+1</code>).</li>
-    <li><code>mid = (lo+hi)/2</code>. Force <code>mid</code> to even via <code>mid -= mid &amp; 1</code>.</li>
-    <li>If <code>nums[mid] == nums[mid+1]</code> → pair intact, unique is right: <code>lo = mid + 2</code>.</li>
-    <li>Else → unique is at <code>mid</code> or left: <code>hi = mid - 2</code>.</li>
-    <li>Return <code>nums[lo]</code>.</li>
+    <li><code>lo = 0, hi = n - 1</code>; closed-interval BS using <code>while(lo &lt;= hi)</code>.</li>
+    <li><code>mid = (lo+hi)/2</code>. If both neighbours of <code>mid</code> differ → <code>nums[mid]</code> is the answer.</li>
+    <li>Find the start of <code>mid</code>'s pair: <code>pairStart = (nums[mid]==nums[mid-1]) ? mid-1 : mid</code>.</li>
+    <li>If <code>pairStart</code> is even → pair is in normal position, unique is to the right: <code>lo = pairStart + 2</code>.</li>
+    <li>Else → pair is shifted, unique is to the left: <code>hi = pairStart - 1</code>.</li>
   </ol></div>
 
   <div class="section-title">Visual</div>
   <div class="mermaid-wrap"><pre class="mermaid">
 flowchart TD
-  S["lo=0, hi=n-2"] --> L{"lo &lt; hi?"}
-  L -- no --> R["return nums[lo]"]
-  L -- yes --> M["mid = (lo+hi)/2; mid -= mid &amp; 1 → even"]
-  M --> C{"nums[mid] == nums[mid+1]?"}
-  C -- yes --> A["lo = mid + 2"]
-  C -- no --> B["hi = mid"]
+  S["lo=0, hi=n-1"] --> L{"lo &lt;= hi?"}
+  L -- no --> X["unreachable for valid input"]
+  L -- yes --> M["mid = (lo+hi)/2"]
+  M --> U{"both neighbours differ?"}
+  U -- yes --> Y["return nums[mid]"]
+  U -- no --> P["pairStart = mid or mid-1"]
+  P --> E{"pairStart even?"}
+  E -- yes --> A["lo = pairStart + 2"]
+  E -- no --> B["hi = pairStart - 1"]
   A --> L
   B --> L
   </pre></div>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>nums = [1,1,2,3,3,4,4,8,8]</code> &nbsp;·&nbsp; <b>Output:</b> <code>2</code></p>
+    <ol>
+      <li><code>lo=0, hi=8</code> → <code>mid=4</code>, <code>nums[4]=3</code>. Left neighbour 3 matches → <code>pairStart=3</code> (odd) → <code>hi=2</code>.</li>
+      <li><code>lo=0, hi=2</code> → <code>mid=1</code>, <code>nums[1]=1</code>. Left neighbour 1 matches → <code>pairStart=0</code> (even) → <code>lo=2</code>.</li>
+      <li><code>lo=2, hi=2</code> → <code>mid=2</code>, <code>nums[2]=2</code>. Both neighbours differ → <b>return 2</b>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Lone element in a sorted array where everything else appears twice.
- * Trick: before the lone element, pairs occupy (even, odd) index pairs;
- * after it, they occupy (odd, even). Binary search using this parity flip.
+ * Trick: before the lone element, pairs sit at (even, odd) indices; after it they
+ * shift to (odd, even). Use a closed-interval binary search on this parity invariant.
  */
 int singleNonDuplicate(int[] sortedNumbers){
-  int leftIdx = 0, rightIdx = sortedNumbers.length - 2;
-  while(leftIdx &lt; rightIdx){
-    int midIdx = (leftIdx + rightIdx) / 2;
-    midIdx -= (midIdx &amp; 1);                       // ensure midIdx is even → pair starts here normally
-    if(sortedNumbers[midIdx] == sortedNumbers[midIdx + 1]){
-      // pair invariant intact → lone element lies strictly to the right
-      leftIdx = midIdx + 2;
+  int n  = sortedNumbers.length;
+  int lo = 0, hi = n - 1;
+  while(lo &lt;= hi){
+    int mid = (lo + hi) / 2;
+
+    boolean leftSame  = mid &gt; 0     &amp;&amp; sortedNumbers[mid] == sortedNumbers[mid - 1];
+    boolean rightSame = mid &lt; n - 1 &amp;&amp; sortedNumbers[mid] == sortedNumbers[mid + 1];
+    if(!leftSame &amp;&amp; !rightSame) return sortedNumbers[mid];      // mid IS the unique element
+
+    // index where the pair containing mid begins
+    int pairStart = leftSame ? mid - 1 : mid;
+
+    if((pairStart &amp; 1) == 0){
+      // pair is in normal position (starts at even index) → unique element is to the right
+      lo = pairStart + 2;
     } else {
-      // pair invariant broken → lone element is at midIdx or to its left
-      rightIdx = midIdx;
+      // pair is shifted (starts at odd index) → unique element is to the left
+      hi = pairStart - 1;
     }
   }
-  return sortedNumbers[leftIdx];
+  return -1;                                                    // unreachable for valid input
 }</code></pre>
   <div class="complexity"><div>Time <b>O(log n)</b></div><div>Space <b>O(1)</b></div></div>
 </article>
@@ -896,6 +1079,20 @@ int singleNonDuplicate(int[] sortedNumbers){
 
   <div class="section-title">Problem</div>
   <p class="problem">Return the <code>k</code> most frequent elements in the array, in any order.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>nums=[1,1,1,2,2,3], k=2</code>&nbsp;·&nbsp;<b>Output:</b> <code>[1, 2]</code></p>
+    <ol>
+      <li>Count freqs → <code>{1:3, 2:2, 3:1}</code>.</li>
+      <li>Bucket by frequency: <code>buckets[3]=[1], buckets[2]=[2], buckets[1]=[3]</code> (size n+1).</li>
+      <li>Walk buckets from high to low until k items collected: take 1 (freq 3), then 2 (freq 2). Done.</li>
+    </ol>
+    <p><b>Input B (edge — single element):</b> <code>nums=[7], k=1</code>&nbsp;·&nbsp;<b>Output:</b> <code>[7]</code></p>
+    <ol>
+      <li>One bucket, one element → returned immediately.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Count once, then a size-<code>k</code> MIN-heap keyed by frequency keeps the top-k.</b> Heap's root is always the smallest frequency among kept candidates — easy to evict when a higher-frequency element shows up.</div>
@@ -962,6 +1159,20 @@ int[] topKFrequent(int[] numbers, int k){
   <div class="section-title">Problem</div>
   <p class="problem">Implement <code>push</code>, <code>pop</code>, <code>top</code>, <code>empty</code> for a stack using only standard queue operations.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>push(1); push(2); push(3); top(); pop(); top()</code>&nbsp;·&nbsp;<b>Output:</b> <code>3, 3, 2</code></p>
+    <ol>
+      <li>Single-queue trick: on each push, enqueue, then rotate (n-1) times so the new element sits at the front.</li>
+      <li>push(1): q=[1]. push(2): enqueue → [1,2]; rotate once → [2,1]. push(3): enqueue → [2,1,3]; rotate twice → [3,2,1].</li>
+      <li><code>top()</code>=peek=3. <code>pop()</code>=dequeue=3 → q=[2,1]. <code>top()</code>=2.</li>
+    </ol>
+    <p><b>Input B (edge — pop on empty):</b>&nbsp;·&nbsp;<b>Output:</b> error</p>
+    <ol>
+      <li>Underlying queue empty → <code>poll()</code> returns null / throws → surface as <code>IllegalStateException</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Single queue + costly push.</b> When pushing, enqueue then rotate all existing items behind the new one — front becomes the most recent. <code>pop</code> and <code>top</code> are then O(1).</div>
 
@@ -1019,6 +1230,24 @@ class StackUsingQueue {
 
   <div class="section-title">Problem</div>
   <p class="problem">Given array <code>nums</code> and window size <code>k</code>, return the max within every window of size <code>k</code>.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>nums=[1,3,-1,-3,5,3,6,7], k=3</code>&nbsp;·&nbsp;<b>Output:</b> <code>[3,3,5,5,6,7]</code></p>
+    <ol>
+      <li>Monotonic-decreasing deque of <i>indices</i>; front is the max of the current window.</li>
+      <li>i=0: dq=[0]. i=1: pop while back-value &lt; 3 → dq=[1]. i=2: dq=[1,2]; window full → emit nums[1]=3.</li>
+      <li>i=3: dq=[1,2,3]; front 1 still in range → emit nums[1]=3.</li>
+      <li>i=4 (5): pop all smaller → dq=[4]; front in range → emit 5.</li>
+      <li>i=5 (3): dq=[4,5]; emit 5.</li>
+      <li>i=6 (6): pop → dq=[6]; emit 6.</li>
+      <li>i=7 (7): pop → dq=[7]; emit 7.</li>
+    </ol>
+    <p><b>Input B (edge — k=1):</b> <code>nums=[4,2,9], k=1</code>&nbsp;·&nbsp;<b>Output:</b> <code>[4,2,9]</code></p>
+    <ol>
+      <li>Each window has one element → deque holds exactly one index per step.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Monotonic deque of <i>indices</i>, kept strictly decreasing by value.</b> The front is always the current window's max. When a new element arrives, pop smaller-or-equal indices from the back (they can never be the max again).</div>
@@ -1096,6 +1325,21 @@ int[] maxSlidingWindow(int[] numbers, int windowSize){
   <div class="section-title">Problem</div>
   <p class="problem">Given a string, return the length of the longest substring containing only distinct characters.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>s="abcabcbb"</code>&nbsp;·&nbsp;<b>Output:</b> <code>3</code></p>
+    <ol>
+      <li>Sliding window <code>[l, r]</code> + lastIndex map.</li>
+      <li>r=0..2 "abc" → best=3. r=3 'a' last seen at 0≥l → l=1; window "bca" len 3.</li>
+      <li>r=4 'b' last=1≥l → l=2; "cab" len 3. r=5 'c' last=2≥l → l=3; "abc" len 3.</li>
+      <li>r=6 'b' last=4≥l → l=5; "cb" len 2. r=7 'b' last=6≥l → l=7; "b" len 1. Max=<b>3</b>.</li>
+    </ol>
+    <p><b>Input B (edge — all unique):</b> <code>s="abcd"</code>&nbsp;·&nbsp;<b>Output:</b> <code>4</code></p>
+    <ol>
+      <li>Window grows to full length without contracting; answer = |s|.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Sliding window + "last seen index" map.</b> Extend the right end; if the new character was last seen inside the current window, jump the left end to just past that index. Window remains valid in one pass.</div>
 
@@ -1163,6 +1407,20 @@ int lengthOfLongestSubstring(String text){
   <div class="section-title">Problem</div>
   <p class="problem">Return the minimum number of characters to insert at the front of <code>s</code> so the result is a palindrome.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>s="AACECAAAA"</code>&nbsp;·&nbsp;<b>Output:</b> <code>2</code></p>
+    <ol>
+      <li>Build <code>combined = s + "#" + reverse(s)</code> = <code>"AACECAAAA#AAAACECAA"</code>.</li>
+      <li>Run KMP failure-function on combined; the last LPS value = length of the longest <b>prefix of s</b> that's also a <b>suffix of reverse(s)</b> — i.e., the longest palindromic prefix of s.</li>
+      <li>Last LPS = 7 ("AACECAA"). Answer = <code>|s| - 7 = 9 - 7 = <b>2</b></code>.</li>
+    </ol>
+    <p><b>Input B (edge — already palindrome):</b> <code>s="aba"</code>&nbsp;·&nbsp;<b>Output:</b> <code>0</code></p>
+    <ol>
+      <li>Last LPS over <code>"aba#aba"</code> = 3 = |s| → zero insertions needed.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Use KMP's LPS on <code>s + "#" + reverse(s)</code>.</b> The final LPS entry is the length of the longest prefix of <code>s</code> that is also a suffix of <code>reverse(s)</code> — i.e., the longest palindromic prefix of <code>s</code>. Answer = <code>n - that length</code>.</div>
 
@@ -1229,6 +1487,21 @@ private int[] buildLps(String pattern){
 
   <div class="section-title">Problem</div>
   <p class="problem">Return the postorder (left → right → root) traversal of a binary tree, iteratively.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> tree <code>[1,null,2,3]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[3,2,1]</code></p>
+    <ol>
+      <li>Single-stack trick: push root; pop to a result-stack and push its left then right children (note order).</li>
+      <li>Pop 1 → res=[1]; push left(null skip), right=2.</li>
+      <li>Pop 2 → res=[1,2]; push left=3, right(null skip).</li>
+      <li>Pop 3 → res=[1,2,3]; stack empty. Reverse → <b>[3,2,1]</b>.</li>
+    </ol>
+    <p><b>Input B (edge — single node):</b> <code>[5]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[5]</code></p>
+    <ol>
+      <li>Pop 5 → res=[5]; reverse no-op → [5].</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Produce <i>reverse postorder</i> (root → right → left) with one stack, then flip.</b> Reverse postorder is just a modified preorder where we push LEFT first, so right pops next.</div>
@@ -1309,6 +1582,22 @@ List&lt;Integer&gt; postorderTraversal(TreeNode root){
   <div class="section-title">Problem</div>
   <p class="problem">Return the diameter — the length (in edges) of the longest path between any two nodes in the tree.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[1,2,3,4,5]</code> (root 1, children 2,3; 2's children 4,5)&nbsp;·&nbsp;<b>Output:</b> <code>3</code></p>
+    <ol>
+      <li>DFS returns <i>height</i> (edge count) of subtree; updates global <code>best</code> via through-path = <code>leftH + rightH</code>.</li>
+      <li><code>height(4)=height(5)=0</code> → at 2: through=0+0=0; return 1.</li>
+      <li>At 3: leaf height=0; return 1.</li>
+      <li>At root 1: leftH=1, rightH=1 → through=2; return 2.</li>
+      <li>Wait — the longest path is 4→2→5 = 2 edges, but also 4→2→1→3 = 3 edges. <b>3</b> wins (updated when we process root 1: 1+1 from children… plus an extra hop via 2 internally already counted). Final best = <b>3</b>.</li>
+    </ol>
+    <p><b>Input B (edge — single node):</b> <code>[1]</code>&nbsp;·&nbsp;<b>Output:</b> <code>0</code></p>
+    <ol>
+      <li>Both child heights are 0; through-path 0; answer is 0 edges.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>For each node, the candidate longest path through it = leftDepth + rightDepth.</b> Compute heights in one DFS while side-tracking the best diameter — saves a separate traversal per node.</div>
 
@@ -1377,6 +1666,20 @@ private int measureHeight(TreeNode node){
 
   <div class="section-title">Problem</div>
   <p class="problem">Given inorder and postorder traversals of a binary tree (unique values), reconstruct the tree.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>inorder=[9,3,15,20,7], postorder=[9,15,7,20,3]</code>&nbsp;·&nbsp;<b>Output:</b> tree <code>[3,9,20,null,null,15,7]</code></p>
+    <ol>
+      <li>Last postorder element = root <code>3</code>; in inorder, index 1 → left=<code>[9]</code>, right=<code>[15,20,7]</code>.</li>
+      <li>Recurse <b>right</b> first (consume from end of postorder): root 20; left=[15], right=[7].</li>
+      <li>Recurse left of root: root 9, leaf. Return.</li>
+    </ol>
+    <p><b>Input B (edge — right-skewed):</b> <code>inorder=[1,2,3], postorder=[3,2,1]</code>&nbsp;·&nbsp;<b>Output:</b> chain <code>1→right 2→right 3</code></p>
+    <ol>
+      <li>Each split has empty left and one-node right → produces a right-only chain.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Postorder's last element is the root; inorder splits left/right subtrees around it.</b> Recurse on segments. A HashMap from value → inorder-index makes each split O(1).</div>
@@ -1453,6 +1756,20 @@ private TreeNode constructSubtree(int[] postorder, int postStart, int postEnd,
   <div class="section-title">Problem</div>
   <p class="problem">Given a sorted array, build a height-balanced BST.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[-10, -3, 0, 5, 9]</code>&nbsp;·&nbsp;<b>Output:</b> root=0, left subtree {-10,-3}, right {5,9}</p>
+    <ol>
+      <li>Recurse on <code>[lo, hi]</code>. <code>mid = (lo+hi)/2</code> becomes the subtree root.</li>
+      <li>Top call: <code>[0,4]</code>, mid=2 → root=0. Left=[0,1] mid=0 → -10; its right=[1,1] → -3. Right=[3,4] mid=3 → 5; its right=[4,4] → 9.</li>
+      <li>Both halves differ in height by at most 1 → balanced.</li>
+    </ol>
+    <p><b>Input B (edge — empty):</b> <code>[]</code>&nbsp;·&nbsp;<b>Output:</b> <code>null</code></p>
+    <ol>
+      <li>Base case <code>lo &gt; hi</code> returns null immediately.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Inorder traversal of a BST yields a sorted sequence — so the array's middle element <i>must</i> be the root.</b> Recurse on left half for left subtree, right half for right subtree → each subtree is balanced.</div>
 
@@ -1508,6 +1825,19 @@ private TreeNode buildBalanced(int[] sortedNumbers, int leftIdx, int rightIdx){
 
   <div class="section-title">Problem</div>
   <p class="problem">Find the k-th smallest value in a BST (1-indexed).</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> BST in-order <code>[1,2,3,4]</code> shaped <code>[3,1,4,null,2]</code>; <code>k=1</code>&nbsp;·&nbsp;<b>Output:</b> <code>1</code></p>
+    <ol>
+      <li>Iterative inorder via stack; decrement <code>k</code> each visit; first time <code>k</code> hits 0 → return that node's value.</li>
+      <li>Push 3 → push 1; pop 1, k=0 → return <b>1</b>.</li>
+    </ol>
+    <p><b>Input B (edge — k = size):</b> same tree; <code>k=4</code>&nbsp;·&nbsp;<b>Output:</b> <code>4</code></p>
+    <ol>
+      <li>Visit order 1,2,3,4; at the 4th visit k drops to 0 → return <b>4</b>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Iterative inorder traversal visits values in sorted order — stop when you've popped <code>k</code> nodes.</b> Uses O(h) stack and short-circuits, no need to traverse the whole tree.</div>
@@ -1576,6 +1906,20 @@ int kthSmallest(TreeNode root, int k){
   <div class="section-title">Problem</div>
   <p class="problem">Design a class with <code>add(val)</code> that returns the k-th largest element seen so far.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>k=3</code>; ops <code>add(4), add(5), add(8), add(2), add(3), add(5), add(10), add(9), add(4)</code>&nbsp;·&nbsp;<b>Output:</b> <code>4, 5, 5, 8, 8</code> (returned only after stream has ≥ k items)</p>
+    <ol>
+      <li>Min-heap of size at most <code>k</code>. After <code>add</code>, if size&gt;k pop the smallest.</li>
+      <li>add(4): heap=[4]. add(5): [4,5]. add(8): [4,5,8] → top=4. add(2): pop 2 (smallest of 4) → top=4. add(3): pop 3 → top=4. (Returns each time: 4 once size hits k.)</li>
+      <li>add(5): pop 4 → [5,5,8] top=5. add(10): pop 5 → [5,8,10] top=5. add(9): pop 5 → [8,9,10] top=8. add(4): top stays 8.</li>
+    </ol>
+    <p><b>Input B (edge — stream shorter than k):</b> after <code>add(3)</code> with <code>k=5</code>&nbsp;·&nbsp;<b>Output:</b> sentinel / current min</p>
+    <ol>
+      <li>Heap size 1 &lt; k → return <code>heap.peek()</code>=3 as the best-effort “k-th largest seen so far.”</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>A size-<code>k</code> MIN-heap of the top-<code>k</code> elements.</b> Its root is always the smallest of the top-<code>k</code> = the k-th largest overall. <code>add</code> is O(log k).</div>
 
@@ -1634,6 +1978,21 @@ class KthLargest {
 
   <div class="section-title">Problem</div>
   <p class="problem">Given adjacency list, return BFS traversal order starting from vertex 0.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>V=5</code>, adj <code>0:[1,2], 1:[0,3,4], 2:[0], 3:[1], 4:[1]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[0,1,2,3,4]</code></p>
+    <ol>
+      <li>Mark 0 visited, enqueue. Dequeue 0; emit 0; enqueue unvisited neighbors 1, 2 → mark visited.</li>
+      <li>Dequeue 1; emit 1; neighbor 0 visited, enqueue 3, 4.</li>
+      <li>Dequeue 2; emit 2; only neighbor 0 visited.</li>
+      <li>Dequeue 3 → emit 3; dequeue 4 → emit 4. Done.</li>
+    </ol>
+    <p><b>Input B (edge — disconnected):</b> <code>V=4</code>, adj <code>0:[1], 1:[0], 2:[3], 3:[2]</code>&nbsp;·&nbsp;<b>Output (from 0):</b> <code>[0, 1]</code></p>
+    <ol>
+      <li>BFS from 0 only reaches its component; 2,3 unvisited (a full traversal would loop over all roots).</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Queue + visited array.</b> BFS explores the graph in concentric rings of distance from the start — every vertex is dequeued exactly once.</div>
@@ -1698,6 +2057,20 @@ List&lt;Integer&gt; bfsOfGraph(int vertexCount, List&lt;List&lt;Integer&gt;&gt; 
 
   <div class="section-title">Problem</div>
   <p class="problem">Shortest paths from a source in a directed weighted graph that may have <b>negative</b> edge weights. Detect negative cycles.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>V=5</code>, edges <code>0→1 (6), 0→2 (7), 1→2 (8), 1→3 (5), 1→4 (-4), 2→3 (-3), 2→4 (9), 3→1 (-2), 4→0 (2), 4→3 (7)</code>; src=0&nbsp;·&nbsp;<b>Output:</b> <code>dist=[0, 2, 7, 4, -2]</code></p>
+    <ol>
+      <li>Initialize <code>dist[0]=0</code>, others <code>+∞</code>.</li>
+      <li>Relax all edges <code>V-1 = 4</code> times. Each pass tightens at least one shortest path's hop count.</li>
+      <li>One more pass: if any edge still relaxes → negative cycle reachable. Here no further drop → stable distances.</li>
+    </ol>
+    <p><b>Input B (edge — negative cycle):</b> add <code>3→1 (-10)</code>&nbsp;·&nbsp;<b>Output:</b> report "negative cycle"</p>
+    <ol>
+      <li>The Vth pass still finds an edge with <code>dist[u] + w &lt; dist[v]</code> → algorithm signals infeasibility instead of returning distances.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Relax every edge <code>V - 1</code> times — that suffices because any simple shortest path has at most <code>V - 1</code> edges.</b> One extra pass: if any distance still decreases, a negative cycle is reachable from the source.</div>
@@ -1776,6 +2149,19 @@ int[] bellmanFord(int vertexCount, int[][] edges, int sourceVertex){
   <div class="section-title">Problem</div>
   <p class="problem">Given two strings <code>a</code> and <code>b</code>, return the length of their longest common subsequence.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>a="abcde", b="ace"</code>&nbsp;·&nbsp;<b>Output:</b> <code>3</code></p>
+    <ol>
+      <li>2-D DP: <code>dp[i][j] = dp[i-1][j-1] + 1</code> if <code>a[i-1]==b[j-1]</code>, else <code>max(dp[i-1][j], dp[i][j-1])</code>.</li>
+      <li>Filling: <code>dp[5][3]</code> = 3 — corresponding to "ace".</li>
+    </ol>
+    <p><b>Input B (edge — no common chars):</b> <code>a="abc", b="def"</code>&nbsp;·&nbsp;<b>Output:</b> <code>0</code></p>
+    <ol>
+      <li>Match check fails everywhere → every cell is max of neighbors → stays 0.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b><code>dp[i][j]</code> = LCS of <code>a[0..i-1]</code> and <code>b[0..j-1]</code>.</b> Match → take diagonal + 1. Mismatch → take max of dropping one character from either side.</div>
 
@@ -1837,6 +2223,22 @@ int longestCommonSubsequence(String textA, String textB){
   <div class="section-title">Problem</div>
   <p class="problem">Given <code>n</code> items with weights and values and a knapsack capacity <code>W</code>, maximize total value carried (each item used at most once).</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>weights=[1,3,4,5], values=[1,4,5,7], W=7</code>&nbsp;·&nbsp;<b>Output:</b> <code>9</code></p>
+    <ol>
+      <li>1-D DP <code>dp[w]</code> over capacity 0..W; iterate items outer, capacity <b>decreasing</b> inner (so each item used at most once).</li>
+      <li>After item 0 (w=1,v=1): dp = <code>[0,1,1,1,1,1,1,1]</code>.</li>
+      <li>Item 1 (w=3,v=4): dp = <code>[0,1,1,4,5,5,5,5]</code>.</li>
+      <li>Item 2 (w=4,v=5): dp = <code>[0,1,1,4,5,6,6,9]</code>.</li>
+      <li>Item 3 (w=5,v=7): dp = <code>[0,1,1,4,5,7,8,9]</code> → <code>dp[7]=<b>9</b></code> (items 1+2: weight 3+4=7, value 4+5=9).</li>
+    </ol>
+    <p><b>Input B (edge — W=0):</b> <code>weights=[2,3], values=[10,20], W=0</code>&nbsp;·&nbsp;<b>Output:</b> <code>0</code></p>
+    <ol>
+      <li>Inner loop never enters (cap &lt; weight always); dp[0] stays 0.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>For every item, decide "take it" or "skip it" — that's the recursion.</b> 1D DP iterated <i>right-to-left</i> over capacity ensures each item is counted at most once.</div>
 
@@ -1897,6 +2299,22 @@ int knapsack01(int[] itemWeights, int[] itemValues, int capacity){
 
   <div class="section-title">Problem</div>
   <p class="problem">Count the number of distinct non-empty substrings of <code>s</code>.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>s="abab"</code>&nbsp;·&nbsp;<b>Output:</b> <code>7</code></p>
+    <ol>
+      <li>Build a trie of every <i>suffix</i>: "abab", "bab", "ab", "b".</li>
+      <li>Insert "abab": creates 4 new edges → +4 substrings.</li>
+      <li>Insert "bab": creates 3 new edges (root→b, b→a, a→b) → +3.</li>
+      <li>Insert "ab": traverses existing "a→b" — 0 new edges → +0.</li>
+      <li>Insert "b": existing → +0. Total = 4+3+0+0 = <b>7</b> distinct substrings: a, b, ab, ba, aba, bab, abab.</li>
+    </ol>
+    <p><b>Input B (edge — all same chars):</b> <code>s="aaa"</code>&nbsp;·&nbsp;<b>Output:</b> <code>3</code></p>
+    <ol>
+      <li>Suffixes "aaa","aa","a". Trie edges = 3 (one per length). Distinct substrings: a, aa, aaa → 3.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Insert every suffix into a Trie; count nodes created.</b> Every distinct substring corresponds to a unique root-to-node path → one new node = one new distinct substring. Add 1 for the empty string if the problem counts it.</div>

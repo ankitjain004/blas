@@ -137,6 +137,22 @@
   <div class="section-title">Problem</div>
   <p class="problem">Given an <code>m × n</code> matrix, if any element is 0, set its entire row and column to 0. Do it <b>in-place</b> with O(1) extra space.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[[1,1,1],[1,0,1],[1,1,1]]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[[1,0,1],[0,0,0],[1,0,1]]</code></p>
+    <ol>
+      <li>Pass 1: zero at <code>(1,1)</code> → mark <code>row[1]=true</code>, <code>col[1]=true</code> using first row/col as flags.</li>
+      <li>Pass 2: for each cell <code>(i,j)</code> with <code>i,j≥1</code>, zero it if its row or column flag is set.</li>
+      <li>Finally zero first row/col based on the original-firstRow/firstCol booleans captured at start.</li>
+    </ol>
+    <p><b>Input B (edge — zeros in first row/col):</b> <code>[[0,1,2,0],[3,4,5,2],[1,3,1,5]]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[[0,0,0,0],[0,4,5,0],[0,3,1,0]]</code></p>
+    <ol>
+      <li><code>firstRowZero=true</code>, <code>firstColZero=false</code>.</li>
+      <li>Mark <code>col[3]</code> via <code>(0,3)=0</code>; cols 0 and 3 get zeroed in pass 2.</li>
+      <li>Finally row 0 zeroed entirely because <code>firstRowZero</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Reuse the matrix as your memory.</b> The first row & first column become "flag arrays" telling which rows/cols must be zeroed. Use one extra boolean for the first column itself to break ambiguity at <code>matrix[0][0]</code>.</div>
 
@@ -211,6 +227,19 @@ void setZeroes(int[][] matrix){
   <div class="section-title">Problem</div>
   <p class="problem">Rotate an <code>n × n</code> matrix clockwise by 90° in-place.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[[1,2,3],[4,5,6],[7,8,9]]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[[7,4,1],[8,5,2],[9,6,3]]</code></p>
+    <ol>
+      <li><b>Transpose</b> (swap <code>m[i][j]</code> with <code>m[j][i]</code> for <code>i&lt;j</code>) → <code>[[1,4,7],[2,5,8],[3,6,9]]</code>.</li>
+      <li><b>Reverse each row</b> → <code>[[7,4,1],[8,5,2],[9,6,3]]</code>. ✓</li>
+    </ol>
+    <p><b>Input B (edge — n=1):</b> <code>[[5]]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[[5]]</code></p>
+    <ol>
+      <li>Transpose loop empty (i&lt;j has no pairs); reverse of single element is itself. No-op.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Transpose, then reverse each row.</b> A 90° clockwise rotation is equivalent to flipping over the main diagonal, then mirroring left-right.</div>
 
@@ -273,6 +302,19 @@ void rotate(int[][] matrix){
 
   <div class="section-title">Problem</div>
   <p class="problem">Each row sorted, first integer of each row &gt; last integer of previous row. Search for <code>target</code>.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>matrix=[[1,3,5,7],[10,11,16,20],[23,30,34,60]], target=11</code>&nbsp;·&nbsp;<b>Output:</b> <code>true</code></p>
+    <ol>
+      <li>Treat as flat sorted array of length <code>3·4=12</code>; binary search on <code>[0..11]</code>.</li>
+      <li><code>mid=5</code> → <code>(r=1, c=1)</code> → value <code>11</code> = target → <b>return true</b>.</li>
+    </ol>
+    <p><b>Input B (edge — not present):</b> <code>same matrix, target=15</code>&nbsp;·&nbsp;<b>Output:</b> <code>false</code></p>
+    <ol>
+      <li><code>mid=5</code>→11&lt;15 → <code>lo=6</code>; <code>mid=8</code>→<code>(2,0)</code>=23&gt;15 → <code>hi=7</code>; <code>mid=6</code>→<code>(1,2)</code>=16&gt;15 → <code>hi=5</code> → exit → <b>false</b>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Treat the 2D matrix as a flattened sorted array.</b> Index <code>k</code> maps to <code>(k/C, k%C)</code>. Now it's pure binary search.</div>
@@ -341,6 +383,20 @@ boolean searchInSortedMatrix(int[][] matrix, int target){
   <div class="section-title">Problem</div>
   <p class="problem">Return indices <code>i, j</code> such that <code>a[i] + a[j] == target</code>.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>nums=[2,7,11,15], target=9</code>&nbsp;·&nbsp;<b>Output:</b> <code>[0,1]</code></p>
+    <ol>
+      <li><code>i=0</code>, <code>need=9-2=7</code>; map empty → store <code>{2:0}</code>.</li>
+      <li><code>i=1</code>, <code>need=9-7=2</code>; map has <code>2→0</code> → return <code>[0,1]</code>.</li>
+    </ol>
+    <p><b>Input B (edge — duplicate value):</b> <code>nums=[3,3], target=6</code>&nbsp;·&nbsp;<b>Output:</b> <code>[0,1]</code></p>
+    <ol>
+      <li><code>i=0</code>: store <code>{3:0}</code>.</li>
+      <li><code>i=1</code>, <code>need=3</code>; map has <code>3→0</code> → return <code>[0,1]</code> (we look up before inserting, so the same index is never reused).</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>"Have I seen the complement?"</b> While walking the array, ask the hash map if <code>target − current</code> already passed by. Trade memory for one linear scan.</div>
 
@@ -398,6 +454,21 @@ int[] twoSum(int[] nums, int target){
 
   <div class="section-title">Problem</div>
   <p class="problem">Given <code>head</code> of a singly linked list, return the reversed list.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>1→2→3→4→5</code>&nbsp;·&nbsp;<b>Output:</b> <code>5→4→3→2→1</code></p>
+    <ol>
+      <li><code>prev=null, curr=1</code> → save <code>next=2</code>; flip <code>1.next=null</code>; <code>prev=1, curr=2</code>.</li>
+      <li>Repeat: after node 2 → <code>2→1</code>; node 3 → <code>3→2→1</code>; node 4 → <code>4→3→2→1</code>; node 5 → <code>5→4→3→2→1</code>.</li>
+      <li><code>curr=null</code> → return <code>prev=5</code>.</li>
+    </ol>
+    <p><b>Input B (edge — empty / single):</b> <code>[]</code> → <code>null</code>; &nbsp;<code>[1]</code> → <code>[1]</code></p>
+    <ol>
+      <li>Empty: loop never runs, return <code>prev=null</code>.</li>
+      <li>Single: one iteration flips <code>1.next=null</code>, <code>prev=1</code>; return <code>1</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Three pointers, one snip at a time.</b> <code>prev</code> is the new tail-side, <code>curr</code> is the worker, <code>next</code> is your safety net before flipping the arrow.</div>
@@ -474,6 +545,19 @@ ListNode reverseListRecursive(ListNode head){
   <div class="section-title">Problem</div>
   <p class="problem">Find the node where two singly-linked lists merge (or null).</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>A: 4→1→8→4→5</code> &nbsp; <code>B: 5→6→1→8→4→5</code> (intersect at node <code>8</code>)&nbsp;·&nbsp;<b>Output:</b> node <code>8</code></p>
+    <ol>
+      <li>Two pointers <code>pA</code>, <code>pB</code> walk their lists; when one ends, jump to the other's head.</li>
+      <li>Each pointer travels exactly <code>lenA + lenB</code> steps, so they align at the intersection: meet at <code>8</code>.</li>
+    </ol>
+    <p><b>Input B (edge — no intersection):</b> disjoint lists&nbsp;·&nbsp;<b>Output:</b> <code>null</code></p>
+    <ol>
+      <li>Both pointers walk <code>lenA+lenB</code> steps and simultaneously become <code>null</code> → return <code>null</code>. No infinite loop.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Equalize the runways.</b> Two pointers; when one hits the end, jump to the OTHER list's head. After at most <code>m+n</code> steps they either meet at the intersection or both reach null together.</div>
 
@@ -528,6 +612,20 @@ ListNode getIntersectionNode(ListNode headA, ListNode headB){
 
   <div class="section-title">Problem</div>
   <p class="problem">Rotate a linked list to the right by <code>k</code> places.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>1→2→3→4→5, k=2</code>&nbsp;·&nbsp;<b>Output:</b> <code>4→5→1→2→3</code></p>
+    <ol>
+      <li>Compute length <code>n=5</code>; close into a ring (tail.next = head).</li>
+      <li>New tail is at position <code>n - k%n - 1 = 5-2-1 = 2</code> (0-indexed) → node <code>3</code>.</li>
+      <li>New head = <code>3.next = 4</code>; cut <code>3.next=null</code> → <code>4→5→1→2→3</code>.</li>
+    </ol>
+    <p><b>Input B (edge — k &gt; length):</b> <code>1→2→3, k=4</code> → effective <code>k%n=1</code>&nbsp;·&nbsp;<b>Output:</b> <code>3→1→2</code></p>
+    <ol>
+      <li>New tail at index <code>3-1-1=1</code> → node <code>2</code>; new head = <code>3</code>; cut → <code>3→1→2</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Make it a circle, then cut.</b> Connect tail to head, walk to the new tail at <code>len − k%len − 1</code>, and break the circle there.</div>
@@ -594,6 +692,21 @@ ListNode rotateRight(ListNode head, int k){
 
   <div class="section-title">Problem</div>
   <p class="problem">Maximum number of non-overlapping meetings, given start[] and end[].</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>start=[1,3,0,5,8,5], end=[2,4,6,7,9,9]</code>&nbsp;·&nbsp;<b>Output:</b> <code>4</code></p>
+    <ol>
+      <li>Sort by end: <code>(1,2), (3,4), (0,6), (5,7), (8,9), (5,9)</code>.</li>
+      <li>Pick <code>(1,2)</code>; <code>last=2</code>. <code>(3,4)</code>: 3&gt;2 ✓ pick; <code>last=4</code>.</li>
+      <li><code>(0,6)</code>: 0&lt;4 ✗. <code>(5,7)</code>: 5&gt;4 ✓ pick; <code>last=7</code>. <code>(8,9)</code>: 8&gt;7 ✓ pick; <code>last=9</code>. <code>(5,9)</code>: 5&lt;9 ✗.</li>
+      <li>Total picked = <b>4</b>.</li>
+    </ol>
+    <p><b>Input B (edge — all overlap):</b> <code>start=[1,2,3], end=[10,10,10]</code>&nbsp;·&nbsp;<b>Output:</b> <code>1</code></p>
+    <ol>
+      <li>After sorting by end, pick the first; every subsequent meeting starts before <code>last=10</code> → only <b>1</b>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Always pick the meeting that ends first.</b> Earliest finish time leaves the most room for the rest. Classic exchange-argument greedy.</div>
@@ -709,6 +822,19 @@ int maxMeetings(int[] startTimes, int[] endTimes){
   <div class="section-title">Problem</div>
   <p class="problem">Return sums of all <code>2ⁿ</code> subsets of an array.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[1,2,3]</code>&nbsp;·&nbsp;<b>Output (sorted):</b> <code>[0,1,2,3,3,4,5,6]</code></p>
+    <ol>
+      <li>Recurse <code>(idx, sum)</code>; at each step branch <i>take</i> vs <i>skip</i>.</li>
+      <li>Leaves at <code>idx=3</code>: 0, 3, 2, 5, 1, 4, 3, 6 → 8 = 2³ values.</li>
+    </ol>
+    <p><b>Input B (edge — empty):</b> <code>[]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[0]</code></p>
+    <ol>
+      <li>Single recursion path ends with <code>sum=0</code> immediately → result has just the empty-subset sum.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>At each index: pick or not-pick.</b> A binary recursion tree of depth <code>n</code> generates every subset exactly once. Carry the running sum down.</div>
 
@@ -760,6 +886,19 @@ void collectSubsetSums(int index, int runningSum, int[] nums, List&lt;Integer&gt
 
   <div class="section-title">Problem</div>
   <p class="problem">Return all <code>n!</code> permutations of distinct integers.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[1,2,3]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]</code></p>
+    <ol>
+      <li>Backtrack: at depth <code>d</code>, swap <code>a[d]</code> with each <code>a[i≥d]</code>, recurse on <code>d+1</code>, then swap back.</li>
+      <li>Tree fans out 3 → 2 → 1 → leaf, producing <code>3!=6</code> permutations.</li>
+    </ol>
+    <p><b>Input B (edge — single):</b> <code>[7]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[[7]]</code></p>
+    <ol>
+      <li>One recursive call hits the base case immediately and emits the single arrangement.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Swap-in-place backtracking.</b> Fix position <code>i</code>: try every <code>j ≥ i</code> in that slot, recurse, then swap back. No extra used[] array needed.</div>
@@ -855,6 +994,17 @@ flowchart TD
   L -- no --> N["Return -1"]
   </pre></div>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>n = 3, m = 27</code> &nbsp;·&nbsp; <b>Output:</b> <code>3</code> (since 3³ = 27)</p>
+    <ol>
+      <li><code>lo=1, hi=27</code> &rarr; <code>mid=14</code>, 14³ exceeds cap &rarr; too big &rarr; <code>hi=13</code>.</li>
+      <li><code>lo=1, hi=13</code> &rarr; <code>mid=7</code>, 7³=343 &gt; 27 &rarr; <code>hi=6</code>.</li>
+      <li><code>lo=1, hi=6</code> &rarr; <code>mid=3</code>, 3³=27 == m &rarr; <b>return 3</b>.</li>
+      <li>Counter-case <code>n=2, m=15</code>: search converges with <code>lo=4, hi=3</code> &rarr; loop exits &rarr; return <code>-1</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Computes base^exponent but caps the result at (cap + 1) once the cap is exceeded.
@@ -896,6 +1046,20 @@ int nthRoot(int n, int m){
 
   <div class="section-title">Problem</div>
   <p class="problem">Implement a binary max-heap supporting <code>insert(x)</code>, <code>extractMax()</code>, and <code>peek()</code> on a fixed-capacity array.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>insert 5,3,8,1,9</code>; then <code>extractMax()</code> twice&nbsp;·&nbsp;<b>Output:</b> <code>9</code>, then <code>8</code></p>
+    <ol>
+      <li>After 5 inserts, heap array = <code>[9,8,5,1,3]</code> (each insert sifts the new node up while it exceeds its parent).</li>
+      <li><code>extractMax</code> #1: return <code>9</code>; move <code>3</code> to root, sift down → <code>[8,3,5,1]</code> → <code>[8,3,5,1]</code> after sift settles to <code>[8,3,5,1]</code>.</li>
+      <li><code>extractMax</code> #2: return <code>8</code>; move <code>1</code> to root, sift down with child <code>5</code> → <code>[5,3,1]</code>.</li>
+    </ol>
+    <p><b>Input B (edge — extract from empty):</b> heap empty&nbsp;·&nbsp;<b>Output:</b> throw / sentinel</p>
+    <ol>
+      <li><code>size==0</code> → raise <code>IllegalStateException</code> (or return <code>Integer.MIN_VALUE</code> sentinel) without touching array.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>A heap is a complete binary tree flattened into an array</b> where, for max-heap, every parent ≥ its children. Index <code>i</code>'s parent is <code>(i-1)/2</code>, children are <code>2i+1</code>, <code>2i+2</code>. Fix violations by <i>swimming up</i> on insert and <i>sinking down</i> on extract.</div>
@@ -979,6 +1143,20 @@ flowchart TD
   <div class="section-title">Problem</div>
   <p class="problem">Implement push, pop, top, size in O(1).</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>push(10); push(20); top(); pop(); size()</code>&nbsp;·&nbsp;<b>Output:</b> <code>20, 20, 1</code></p>
+    <ol>
+      <li><code>push(10)</code>: <code>arr=[10,_,_], top=0</code>.</li>
+      <li><code>push(20)</code>: <code>arr=[10,20,_], top=1</code>.</li>
+      <li><code>top()</code> → <code>arr[1]=20</code>. <code>pop()</code> → return <code>20</code>, <code>top=0</code>. <code>size()=top+1=1</code>.</li>
+    </ol>
+    <p><b>Input B (edge — pop from empty):</b> stack empty&nbsp;·&nbsp;<b>Output:</b> error</p>
+    <ol>
+      <li><code>top==-1</code> → throw <code>IllegalStateException</code> instead of returning garbage.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Top index is the only state.</b> An array + an integer pointer is a complete stack — no allocations per op.</div>
 
@@ -1036,6 +1214,23 @@ class ArrayStack{
 
   <div class="section-title">Problem</div>
   <p class="problem">For each element, find the first <i>smaller</i> element to its right (or <code>-1</code> if none).</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[4, 8, 5, 2, 25]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[2, 5, 2, -1, -1]</code></p>
+    <ol>
+      <li>Walk right to left, monotonic <i>increasing</i> stack of values.</li>
+      <li><code>i=4 (25)</code>: stack empty → <code>ans[4]=-1</code>; push 25.</li>
+      <li><code>i=3 (2)</code>: pop 25 (≥2); empty → <code>ans[3]=-1</code>; push 2.</li>
+      <li><code>i=2 (5)</code>: top=2&lt;5 → <code>ans[2]=2</code>; push 5.</li>
+      <li><code>i=1 (8)</code>: top=5&lt;8 → <code>ans[1]=5</code>; push 8.</li>
+      <li><code>i=0 (4)</code>: pop 8, pop 5; top=2&lt;4 → <code>ans[0]=2</code>.</li>
+    </ol>
+    <p><b>Input B (edge — strictly increasing):</b> <code>[1,2,3,4]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[-1,-1,-1,-1]</code></p>
+    <ol>
+      <li>From the right, every element pops everything bigger, leaving stack empty when processing each new value → all <code>-1</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Monotonic increasing stack walking right → left.</b> While the top is ≥ current, it can't be anyone's "next smaller" anymore — pop it. The new top (if any) is the answer for the current index; then push the current value so it can serve future indices.</div>
@@ -1102,6 +1297,19 @@ int[] nextSmallerElement(int[] nums){
   <div class="section-title">Problem</div>
   <p class="problem">Reverse word order, collapse extra spaces.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>"&nbsp;&nbsp;hello&nbsp;&nbsp;&nbsp;world&nbsp;&nbsp;"</code>&nbsp;·&nbsp;<b>Output:</b> <code>"world hello"</code></p>
+    <ol>
+      <li><code>trim()</code> → <code>"hello   world"</code>; <code>split("\\s+")</code> → <code>["hello","world"]</code>.</li>
+      <li>Iterate from end, append with single space → <code>"world hello"</code>.</li>
+    </ol>
+    <p><b>Input B (edge — single word):</b> <code>"sky"</code>&nbsp;·&nbsp;<b>Output:</b> <code>"sky"</code></p>
+    <ol>
+      <li>Split yields one token; reverse loop appends just that, no separator added → <code>"sky"</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Walk from the right collecting words.</b> Or "reverse all chars then reverse each word" if you need O(1) extra space on a char array.</div>
 
@@ -1162,6 +1370,23 @@ String reverseWords(String input){
 
   <div class="section-title">Problem</div>
   <p class="problem">For string <code>s</code>, compute <code>z[i]</code> = longest substring starting at <code>i</code> that matches a prefix of <code>s</code>. Use <code>p + "$" + t</code> for pattern matching.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>s="aabaa"</code>&nbsp;·&nbsp;<b>Output:</b> <code>z=[0,1,0,2,1]</code></p>
+    <ol>
+      <li><code>z[0]=0</code> by convention.</li>
+      <li><code>i=1</code>: compare <code>s[0..]</code> with <code>s[1..]</code> → match 1 char (<code>'a'</code>); set window <code>[l,r]=[1,1]</code>.</li>
+      <li><code>i=2</code>: <code>'b'≠'a'</code> → <code>z[2]=0</code>.</li>
+      <li><code>i=3</code>: outside window, naive compare <code>"aa" vs "aa"</code> → <code>z[3]=2</code>; window <code>[3,4]</code>.</li>
+      <li><code>i=4</code>: inside window, mirror <code>z[4-3]=z[1]=1</code>; equals window-rest → <code>z[4]=1</code>.</li>
+    </ol>
+    <p><b>Input B (pattern matching):</b> <code>p="ab", t="cabab"</code>; build <code>"ab$cabab"</code>&nbsp;·&nbsp;<b>Output:</b> match-positions in t = <code>{1, 3}</code></p>
+    <ol>
+      <li>Compute Z over the combined string. Wherever <code>z[i] &ge; |p|=2</code> and <code>i &gt; |p|</code>, record <code>i - |p| - 1</code> as a match in t.</li>
+      <li>Z values ≥2 occur at index 4 and 6 → t-positions <code>4-3=1</code> and <code>6-3=3</code> → matches "ab" at t[1..2] and t[3..4].</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Maintain a Z-box <code>[L, R]</code>.</b> If <code>i</code> is inside the current box, you can reuse the previously computed <code>z[i − L]</code> as a head start instead of recomputing from zero.</div>
@@ -1239,6 +1464,20 @@ int[] zFunction(String s){
   <div class="section-title">Problem</div>
   <p class="problem">Return inorder (Left → Root → Right) traversal without recursion.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> tree <code>[1,null,2,3]</code> (root 1, right child 2 whose left child is 3)&nbsp;·&nbsp;<b>Output:</b> <code>[1,3,2]</code></p>
+    <ol>
+      <li>Push 1; <code>1.left=null</code> → pop 1, emit → visit <code>1.right=2</code>.</li>
+      <li>Push 2, then push <code>2.left=3</code>; <code>3.left=null</code> → pop 3, emit → <code>3.right=null</code>.</li>
+      <li>Pop 2, emit → <code>2.right=null</code> → stack empty → result <code>[1,3,2]</code>.</li>
+    </ol>
+    <p><b>Input B (edge — single node):</b> <code>[1]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[1]</code></p>
+    <ol>
+      <li>Push 1; left null → pop, emit; right null → stop → <code>[1]</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Walk left, pop, visit, go right.</b> The stack holds nodes whose <i>left subtree is still being processed</i> — they're waiting their turn. When you can't go further left, the top of the stack is the next-smallest unvisited node; visit it, then jump into its right subtree and restart the left-walk.</div>
 
@@ -1306,6 +1545,20 @@ List&lt;Integer&gt; inorderTraversal(TreeNode root){
   <div class="section-title">Problem</div>
   <p class="problem">Return nodes grouped by level (BFS).</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[3,9,20,null,null,15,7]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[[3],[9,20],[15,7]]</code></p>
+    <ol>
+      <li>Queue starts <code>[3]</code>; <code>levelSize=1</code> → emit <code>[3]</code>; enqueue children <code>9, 20</code>.</li>
+      <li><code>levelSize=2</code> → emit <code>[9,20]</code>; 9 has no kids, 20 enqueues <code>15, 7</code>.</li>
+      <li><code>levelSize=2</code> → emit <code>[15,7]</code>; queue empty → done.</li>
+    </ol>
+    <p><b>Input B (edge — empty):</b> <code>root=null</code>&nbsp;·&nbsp;<b>Output:</b> <code>[]</code></p>
+    <ol>
+      <li>Initial null check returns <code>[]</code> immediately; no queue work.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>One queue, snapshot the level size before draining.</b> Each outer iteration peels exactly one level off the queue.</div>
 
@@ -1366,6 +1619,20 @@ List&lt;List&lt;Integer&gt;&gt; levelOrder(TreeNode root){
 
   <div class="section-title">Problem</div>
   <p class="problem">A path is any sequence of nodes connected by parent-child edges (need not pass through the root). Return the maximum sum among all paths. Node values can be negative.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[-10, 9, 20, null, null, 15, 7]</code>&nbsp;·&nbsp;<b>Output:</b> <code>42</code></p>
+    <ol>
+      <li>At node 15: best downward gain = 15. At node 7: 7. At node 20: through-path = <code>20 + 15 + 7 = 42</code> → update global best.</li>
+      <li>20 returns upward gain <code>20 + max(15,7) = 35</code> (cannot "split" upward).</li>
+      <li>At root <code>-10</code>: through = <code>-10 + max(0,9) + max(0,35) = 34</code> &lt; 42; final answer <b>42</b>.</li>
+    </ol>
+    <p><b>Input B (edge — single negative node):</b> <code>[-3]</code>&nbsp;·&nbsp;<b>Output:</b> <code>-3</code></p>
+    <ol>
+      <li>Best is the single-node path; we never floor downward gains for the global update, so <code>-3</code> is returned (not 0).</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Each node has two roles.</b> (1) As an <i>internal bend point</i> a path goes <code>left → node → right</code> — its sum is <code>node.val + leftGain + rightGain</code> and is a candidate for the global answer. (2) As a <i>contributor to a parent</i> only one side can be extended upward, so it returns <code>node.val + max(left, right)</code>. Negative gains are clamped to <code>0</code>.</div>
@@ -1437,6 +1704,20 @@ private int maxDownwardGain(TreeNode node){
   <div class="section-title">Problem</div>
   <p class="problem">Perfect binary tree — link each node's <code>next</code> to its right neighbor on the same level. Use <code>O(1)</code> extra space.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> perfect tree <code>[1,2,3,4,5,6,7]</code>&nbsp;·&nbsp;<b>Output:</b> level-pointer chains <code>1→null</code>; <code>2→3→null</code>; <code>4→5→6→7→null</code></p>
+    <ol>
+      <li>Use the parent's <code>next</code> chain at level <code>L</code> to wire children at level <code>L+1</code> — no queue needed.</li>
+      <li>From 1: <code>2.next = 3</code>, <code>3.next = null</code>.</li>
+      <li>Walk level <code>2→3</code>: <code>4.next=5</code>, <code>5.next=6</code> (using <code>2.next=3</code> to bridge), <code>6.next=7</code>, <code>7.next=null</code>.</li>
+    </ol>
+    <p><b>Input B (edge — only root):</b> <code>[1]</code>&nbsp;·&nbsp;<b>Output:</b> <code>1.next = null</code></p>
+    <ol>
+      <li>Outer loop sees no children → nothing wired; root's <code>next</code> remains <code>null</code> by default.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Build level <code>k+1</code> using level <code>k</code>'s already-wired <code>next</code> chain.</b> A "level head" pointer walks down-left; a "current" sweeps along the chain at the parent level, wiring the children below: <code>cur.left.next = cur.right</code>; <code>cur.right.next = cur.next?.left</code>.</div>
 
@@ -1506,6 +1787,21 @@ Node connect(Node root){
   <div class="section-title">Problem</div>
   <p class="problem">Largest value ≤ <code>key</code> in a BST.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> BST in-order <code>[2,4,7,8,10,12,14]</code>; <code>key=11</code>&nbsp;·&nbsp;<b>Output:</b> <code>10</code></p>
+    <ol>
+      <li>Start at root <code>8</code>: <code>8≤11</code> → <code>floor=8</code>, go right.</li>
+      <li>At <code>12</code>: <code>12&gt;11</code> → go left.</li>
+      <li>At <code>10</code>: <code>10≤11</code> → update <code>floor=10</code>, go right.</li>
+      <li>Right child null → return <code>10</code>.</li>
+    </ol>
+    <p><b>Input B (edge — key smaller than min):</b> <code>key=1</code>&nbsp;·&nbsp;<b>Output:</b> <code>-1</code> (not found)</p>
+    <ol>
+      <li>At each node, value &gt; key → always go left; never update floor; eventually fall off → return sentinel <code>-1</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Walk down; remember the last "still ≤ key" node.</b> You only ever go right when the current node is ≤ key — so the moment before turning right, that node is a valid floor candidate.</div>
 
@@ -1566,6 +1862,20 @@ int floor(TreeNode root, int key){
 
   <div class="section-title">Problem</div>
   <p class="problem">Convert a BST to a sorted circular doubly-linked list, in place.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> BST <code>[4,2,5,1,3]</code>&nbsp;·&nbsp;<b>Output:</b> circular DLL <code>1↔2↔3↔4↔5</code> (<code>5.right=1, 1.left=5</code>)</p>
+    <ol>
+      <li>Inorder traversal yields <code>1, 2, 3, 4, 5</code>; track <code>prev</code> pointer.</li>
+      <li>For each visited node <code>cur</code>: if <code>prev!=null</code> set <code>prev.right=cur, cur.left=prev</code>; else remember <code>head=cur</code>.</li>
+      <li>After walk, close ring: <code>head.left=prev, prev.right=head</code>.</li>
+    </ol>
+    <p><b>Input B (edge — single node):</b> <code>[10]</code>&nbsp;·&nbsp;<b>Output:</b> <code>10↔10</code> (self-circular)</p>
+    <ol>
+      <li>Inorder visits one node → <code>head=10, prev=10</code>; closing ring sets <code>10.left=10, 10.right=10</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Inorder + a global "previous" pointer.</b> Each node visited gets stitched to the previous one. Finally close the cycle between head and last.</div>
@@ -1644,6 +1954,20 @@ Node treeToDoublyLinkedList(Node root){
   <div class="section-title">Problem</div>
   <p class="problem">Deep copy an undirected connected graph.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> 4-node cycle <code>1–2–3–4–1</code>&nbsp;·&nbsp;<b>Output:</b> a brand-new graph with the same shape (clone nodes, no original references)</p>
+    <ol>
+      <li>DFS from node 1; map <code>orig→clone</code>. Create clone of 1, recurse to neighbor 2.</li>
+      <li>Clone 2, recurse to 3 (4 also seen via 1's other edge later); clone 3, recurse to 4; clone 4 → neighbor 1 already in map, link.</li>
+      <li>Each edge added <i>both ways</i> on clones (mirrored adjacency). Result is isomorphic but disjoint.</li>
+    </ol>
+    <p><b>Input B (edge — empty graph):</b> <code>node = null</code>&nbsp;·&nbsp;<b>Output:</b> <code>null</code></p>
+    <ol>
+      <li>Guard at entry returns <code>null</code> immediately; map never used.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>HashMap of original → clone is your visited set AND your registry.</b> First time you see a node, create its clone; then recursively wire neighbors.</div>
 
@@ -1705,6 +2029,20 @@ Node cloneGraph(Node originalNode){
 
   <div class="section-title">Problem</div>
   <p class="problem">In a directed graph, find all <i>strongly connected components</i> — maximal sets of vertices where every pair is mutually reachable.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> 5 vertices, edges <code>1→2, 2→3, 3→1, 3→4, 4→5</code>&nbsp;·&nbsp;<b>Output:</b> SCCs <code>{1,2,3}, {4}, {5}</code></p>
+    <ol>
+      <li>DFS pass 1 on original graph; push vertices to stack on finish → e.g. order <code>5, 4, 3, 2, 1</code> on top.</li>
+      <li>Transpose graph: <code>2→1, 3→2, 1→3, 4→3, 5→4</code>.</li>
+      <li>Pop stack; DFS on transpose. Pop 1 → reaches 3, 2 → SCC <code>{1,2,3}</code>. Pop 2,3 (visited). Pop 4 → SCC <code>{4}</code>. Pop 5 → SCC <code>{5}</code>.</li>
+    </ol>
+    <p><b>Input B (edge — plain DAG):</b> <code>1→2→3</code>&nbsp;·&nbsp;<b>Output:</b> three singletons <code>{1}, {2}, {3}</code></p>
+    <ol>
+      <li>No back-edges in either graph, so each transpose-DFS visits exactly one node before exhausting.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Two DFS passes around a transpose.</b> The 1st DFS records vertices in <i>finish-time order</i> on a stack. After reversing all edges, the 2nd DFS popping in that order naturally peels off one SCC at a time — because the last-finished vertex must lie in a sink SCC of the original graph (= source SCC of the reverse).</div>
@@ -1786,6 +2124,20 @@ private void dfsCollect(int u, List&lt;Integer&gt;[] transpose, boolean[] visite
   <div class="section-title">Problem</div>
   <p class="problem">Find the contiguous subarray with the largest product.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[2, 3, -2, 4]</code>&nbsp;·&nbsp;<b>Output:</b> <code>6</code></p>
+    <ol>
+      <li>Track running <code>max</code> and <code>min</code> ending at each index (a negative value can flip them).</li>
+      <li><code>i=0</code>: max=min=2. <code>i=1</code>: max=6, min=3. <code>i=2 (-2)</code>: candidates <code>{-2, -12, -6}</code> → max=-2, min=-12. <code>i=3 (4)</code>: candidates <code>{4, -8, -48}</code> → max=4.</li>
+      <li>Best of (2, 6, -2, 4) = <b>6</b>.</li>
+    </ol>
+    <p><b>Input B (edge — negatives flip product):</b> <code>[-2, 3, -4]</code>&nbsp;·&nbsp;<b>Output:</b> <code>24</code></p>
+    <ol>
+      <li><code>i=0</code>: max=min=-2. <code>i=1 (3)</code>: max=3, min=-6. <code>i=2 (-4)</code>: candidates <code>{-4, -12, 24}</code> → max=<b>24</b>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Track both max AND min so far.</b> A negative number flips them — today's min × negative becomes tomorrow's max. Reset on zero.</div>
 
@@ -1853,6 +2205,19 @@ int maxProduct(int[] nums){
 
   <div class="section-title">Problem</div>
   <p class="problem">Given an <code>m × n</code> non-negative grid, find the path from top-left to bottom-right with minimum sum, moving only right or down.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>[[1,3,1],[1,5,1],[4,2,1]]</code>&nbsp;·&nbsp;<b>Output:</b> <code>7</code></p>
+    <ol>
+      <li>DP <code>dp[i][j] = grid[i][j] + min(dp[i-1][j], dp[i][j-1])</code>; row 0 / col 0 are running prefix sums.</li>
+      <li>After fill: <code>[[1,4,5],[2,7,6],[6,8,7]]</code> → bottom-right = <b>7</b> (path 1→3→1→1→1).</li>
+    </ol>
+    <p><b>Input B (edge — single cell):</b> <code>[[5]]</code>&nbsp;·&nbsp;<b>Output:</b> <code>5</code></p>
+    <ol>
+      <li>Start equals end → answer is just <code>grid[0][0]</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Each cell asks: "who is my cheaper parent — the one above, or the one to the left?"</b> Then it adds its own cost. Define <code>dp[i][j]</code> = min sum to reach <code>(i,j)</code>; recurrence <code>dp[i][j] = grid[i][j] + min(dp[i-1][j], dp[i][j-1])</code>. Borders only have one parent.</div>
@@ -1923,6 +2288,21 @@ int minPathSum(int[][] grid){
 
   <div class="section-title">Problem</div>
   <p class="problem">Insert, search, startsWith — all on lowercase strings.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>insert("apple")</code>; then <code>search("apple")</code>, <code>search("app")</code>, <code>startsWith("app")</code>; then <code>insert("app")</code>; then <code>search("app")</code>&nbsp;·&nbsp;<b>Output:</b> <code>true, false, true, true</code></p>
+    <ol>
+      <li>After insert("apple"), nodes for <code>a→p→p→l→e</code> exist; only <code>e</code> has <code>isEnd=true</code>.</li>
+      <li><code>search("app")</code> walks to the second <code>p</code> but <code>isEnd=false</code> → <b>false</b>.</li>
+      <li><code>startsWith("app")</code> only needs the path to exist → <b>true</b>.</li>
+      <li>After insert("app"), the second <code>p</code> gets <code>isEnd=true</code>; now <code>search("app")</code> → <b>true</b>.</li>
+    </ol>
+    <p><b>Input B (edge — search before any insert):</b> empty trie; <code>search("x")</code>&nbsp;·&nbsp;<b>Output:</b> <code>false</code></p>
+    <ol>
+      <li>Root's child for <code>'x'</code> is null → immediate false; <code>startsWith("")</code> would still return true.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>A 26-ary tree where each edge is a character.</b> Walk character by character creating nodes lazily; mark a node <code>isEnd</code> when a complete word terminates there.</div>

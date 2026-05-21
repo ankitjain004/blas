@@ -123,6 +123,18 @@
   <div class="section-title">Problem</div>
   <p class="problem">Books with page counts <code>pages[]</code> must be split contiguously among <code>m</code> students. Each student gets ≥1 book. Minimize the maximum pages any student carries.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>pages = [12, 34, 67, 90], m = 2</code> &nbsp;·&nbsp; <b>Output:</b> <code>113</code></p>
+    <ol>
+      <li><code>lo = max = 90</code>, <code>hi = sum = 203</code>.</li>
+      <li><code>mid=146</code>: split {12,34,67}=113, {90}=90 → 2 students ≤ 2 ✓ → <code>ans=146, hi=145</code>.</li>
+      <li><code>mid=117</code>: same split works → <code>ans=117, hi=116</code>.</li>
+      <li><code>mid=103</code>: {12,34}=46, {67}=67, {90}=90 → needs 3 ✗ → <code>lo=104</code>.</li>
+      <li><code>mid=110</code>: still needs 3 ✗ → <code>lo=111</code>. <code>mid=113</code>: {12,34,67}=113, {90} → 2 ✓ → <code>ans=113, hi=112</code>. Loop exits → <b>return 113</b>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Binary search on the answer.</b> The answer lies in <code>[max(pages), sum(pages)]</code>. For a candidate cap, greedily walk the books in order, starting a new student whenever the running sum would exceed cap. Feasible iff students used ≤ m.</div>
 
@@ -135,19 +147,21 @@
   <div class="section-title">Optimal Approach</div>
   <div class="approach"><ol>
     <li>lo = max(pages); hi = sum(pages).</li>
-    <li>While lo &lt; hi: mid; if feasible(mid) → hi = mid else lo = mid + 1.</li>
+    <li>While <code>lo &lt;= hi</code>: pick <code>mid</code>; if feasible(mid) → record <code>ans = mid</code>, <code>hi = mid - 1</code> (try tighter). Else <code>lo = mid + 1</code>.</li>
     <li>feasible(cap): walk books, accumulate, start new student when overflow; return studentsUsed ≤ m.</li>
   </ol></div>
 
   <div class="section-title">Visual</div>
   <div class="mermaid-wrap"><pre class="mermaid">
 flowchart LR
-  S["lo = max(pages), hi = sum(pages)"] --> M["mid = (lo+hi)/2"]
+  S["lo = max(pages), hi = sum(pages)"] --> L{"lo &lt;= hi?"}
+  L -- no --> Z["return ans"]
+  L -- yes --> M["mid = (lo+hi)/2"]
   M --> F{"feasible(mid)?"}
-  F -- yes --> L["hi = mid (try tighter cap)"]
-  F -- no --> R["lo = mid + 1 (need looser cap)"]
-  L --> M
-  R --> M
+  F -- yes --> A["ans = mid; hi = mid - 1"]
+  F -- no --> R["lo = mid + 1"]
+  A --> L
+  R --> L
   </pre></div>
 
   <div class="section-title">Code (Java)</div>
@@ -162,12 +176,17 @@ int allocateMinimumPages(int[] pagesPerBook, int totalStudents){
   int lo = 0, hi = 0;
   for(int pages : pagesPerBook){ lo = Math.max(lo, pages); hi += pages; }
 
-  while(lo &lt; hi){
+  int answerCap = hi;                                            // sum always works as a fallback
+  while(lo &lt;= hi){
     int candidateCap = lo + (hi - lo) / 2;
-    if(canSplitWithinCap(pagesPerBook, totalStudents, candidateCap)) hi = candidateCap;
-    else                                                              lo = candidateCap + 1;
+    if(canSplitWithinCap(pagesPerBook, totalStudents, candidateCap)){
+      answerCap = candidateCap;                                  // cap works → try tighter
+      hi = candidateCap - 1;
+    } else {
+      lo = candidateCap + 1;                                     // cap too small → relax
+    }
   }
-  return lo;
+  return answerCap;
 }
 
 private boolean canSplitWithinCap(int[] pages, int allowedStudents, int cap){
@@ -197,6 +216,17 @@ private boolean canSplitWithinCap(int[] pages, int allowedStudents, int cap){
 
   <div class="section-title">Problem</div>
   <p class="problem">Place <code>k</code> cows into stalls at positions <code>stalls[]</code> so the MINIMUM distance between any two cows is MAXIMIZED. Return that maximum-of-minimums.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>stalls = [1, 2, 4, 8, 9], cows = 3</code> &nbsp;·&nbsp; <b>Output:</b> <code>3</code></p>
+    <ol>
+      <li>Sorted already. <code>lo=1</code>, <code>hi=9-1=8</code>.</li>
+      <li><code>mid=4</code>: place at 1; next ≥ 5 → 8; next ≥ 12 → none. Placed 2 &lt; 3 ✗ → <code>hi=3</code>.</li>
+      <li><code>mid=2</code>: place at 1, 4, 8 → 3 ✓ → <code>best=2, lo=3</code>.</li>
+      <li><code>mid=3</code>: place at 1, 4, 8 → 3 ✓ → <code>best=3, lo=4</code>. Loop exits → <b>return 3</b>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Binary search on the gap.</b> Sort stalls. For a candidate gap <code>d</code>, greedily place a cow in the first stall, then in each subsequent stall ≥ prev+d. Feasible iff we placed all k cows.</div>
@@ -273,6 +303,20 @@ private boolean canPlaceAllCowsWithGap(int[] stalls, int totalCows, int required
   <div class="section-title">Problem</div>
   <p class="problem">Sort a stack in ascending order (largest on top) using only stack operations and recursion / one auxiliary stack.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> stack <code>[3, 1, 4, 2]</code> (bottom &rarr; top)&nbsp;·&nbsp;<b>Output:</b> <code>[1, 2, 3, 4]</code> (largest on top)</p>
+    <ol>
+      <li>Pop <code>2</code>; recursively sort <code>[3, 1, 4]</code> &rarr; <code>[1, 3, 4]</code>.</li>
+      <li><code>insertSorted([1, 3, 4], 2)</code>: top <code>4 &gt; 2</code> hold; <code>3 &gt; 2</code> hold; <code>1 &le; 2</code> push <code>2</code>; restore <code>3</code>, <code>4</code>.</li>
+      <li>Stack now <code>[1, 2, 3, 4]</code>.</li>
+    </ol>
+    <p><b>Input B (edge):</b> empty stack <code>[]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[]</code></p>
+    <ol>
+      <li>Outer recursion sees empty &rarr; returns immediately; no inserts performed.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Pop the top off; recursively sort the rest; then insert the popped value into the now-sorted stack at the right spot.</b> Insertion itself recursively bubbles upward until the value finds its place.</div>
 
@@ -333,6 +377,22 @@ private void insertInSortedOrder(Deque&lt;Integer&gt; stack, int valueToInsert){
 
   <div class="section-title">Problem</div>
   <p class="problem">Grid cells: 0 empty, 1 fresh orange, 2 rotten. Every minute, rot spreads 4-directionally to adjacent fresh oranges. Return the minimum minutes to rot ALL fresh oranges, or -1 if some remain unreachable.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>grid = [[2,1,1],[1,1,0],[0,1,1]]</code>&nbsp;·&nbsp;<b>Output:</b> <code>4</code></p>
+    <ol>
+      <li>Initial: rotten at <code>(0,0)</code>, fresh count = 6.</li>
+      <li>Min 1: rot <code>(0,1)</code>, <code>(1,0)</code>; fresh = 4.</li>
+      <li>Min 2: rot <code>(0,2)</code>, <code>(1,1)</code>; fresh = 2.</li>
+      <li>Min 3: rot <code>(2,1)</code>; fresh = 1.</li>
+      <li>Min 4: rot <code>(2,2)</code>; fresh = 0 &rarr; return <code>4</code>.</li>
+    </ol>
+    <p><b>Input B (edge):</b> <code>grid = [[2,1,1],[0,1,1],[1,0,1]]</code>&nbsp;·&nbsp;<b>Output:</b> <code>-1</code></p>
+    <ol>
+      <li>The lone fresh orange at <code>(2,0)</code> is walled off by <code>0</code>s &rarr; BFS finishes with fresh &gt; 0 &rarr; return <code>-1</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Multi-source BFS — every initially rotten orange enters the queue at level 0.</b> Each BFS level = one minute. Track fresh count; if &gt; 0 after BFS → return -1; else return last level reached.</div>
@@ -411,6 +471,23 @@ int orangesRotting(int[][] grid){
 
   <div class="section-title">Problem</div>
   <p class="problem">Design a stack supporting <code>push, pop, top, getMin</code> all in O(1).</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> ops <code>push 5, push 3, push 7, getMin, pop, getMin</code>&nbsp;·&nbsp;<b>Output:</b> <code>3, 5</code></p>
+    <ol>
+      <li><code>push 5</code>: stack <code>[5]</code>, min = 5.</li>
+      <li><code>push 3</code>: 3 &lt; min &rarr; push encoded <code>2*3 - 5 = 1</code>; stack <code>[5, 1]</code>, min = 3.</li>
+      <li><code>push 7</code>: 7 &ge; min &rarr; push 7; stack <code>[5, 1, 7]</code>, min = 3.</li>
+      <li><code>getMin</code> &rarr; <b>3</b>.</li>
+      <li><code>pop</code>: top 7 &ge; min &rarr; min unchanged; stack <code>[5, 1]</code>.</li>
+      <li><code>pop</code> would pop encoded 1: 1 &lt; min &rarr; restore min = <code>2*3 - 1 = 5</code>; <code>getMin</code> &rarr; <b>5</b>.</li>
+    </ol>
+    <p><b>Input B (edge):</b> <code>push Integer.MIN_VALUE, getMin</code>&nbsp;·&nbsp;<b>Output:</b> <code>-2147483648</code></p>
+    <ol>
+      <li>First push: stack stores it as <code>long</code>, min = MIN_VALUE; encoding never triggers (no prior min). Long internals avoid the <code>2x - min</code> overflow.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Trick: store an ENCODED value when a new minimum arrives.</b> Push <code>2·x - oldMin</code> (which is &lt; x). On pop, if top &lt; currentMin → currentMin was <code>x</code>, restore old min = <code>2·currentMin - top</code>. Uses O(1) extra space beyond the stack itself.</div>
@@ -503,6 +580,21 @@ class MinStack {
   <div class="section-title">Problem</div>
   <p class="problem">For every window size k = 1..n, return the maximum over all windows of size k of the window's MINIMUM.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>a = [10, 20, 30, 50, 10, 70, 30]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[70, 70, 20, 10, 10, 10, 10]</code></p>
+    <ol>
+      <li>NSE/PSE give widest-window length per index (see Worked Example below).</li>
+      <li>Bucket by <code>len</code>: 1&rarr;50, 2&rarr;70, 3&rarr;20, 4&rarr;10, 7&rarr;10.</li>
+      <li>Back-fill right&rarr;left: ans[6]=10, ans[5]=10, ans[4]=10, ans[3]=20, ans[2]=70, ans[1]=70.</li>
+    </ol>
+    <p><b>Input B (edge):</b> <code>a = [3, 1, 2]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[3, 2, 1]</code></p>
+    <ol>
+      <li><code>a[0]=3</code>: len=1 &rarr; bucket[1]=3. <code>a[1]=1</code>: len=3 &rarr; bucket[3]=1. <code>a[2]=2</code>: len=1 &rarr; bucket[1]=max(3,2)=3.</li>
+      <li>After back-fill: ans = [3, 2, 1].</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>For each <code>a[i]</code>, find the LARGEST window in which it is the minimum.</b> That window length is <code>len = nextSmaller[i] - prevSmaller[i] - 1</code>. Then <code>answer[len] = max(answer[len], a[i])</code>. Finally back-fill: answer[len-1] = max(answer[len-1], answer[len]) (a min over length L also dominates L-1).</div>
 
@@ -563,6 +655,44 @@ int[] maxOfMinForEveryWindowSize(int[] numbers){
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(n)</b></div></div>
 
+  <div class="section-title">Worked Example — why <code>answer[len] = max(answer[len], a[i])</code></div>
+  <div class="mental">
+    <p>For each index <code>i</code>, <code>len = nextSmaller[i] − prevSmaller[i] − 1</code> is the <b>widest window in which <code>a[i]</code> is the strict minimum</b> (everything strictly between the two boundaries is <code>≥ a[i]</code>). So inside that window the minimum is exactly <code>a[i]</code>, making <code>a[i]</code> one candidate for "best minimum achievable in a window of size <code>len</code>". We take <code>max</code> because multiple indices may all produce the same <code>len</code>; the largest such value wins.</p>
+
+    <p><b>Take</b> <code>a = [10, 20, 30, 50, 10, 70, 30]</code>, n = 7.</p>
+
+<pre><code>i   a[i]   prevSmaller   nextSmaller   len = ns − ps − 1
+0   10        −1              4              4
+1   20         0              4              3
+2   30         1              4              2
+3   50         2              4              1
+4   10        −1              7              7
+5   70         4              7              2
+6   30         4              7              2</code></pre>
+
+    <p>Apply <code>answer[len] = max(answer[len], a[i])</code> (1-indexed buckets):</p>
+    <ul>
+      <li><code>len=1</code>: candidate a[3]=<b>50</b> → answer[1]=50</li>
+      <li><code>len=2</code>: candidates a[2]=30, a[5]=<b>70</b>, a[6]=30 → answer[2]=70</li>
+      <li><code>len=3</code>: candidate a[1]=<b>20</b> → answer[3]=20</li>
+      <li><code>len=4</code>: candidate a[0]=<b>10</b> → answer[4]=10</li>
+      <li><code>len=7</code>: candidate a[4]=<b>10</b> → answer[7]=10</li>
+      <li><code>len=5, 6</code>: empty so far → 0</li>
+    </ul>
+
+    <p>Back-fill <code>answer[k] = max(answer[k], answer[k+1])</code> from right to left:</p>
+<pre><code>k=6: max(0, 10)  = 10
+k=5: max(0, 10)  = 10
+k=4: max(10, 10) = 10
+k=3: max(20, 10) = 20
+k=2: max(70, 20) = 70
+k=1: max(50, 70) = 70
+
+final answer (window sizes 1..7) = [70, 70, 20, 10, 10, 10, 10]</code></pre>
+
+    <p><b>Why this is correct:</b> any window <code>W</code> of size <code>k</code> has some min <code>a[m]</code>; the widest "dominance range" of <code>m</code> has length <code>L_m ≥ k</code>, so <code>a[m]</code> is bucketed into <code>answer[L_m]</code> and the back-fill propagates it down to <code>answer[k]</code>. Hence every legitimate window-minimum is considered, and <code>max</code> picks the strongest.</p>
+  </div>
+
   <div class="section-title">Pattern Recap — Dominance Range</div>
   <div class="mental"><b>NSE + PSE on a monotonic stack gives each element its “dominance range”</b> — the widest window in which it is the min (or max). Once you have <code>len[i] = nextSmaller[i] - prevSmaller[i] - 1</code>, the same template solves a whole family:
     <table style="width:100%;border-collapse:collapse;margin-top:6px">
@@ -591,6 +721,20 @@ int[] maxOfMinForEveryWindowSize(int[] numbers){
 
   <div class="section-title">Problem</div>
   <p class="problem">In a party of n people, a celebrity is known by everyone but knows no one. Using <code>knows(a, b)</code>, find the celebrity (or -1) in O(n) calls.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>n=3</code>, <code>knows = [[0,1,0],[0,0,0],[0,1,0]]</code>&nbsp;·&nbsp;<b>Output:</b> <code>1</code></p>
+    <ol>
+      <li>l=0, r=2. <code>knows(0,2)=0</code> &rarr; r--, r=1.</li>
+      <li>l=0, r=1. <code>knows(0,1)=1</code> &rarr; l++, l=1. Loop ends, candidate=1.</li>
+      <li>Verify: <code>!knows(1, 0)</code> &amp; <code>knows(0, 1)</code> &check;; <code>!knows(1, 2)</code> &amp; <code>knows(2, 1)</code> &check; &rarr; return <code>1</code>.</li>
+    </ol>
+    <p><b>Input B (edge):</b> <code>n=2</code>, <code>knows = [[0,1],[1,0]]</code> (mutual)&nbsp;·&nbsp;<b>Output:</b> <code>-1</code></p>
+    <ol>
+      <li>Two-pointer narrows to candidate 1, but <code>knows(1, 0) = 1</code> &rarr; candidate also knows someone &rarr; return <code>-1</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Two-pointer elimination.</b> Compare two people; <code>knows(a, b)</code> rules a out; <code>!knows(a, b)</code> rules b out. n-1 calls converges to one candidate; verify with one more sweep.</div>
@@ -655,6 +799,20 @@ private boolean knows(int a, int b){ /* provided by problem harness */ return fa
   <div class="section-title">Problem</div>
   <p class="problem">Return the bottom view of a binary tree — for each horizontal distance column, the LAST node seen during a level-order traversal.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> tree <code>[20, 8, 22, 5, 3, 4, 25, null, null, 10, 14]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[5, 10, 4, 14, 25]</code></p>
+    <ol>
+      <li>BFS records (node, hd): 20&rarr;0, 8&rarr;-1, 22&rarr;1, 5&rarr;-2, 3&rarr;0, 4&rarr;0, 25&rarr;2, 10&rarr;-1, 14&rarr;1.</li>
+      <li>Always overwrite map[hd]: hd=-2&rarr;5, hd=-1&rarr;10 (last writer), hd=0&rarr;4 (deepest), hd=1&rarr;14, hd=2&rarr;25.</li>
+      <li>Read in column order &rarr; <code>[5, 10, 4, 14, 25]</code>.</li>
+    </ol>
+    <p><b>Input B (edge):</b> single node tree <code>[42]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[42]</code></p>
+    <ol>
+      <li>One BFS step: map = {0&rarr;42} &rarr; output <code>[42]</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>BFS + horizontal distance (HD).</b> Root HD = 0, left child HD-1, right child HD+1. Always OVERWRITE the map[hd] entry; the level-order ensures the last writer per column is the deepest visible node.</div>
 
@@ -687,21 +845,23 @@ flowchart TD
  * seen in level order. Trick: BFS guarantees deeper nodes are visited later, so simply
  * overwriting map[hd] on every visit yields the bottom-most value per column.
  */
+static final class Frame { final TreeNode node; final int hd; Frame(TreeNode n, int h){ node = n; hd = h; } }
+
 List&lt;Integer&gt; bottomView(TreeNode root){
   List&lt;Integer&gt; result = new ArrayList&lt;&gt;();
   if(root == null) return result;
 
   TreeMap&lt;Integer, Integer&gt; columnToValue = new TreeMap&lt;&gt;();
-  Deque&lt;Object[]&gt; queue = new ArrayDeque&lt;&gt;();
-  queue.offer(new Object[]{ root, 0 });
+  Deque&lt;Frame&gt; queue = new ArrayDeque&lt;&gt;();
+  queue.offer(new Frame(root, 0));
 
   while(!queue.isEmpty()){
-    Object[] frame = queue.poll();
-    TreeNode node  = (TreeNode) frame[0];
-    int      hd    = (int)      frame[1];
+    Frame f = queue.poll();
+    TreeNode node = f.node;
+    int      hd   = f.hd;
     columnToValue.put(hd, node.val);                          // always overwrite
-    if(node.left  != null) queue.offer(new Object[]{ node.left,  hd - 1 });
-    if(node.right != null) queue.offer(new Object[]{ node.right, hd + 1 });
+    if(node.left  != null) queue.offer(new Frame(node.left,  hd - 1));
+    if(node.right != null) queue.offer(new Frame(node.right, hd + 1));
   }
   result.addAll(columnToValue.values());
   return result;
@@ -719,6 +879,20 @@ List&lt;Integer&gt; bottomView(TreeNode root){
 
   <div class="section-title">Problem</div>
   <p class="problem">Return the top view of a binary tree — for each horizontal distance column, the FIRST node seen during a level-order traversal.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> tree <code>[1, 2, 3, 4, 5, 6, 7]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[4, 2, 1, 3, 7]</code></p>
+    <ol>
+      <li>BFS hd assignments: 1&rarr;0, 2&rarr;-1, 3&rarr;1, 4&rarr;-2, 5&rarr;0 (skipped — putIfAbsent), 6&rarr;0 (skipped), 7&rarr;2.</li>
+      <li>map = {-2&rarr;4, -1&rarr;2, 0&rarr;1, 1&rarr;3, 2&rarr;7}.</li>
+      <li>Output in column order: <code>[4, 2, 1, 3, 7]</code>.</li>
+    </ol>
+    <p><b>Input B (edge):</b> left-skewed tree <code>[1, 2, null, 3]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[3, 2, 1]</code></p>
+    <ol>
+      <li>BFS: 1&rarr;0, 2&rarr;-1, 3&rarr;-2. Each hd seen first time wins &rarr; <code>[3, 2, 1]</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Same BFS + HD trick as bottom view — but only write to map[hd] if it's empty.</b> First writer wins, which during BFS is the shallowest (topmost) node in that column.</div>
@@ -751,21 +925,23 @@ flowchart TD
  * Trick: identical scaffolding to bottom view; swap "always put" for putIfAbsent so the
  * topmost (earliest-level) node in each column wins.
  */
+// reuse same Frame { TreeNode node; int hd; }
+
 List&lt;Integer&gt; topView(TreeNode root){
   List&lt;Integer&gt; result = new ArrayList&lt;&gt;();
   if(root == null) return result;
 
   TreeMap&lt;Integer, Integer&gt; columnToValue = new TreeMap&lt;&gt;();
-  Deque&lt;Object[]&gt; queue = new ArrayDeque&lt;&gt;();
-  queue.offer(new Object[]{ root, 0 });
+  Deque&lt;Frame&gt; queue = new ArrayDeque&lt;&gt;();
+  queue.offer(new Frame(root, 0));
 
   while(!queue.isEmpty()){
-    Object[] frame = queue.poll();
-    TreeNode node  = (TreeNode) frame[0];
-    int      hd    = (int)      frame[1];
+    Frame f = queue.poll();
+    TreeNode node = f.node;
+    int      hd   = f.hd;
     columnToValue.putIfAbsent(hd, node.val);                  // first writer wins
-    if(node.left  != null) queue.offer(new Object[]{ node.left,  hd - 1 });
-    if(node.right != null) queue.offer(new Object[]{ node.right, hd + 1 });
+    if(node.left  != null) queue.offer(new Frame(node.left,  hd - 1));
+    if(node.right != null) queue.offer(new Frame(node.right, hd + 1));
   }
   result.addAll(columnToValue.values());
   return result;
@@ -783,6 +959,22 @@ List&lt;Integer&gt; topView(TreeNode root){
 
   <div class="section-title">Problem</div>
   <p class="problem">Return all three traversals (pre, in, post) of a binary tree using ONE iterative pass with a single stack.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> tree <code>[1, 2, 3]</code>&nbsp;·&nbsp;<b>Output:</b> pre <code>[1, 2, 3]</code>, in <code>[2, 1, 3]</code>, post <code>[2, 3, 1]</code></p>
+    <ol>
+      <li>(1, s=1): pre.add(1); push (1, 2); push (2, 1).</li>
+      <li>(2, s=1): pre.add(2); push (2, 2). (2, s=2): in.add(2); push (2, 3). (2, s=3): post.add(2).</li>
+      <li>(1, s=2): in.add(1); push (1, 3); push (3, 1).</li>
+      <li>(3, s=1): pre.add(3). (3, s=2): in.add(3). (3, s=3): post.add(3).</li>
+      <li>(1, s=3): post.add(1).</li>
+    </ol>
+    <p><b>Input B (edge):</b> empty tree <code>null</code>&nbsp;·&nbsp;<b>Output:</b> <code>([], [], [])</code></p>
+    <ol>
+      <li>Early return; nothing pushed; all three lists empty.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Push <code>(node, state)</code> where state ∈ {1,2,3}.</b> State 1: add to preorder, push (node,2), descend left. State 2: add to inorder, push (node,3), descend right. State 3: add to postorder.</div>
@@ -813,27 +1005,28 @@ flowchart TD
  * Trick: tag each stack frame with a state 1/2/3. State transitions mimic the three
  * "visit" moments of recursive DFS — before-left, between-children, after-right.
  */
+static final class Frame { final TreeNode node; int state; Frame(TreeNode n, int s){ node = n; state = s; } }
+
 List&lt;List&lt;Integer&gt;&gt; allThreeTraversals(TreeNode root){
   List&lt;Integer&gt; pre = new ArrayList&lt;&gt;(), in = new ArrayList&lt;&gt;(), post = new ArrayList&lt;&gt;();
   if(root == null) return List.of(pre, in, post);
 
-  Deque&lt;int[]&gt;     stateStack = new ArrayDeque&lt;&gt;();           // not used — node stack below
-  Deque&lt;Object[]&gt; stack = new ArrayDeque&lt;&gt;();
-  stack.push(new Object[]{ root, 1 });
+  Deque&lt;Frame&gt; stack = new ArrayDeque&lt;&gt;();
+  stack.push(new Frame(root, 1));
 
   while(!stack.isEmpty()){
-    Object[] frame = stack.pop();
-    TreeNode node  = (TreeNode) frame[0];
-    int      state = (int)      frame[1];
+    Frame f = stack.pop();
+    TreeNode node = f.node;
+    int      state = f.state;
 
     if(state == 1){                                            // first visit → preorder
       pre.add(node.val);
-      stack.push(new Object[]{ node, 2 });
-      if(node.left != null) stack.push(new Object[]{ node.left, 1 });
+      stack.push(new Frame(node, 2));
+      if(node.left != null) stack.push(new Frame(node.left, 1));
     } else if(state == 2){                                     // second visit → inorder
       in.add(node.val);
-      stack.push(new Object[]{ node, 3 });
-      if(node.right != null) stack.push(new Object[]{ node.right, 1 });
+      stack.push(new Frame(node, 3));
+      if(node.right != null) stack.push(new Frame(node.right, 1));
     } else {                                                   // third visit → postorder
       post.add(node.val);
     }
@@ -853,6 +1046,19 @@ List&lt;List&lt;Integer&gt;&gt; allThreeTraversals(TreeNode root){
 
   <div class="section-title">Problem</div>
   <p class="problem">Return true iff two binary trees have identical structure AND identical node values at every position.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> p = <code>[1, 2, 3]</code>, q = <code>[1, 2, 3]</code>&nbsp;·&nbsp;<b>Output:</b> <code>true</code></p>
+    <ol>
+      <li>Roots equal (1 == 1); recurse left: (2 == 2, both null children) &rarr; true.</li>
+      <li>Recurse right: (3 == 3, both null) &rarr; true. Final &rarr; <code>true</code>.</li>
+    </ol>
+    <p><b>Input B (edge):</b> p = <code>[1, 2]</code>, q = <code>[1, null, 2]</code>&nbsp;·&nbsp;<b>Output:</b> <code>false</code></p>
+    <ol>
+      <li>Roots equal; left: p has node 2 but q.left is null &rarr; one-null branch returns <code>false</code>. Same value, different shape.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Three-line recursion.</b> Both null → true. One null → false. Else val equal AND left subtree identical AND right subtree identical.</div>
@@ -904,6 +1110,21 @@ boolean isSameTree(TreeNode p, TreeNode q){
 
   <div class="section-title">Problem</div>
   <p class="problem">Given a BST and a key, return the in-order predecessor (largest key strictly less than the given key), or null.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> BST <code>[20, 8, 22, 4, 12, null, null, null, null, 10, 14]</code>, key = <code>10</code>&nbsp;·&nbsp;<b>Output:</b> <code>8</code></p>
+    <ol>
+      <li>cur=20: 20 &lt; 10? No &rarr; go left.</li>
+      <li>cur=8: 8 &lt; 10? Yes &rarr; pred=8; go right.</li>
+      <li>cur=12: 12 &lt; 10? No &rarr; go left.</li>
+      <li>cur=10: 10 &lt; 10? No &rarr; go left, cur = null. Return pred = <code>8</code>.</li>
+    </ol>
+    <p><b>Input B (edge):</b> same BST, key = <code>4</code> (smallest)&nbsp;·&nbsp;<b>Output:</b> <code>null</code></p>
+    <ol>
+      <li>Walk never finds <code>cur.val &lt; 4</code> &rarr; pred stays null &rarr; return <code>null</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Walk down once, O(h).</b> If node.val &lt; key → this node is a candidate; remember it; go right (looking for something larger but still &lt; key). Else go left.</div>
@@ -964,6 +1185,21 @@ TreeNode inorderPredecessor(TreeNode root, int key){
 
   <div class="section-title">Problem</div>
   <p class="problem">Given a binary tree, return the size (node count) of the LARGEST subtree that is itself a valid BST.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> tree <code>[10, 5, 15, 1, 8, null, 7]</code>&nbsp;·&nbsp;<b>Output:</b> <code>3</code></p>
+    <ol>
+      <li>Leaves 1, 8, 7 each return size 1 (valid 1-node BSTs).</li>
+      <li>Node 5 with children 1, 8: 1 &lt; 5 &lt; 8 &check; &rarr; size 3, valid BST. <b>best = 3</b>.</li>
+      <li>Node 15 with right child 7: 7 should be &gt; 15 &rarr; fails &rarr; poison marker (size = -1).</li>
+      <li>Root 10: right subtree poisoned &rarr; root fails. Final best = <code>3</code>.</li>
+    </ol>
+    <p><b>Input B (edge):</b> entire tree is a valid BST <code>[2, 1, 3]</code>&nbsp;·&nbsp;<b>Output:</b> <code>3</code></p>
+    <ol>
+      <li>All three nodes pass; root size = 3; best = 3.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Post-order summary.</b> Each call returns <code>(minVal, maxVal, size)</code> for the subtree, where size = -1 means "not a BST". A node forms a BST iff left.max &lt; node.val &lt; right.min AND both children are BSTs. Track a global best.</div>
@@ -1042,6 +1278,21 @@ private NodeInfo postOrderInfo(TreeNode node, int[] best){
 
   <div class="section-title">Problem</div>
   <p class="problem">Design serialize(root) → String and deserialize(String) → root so that the result tree is identical to the original.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> tree <code>[1, 2, 3, null, null, 4, 5]</code>&nbsp;·&nbsp;<b>Output:</b> <code>"1,2,3,#,#,4,5,#,#,#,#,"</code></p>
+    <ol>
+      <li>Serialize BFS: pop 1 &rarr; "1," enqueue 2, 3.</li>
+      <li>Pop 2 &rarr; "2," enqueue null, null. Pop 3 &rarr; "3," enqueue 4, 5.</li>
+      <li>Pop nulls (twice) &rarr; "#,#,". Pop 4 &rarr; "4," enqueue null, null. Pop 5 &rarr; "5," enqueue null, null.</li>
+      <li>Remaining four nulls &rarr; "#,#,#,#,". Deserialize splits these tokens and rebuilds the same tree.</li>
+    </ol>
+    <p><b>Input B (edge):</b> empty tree <code>null</code>&nbsp;·&nbsp;<b>Output:</b> <code>""</code></p>
+    <ol>
+      <li>Serialize returns <code>""</code>; deserialize sees empty &rarr; returns null. Round-trip preserves emptiness.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Level-order with explicit null markers.</b> Serialize: BFS, append <code>"#"</code> for nulls (but still don't enqueue them). Deserialize: split tokens, BFS again, attach each next two tokens as left/right children.</div>
@@ -1122,6 +1373,20 @@ TreeNode deserialize(String data){
 
   <div class="section-title">Problem</div>
   <p class="problem">Given <code>beginWord</code>, <code>endWord</code>, and a dictionary, return the length of the shortest transformation sequence beginWord → endWord where each step changes exactly one letter and every intermediate word is in the dictionary. Return 0 if impossible.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> begin = <code>"hit"</code>, end = <code>"cog"</code>, dict = <code>["hot","dot","dog","lot","log","cog"]</code>&nbsp;·&nbsp;<b>Output:</b> <code>5</code></p>
+    <ol>
+      <li>Level 1: hit. Level 2: hot. Level 3: dot, lot.</li>
+      <li>Level 4: dog (from dot), log (from lot). Level 5: cog &rarr; return <b>5</b>.</li>
+      <li>Path length = 5: hit &rarr; hot &rarr; dot &rarr; dog &rarr; cog.</li>
+    </ol>
+    <p><b>Input B (edge):</b> begin = <code>"hit"</code>, end = <code>"cog"</code>, dict = <code>["hot","dot","dog","lot","log"]</code> (no cog)&nbsp;·&nbsp;<b>Output:</b> <code>0</code></p>
+    <ol>
+      <li>endWord not in dictionary &rarr; early return <code>0</code> without BFS.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Treat each dictionary word as a graph node; edges connect words differing by exactly one letter. The answer is the shortest path — use BFS.</b> To find neighbors fast, for each position try replacing the char with each of 'a'..'z' and look up the result in a hashset.</div>
@@ -1205,6 +1470,21 @@ int ladderLength(String beginWord, String endWord, List&lt;String&gt; wordList){
   <div class="section-title">Problem</div>
   <p class="problem">Given a directed graph, return true iff it contains at least one cycle.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> V=4, edges = <code>[0&rarr;1, 1&rarr;2, 2&rarr;0, 2&rarr;3]</code>&nbsp;·&nbsp;<b>Output:</b> <code>true</code> (cycle present)</p>
+    <ol>
+      <li>indegrees = [1, 1, 1, 1]. None zero &rarr; queue starts empty.</li>
+      <li>processedCount = 0 &lt; V = 4 &rarr; return <code>true</code>.</li>
+    </ol>
+    <p><b>Input B (edge):</b> V=4, edges = <code>[0&rarr;1, 0&rarr;2, 1&rarr;3, 2&rarr;3]</code> (DAG)&nbsp;·&nbsp;<b>Output:</b> <code>false</code></p>
+    <ol>
+      <li>indegrees = [0, 1, 1, 2]. Enqueue 0.</li>
+      <li>Pop 0 &rarr; indegrees [_, 0, 0, 2]; enqueue 1, 2. Pop 1, 2 &rarr; indegree[3] = 0; enqueue 3.</li>
+      <li>processedCount = 4 = V &rarr; return <code>false</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Kahn's algorithm reveals cycles by exclusion.</b> Compute indegrees; BFS-pop all nodes whose indegree drops to zero. If fewer than V nodes get popped, the leftovers form a cycle (their indegrees can never reach 0).</div>
 
@@ -1270,6 +1550,21 @@ boolean hasCycleDirected(int vertexCount, List&lt;List&lt;Integer&gt;&gt; adjace
   <div class="section-title">Problem</div>
   <p class="problem">Given a DAG, return any topological ordering — a linear ordering of vertices such that for every edge u→v, u appears before v.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> V=6, edges = <code>[5&rarr;2, 5&rarr;0, 4&rarr;0, 4&rarr;1, 2&rarr;3, 3&rarr;1]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[4, 5, 0, 2, 3, 1]</code> (one valid order)</p>
+    <ol>
+      <li>indegrees = [2, 2, 1, 1, 0, 0]. Enqueue 4, 5.</li>
+      <li>Pop 4 &rarr; indegree[0]=1, indegree[1]=1. Pop 5 &rarr; indegree[2]=0, indegree[0]=0; enqueue 2, 0.</li>
+      <li>Pop 2 &rarr; indegree[3]=0; enqueue 3. Pop 0. Pop 3 &rarr; indegree[1]=0; enqueue 1. Pop 1.</li>
+      <li>Order = [4, 5, 2, 0, 3, 1] (or any valid permutation respecting precedences).</li>
+    </ol>
+    <p><b>Input B (edge):</b> V=2, edges = <code>[0&rarr;1, 1&rarr;0]</code> (cycle)&nbsp;·&nbsp;<b>Output:</b> exception ("graph has a cycle")</p>
+    <ol>
+      <li>indegrees = [1, 1]. Queue empty from start &rarr; idx stays 0 &lt; V &rarr; throws.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Exact same Kahn's procedure as cycle detection — but record the pop order.</b> The pop sequence is a valid topological order whenever the graph is a DAG.</div>
 
@@ -1331,6 +1626,21 @@ int[] topologicalSort(int vertexCount, List&lt;List&lt;Integer&gt;&gt; adjacency
 
   <div class="section-title">Problem</div>
   <p class="problem">A graph is bipartite iff its vertices can be 2-colored so that no edge connects same-colored vertices. Return true/false using BFS.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> V=4, edges = <code>{0-1, 1-2, 2-3, 3-0}</code> (4-cycle)&nbsp;·&nbsp;<b>Output:</b> <code>true</code></p>
+    <ol>
+      <li>BFS from 0 with color 0. Color 1 &rarr; 1, 3 &rarr; 1.</li>
+      <li>From 1: neighbor 2 uncolored &rarr; color 0. From 3: neighbor 2 already 0, opposite of 1 &check;.</li>
+      <li>No conflicts &rarr; bipartite.</li>
+    </ol>
+    <p><b>Input B (edge):</b> V=3, edges = <code>{0-1, 1-2, 2-0}</code> (triangle / odd cycle)&nbsp;·&nbsp;<b>Output:</b> <code>false</code></p>
+    <ol>
+      <li>BFS from 0 (color 0) &rarr; 1 (color 1), 2 (color 1).</li>
+      <li>From 1, neighbor 2 already color 1 = color[1] &rarr; conflict &rarr; return <code>false</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>BFS alternating colors.</b> Color start = 0; every BFS neighbor gets opposite color. Conflict on a neighbor with the same color ⇒ not bipartite. Handle disconnected components by looping over all vertices.</div>
@@ -1403,6 +1713,19 @@ boolean isBipartiteBFS(int vertexCount, List&lt;List&lt;Integer&gt;&gt; adjacenc
   <div class="section-title">Problem</div>
   <p class="problem">Same bipartite question, but solve via DFS instead of BFS.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> V=6, edges = <code>{0-1, 0-3, 1-2, 2-3, 4-5}</code> (two components, both bipartite)&nbsp;·&nbsp;<b>Output:</b> <code>true</code></p>
+    <ol>
+      <li>DFS from 0 colors {0:0, 1:1, 2:0, 3:1} — no conflict.</li>
+      <li>Outer loop finds 4 uncolored, dfs(4, 0) colors {4:0, 5:1}. All good.</li>
+    </ol>
+    <p><b>Input B (edge):</b> V=4, edges = <code>{0-1, 1-2, 2-0, 2-3}</code> (triangle 0-1-2)&nbsp;·&nbsp;<b>Output:</b> <code>false</code></p>
+    <ol>
+      <li>dfs(0, 0) &rarr; dfs(1, 1) &rarr; dfs(2, 0). Now check edge 2-0: color[0]=0 = color[2] &rarr; conflict &rarr; <code>false</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>DFS coloring with explicit flip.</b> Visit child with color <code>1 - parentColor</code>. If neighbor already colored and matches → false. Else recurse.</div>
 
@@ -1469,6 +1792,20 @@ private boolean dfsTwoColor(int u, int c, int[] color, List&lt;List&lt;Integer&g
   <div class="section-title">Problem</div>
   <p class="problem">Return the length of the longest subsequence of <code>s</code> that reads the same forwards and backwards.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>s = "bbbab"</code>&nbsp;·&nbsp;<b>Output:</b> <code>4</code></p>
+    <ol>
+      <li>t = reverse(s) = <code>"babbb"</code>.</li>
+      <li>LCS("bbbab", "babbb") = 4 (one such common subsequence: "bbbb").</li>
+      <li>That subsequence reads identically forward/backward in <code>s</code> &rarr; longest palindrome subseq has length 4.</li>
+    </ol>
+    <p><b>Input B (edge):</b> <code>s = "abc"</code> (no repeats)&nbsp;·&nbsp;<b>Output:</b> <code>1</code></p>
+    <ol>
+      <li>reverse = <code>"cba"</code>. LCS = 1 (any single character). Any one-character substring is trivially a palindrome.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>LPS(s) == LCS(s, reverse(s)).</b> A palindrome subsequence of s is something that appears in both s AND its reverse — so reuse the LCS DP unchanged.</div>
 
@@ -1528,6 +1865,19 @@ int longestPalindromeSubseq(String s){
 
   <div class="section-title">Problem</div>
   <p class="problem">Given dims[] of n matrices (matrix i has size dims[i-1] × dims[i]), find the minimum number of scalar multiplications needed to multiply the chain.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>dims = [40, 20, 30, 10, 30]</code> (4 matrices: 40×20, 20×30, 30×10, 10×30)&nbsp;·&nbsp;<b>Output:</b> <code>26000</code></p>
+    <ol>
+      <li>Best parenthesization: <code>((A1×(A2×A3))×A4)</code>.</li>
+      <li>A2×A3 = 20·30·10 = 6000. A1×(...) = 40·20·10 = 8000. result×A4 = 40·10·30 = 12000. Total = 26000.</li>
+    </ol>
+    <p><b>Input B (edge):</b> <code>dims = [10, 20]</code> (single matrix)&nbsp;·&nbsp;<b>Output:</b> <code>0</code></p>
+    <ol>
+      <li>n = 1; outer loop <code>len = 2..n</code> never executes &rarr; dp[1][1] = 0.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Interval DP — try every split point.</b> dp[i][j] = min cost to multiply matrices i..j. dp[i][j] = min over k in [i, j-1] of (dp[i][k] + dp[k+1][j] + dims[i-1]·dims[k]·dims[j]).</div>
@@ -1590,6 +1940,21 @@ int matrixChainMultiplication(int[] dims){
   <div class="section-title">Problem</div>
   <p class="problem">Given <code>e</code> identical eggs and <code>f</code> floors, find the minimum number of trials in the WORST case to determine the critical floor (highest floor an egg can survive).</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>eggs = 2, floors = 10</code>&nbsp;·&nbsp;<b>Output:</b> <code>4</code></p>
+    <ol>
+      <li>g(1, 2) = 1 + g(0, 1) + g(0, 2) = 1.</li>
+      <li>g(2, 2) = 1 + g(1, 1) + g(1, 2) = 1 + 1 + 1 = 3.</li>
+      <li>g(3, 2) = 1 + g(2, 1) + g(2, 2) = 1 + 2 + 3 = 6.</li>
+      <li>g(4, 2) = 1 + g(3, 1) + g(3, 2) = 1 + 3 + 6 = 10 &ge; 10 &rarr; return <code>4</code>.</li>
+    </ol>
+    <p><b>Input B (edge):</b> <code>eggs = 1, floors = 100</code>&nbsp;·&nbsp;<b>Output:</b> <code>100</code></p>
+    <ol>
+      <li>With 1 egg you must check floor by floor sequentially &rarr; 100 trials. Recurrence: g(t, 1) = t.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Direct DP is O(e·f²). The trick: invert the question.</b> Let g(t, e) = max floors solvable with t trials and e eggs. Recurrence g(t, e) = 1 + g(t-1, e-1) + g(t-1, e) (1 floor tested + below + above). Increment t until g(t, e) ≥ f.</div>
 
@@ -1643,6 +2008,21 @@ int eggDropMinTrials(int eggs, int floors){
 
   <div class="section-title">Problem</div>
   <p class="problem">Given jobs with (start, end, profit), select a subset of mutually non-overlapping jobs to maximize total profit.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> jobs = <code>[(1,3,50), (2,4,10), (3,5,40), (3,6,70)]</code>&nbsp;·&nbsp;<b>Output:</b> <code>120</code></p>
+    <ol>
+      <li>Sort by end &rarr; same order. dp[0] = 50.</li>
+      <li>i=1 (end 4): last job ending &le; start 2 = -1; take = 10; dp[1] = max(50, 10) = 50.</li>
+      <li>i=2 (end 5): last ending &le; start 3 = job 0 (end 3); take = 40 + 50 = 90; dp[2] = max(50, 90) = 90.</li>
+      <li>i=3 (end 6): last ending &le; start 3 = job 0; take = 70 + 50 = 120; dp[3] = max(90, 120) = <b>120</b>.</li>
+    </ol>
+    <p><b>Input B (edge):</b> single job <code>(0, 1, 5)</code>&nbsp;·&nbsp;<b>Output:</b> <code>5</code></p>
+    <ol>
+      <li>dp[0] = profit of the only job = 5.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Sort by end time + binary search + DP.</b> dp[i] = max profit using jobs[0..i]. Choice at i: skip (dp[i-1]) or take (profit[i] + dp[k]) where k is the latest job ending ≤ start[i]; find k by binary search.</div>
@@ -1724,6 +2104,21 @@ private int upperBoundLE(int[] a, int target, int hi){
   <div class="section-title">Problem</div>
   <p class="problem">Given a string s, return the MINIMUM number of cuts to partition s such that every part is a palindrome.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>s = "aab"</code>&nbsp;·&nbsp;<b>Output:</b> <code>1</code></p>
+    <ol>
+      <li>isPal: "a", "a", "b", "aa" all true; "ab", "aab" false.</li>
+      <li>cuts[0] = 0 ("a" is pal). cuts[1] = 0 ("aa" is pal).</li>
+      <li>cuts[2]: "aab" not pal; try j=1 ("a..b"&rarr;"ab" not pal), j=2 ("b" pal) &rarr; cuts[1]+1 = 1.</li>
+      <li>Best cut: "aa | b" &rarr; <b>1</b> cut.</li>
+    </ol>
+    <p><b>Input B (edge):</b> <code>s = "racecar"</code> (already palindrome)&nbsp;·&nbsp;<b>Output:</b> <code>0</code></p>
+    <ol>
+      <li>isPal[0][n-1] = true &rarr; cuts[n-1] = 0 immediately.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Front DP after building palindrome table.</b> <code>isPal[i][j]</code> precomputed by expand-around-center or DP. Then <code>cuts[i]</code> = min cuts to partition s[0..i]. <code>cuts[i] = 0</code> if isPal[0][i]; else min over j in [1..i] of (cuts[j-1] + 1) when isPal[j][i].</div>
 
@@ -1789,6 +2184,21 @@ int minPalindromeCuts(String s){
 
   <div class="section-title">Problem</div>
   <p class="problem">Given <code>nums[]</code> and queries <code>(x, m)</code>, for each query return max(x XOR nums[i]) over all nums[i] ≤ m, or -1 if none.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>nums = [0, 1, 2, 3, 4]</code>, queries = <code>[[3,1], [1,3], [5,6]]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[3, 3, 7]</code></p>
+    <ol>
+      <li>Sort queries by m &rarr; order [(3,1), (1,3), (5,6)].</li>
+      <li>m=1: insert 0, 1 into Trie. max(3 ⊕ {0,1}) = 3 ⊕ 0 = 3.</li>
+      <li>m=3: insert 2, 3. max(1 ⊕ {0,1,2,3}) = 1 ⊕ 2 = 3.</li>
+      <li>m=6: insert 4. max(5 ⊕ {0,1,2,3,4}) = 5 ⊕ 2 = 7.</li>
+    </ol>
+    <p><b>Input B (edge):</b> <code>nums = [5, 6]</code>, query <code>[10, 4]</code> (m below all nums)&nbsp;·&nbsp;<b>Output:</b> <code>[-1]</code></p>
+    <ol>
+      <li>No nums &le; 4 &rarr; Trie empty (root.any = false) &rarr; return <code>-1</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Offline + bit-Trie.</b> Sort nums ascending; sort queries by m ascending. Sweep queries; insert into bit-Trie every num ≤ current m as we go. Then greedy max-XOR query (prefer opposite bit at each level).</div>

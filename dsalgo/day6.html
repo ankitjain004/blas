@@ -125,6 +125,18 @@
   <div class="section-title">Problem</div>
   <p class="problem">Given daily prices, return the max profit from a single buy + later sell (or 0).</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>prices=[7,1,5,3,6,4]</code> &nbsp;·&nbsp; <b>Output:</b> <code>5</code></p>
+    <ol>
+      <li><code>price=7</code>: <code>lowestPriceSoFar=7</code>, <code>bestProfitSoFar=0</code></li>
+      <li><code>price=1</code>: <code>lowestPriceSoFar=1</code>, <code>bestProfitSoFar=0</code></li>
+      <li><code>price=5</code>: <code>5-1=4</code> &rarr; <code>bestProfitSoFar=4</code></li>
+      <li><code>price=6</code>: <code>6-1=5</code> &rarr; <code>bestProfitSoFar=5</code></li>
+      <li><code>price=4</code>: <code>4-1=3</code> (no change) &rarr; return <code>5</code></li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Track the minimum-price-seen so far; each day, the candidate profit is <code>price - minSeen</code>.</b> Single pass, O(1) space.</div>
 
@@ -179,6 +191,18 @@ int maxProfit(int[] prices){
   <div class="section-title">Problem</div>
   <p class="problem">Count pairs <code>(i, j)</code> with <code>i &lt; j</code> and <code>a[i] &gt; a[j]</code>.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>nums=[5,3,2,4,1]</code> &nbsp;·&nbsp; <b>Output:</b> <code>8</code></p>
+    <ol>
+      <li>Split into <code>[5,3]</code> and <code>[2,4,1]</code>.</li>
+      <li>Merge <code>[5,3]</code>: <code>5&gt;3</code> &rarr; <b>1</b> inv; sorted <code>[3,5]</code>.</li>
+      <li>Recurse <code>[2,4,1]</code> &rarr; <code>[2]</code> + merge <code>[4,1]</code> (<b>1</b> inv) &rarr; merge <code>[2]</code> with <code>[1,4]</code> (<b>1</b> cross inv) &rarr; <code>[1,2,4]</code>.</li>
+      <li>Merge <code>[3,5]</code> with <code>[1,2,4]</code>: <code>3&gt;1</code> and <code>3&gt;2</code> contribute <b>2+2 = 4</b> cross-inv (each picks up remaining-left count 2).</li>
+      <li>Total = <code>1 + 1 + 1 + 4 = 8</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Modified merge sort.</b> While merging two sorted halves, whenever <code>left[i] &gt; right[j]</code>, all remaining elements in left (i..mid) form inversions with right[j] → add <code>(mid - i + 1)</code>.</div>
 
@@ -203,12 +227,11 @@ flowchart LR
   M --> C["if left[i] &gt; right[j] → inv += (mid - i + 1)"]
   </pre></div>
 
-  <div class="section-title">Code (Java)</div>
+  <div class="section-title">Code (Java) — Part 1: Merge Sort Driver</div>
 <pre><code class="language-java">/**
- * Count inversions in an array using a merge-sort hook.
- * Trick: during the merge, whenever a value from the right half wins the comparison,
- * EVERY remaining value in the left half is greater than it → that many inversions in
- * one constant-time bump.
+ * Top-level entry + classic merge-sort recursion. The recursion sorts each half and
+ * sums their inversion counts; the per-level cross-pair count comes from the merge
+ * helper below.
  */
 long countInversions(int[] numbers){
   int[] scratchBuffer = new int[numbers.length];
@@ -220,8 +243,20 @@ private long mergeSortAndCount(int[] numbers, int[] scratchBuffer, int lo, int h
   int mid = lo + (hi - lo) / 2;
   long inversions = mergeSortAndCount(numbers, scratchBuffer, lo, mid)
                   + mergeSortAndCount(numbers, scratchBuffer, mid + 1, hi);
+  inversions += mergeAndCount(numbers, scratchBuffer, lo, mid, hi);
+  return inversions;
+}</code></pre>
 
+  <div class="section-title">Code (Java) — Part 2: Merge with Inversion Count</div>
+<pre><code class="language-java">/**
+ * Merge two sorted halves [lo..mid] and [mid+1..hi]. Trick: whenever a value from the
+ * right half wins the comparison, EVERY remaining value in the left half is greater
+ * than it → bump inversions by (mid - leftIdx + 1) in one constant-time step.
+ */
+private long mergeAndCount(int[] numbers, int[] scratchBuffer, int lo, int mid, int hi){
+  long inversions = 0;
   int leftIdx = lo, rightIdx = mid + 1, writeIdx = lo;
+
   while(leftIdx &lt;= mid &amp;&amp; rightIdx &lt;= hi){
     if(numbers[leftIdx] &lt;= numbers[rightIdx]){
       scratchBuffer[writeIdx++] = numbers[leftIdx++];
@@ -249,6 +284,18 @@ private long mergeSortAndCount(int[] numbers, int[] scratchBuffer, int lo, int h
   <div class="section-title">Problem</div>
   <p class="problem">Count pairs <code>(i, j)</code> with <code>i &lt; j</code> and <code>a[i] &gt; 2 · a[j]</code>.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>nums=[1,3,2,3,1]</code> &nbsp;·&nbsp; <b>Output:</b> <code>2</code></p>
+    <ol>
+      <li>Pairs to check: <code>(i,j)</code> with <code>i&lt;j</code> and <code>nums[i] &gt; 2*nums[j]</code>.</li>
+      <li><code>(idx=1, val=3)</code> vs <code>(idx=4, val=1)</code>: <code>3 &gt; 2*1</code> &check; &rarr; pair #1.</li>
+      <li><code>(idx=3, val=3)</code> vs <code>(idx=4, val=1)</code>: <code>3 &gt; 2*1</code> &check; &rarr; pair #2.</li>
+      <li>All other pairs fail the strict <code>&gt; 2*</code> test.</li>
+      <li>Return <code>2</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Merge sort again, but with a separate counting pass before merging.</b> For each <code>i</code> in the left half, advance a pointer <code>j</code> in the right half while <code>left[i] &gt; 2 · right[j]</code>. Both halves stay sorted → both pointers only move forward → O(n) per merge.</div>
 
@@ -272,11 +319,10 @@ flowchart TD
   C --> M["regular merge step"]
   </pre></div>
 
-  <div class="section-title">Code (Java)</div>
+  <div class="section-title">Code (Java) — Part 1: Merge Sort Driver</div>
 <pre><code class="language-java">/**
- * Reverse pairs (i &lt; j AND a[i] &gt; 2·a[j]) via merge sort with a counting prelude.
- * Trick: separating the count pass from the merge pass keeps both monotone — j only
- * advances → total work across all counts is O(n) per merge, so O(n log n) overall.
+ * Top-level entry + merge-sort recursion. Recursion contributes counts from each half;
+ * the merge helper below contributes cross-pair counts and performs the actual merge.
  */
 int reversePairs(int[] numbers){
   int[] scratchBuffer = new int[numbers.length];
@@ -288,15 +334,27 @@ private int mergeSortAndCountReversePairs(int[] numbers, int[] scratchBuffer, in
   int mid = lo + (hi - lo) / 2;
   int reversePairCount = mergeSortAndCountReversePairs(numbers, scratchBuffer, lo, mid)
                        + mergeSortAndCountReversePairs(numbers, scratchBuffer, mid + 1, hi);
+  reversePairCount += mergeAndCountReversePairs(numbers, scratchBuffer, lo, mid, hi);
+  return reversePairCount;
+}</code></pre>
 
-  // ---- count cross-pairs with two monotone pointers ----
+  <div class="section-title">Code (Java) — Part 2: Merge with Cross-Pair Count</div>
+<pre><code class="language-java">/**
+ * Two-phase merge step:
+ *  (a) count cross-pairs with monotone two-pointer scan (j only advances → O(n))
+ *  (b) standard merge of the two sorted halves into scratchBuffer, copy back.
+ */
+private int mergeAndCountReversePairs(int[] numbers, int[] scratchBuffer, int lo, int mid, int hi){
+  int reversePairCount = 0;
+
+  // ---- (a) count cross-pairs with two monotone pointers ----
   int rightScanner = mid + 1;
   for(int leftIdx = lo; leftIdx &lt;= mid; leftIdx++){
     while(rightScanner &lt;= hi &amp;&amp; (long) numbers[leftIdx] &gt; 2L * numbers[rightScanner]) rightScanner++;
     reversePairCount += (rightScanner - (mid + 1));
   }
 
-  // ---- standard merge ----
+  // ---- (b) standard merge ----
   int i = lo, j = mid + 1, w = lo;
   while(i &lt;= mid &amp;&amp; j &lt;= hi){
     if(numbers[i] &lt;= numbers[j]) scratchBuffer[w++] = numbers[i++];
@@ -320,6 +378,18 @@ private int mergeSortAndCountReversePairs(int[] numbers, int[] scratchBuffer, in
 
   <div class="section-title">Problem</div>
   <p class="problem">Given a binary array, return the maximum number of consecutive 1s.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>nums=[1,1,0,1,1,1]</code> &nbsp;·&nbsp; <b>Output:</b> <code>3</code></p>
+    <ol>
+      <li><code>1</code> &rarr; <code>currentRunLength=1</code>, <code>longestRunLength=1</code>.</li>
+      <li><code>1</code> &rarr; <code>currentRunLength=2</code>, <code>longestRunLength=2</code>.</li>
+      <li><code>0</code> &rarr; <code>currentRunLength=0</code> (reset).</li>
+      <li><code>1,1,1</code> &rarr; <code>currentRunLength</code> climbs to <code>3</code>; <code>longestRunLength=3</code>.</li>
+      <li>Return <code>3</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Running counter that resets on 0.</b> Track the best.</div>
@@ -379,6 +449,16 @@ int findMaxConsecutiveOnes(int[] binaryArray){
   <div class="section-title">Problem</div>
   <p class="problem">You are given a reference to a node (not the head) to delete from a singly linked list. The node is guaranteed not to be the tail.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> list <code>4 → 5 → 1 → 9</code>, given <code>node</code> points at value <code>5</code>. &nbsp;·&nbsp; <b>Output:</b> <code>4 → 1 → 9</code>.</p>
+    <ol>
+      <li><code>node.val = node.next.val</code> &rarr; copy <code>1</code> into the <code>5</code>-cell &rArr; list now <code>4 → 1 → 1 → 9</code>.</li>
+      <li><code>node.next = node.next.next</code> &rarr; skip the original next cell &rArr; list now <code>4 → 1 → 9</code>.</li>
+      <li>Original <code>5</code> node is effectively deleted in <code>O(1)</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Since you can't reach the previous node, copy the NEXT node's value into the current node and skip the next.</b> Net effect = the original node is removed.</div>
 
@@ -423,6 +503,17 @@ void deleteNode(ListNode node){
 
   <div class="section-title">Problem</div>
   <p class="problem">Reverse the nodes of a linked list <code>k</code> at a time. If a trailing group has fewer than <code>k</code> nodes, leave it as-is.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>1 → 2 → 3 → 4 → 5</code>, <code>k=2</code> &nbsp;·&nbsp; <b>Output:</b> <code>2 → 1 → 4 → 3 → 5</code></p>
+    <ol>
+      <li><code>groupPrev=dummy</code>; <code>getKthAhead</code> finds node <code>2</code> &rarr; reverse <code>[1,2]</code> &rarr; <code>2 → 1</code>; splice &rarr; <code>dummy → 2 → 1 → 3 → 4 → 5</code>.</li>
+      <li><code>groupPrev=1</code>; <code>getKthAhead</code> finds node <code>4</code> &rarr; reverse <code>[3,4]</code> &rarr; <code>4 → 3</code>; splice &rarr; <code>... → 1 → 4 → 3 → 5</code>.</li>
+      <li><code>groupPrev=3</code>; only <code>5</code> remains (&lt; k) &rarr; loop breaks, tail stays as-is.</li>
+      <li>Return <code>dummyHead.next</code> = <code>2 → 1 → 4 → 3 → 5</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Iteratively detect a full k-block ahead, reverse exactly k nodes, splice it back.</b> A <code>groupPrev</code> pointer remembers the node BEFORE the current group so we can re-link cleanly.</div>
@@ -501,6 +592,18 @@ private ListNode getKthAhead(ListNode startNode, int k){
   <div class="section-title">Problem</div>
   <p class="problem">Given heights[] of vertical lines on the x-axis, pick two lines that, with the x-axis, form a container holding the most water. Return the max area.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>heights=[1,8,6,2,5,4,8,3,7]</code> &nbsp;·&nbsp; <b>Output:</b> <code>49</code></p>
+    <ol>
+      <li><code>left=0, right=8</code>: <code>min(1,7)*8 = 8</code>; <code>bestArea=8</code>; <code>1&lt;7</code> &rarr; <code>left++</code>.</li>
+      <li><code>left=1, right=8</code>: <code>min(8,7)*7 = 49</code>; <code>bestArea=49</code>; <code>8&gt;=7</code> &rarr; <code>right--</code>.</li>
+      <li><code>left=1, right=7</code>: <code>min(8,3)*6 = 18</code>; <code>right--</code>.</li>
+      <li>All remaining windows are bounded by a small height; <code>bestArea</code> stays <code>49</code>.</li>
+      <li>Return <code>49</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Two pointers from the ends. Area = <code>min(h[l], h[r]) * (r - l)</code>. Move the shorter side inward</b> — moving the taller one can only shrink width without raising the limiting height, so it can't improve.</div>
 
@@ -560,6 +663,17 @@ int maxArea(int[] heights){
 
   <div class="section-title">Problem</div>
   <p class="problem">Circular route of n stations with <code>gas[i]</code> and <code>cost[i]</code> to travel to the next. Return the starting index of a station from which you can complete one full loop, or -1.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>gas=[1,2,3,4,5]</code>, <code>cost=[3,4,5,1,2]</code> &nbsp;·&nbsp; <b>Output:</b> <code>3</code></p>
+    <ol>
+      <li>Per-step <code>diff = gas[i]-cost[i]</code>: <code>[-2,-2,-2,3,3]</code>; sum = <code>0 &ge; 0</code> &rarr; an answer exists.</li>
+      <li><code>i=0..2</code>: each step <code>tank&lt;0</code> &rarr; reset <code>candidateStart = i+1</code> and <code>tank=0</code>. After <code>i=2</code>: <code>candidateStart=3</code>.</li>
+      <li><code>i=3</code>: <code>tank=3</code>; <code>i=4</code>: <code>tank=6</code>. <code>tank</code> never dips below 0 again.</li>
+      <li><code>total = 0 &ge; 0</code> &rarr; return <code>candidateStart = 3</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Two facts:</b> (1) If total gas &lt; total cost, no answer exists. (2) Otherwise an answer exists, and the FIRST station <i>after</i> the last point at which the running tank went negative is a valid start — because every prefix-failure means every station inside that prefix also fails as a start.</div>
@@ -629,6 +743,18 @@ int canCompleteCircuit(int[] gas, int[] cost){
   <div class="section-title">Problem</div>
   <p class="problem">Return the k-th permutation of <code>[1..n]</code> in lexicographic order.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>n=4, k=9</code> &nbsp;·&nbsp; <b>Output:</b> <code>"2314"</code></p>
+    <ol>
+      <li>Init: <code>availableDigits=[1,2,3,4]</code>, <code>factorialOfRemaining=6</code> (=3!), <code>k=8</code> (0-indexed).</li>
+      <li><code>pickIdx = 8/6 = 1</code> &rarr; pick <code>2</code>; <code>list=[1,3,4]</code>; <code>k = 8%6 = 2</code>; <code>fact = 6/3 = 2</code>.</li>
+      <li><code>pickIdx = 2/2 = 1</code> &rarr; pick <code>3</code>; <code>list=[1,4]</code>; <code>k = 0</code>; <code>fact = 2/2 = 1</code>.</li>
+      <li><code>pickIdx = 0/1 = 0</code> &rarr; pick <code>1</code>; <code>list=[4]</code>; last digit <code>4</code>.</li>
+      <li>Result <code>"2314"</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Don't enumerate — compute each position directly.</b> Each fixed first digit owns a block of <code>(n-1)!</code> permutations. Index <code>k-1</code>, then <code>k / (n-1)!</code> picks the digit, remainder recurses.</div>
 
@@ -697,6 +823,18 @@ String getPermutation(int n, int k){
   <div class="section-title">Problem</div>
   <p class="problem">Given a string <code>s</code> and a dictionary, return ALL sentences formed by adding spaces such that each word is in the dictionary.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>s="catsanddog"</code>, dict=<code>{cat, cats, and, sand, dog}</code> &nbsp;·&nbsp; <b>Output:</b> <code>["cat sand dog", "cats and dog"]</code></p>
+    <ol>
+      <li><code>collectSentencesFrom(0)</code>: legal prefixes <code>"cat"</code> &rarr; recurse(3); <code>"cats"</code> &rarr; recurse(4).</li>
+      <li><code>recurse(3)</code> on <code>"sanddog"</code>: <code>"sand"</code> &rarr; recurse(7).</li>
+      <li><code>recurse(4)</code> on <code>"anddog"</code>: <code>"and"</code> &rarr; recurse(7).</li>
+      <li><code>recurse(7)</code> on <code>"dog"</code>: <code>"dog"</code> &rarr; recurse(10) = <code>[""]</code>; bubble up &rarr; <code>["dog"]</code>.</li>
+      <li>Combine: <code>recurse(3)=["sand dog"]</code>, <code>recurse(4)=["and dog"]</code> &rarr; <code>recurse(0)=["cat sand dog","cats and dog"]</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Backtrack on the cut position; at each index try every dictionary prefix and recurse on the suffix.</b> Memoize the recursion to skip dead suffixes already proven word-breakable in only certain ways.</div>
 
@@ -753,6 +891,52 @@ private List&lt;String&gt; collectSentencesFrom(String s, int startIdx,
   return sentencesFromHere;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n² · 2ⁿ)</b> worst</div><div>Space <b>O(n²)</b> memo</div></div>
+
+  <div class="section-title">Worked Example — <code>"catsanddog"</code></div>
+  <div class="mental">
+    <p><b>Input:</b> <code>s = "catsanddog"</code>, dict = <code>{cat, cats, and, sand, dog}</code>.</p>
+
+    <p>Read <code>collectSentencesFrom(startIdx)</code> as a single question: <i>"Give me every valid sentence for the suffix <code>s[startIdx..n]</code>."</i> Then call it with <code>startIdx=0</code> and let the recursion solve every smaller suffix.</p>
+
+<pre><code>position:   0   1   2   3   4   5   6   7   8   9  10
+string:     c   a   t   s   a   n   d   d   o   g
+                    ↑          ↑              ↑
+                    cut        cut            cut
+                    after cat  after sand     after dog → done</code></pre>
+
+    <p><b>Recursion trace</b> (only the legal branches shown):</p>
+<pre><code>collectSentencesFrom(0)        // suffix "catsanddog"
+  prefix "cat"  ✓ → recurse(3) and prepend "cat"
+  prefix "cats" ✓ → recurse(4) and prepend "cats"
+
+collectSentencesFrom(3)        // suffix "sanddog"
+  prefix "sand" ✓ → recurse(7) and prepend "sand"
+
+collectSentencesFrom(4)        // suffix "anddog"
+  prefix "and"  ✓ → recurse(7) and prepend "and"
+
+collectSentencesFrom(7)        // suffix "dog"
+  prefix "dog"  ✓ → recurse(10) and prepend "dog"
+
+collectSentencesFrom(10)       // empty suffix — base case
+  startIdx == s.length() → return [""]</code></pre>
+
+    <p><b>Bubble back up:</b></p>
+    <ul>
+      <li><code>recurse(10) = [""]</code> &nbsp;— "no more words needed" sentinel</li>
+      <li><code>recurse(7)  = ["dog"]</code></li>
+      <li><code>recurse(3)  = ["sand dog"]</code></li>
+      <li><code>recurse(4)  = ["and dog"]</code></li>
+      <li><code>recurse(0)  = ["cat sand dog", "cats and dog"]</code> ← final answer</li>
+    </ul>
+
+    <p><b>Three things that trip people up</b></p>
+    <ol>
+      <li><b>Why base case returns <code>[""]</code> not <code>[]</code>?</b> &nbsp;An empty list would make the outer <code>for(String tail : ...)</code> iterate zero times → the sentence is silently lost. The single empty string is a "1 way to finish, contributing nothing" sentinel.</li>
+      <li><b>Why the <code>tail.isEmpty() ? "" : " " + tail</code> dance?</b> &nbsp;Just spacing. <code>"dog" + ""</code> = <code>"dog"</code> instead of trailing <code>"dog "</code>.</li>
+      <li><b>Why memoize?</b> &nbsp;On <code>"aaaa"</code> with dict <code>{a, aa}</code>, the suffix starting at index 2 is reached from many prefix splits. Without memo each visit re-explores it. With memo we compute <code>recurse(2)</code> exactly once, cache its sentence list, and reuse — kills the exponential blowup whenever suffixes overlap.</li>
+    </ol>
+  </div>
 </article>
 
 <!-- ================= Q11 ================= -->
@@ -765,6 +949,16 @@ private List&lt;String&gt; collectSentencesFrom(String s, int startIdx,
 
   <div class="section-title">Problem</div>
   <p class="problem">Return any index <code>i</code> with <code>a[i] &gt; a[i-1]</code> and <code>a[i] &gt; a[i+1]</code> (boundaries treated as -∞). O(log n).</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>nums=[1,2,3,1]</code> &nbsp;·&nbsp; <b>Output:</b> index <code>2</code> (value <code>3</code>)</p>
+    <ol>
+      <li><code>lo=0, hi=3</code>: <code>mid=1</code>; <code>nums[1]=2 &lt; nums[2]=3</code> &rarr; <code>lo = mid+1 = 2</code>.</li>
+      <li><code>lo=2, hi=3</code>: <code>mid=2</code>; <code>nums[2]=3 &gt; nums[3]=1</code> &rarr; <code>hi = mid = 2</code>.</li>
+      <li><code>lo == hi == 2</code> &rarr; return <code>2</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Binary search on slope.</b> If <code>a[mid] &lt; a[mid+1]</code> we are on an ascending slope → a peak lies to the right; otherwise to the left (or at mid).</div>
@@ -820,6 +1014,18 @@ int findPeakElement(int[] numbers){
 
   <div class="section-title">Problem</div>
   <p class="problem">Given arrays A and B of size n, return the top K largest values of <code>A[i] + B[j]</code>.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>A=[3,2]</code>, <code>B=[5,4]</code>, <code>K=3</code> &nbsp;·&nbsp; <b>Output:</b> <code>[8,7,7]</code></p>
+    <ol>
+      <li>Sort desc: <code>sortedA=[3,2]</code>, <code>sortedB=[5,4]</code>; seed heap with <code>(3+5=8, 0, 0)</code>.</li>
+      <li>Pop <code>8</code>; push <code>(2+5=7, 1, 0)</code> and <code>(3+4=7, 0, 1)</code>.</li>
+      <li>Pop <code>7</code> (say <code>(1,0)</code>); push <code>(2+4=6, 1, 1)</code>.</li>
+      <li>Pop <code>7</code> ((0,1)); neighbor <code>(1,1)</code> already in <code>visitedPairs</code>.</li>
+      <li>Result <code>[8,7,7]</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Sort both DESC; the maximum sum is <code>(A[0], B[0])</code>.</b> Push its neighbors <code>(0,1)</code> and <code>(1,0)</code> into a max-heap; pop K times, expanding neighbors and de-duping with a visited set.</div>
@@ -897,6 +1103,18 @@ private void reverseInPlace(int[] arr){
   <div class="section-title">Problem</div>
   <p class="problem">For each element, return the next greater element on the right (or -1).</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>nums=[2,1,2,4,3]</code> &nbsp;·&nbsp; <b>Output:</b> <code>[4,2,4,-1,-1]</code></p>
+    <ol>
+      <li><code>i=4</code> (val 3): stack empty &rarr; <code>nextGreater[4]=-1</code>; push <code>3</code>.</li>
+      <li><code>i=3</code> (val 4): pop <code>3</code> (<code>3&le;4</code>); empty &rarr; <code>nextGreater[3]=-1</code>; push <code>4</code>.</li>
+      <li><code>i=2</code> (val 2): top <code>4&gt;2</code> &rarr; <code>nextGreater[2]=4</code>; push <code>2</code>.</li>
+      <li><code>i=1</code> (val 1): top <code>2&gt;1</code> &rarr; <code>nextGreater[1]=2</code>; push <code>1</code>.</li>
+      <li><code>i=0</code> (val 2): pop <code>1</code>, pop <code>2</code>; top <code>4&gt;2</code> &rarr; <code>nextGreater[0]=4</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Monotonic decreasing stack scanning right-to-left.</b> Pop everything ≤ current; the top is the NGE; push current.</div>
 
@@ -952,6 +1170,18 @@ int[] nextGreaterElements(int[] numbers){
 
   <div class="section-title">Problem</div>
   <p class="problem">For each day's price, return the span = number of consecutive previous days (including today) with price ≤ today's.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> stream <code>[100,80,60,70,60,75,85]</code> &nbsp;·&nbsp; <b>Output:</b> spans <code>[1,1,1,2,1,4,6]</code></p>
+    <ol>
+      <li><code>100</code>: stack empty &rarr; span <code>1</code>; stack <code>[(100,1)]</code>.</li>
+      <li><code>80,60</code>: each smaller than top &rarr; span <code>1,1</code>; stack <code>[(100,1),(80,1),(60,1)]</code>.</li>
+      <li><code>70</code>: pop <code>(60,1)</code> &rarr; <code>span=1+1=2</code>; top <code>80&gt;70</code> stop; push <code>(70,2)</code>.</li>
+      <li><code>60</code>: top <code>70&gt;60</code> &rarr; span <code>1</code>; push <code>(60,1)</code>.</li>
+      <li><code>75</code>: absorb <code>(60,1)</code> and <code>(70,2)</code> &rarr; span <code>4</code>. <code>85</code>: absorb <code>(75,4)</code> and <code>(80,1)</code> &rarr; span <code>6</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Monotonic decreasing stack of (price, accumulatedSpan).</b> While top.price ≤ today: absorb top's span into today's running span; push (today, span).</div>
@@ -1009,6 +1239,16 @@ class StockSpanner {
 
   <div class="section-title">Problem</div>
   <p class="problem">Find the longest string that is a prefix of every string in the input array.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>strings=["flower","flow","flight"]</code> &nbsp;·&nbsp; <b>Output:</b> <code>"fl"</code></p>
+    <ol>
+      <li><code>columnIdx=0</code>: <code>expectedChar='f'</code>; all three start with <code>'f'</code> &check;.</li>
+      <li><code>columnIdx=1</code>: <code>expectedChar='l'</code>; all three have <code>'l'</code> at index 1 &check;.</li>
+      <li><code>columnIdx=2</code>: <code>expectedChar='o'</code>; <code>"flight"[2]='i'</code> &ne; &rarr; return <code>referenceWord.substring(0,2) = "fl"</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Vertical scan.</b> For each character index, check it's identical across all strings; stop at first mismatch or first string end.</div>
@@ -1071,6 +1311,19 @@ String longestCommonPrefix(String[] strings){
   <div class="section-title">Problem</div>
   <p class="problem">Given two version strings like <code>"1.01"</code> and <code>"1.001.0"</code>, return -1/0/1 comparing them. Trailing zero-only segments are equal to missing ones.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input A:</b> <code>versionA="1.01"</code>, <code>versionB="1.001"</code> &nbsp;·&nbsp; <b>Output:</b> <code>0</code></p>
+    <ol>
+      <li>Segment 1: parse <code>1</code> from each &rarr; equal; advance past <code>'.'</code>.</li>
+      <li>Segment 2: parse <code>01 = 1</code> and <code>001 = 1</code> &rarr; equal; both exhausted &rarr; <code>0</code>.</li>
+    </ol>
+    <p><b>Input B:</b> <code>versionA="1.0.1"</code>, <code>versionB="1.0"</code> &nbsp;·&nbsp; <b>Output:</b> <code>1</code></p>
+    <ol>
+      <li>Segments <code>1,0</code> match; then <code>A</code> still has <code>1</code> while <code>B</code> parses missing segment as <code>0</code> &rarr; <code>compare(1,0) = 1</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Tokenize on '.' lazily with two pointers.</b> Parse the next integer from each string (or 0 if exhausted); compare. Treats missing trailing segments as 0 for free.</div>
 
@@ -1131,6 +1384,17 @@ int compareVersion(String versionA, String versionB){
   <div class="section-title">Problem</div>
   <p class="problem">Return groups of node values column-by-column (left to right). Within a column, sort by row, then by value.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> tree <code>[3,9,20,null,null,15,7]</code> &nbsp;·&nbsp; <b>Output:</b> <code>[[9],[3,15],[20],[7]]</code></p>
+    <ol>
+      <li>Assign coordinates: <code>3 → (col=0,row=0)</code>, <code>9 → (-1,1)</code>, <code>20 → (1,1)</code>, <code>15 → (0,2)</code>, <code>7 → (2,2)</code>.</li>
+      <li><code>columnBuckets</code>: <code>-1:[(1,9)]</code>, <code>0:[(0,3),(2,15)]</code>, <code>1:[(1,20)]</code>, <code>2:[(2,7)]</code>.</li>
+      <li>Sort each column by <code>(row,val)</code> (already in order here) and project values.</li>
+      <li>Result <code>[[9],[3,15],[20],[7]]</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>BFS while tracking (col, row).</b> Bucket values by column; within each column, sort by (row, value). Root is (col=0, row=0); left child = (col-1, row+1); right = (col+1, row+1).</div>
 
@@ -1160,20 +1424,21 @@ flowchart TD
  * Trick: assign each node a (col, row) during BFS. A TreeMap keyed by column auto-sorts
  * the columns; ties inside a column break first by row, then by value.
  */
+static final class Frame { final TreeNode node; final int col, row; Frame(TreeNode n, int c, int r){ node = n; col = c; row = r; } }
+
 List&lt;List&lt;Integer&gt;&gt; verticalTraversal(TreeNode root){
   TreeMap&lt;Integer, List&lt;int[]&gt;&gt; columnBuckets = new TreeMap&lt;&gt;();    // col → list of [row, val]
-  Deque&lt;Object[]&gt; bfsQueue = new ArrayDeque&lt;&gt;();                    // [node, col, row]
-  bfsQueue.offer(new Object[]{ root, 0, 0 });
+  Deque&lt;Frame&gt; bfsQueue = new ArrayDeque&lt;&gt;();
+  bfsQueue.offer(new Frame(root, 0, 0));
 
   while(!bfsQueue.isEmpty()){
-    Object[] frame = bfsQueue.poll();
-    TreeNode node  = (TreeNode) frame[0];
-    int col        = (int) frame[1];
-    int row        = (int) frame[2];
+    Frame f = bfsQueue.poll();
+    TreeNode node = f.node;
+    int col = f.col, row = f.row;
 
     columnBuckets.computeIfAbsent(col, k -&gt; new ArrayList&lt;&gt;()).add(new int[]{ row, node.val });
-    if(node.left  != null) bfsQueue.offer(new Object[]{ node.left,  col - 1, row + 1 });
-    if(node.right != null) bfsQueue.offer(new Object[]{ node.right, col + 1, row + 1 });
+    if(node.left  != null) bfsQueue.offer(new Frame(node.left,  col - 1, row + 1));
+    if(node.right != null) bfsQueue.offer(new Frame(node.right, col + 1, row + 1));
   }
 
   List&lt;List&lt;Integer&gt;&gt; result = new ArrayList&lt;&gt;();
@@ -1198,6 +1463,18 @@ List&lt;List&lt;Integer&gt;&gt; verticalTraversal(TreeNode root){
 
   <div class="section-title">Problem</div>
   <p class="problem">Return the anti-clockwise boundary: root, left boundary (excluding leaves), all leaves left→right, right boundary reversed (excluding leaves).</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> tree <code>[1,2,3,4,5,6,7]</code> &nbsp;·&nbsp; <b>Output:</b> <code>[1,2,4,5,6,7,3]</code></p>
+    <ol>
+      <li>Root <code>1</code> is non-leaf &rarr; add <code>1</code>.</li>
+      <li>Left boundary (exclude leaves): <code>2</code> &rarr; add <code>2</code> (child <code>4</code> is a leaf, stop).</li>
+      <li>Leaves left-to-right: <code>4, 5, 6, 7</code>.</li>
+      <li>Right boundary into stack (exclude leaves): <code>3</code> (its right child <code>7</code> is a leaf). Pop &rarr; <code>3</code>.</li>
+      <li>Concatenate &rarr; <code>[1,2,4,5,6,7,3]</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Three independent walks plus the root.</b> 1) Left boundary going down, 2) all leaves left-to-right, 3) right boundary going down collected then reversed.</div>
@@ -1276,6 +1553,17 @@ private void collectLeavesLeftToRight(TreeNode node, List&lt;Integer&gt; out){
   <div class="section-title">Problem</div>
   <p class="problem">Modify a tree so every non-leaf node's value equals the sum of its children. You may only INCREASE values (never decrease).</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> root=<code>35</code>, left=<code>20</code> (leaves <code>8,12</code>), right=<code>15</code> (leaves <code>5,10</code>) &nbsp;·&nbsp; <b>Output:</b> tree already satisfies the property (post-traversal values unchanged).</p>
+    <ol>
+      <li>At node <code>20</code>: <code>sumOfKids = 8+12 = 20</code>; <code>20 &gt; 20</code> is false &rarr; no push-down. Recurse into leaves (no-op). Post-order: <code>20.val = 20</code>.</li>
+      <li>At node <code>15</code>: <code>sumOfKids = 5+10 = 15</code>; no push-down. Post-order: <code>15.val = 15</code>.</li>
+      <li>At root <code>35</code>: <code>sumOfKids = 20+15 = 35</code>; no push-down. Post-order: <code>35.val = 35</code>.</li>
+      <li>Every non-leaf equals the sum of its children &rarr; children-sum property holds.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Two-pass recursion.</b> Top-down: push the parent's value down to bring children up first (set each child to max(child, parent)). Bottom-up: on the return, set node.val = sum of children's new values.</div>
 
@@ -1348,6 +1636,18 @@ private int sumOfKids(TreeNode node){
   <div class="section-title">Problem</div>
   <p class="problem">Delete a target key from a BST and return the root. Tree must remain a valid BST.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> BST <code>[5,3,6,2,4,null,7]</code>, <code>keyToDelete=3</code> &nbsp;·&nbsp; <b>Output:</b> <code>[5,4,6,2,null,null,7]</code></p>
+    <ol>
+      <li><code>3 &lt; 5</code> &rarr; recurse into left subtree of <code>5</code>.</li>
+      <li>At node <code>3</code>: <code>key==val</code> and it has two children (<code>2</code>, <code>4</code>).</li>
+      <li><code>findMinimum(node.right)</code> = node <code>4</code>; copy <code>node.val = 4</code>.</li>
+      <li>Recurse <code>deleteNode(right, 4)</code> &rarr; node <code>4</code> is a leaf &rarr; returns <code>null</code>; <code>node.right=null</code>.</li>
+      <li>Tree becomes <code>5(left=4(left=2), right=6(right=7))</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Recurse down the BST to find the node, then handle three cases.</b> Leaf → null. One child → child. Two children → replace value with the inorder successor (min of right subtree), then delete it recursively from the right subtree.</div>
 
@@ -1413,6 +1713,18 @@ private TreeNode findMinimum(TreeNode node){
 
   <div class="section-title">Problem</div>
   <p class="problem">In-place transform a BST into a circular sorted doubly linked list using left = prev, right = next. Return the head.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> BST <code>[4,2,5,1,3]</code> &nbsp;·&nbsp; <b>Output:</b> circular DLL <code>1 ↔ 2 ↔ 3 ↔ 4 ↔ 5</code></p>
+    <ol>
+      <li>Inorder visit order: <code>1, 2, 3, 4, 5</code>.</li>
+      <li>Visit <code>1</code>: <code>listPrev==null</code> &rarr; <code>listHead = 1</code>; <code>listPrev = 1</code>.</li>
+      <li>Visit <code>2</code>: stitch <code>1.right=2</code>, <code>2.left=1</code>; <code>listPrev=2</code>. Repeat for <code>3,4,5</code>.</li>
+      <li>After traversal: <code>listHead.left = 5</code>, <code>listPrev.right = 1</code> &rarr; circular.</li>
+      <li>Return <code>listHead = 1</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Inorder traversal threads each visited node to a running <code>prev</code> pointer.</b> When done, stitch tail ↔ head to make it circular.</div>
@@ -1481,6 +1793,17 @@ class BstToDllConverter {
 
   <div class="section-title">Problem</div>
   <p class="problem">Find the maximum sum among all subtrees that form a valid BST (any node inside, not necessarily the root).</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> tree <code>[1,4,3,2,4,2,5,null,null,null,null,null,null,4,6]</code> &nbsp;·&nbsp; <b>Output:</b> <code>20</code></p>
+    <ol>
+      <li>Subtree at left child <code>4</code> with kids <code>2,4</code>: <code>4 &gt; max(left)=2</code> ok but <code>4 &lt; min(right)=4</code> fails &rarr; not BST.</li>
+      <li>Subtree at node <code>5</code> with leaves <code>4,6</code>: valid BST (<code>4&lt;5&lt;6</code>); <code>sum = 15</code>.</li>
+      <li>Subtree at right child <code>3</code>: left leaf <code>2</code>, right BST (above). Check: <code>3 &gt; 2</code> &amp;&amp; <code>3 &lt; min(right BST)=4</code> &check; &rarr; valid BST; <code>sum = 2+3+15 = 20</code>.</li>
+      <li>Root <code>1</code>: left subtree not BST &rarr; root not BST. <code>bestBstSum = 20</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Postorder returns a 4-tuple per subtree: <code>(isBST, sum, min, max)</code>.</b> A node forms a BST iff both children are BSTs and <code>left.max &lt; node.val &lt; right.min</code>. Track the global best.</div>
@@ -1555,6 +1878,17 @@ class MaximumSumBstFinder {
   <div class="section-title">Problem</div>
   <p class="problem">Given an m×n grid of '1' (land) and '0' (water), return the number of 4-connected island components.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>grid = [[1,1,0],[0,1,0],[1,0,1]]</code> &nbsp;·&nbsp; <b>Output:</b> <code>3</code></p>
+    <ol>
+      <li><code>(0,0)='1'</code> unvisited &rarr; <code>islandCount=1</code>; BFS marks <code>(0,0),(0,1),(1,1)</code> (one connected blob).</li>
+      <li>Scan continues; <code>(2,0)='1'</code> unvisited &rarr; <code>islandCount=2</code>; BFS marks only <code>(2,0)</code>.</li>
+      <li><code>(2,2)='1'</code> unvisited &rarr; <code>islandCount=3</code>; BFS marks only <code>(2,2)</code>.</li>
+      <li>Return <code>3</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Scan; whenever you hit unvisited land, run BFS/DFS marking the whole island as visited.</b> Each launch counts as one island.</div>
 
@@ -1624,6 +1958,17 @@ int numIslands(char[][] grid){
 
   <div class="section-title">Problem</div>
   <p class="problem">An edge in an undirected graph is a <b>bridge</b> if removing it disconnects the graph (increases the number of connected components). Return all bridges.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> edges <code>{0-1, 1-2, 2-0, 1-3, 3-4, 4-5, 5-3}</code> &nbsp;·&nbsp; <b>Output:</b> bridges <code>{1-3}</code></p>
+    <ol>
+      <li>Vertices <code>{0,1,2}</code> form a triangle &rarr; every edge has a back-edge alternate route; no bridges inside.</li>
+      <li>Vertices <code>{3,4,5}</code> form a triangle &rarr; same; no bridges inside.</li>
+      <li>Edge <code>1-3</code> is the only link between the two triangles. DFS from <code>0</code> visits <code>3</code> as a child of <code>1</code>; <code>low[3]</code> can only reach <code>disc[3]</code> through its subtree &rarr; <code>low[3] &gt; disc[1]</code> &rarr; bridge.</li>
+      <li>Return <code>[[1,3]]</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Single DFS keeping two timestamps per node: <code>disc[u]</code> = when first visited, <code>low[u]</code> = smallest disc reachable from u's subtree using at most one back-edge.</b> Edge <code>u–v</code> (v is child) is a bridge iff <code>low[v] &gt; disc[u]</code> — i.e. v's subtree has NO alternate route back above u.</div>
@@ -1708,6 +2053,18 @@ class BridgeFinder {
   <div class="section-title">Problem</div>
   <p class="problem">Given an array, find a STRICTLY INCREASING subsequence with the maximum possible sum.</p>
 
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>a=[1,101,2,3,100,4,5]</code> &nbsp;·&nbsp; <b>Output:</b> <code>106</code> (subsequence <code>1+2+3+100</code>)</p>
+    <ol>
+      <li>Init <code>dp = [1,101,2,3,100,4,5]</code>.</li>
+      <li><code>i=1</code>: <code>1&lt;101</code> &rarr; <code>dp[1] = 1+101 = 102</code>.</li>
+      <li><code>i=2,3</code>: <code>dp[2]=1+2=3</code>, <code>dp[3]=dp[2]+3=6</code>.</li>
+      <li><code>i=4</code> (val 100): best predecessor is <code>dp[3]=6</code> &rarr; <code>dp[4] = 6+100 = 106</code>.</li>
+      <li><code>dp[5]=10</code>, <code>dp[6]=15</code>; <code>max(dp) = 106</code>.</li>
+    </ol>
+  </div>
+
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>LIS variant where dp tracks SUM, not length.</b> <code>dp[i]</code> = max sum of any strictly-increasing subseq ending at <code>i</code>. <code>dp[i] = a[i] + max(dp[j] for j&lt;i with a[j]&lt;a[i])</code>, or just <code>a[i]</code> if no such j.</div>
 
@@ -1761,6 +2118,18 @@ int maxSumIncreasingSubseq(int[] a){
 
   <div class="section-title">Problem</div>
   <p class="problem">Given coin denominations and an amount, return the minimum number of coins to form the amount (or -1).</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>coinDenominations=[1,2,5]</code>, <code>targetAmount=11</code> &nbsp;·&nbsp; <b>Output:</b> <code>3</code> (coins <code>5+5+1</code>)</p>
+    <ol>
+      <li>Init <code>minCoinsForAmount[0]=0</code>; the rest = sentinel <code>12</code>.</li>
+      <li><code>amount=1</code>: only coin <code>1</code> fits &rarr; <code>dp[1] = dp[0]+1 = 1</code>.</li>
+      <li><code>amount=5</code>: try coin <code>5</code> &rarr; <code>dp[5] = dp[0]+1 = 1</code>.</li>
+      <li><code>amount=10</code>: coin <code>5</code> &rarr; <code>dp[10] = dp[5]+1 = 2</code>.</li>
+      <li><code>amount=11</code>: coin <code>1</code> &rarr; <code>dp[10]+1 = 3</code>; coin <code>5</code> &rarr; <code>dp[6]+1 = 3</code>. Return <code>3</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Unbounded knapsack on amount.</b> <code>dp[a] = 1 + min over coins c with c ≤ a of dp[a - c]</code>. Initialize with sentinel <code>amount + 1</code> (infeasible).</div>
@@ -1821,6 +2190,18 @@ int coinChange(int[] coinDenominations, int targetAmount){
 
   <div class="section-title">Problem</div>
   <p class="problem">Given a 2D grid of letters and a list of words, return all words that appear via 4-connected paths (no cell reuse).</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>board=[[o,a,a,n],[e,t,a,e],[i,h,k,r],[i,f,l,v]]</code>, <code>words=["oath","pea","eat","rain"]</code> &nbsp;·&nbsp; <b>Output:</b> <code>["oath","eat"]</code></p>
+    <ol>
+      <li>Build trie: branches for <code>o-a-t-h</code>, <code>p-e-a</code>, <code>e-a-t</code>, <code>r-a-i-n</code>.</li>
+      <li>DFS from <code>(0,0)='o'</code>: walk <code>o→a(0,1)→t(1,1)→h(2,1)</code> &rarr; word-end node holds <code>"oath"</code>; collect, null it.</li>
+      <li>DFS from <code>(1,3)='e'</code>: walk <code>e→a(1,2)→t(1,1)</code> &rarr; word-end <code>"eat"</code>; collect.</li>
+      <li>No path spells <code>"pea"</code> or <code>"rain"</code> (board has no <code>'p'</code>; <code>r-a-i-n</code> cannot be threaded with 4-connected, no-reuse moves).</li>
+      <li>Return <code>["oath","eat"]</code>.</li>
+    </ol>
+  </div>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Insert all words into a trie; DFS each cell while walking the trie.</b> The trie prunes dead branches immediately — far faster than running word-search per word.</div>
