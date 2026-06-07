@@ -1,0 +1,9 @@
+# Private — interview-prep deep dives (kept in the separate private repo: blas-projects)
+projects/
+
+# Editor / workspace
+.vscode/
+
+# Temp render/verification artifacts
+_*.png
+*.tmp

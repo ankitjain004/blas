@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 343" width="1160" height="343" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="1160" height="343" fill="#ffffff"/>
+<g transform="translate(39.599999999999994,18)">
+<rect x="30" y="120" width="120" height="64" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="228" y="120" width="120" height="64" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="414" y="120" width="110" height="64" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="588" y="120" width="124" height="64" rx="10" fill="#99e9f2" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="776" y="120" width="124" height="64" rx="10" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="150,152 228,152" fill="none" stroke="#ff6b9d" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="348,152 414,152" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="524,152 588,152" fill="none" stroke="#2f9e44" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="712,152 776,152" fill="none" stroke="#2f9e44" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="18" fill="#1e1e1e" text-anchor="start"><tspan x="120" y="24">How Information Travels — From Your Phone to a Server Across the Planet</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="90" y="147.35999999999999">Your Phone</tspan><tspan x="90" y="167.83999999999997">data → bits</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#ff6b9d" text-anchor="start"><tspan x="150" y="109">radio</tspan><tspan x="150" y="123.08">(air)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="288" y="147.35999999999999">WiFi / Cell</tspan><tspan x="288" y="167.83999999999997">Tower</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="350" y="117">fiber</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="469" y="147.35999999999999">ISP</tspan><tspan x="469" y="167.83999999999997">backbone</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#2f9e44" text-anchor="start"><tspan x="524" y="109">light in</tspan><tspan x="524" y="123.08">glass</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="650" y="147.35999999999999">Undersea</tspan><tspan x="650" y="167.83999999999997">Fiber Cable</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="838" y="147.35999999999999">Data Center</tspan><tspan x="838" y="167.83999999999997">/ Server</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#7048e8" text-anchor="start"><tspan x="30" y="232">Radio is only the FIRST / LAST hop (short range, shared spectrum). ~99% of intercontinental traffic = light through glass fiber on the ocean floor.</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="30" y="264">~550+ submarine cables · roughly garden-hose thick · repeaters every ~80 km re-amplify the light · most faults from ship anchors &amp; fishing trawlers.</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#5b8dee" text-anchor="start"><tspan x="30" y="296">Light in fiber ≈ 200,000 km/s → ~70–80 ms London↔NY round trip. Geography is a hard latency floor — which is why CDNs cache copies near users.</tspan></text>
+</g>
+</svg>

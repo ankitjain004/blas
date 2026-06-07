@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1109 542" width="1109" height="542" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="1109" height="542" fill="#ffffff"/>
+<g transform="translate(-0.4000000000000057,18)">
+<rect x="60" y="180" width="140" height="60" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="280" y="175" width="130" height="60" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<polygon points="530,165 585,212.5 530,260 475,212.5" fill="#ffc9c9" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="655" y="110" width="220" height="60" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="655" y="220" width="220" height="60" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="955" y="90" width="130" height="50" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="955" y="165" width="130" height="50" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="955" y="240" width="130" height="50" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="620" y="340" width="290" height="55" rx="10" fill="#ffec99" stroke="#1e1e1e" stroke-width="2"/>
+<ellipse cx="765" cy="465" rx="125" ry="35" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="205,210 265,210" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="415,205 470,205" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="590,190 650,150" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="590,210 650,240" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="880,140 950,170" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="880,250 950,220" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="765,285 765,335" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="765,400 765,425" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="20" fill="#1e1e1e" text-anchor="start"><tspan x="330" y="26">API Gateway — Production Architecture</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="130" y="205.35999999999999">Clients</tspan><tspan x="130" y="225.83999999999997">(web / mobile)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="345" y="200.35999999999999">CDN / Edge</tspan><tspan x="345" y="220.83999999999997">(DDoS, TLS)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="530" y="208.44">Global LB</tspan><tspan x="530" y="226.35999999999999">(L4)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="765" y="135.35999999999999">API Gateway 1</tspan><tspan x="765" y="155.83999999999997">auth-JWT-rate-route-log</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="765" y="245.35999999999999">API Gateway 2</tspan><tspan x="765" y="265.84000000000003">auth-JWT-rate-route-log</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="1020" y="120.6">User Svc</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="1020" y="195.6">Order Svc</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="1020" y="270.6">Payment Svc</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="765" y="362.86">Redis</tspan><tspan x="765" y="383.34000000000003">(rate-limit counters, token blocklist)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="765" y="460.94">Postgres</tspan><tspan x="765" y="478.86">(API keys, route cfg, audit)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="60" y="132">every request:</tspan><tspan x="60" y="147.36">1 TLS  2 authN  3 rate-limit</tspan><tspan x="60" y="162.72">4 route  5 observe</tspan></text>
+</g>
+</svg>

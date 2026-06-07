@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1013 421" width="1013" height="421" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="1013" height="421" fill="#ffffff"/>
+<g transform="translate(-16,18)">
+<rect x="40" y="150" width="130" height="60" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="270" y="140" width="200" height="90" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="575" y="140" width="190" height="90" rx="10" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<ellipse cx="685" cy="335" rx="75" ry="35" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="855" y="220" width="150" height="55" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="175,180 265,180" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="475,185 570,185" fill="none" stroke="#ff6b9d" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="670,235 670,290" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="770,185 850,245" fill="none" stroke="#ff6b9d" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="20" fill="#1e1e1e" text-anchor="start"><tspan x="190" y="26">Re-encryption (mTLS) in a Chat Service — Zero Trust</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="105" y="175.35999999999999">Ankit</tspan><tspan x="105" y="195.83999999999997">(phone)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="170" y="142">(1) HTTPS</tspan><tspan x="170" y="157.36">public TLS</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="370" y="170.12">API Gateway</tspan><tspan x="370" y="190.6">terminates public TLS</tspan><tspan x="370" y="211.08">reads JWT, routes</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="470" y="132">(2) NEW mTLS</tspan><tspan x="470" y="147.36">re-encrypted</tspan><tspan x="470" y="162.72">both show certs</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="670" y="170.12">Chat Service</tspan><tspan x="670" y="190.6">decrypts again</tspan><tspan x="670" y="211.08">store + enqueue</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="685" y="330.94">Cassandra</tspan><tspan x="685" y="348.86">messages</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="930" y="243.44">Kafka</tspan><tspan x="930" y="261.35999999999996">delivery</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#7048e8" text-anchor="start"><tspan x="40" y="314">Why re-encrypt for chat?</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="40" y="342">• Messages are PRIVATE user content — unreadable even to internal sniffers</tspan><tspan x="40" y="357.36">• mTLS = service IDENTITY (a rogue pod can't impersonate chat-service)</tspan><tspan x="40" y="372.72">• In a service mesh, Envoy sidecars do this mTLS automatically</tspan></text>
+</g>
+</svg>

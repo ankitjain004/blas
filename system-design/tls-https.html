@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>TLS, HTTPS &amp; Certificates · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+    --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+    --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  header.hero .crumb a:hover{color:var(--teal)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .label{color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 8px;font-weight:700}
+  .label.gold{color:var(--gold)}
+
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  .define em{color:var(--muted);font-style:normal;display:block;font-size:13px;margin-top:4px}
+
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .callout b{color:var(--teal)}
+  .warn{background:rgba(239,68,68,.06);border-left:3px solid #ef4444;padding:14px 18px;border-radius:8px;margin:10px 0}
+  .warn b{color:#ef4444}
+
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  td code, th code{background:rgba(0,212,170,.10);padding:1px 6px;border-radius:4px;color:var(--teal);font-size:12px}
+
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto;font-family:'JetBrains Mono',monospace}
+
+  ul.bullets{padding-left:22px}
+  ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px}
+  ol.steps li{margin:8px 0}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .pillbox{background:rgba(91,141,238,.05);border:1px solid rgba(91,141,238,.2);border-radius:10px;padding:14px 16px}
+  .pillbox h4{margin:0 0 6px;font-size:14px;color:var(--blue)}
+  .pillbox p{margin:0;font-size:13.5px;color:#cdd9ee}
+
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="crumb"><a href="index.html">System Design</a> · TLS · HTTPS · CERTIFICATES</div>
+  <span class="badge">Deep Dive</span>
+  <h1 class="title">TLS, HTTPS &amp; the <span>Chain of Trust</span></h1>
+  <p class="sub">How the padlock works — symmetric vs asymmetric crypto, the TLS 1.3 handshake, Diffie-Hellman key exchange, and how certificates are signed and verified all the way up to a root CA.</p>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#https">What Is HTTPS &amp; TLS?</a></li>
+    <li><a href="#guarantees">The 3 Guarantees: Encrypt, Authenticate, Integrity</a></li>
+    <li><a href="#sym-asym">Symmetric vs Asymmetric Encryption</a></li>
+    <li><a href="#handshake">The HTTPS Connection: Steps 1, 2, 3</a></li>
+    <li><a href="#dh">Step 1 — How Both Sides Agree on a Key (Diffie-Hellman)</a></li>
+    <li><a href="#cert">Step 2 — Certificates &amp; the Chain of Trust</a></li>
+    <li><a href="#verify">How the Browser Verifies the Chain</a></li>
+    <li><a href="#data">Step 3 — Fast Symmetric Data Transfer</a></li>
+    <li><a href="#recap">Recap &amp; Interview One-Liners</a></li>
+  </ol>
+</nav>
+
+<!-- ====================== HTTPS ====================== -->
+<section class="step" id="https">
+  <h2><span class="num">01</span>What Is HTTPS &amp; TLS?</h2>
+
+  <div class="define">
+    <b>TLS (Transport Layer Security)</b> = the protocol that encrypts and authenticates data as it travels over a network, so nobody in between can read or tamper with it.
+    <em>It is the "S" in HTTPS. HTTPS = HTTP + TLS. The browser padlock is TLS at work.</em>
+  </div>
+
+  <div class="define">
+    <b>HTTPS</b> = HTTP running on top of a TLS-encrypted connection. Same HTTP requests/responses, but wrapped in a private, verified tunnel.
+    <em>SSL is the old, deprecated name for the same idea. People say "SSL certificate" out of habit, but modern systems use TLS (current standard: TLS 1.3, 2018).</em>
+  </div>
+
+  <p class="label">THE PROBLEM IT SOLVES</p>
+  <pre class="ascii">
+Without TLS (plain HTTP):
+   You ──"password=hunter2"──► [WiFi sniffer reads it!] ──► Server   exposed
+
+With TLS (HTTPS):
+   You ──"x9#@kL!8fP2q..."───► [sniffer sees gibberish] ──► Server   safe
+  </pre>
+
+  <p class="label">WHERE TLS SITS</p>
+  <pre class="ascii">
+Application  (HTTP, WebSocket, SMTP...)
+      |
+   TLS   <- encrypts / decrypts + verifies identity here
+      |
+   TCP   <- reliable, ordered delivery
+      |
+   IP    <- routing across the network
+  </pre>
+  <div class="callout"><b>Why "Transport Layer":</b> it secures the transport, so <em>any</em> protocol can run on top — <code>https://</code>, <code>wss://</code> (secure WebSocket), secure email, etc.</div>
+</section>
+
+<!-- ====================== GUARANTEES ====================== -->
+<section class="step" id="guarantees">
+  <h2><span class="num">02</span>The 3 Guarantees</h2>
+
+  <table>
+    <tr><th>Guarantee</th><th>Meaning</th><th>Stops</th></tr>
+    <tr><td><b>Encryption</b></td><td>Data is scrambled; only the two ends can read it</td><td>Eavesdropping</td></tr>
+    <tr><td><b>Authentication</b></td><td>You're really talking to <code>bank.com</code>, not an impostor</td><td>Impersonation / phishing</td></tr>
+    <tr><td><b>Integrity</b></td><td>Data wasn't altered in transit</td><td>Tampering / injection</td></tr>
+  </table>
+
+  <div class="callout"><b>Forward secrecy (TLS 1.3):</b> session keys are ephemeral (new per connection, then discarded). Even if the server's private key leaks <em>later</em>, an attacker can't decrypt old recorded traffic — that session's key is gone forever.</div>
+</section>
+
+<!-- ====================== SYM vs ASYM ====================== -->
+<section class="step" id="sym-asym">
+  <h2><span class="num">03</span>Symmetric vs Asymmetric Encryption</h2>
+
+  <p>TLS cleverly combines <b>both</b>. Understanding why is the key to the whole protocol.</p>
+
+  <div class="grid2">
+    <div class="pillbox">
+      <h4>Symmetric (e.g. AES)</h4>
+      <p>ONE shared key both encrypts &amp; decrypts. Like a physical key: same key locks and unlocks the door.<br><br><b>Fast</b> — simple bit operations, often hardware-accelerated (AES-NI). Encrypts <b>gigabytes/sec</b>.<br><br><b>Weakness:</b> both sides need the same key — how do you share it over an open network?</p>
+    </div>
+    <div class="pillbox">
+      <h4>Asymmetric (e.g. RSA, ECC)</h4>
+      <p>TWO keys — a public/private pair. Public encrypts, private decrypts (or signs). Like a mailbox: anyone drops mail in the slot, only you open it.<br><br><b>Slow</b> — heavy math on 2048-bit+ numbers; ~100–1000× slower than AES.<br><br><b>Strength:</b> can establish a secret safely over an open network.</p>
+    </div>
+  </div>
+
+  <p class="label gold">THE GENIUS OF TLS — USE EACH FOR WHAT IT'S GOOD AT</p>
+  <pre class="ascii">
+Asymmetric solves "how do we agree on a key safely?"   (hard part, done ONCE)
+Symmetric  solves "how do we encrypt tons of data fast?" (bulk work, ongoing)
+
+Analogy:  send the key by ARMORED TRUCK once (asymmetric),
+          then drive the SPORTS CAR for all traffic (symmetric).
+  </pre>
+
+  <div class="warn"><b>Why not asymmetric always?</b> Encrypting every byte with RSA would cripple performance (100–1000× slower). It's used only <em>briefly</em>, on tiny data, to set up the shared key.</div>
+  <div class="warn"><b>Why not symmetric always?</b> You can't share the secret key over an insecure network — an eavesdropper would just read it in transit. That's the key-distribution problem asymmetric crypto solves.</div>
+</section>
+
+<!-- ====================== HANDSHAKE ====================== -->
+<section class="step" id="handshake">
+  <h2><span class="num">04</span>The HTTPS Connection — Steps 1, 2, 3</h2>
+
+  <p>A full HTTPS connection has three conceptual phases, all riding on an already-open TCP connection:</p>
+
+  <pre class="ascii">
+TCP 3-way handshake  (SYN / SYN-ACK / ACK)   <- opens the raw pipe first
+      |
+      v
++-----------------------------------------------------------+
+| (1) KEY AGREEMENT     asymmetric + Diffie-Hellman          |
+|     -> both sides derive the SAME secret session key      |
++-----------------------------------------------------------+
+| (2) AUTHENTICATION    server presents its CERTIFICATE      |
+|     -> browser verifies identity via the CA chain         |
++-----------------------------------------------------------+
+| (3) DATA TRANSFER     fast symmetric AES with session key |
+|     -> all HTTP traffic encrypted, cheaply                |
++-----------------------------------------------------------+
+  </pre>
+
+  <div class="callout"><b>Note:</b> in TLS 1.3 steps 1 &amp; 2 happen together in a single round trip — the ClientHello/ServerHello exchange both agrees the key <em>and</em> carries the certificate. We split them here to explain each idea.</div>
+
+  <p class="label">THE HANDSHAKE ON THE WIRE</p>
+  <pre class="ascii">
+Client                                          Server
+  | -- ClientHello: TLS1.3, ciphers, my key-share --> |
+  |                                                   |
+  | <-- ServerHello: chosen cipher, my key-share ---- |
+  |        + CERTIFICATE (signed by a CA)             |
+  |                                                   |
+  | (verify cert: CA-signed? right host? not expired?)|
+  | (combine my private + your public -> SAME secret) |
+  |                                                   |
+  | ====== encrypted channel (AES-GCM) ============== |
+  | -- GET /  (encrypted with session key) ---------> |
+  | <-- 200 OK (encrypted) ------------------------- |
+  </pre>
+
+  <p class="label gold">THE HANDSHAKE AS A DIAGRAM</p>
+  <img src="tls-handshake.svg" alt="TLS 1.3 handshake sequence: ClientHello, ServerHello + certificate, verify, ECDHE shared secret, session key, encrypted channel" style="width:100%;max-width:1100px;border-radius:12px;margin-top:6px;border:1px solid var(--line);background:#fff" />
+  <p style="margin:10px 0 0">
+    <a class="badge" href="tls-handshake.excalidraw" download>↓ tls-handshake.excalidraw</a>
+    <a class="badge" href="https://excalidraw.com" target="_blank" rel="noopener">Open in Excalidraw</a>
+  </p>
+</section>
+
+<!-- ====================== DIFFIE HELLMAN ====================== -->
+<section class="step" id="dh">
+  <h2><span class="num">05</span>Step 1 — Agreeing on a Key Without Sending It</h2>
+
+  <p>The most beautiful trick in cryptography: both sides end up with the <b>same secret key without ever transmitting it</b>. An eavesdropper watching every byte still can't compute it. This is the <b>Diffie-Hellman key exchange</b>.</p>
+
+  <div class="define">
+    <b>The paradox it solves</b> — How can two people agree on a secret while shouting across a room full of eavesdroppers, such that the eavesdroppers don't learn the secret?
+  </div>
+
+  <p class="label">INTUITION — MIXING PAINT (easy to mix, impossible to un-mix)</p>
+  <pre class="ascii">
+1. Agree PUBLICLY on a common color:   YELLOW   (attackers see this)
+
+2. Each picks a SECRET color (never shared):
+   Client secret:  RED          Server secret:  BLUE
+
+3. Mix secret with yellow, and SEND the mix:
+   Client sends:  yellow+red  = ORANGE  -->
+   Server sends:  yellow+blue = GREEN   <--      (attackers see these)
+
+4. Add your OWN secret to what you RECEIVED:
+   Client:  GREEN + own RED  = yellow+blue+red = BROWN
+   Server:  ORANGE + own BLUE = yellow+red+blue = BROWN
+            -> BOTH get the SAME BROWN = shared secret
+
+Attacker saw yellow, orange, green — but to make brown they'd need to
+UN-MIX a color back into red or blue. Separating mixed paint is infeasible.
+  </pre>
+
+  <img src="dh-paint.svg" alt="Diffie-Hellman paint-mixing analogy: public yellow base, secret red and blue, exchange orange and green mixes, each adds its own secret to arrive at the same brown shared secret" style="width:100%;max-width:1100px;border-radius:12px;margin-top:6px;border:1px solid var(--line);background:#fff" />
+  <p style="margin:10px 0 0">
+    <a class="badge" href="dh-paint.excalidraw" download>↓ dh-paint.excalidraw</a>
+    <a class="badge" href="https://excalidraw.com" target="_blank" rel="noopener">Open in Excalidraw</a>
+  </p>
+
+  <p class="label gold">THE ACTUAL MATH (modular exponentiation)</p>
+  <pre class="ascii">
+PUBLIC (everyone sees):  a big prime p  and a base g
+
+Client picks secret a              Server picks secret b
+Client computes A = g^a mod p      Server computes B = g^b mod p
+        ----- sends A ----->              <----- sends B -----
+
+Client computes  B^a mod p         Server computes  A^b mod p
+   = (g^b)^a = g^(ab) mod p           = (g^a)^b = g^(ab) mod p
+            |                                   |
+            +------- SAME VALUE g^(ab) ---------+  = session key
+
+Attacker knows p, g, A, B — but to get a from A = g^a mod p they must
+solve the DISCRETE LOG problem: infeasible for 2048-bit+ numbers
+(longer than the age of the universe on classical computers).
+  </pre>
+
+  <div class="callout"><b>TLS uses ECDHE:</b> Elliptic-Curve Diffie-Hellman Ephemeral — same idea with elliptic-curve math (smaller, faster, stronger), and a brand-new key per session (the "Ephemeral" part) → forward secrecy. The secrets <code>a</code> and <code>b</code> never leave their machines; only the "mixed" public values <code>A</code> and <code>B</code> travel.</div>
+</section>
+
+<!-- ====================== CERTIFICATES ====================== -->
+<section class="step" id="cert">
+  <h2><span class="num">06</span>Step 2 — Certificates &amp; the Chain of Trust</h2>
+
+  <p>Diffie-Hellman agrees on a key but doesn't prove <b>who</b> you're talking to. Without identity, an attacker could do DH separately with each side (man-in-the-middle). The <b>certificate</b> fixes that.</p>
+
+  <div class="define">
+    <b>Certificate</b> = <code>{ domain, public key, expiry }</code> + a digital <b>signature</b> from a trusted Certificate Authority (CA) that vouches for it.
+    <em>Anyone can verify the signature with the CA's public key. Only the CA (with its private key) can produce a valid one — so it can't be forged.</em>
+  </div>
+
+  <p class="label">SIGNING vs VERIFYING (asymmetric, in reverse)</p>
+  <pre class="ascii">
+CA SIGNS:    hash(cert) encrypted with CA's PRIVATE key  = signature
+YOU VERIFY:  decrypt signature with CA's PUBLIC key, compare to hash(cert)
+   match    -> genuine + untampered + CA vouched for it   OK
+   no match -> forged or altered                          REJECT
+  </pre>
+
+  <p class="label gold">THE CHAIN OF TRUST</p>
+  <pre class="ascii">
++---------------------------------------------------+
+|  ROOT CA   (e.g. DigiCert Global Root)            |  self-signed;
+|  private key kept OFFLINE in a vault (HSM)        |  PRE-INSTALLED on device
++------------------------+--------------------------+
+                         | signs
+                         v
++---------------------------------------------------+
+|  INTERMEDIATE CA  (e.g. DigiCert TLS RSA CA)      |  signs day-to-day certs
++------------------------+--------------------------+
+                         | signs
+                         v
++---------------------------------------------------+
+|  LEAF CERT  (bank.com)                            |  what the server presents
++---------------------------------------------------+
+  </pre>
+
+  <div class="callout"><b>The anchor:</b> your OS/browser ships with ~100–150 pre-installed <b>root certificates</b> (DigiCert, Let's Encrypt/ISRG, GlobalSign...). You trust <code>bank.com</code> <em>because</em> its cert chains up to a root you were "born trusting." The root is self-signed — trusted not by a signature but by being on that pre-vetted list.</div>
+
+  <p class="label">HOW A SERVER GETS A CERT</p>
+  <ol class="steps">
+    <li>Server generates a key pair (keeps the private key secret).</li>
+    <li>Sends a <b>CSR</b> (Certificate Signing Request) with its public key + domain to a CA.</li>
+    <li>CA <b>verifies domain control</b> — Domain Validation (prove you own <code>bank.com</code> via a DNS record/file), or OV/EV (also verify the legal company).</li>
+    <li>CA signs the cert with its private key → you install it on your server. (Let's Encrypt automates this via <b>ACME</b> — that's why HTTPS is now free.)</li>
+  </ol>
+
+  <p class="label gold">THE CHAIN AS A DIAGRAM</p>
+  <img src="cert-chain.svg" alt="Certificate chain of trust: root CA signs intermediate CA signs leaf cert; server sends leaf + intermediate, device has root, browser verifies up the chain" style="width:100%;max-width:1100px;border-radius:12px;margin-top:6px;border:1px solid var(--line);background:#fff" />
+  <p style="margin:10px 0 0">
+    <a class="badge" href="cert-chain.excalidraw" download>↓ cert-chain.excalidraw</a>
+    <a class="badge" href="https://excalidraw.com" target="_blank" rel="noopener">Open in Excalidraw</a>
+  </p>
+</section>
+
+<!-- ====================== VERIFY ====================== -->
+<section class="step" id="verify">
+  <h2><span class="num">07</span>How the Browser Verifies the Chain</h2>
+
+  <div class="callout"><b>Key fact:</b> intermediate certificates are <b>NOT</b> shipped with your device. The <b>server sends the full chain</b> (leaf + intermediates) during the handshake. Only the <b>root</b> is pre-installed.</div>
+
+  <p class="label">EACH CERT CONTAINS ITS OWN SUBJECT'S PUBLIC KEY</p>
+  <pre class="ascii">
+Leaf cert         contains -> bank.com's public key
+Intermediate cert contains -> the Intermediate CA's public key   (server-sent)
+Root cert         contains -> the Root CA's public key           (device-installed)
+
+To verify cert X you need the ISSUER's public key — which lives in the
+issuer's certificate, the next one up the chain.
+  </pre>
+
+  <p class="label gold">VERIFICATION WALKS UP THE CHAIN</p>
+  <pre class="ascii">
+leaf         --verified by--> INTERMEDIATE's public key  (from server-sent cert)
+intermediate --verified by--> ROOT's public key          (from device trust store)
+root         --is it in my trusted store?--> YES  ->  whole chain trusted
+
+You always need the key one level UP to verify the level below. The server
+hands you every intermediate so the browser can climb until it lands on a
+root that came pre-installed.
+  </pre>
+
+  <p class="label">FULL VALIDATION CHECKLIST</p>
+  <ul class="bullets">
+    <li>Signature valid at every link (leaf → intermediate → root)</li>
+    <li>Chain ends at a root in my trusted store</li>
+    <li>Domain matches (cert says <code>bank.com</code>, I typed <code>bank.com</code>)</li>
+    <li>Not expired (within validity dates)</li>
+    <li>Not revoked (via CRL / OCSP revocation checks)</li>
+    <li>Correct purpose (server authentication)</li>
+  </ul>
+
+  <div class="warn"><b>Real-world bug — "missing intermediate":</b> if a server is misconfigured and sends only the leaf, some browsers fail with "unable to verify the first certificate." That's why you always configure the <b>full chain</b> (<code>fullchain.pem</code> in Let's Encrypt), not just the leaf.</div>
+
+  <div class="warn"><b>Why an attacker can't fake it:</b> they can't sign a cert themselves (not a trusted CA), can't get a CA to sign for a domain they don't own, and can't steal a root's offline private key. No valid chain to a trusted root → connection refused.</div>
+</section>
+
+<!-- ====================== DATA ====================== -->
+<section class="step" id="data">
+  <h2><span class="num">08</span>Step 3 — Fast Symmetric Data Transfer</h2>
+
+  <p>Once the handshake establishes the shared session key and verifies identity, both sides switch to <b>fast symmetric encryption (AES)</b> for all the real traffic.</p>
+
+  <pre class="ascii">
+Handshake (asymmetric + DH)  -> establishes a shared SESSION KEY   (slow, once)
+Data transfer (symmetric AES) -> encrypts ALL traffic              (fast, ongoing)
+
+Client ── AES(session key, "GET /account") ──►  Server  (decrypts, reads plain HTTP)
+Client ◄─ AES(session key, "200 OK ...") ─────  Server
+  </pre>
+
+  <div class="callout"><b>Why this is the right design:</b> AES is hardware-accelerated and encrypts gigabytes/sec, so HTTPS adds negligible overhead to the actual data. The expensive asymmetric math happened only once, on a few hundred bytes, to bootstrap this fast channel.</div>
+
+  <p class="label">TIES BACK TO API GATEWAY &amp; WEBSOCKETS</p>
+  <ul class="bullets">
+    <li>An <b>API gateway terminates TLS</b> — it decrypts public traffic, reads the plain HTTP, then routes (and often re-encrypts internally via mTLS).</li>
+    <li>Secure WebSockets (<code>wss://</code>) run over exactly this same TLS channel before the HTTP Upgrade → 101 handshake.</li>
+  </ul>
+</section>
+
+<!-- ====================== RECAP ====================== -->
+<section class="step" id="recap">
+  <h2><span class="num">09</span>Recap &amp; Interview One-Liners</h2>
+
+  <div class="define"><b>TLS</b><em>The protocol that encrypts + authenticates network traffic (the "S" in HTTPS). Uses a certificate + asymmetric handshake to verify the server and agree a shared secret, then fast symmetric AES for the data — giving encryption, authentication, and integrity over an untrusted network.</em></div>
+
+  <div class="define"><b>Symmetric vs asymmetric</b><em>Symmetric (AES) is fast but can't safely share its key. Asymmetric is the reverse — safe key setup but far too slow for bulk data. TLS uses asymmetric once in the handshake to agree a key, then symmetric AES for all traffic.</em></div>
+
+  <div class="define"><b>Diffie-Hellman</b><em>Both sides pick a private secret, send only a "mixed" public value (g^a mod p), and combine the received value with their own secret to independently compute the same key (g^(ab) mod p) — which an eavesdropper can't reproduce because reversing modular exponentiation (discrete log) is infeasible. The key itself is never transmitted.</em></div>
+
+  <div class="define"><b>Certificate chain</b><em>The server's cert is signed by a CA, whose cert is signed up to a self-signed root pre-installed in your device. The server sends leaf + intermediates; the browser verifies each signature up to a trusted root. Only the root is the pre-shipped anchor.</em></div>
+</section>
+
+</div><!-- .wrap -->
+
+<a href="#" class="top" id="topBtn">↑</a>
+
+<footer>
+  <b>BuildLikeASenior</b> · Think · Design · Grow Like a Senior Engineer
+</footer>
+
+<script>
+const btn=document.getElementById('topBtn');
+window.addEventListener('scroll',()=>{btn.classList.toggle('show',window.scrollY>300)});
+</script>
+</body>
+</html>

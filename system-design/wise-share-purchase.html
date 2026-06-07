@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Design Wise Share Purchase · System Design · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" />
+<style>
+  :root{
+    --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+    --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+    --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+    --easy:#22c55e; --med:#f59e0b; --hard:#ef4444;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  header.hero .crumb a:hover{color:var(--teal)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:760px;margin:0 auto;font-size:15px}
+  .meta{display:flex;gap:18px;justify-content:center;margin-top:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+  .meta b{color:var(--text)}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:24px}
+
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .label{color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 8px;font-weight:700}
+  .label.gold{color:var(--gold)}
+
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  .define em{color:var(--muted);font-style:normal;display:block;font-size:13px;margin-top:4px}
+
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .callout b{color:var(--teal)}
+  .warn{background:rgba(239,68,68,.06);border-left:3px solid var(--hard);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .warn b{color:var(--hard)}
+
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  td code, th code{background:rgba(0,212,170,.10);padding:1px 6px;border-radius:4px;color:var(--teal);font-size:12px}
+
+  pre[class*="language-"]{border-radius:10px;font-size:13px;border:1px solid var(--line);background:#0a1428 !important;margin:8px 0}
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto;font-family:'JetBrains Mono',monospace}
+
+  ul.bullets{padding-left:22px}
+  ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px}
+  ol.steps li{margin:8px 0}
+
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+
+  .glossary{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  .gloss-card{background:rgba(91,141,238,.06);border:1px solid rgba(91,141,238,.25);border-radius:10px;padding:14px 16px}
+  .gloss-card h4{margin:0 0 6px;font-size:14px;color:var(--blue);letter-spacing:.05em}
+  .gloss-card p{margin:0;font-size:13.5px;color:#cdd9ee;line-height:1.55}
+
+  .req-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:14px 0}
+  @media(max-width:760px){.req-grid{grid-template-columns:1fr}}
+  .req{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:14px 18px}
+  .req h4{margin:0 0 8px;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue)}
+  .req h4.gold{color:var(--gold)}
+  .req ol{margin:6px 0 0;padding-left:20px}
+  .req li{margin:4px 0;font-size:14px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="crumb"><a href="index.html">System Design</a> · 03</div>
+  <span class="badge">£100M Crowdfunding · 5M Concurrent</span>
+  <h1 class="title">Design <span>Wise Share Purchase</span></h1>
+  <p class="sub">Sell 10M shares at £10 to 5M concurrent users in a 1-week window — without bringing down the Balance Service the rest of the company depends on.</p>
+  <div class="meta"><span><b>10M</b> shares</span><span><b>£10</b> fixed price</span><span><b>5M</b> concurrent users</span><span><b>7 days</b> window</span></div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <h3>Walkthrough</h3>
+  <ol>
+    <li><a href="#problem">Problem & Requirements</a></li>
+    <li><a href="#challenges">The Real Challenges</a></li>
+    <li><a href="#capacity">Capacity Math</a></li>
+    <li><a href="#arch">High-level Architecture</a></li>
+    <li><a href="#inventory">Inventory — Atomic Share Decrement</a></li>
+    <li><a href="#bulkhead">Protecting Balance Service (Bulkhead)</a></li>
+    <li><a href="#saga">Two-Phase Reserve / Saga Flow</a></li>
+    <li><a href="#idempotency">Idempotency & At-Least-Once</a></li>
+    <li><a href="#queue">Fair Queueing for 5M Users</a></li>
+    <li><a href="#fraud">Anti-Fraud & Kill Switches</a></li>
+    <li><a href="#failure">Failure Modes</a></li>
+    <li><a href="#capacity-sum">Capacity Summary</a></li>
+    <li><a href="#interview">Interview Talking Points</a></li>
+    <li><a href="#tldr">30-Second Pitch</a></li>
+    <li><a href="#glossary">Glossary</a></li>
+  </ol>
+</nav>
+
+<!-- ====================== PROBLEM ====================== -->
+<section class="step" id="problem">
+  <h2><span class="num">00</span>Problem & Requirements</h2>
+
+  <p>Wise wants to raise <b>£100 million</b> by selling <b>10 million shares</b> at <b>£10 each</b> (fixed). Customers log into the app, see the offer, and buy N shares using funds in their Wise account. Sale is open for <b>1 week</b>. We expect <b>5 million concurrent users</b>. The <b>Balance Service</b> (source of truth for everyone's account funds) is shared with the rest of the company — payments, withdrawals, transfers — and <b>must not be degraded</b> by this event.</p>
+
+  <div class="req-grid">
+    <div class="req">
+      <h4>Functional Requirements</h4>
+      <ol>
+        <li>User can see remaining shares + their Wise balance.</li>
+        <li>User can submit "buy N shares" within the 7-day window.</li>
+        <li>Each share sold to exactly one buyer; <b>no oversell, no undersell</b>.</li>
+        <li>Funds are debited from the user's Wise balance via the Balance Service.</li>
+        <li>User gets a confirmation (success / partial fill / failure).</li>
+      </ol>
+    </div>
+    <div class="req">
+      <h4 class="gold">Non-Functional Requirements</h4>
+      <ol>
+        <li><b>5M concurrent users</b> peaking when sale opens.</li>
+        <li><b>Balance Service must not degrade</b> — other Wise products keep working.</li>
+        <li><b>Strong consistency on inventory</b> — never sell the 10,000,001st share.</li>
+        <li><b>Strong consistency on funds</b> — never debit a customer twice.</li>
+        <li><b>Fairness</b> — buyers served in queue order, <i>not</i> "fastest internet wins." See define below.</li>
+        <li>Auditable, regulator-friendly (this is securities).</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="define"><b>Source of truth</b> = the one system whose data is considered authoritative for a piece of state. <em>Balance Service is the source of truth for "how much money does customer X have right now."</em></div>
+
+  <div class="define"><b>Fairness ("queue order, not fastest internet wins")</b> = when supply is limited (10M shares, millions of buyers), the order in which buy requests are served must be based on <b>when the user clicked Buy</b>, not on which user happens to have the lowest network latency to our servers.
+    <em>Without fairness: a user in the same datacenter region as our cluster gets their TCP packet in 2 ms; a user across the ocean takes 200 ms. Both clicked Buy at the same wall-clock instant, but the close user always wins. That feels rigged — and for a regulated securities sale, it <i>is</i> a problem (regulators ask "why did this person get shares and that person didn't?"). Fix: a <b>virtual waiting room</b> assigns each user a queue position the moment they click, based on a server-issued timestamp + a small random jitter for ties. The actual buy flow then admits users strictly in queue order at a controlled rate — so latency to our servers no longer determines who wins. This is the same pattern Ticketmaster, IPO platforms, and PS5-launch retailers use.</em>
+  </div>
+</section>
+
+<!-- ====================== CHALLENGES ====================== -->
+<section class="step" id="challenges">
+  <h2><span class="num">01</span>The Real Challenges</h2>
+
+  <p>This isn't a "scale to 5M users" question. The interviewer is testing:</p>
+
+  <ol class="steps">
+    <li><b>Hot row / hot inventory</b> — 10M shares is a single counter that millions try to decrement simultaneously.</li>
+    <li><b>Two strongly-consistent systems must agree</b> — share inventory <b>and</b> Balance Service. Both must either commit or roll back. This is a <b>distributed transaction</b> problem.</li>
+    <li><b>Protecting a critical dependency</b> — Balance Service is shared with payments/withdrawals. A spike here must not bleed into those.</li>
+    <li><b>No double-spend, no oversell</b> — even with at-least-once messaging and retries.</li>
+    <li><b>Fairness</b> at 5M concurrent users — no thundering herd, no first-come-server-wins randomness.</li>
+  </ol>
+
+  <div class="define"><b>Hot row</b> = a single database row that millions of requests want to update at the same time. <em>Causes lock contention. The classic "Black Friday inventory counter" problem.</em></div>
+
+  <div class="define"><b>Distributed transaction</b> = a transaction that must commit across two or more separate databases/services as one atomic unit. <em>Either both happen, or neither. Notoriously hard.</em></div>
+</section>
+
+<!-- ====================== CAPACITY ====================== -->
+<section class="step" id="capacity">
+  <h2><span class="num">02</span>Capacity Math</h2>
+
+  <pre class="ascii">Concurrent users:         5,000,000
+Shares to sell:          10,000,000
+Avg purchase per user:        2 shares  (so ~5M completed orders fit the supply)
+
+Peak buy attempts/sec (first minute when sale opens):
+  - Assume 30% of users try in first 5 minutes
+  - 5M × 0.30 / 300 sec ≈ 5,000 buy attempts/sec
+
+Read traffic (showing "shares left" + user balance):
+  - 5M users polling every 5s = 1,000,000 QPS reads
+  - Mostly served from CDN + cache
+
+Balance Service writes during sale:
+  - 5,000 debit/sec   (small relative to its normal load — but the spike is what kills it)
+
+Data volume:
+  - 5M completed orders × 1 KB = 5 GB of order records
+  - 10M ledger entries (share-side) × 200 B = 2 GB</pre>
+
+  <p>So the system handles ~5k writes/sec at peak, but the danger is concentrated at <b>second 0</b> of the sale.</p>
+</section>
+
+<!-- ====================== ARCH ====================== -->
+<section class="step" id="arch">
+  <h2><span class="num">03</span>High-level Architecture</h2>
+
+<pre class="ascii">
+                       CDN (read-only display of "shares left", price)
+                                       │
+                  ┌────────────────────┴───────────────────────┐
+                  │                                             │
+   User app ──► API Gateway ──► Waiting-Room Queue (Redis)
+                                       │ admits N/sec
+                                       ▼
+                              ┌───────────────────┐
+                              │ Share Purchase    │   (the new service)
+                              │     Service       │
+                              └───┬─────────────┬─┘
+                                  │             │
+                       ┌──────────┘             └──────────────┐
+                       ▼                                        ▼
+              ┌─────────────────┐                  ┌──────────────────────┐
+              │ Inventory Store │                  │ Balance-Adapter      │
+              │ (Redis cluster) │                  │ (dedicated pool +    │
+              │  shares_left    │                  │  read-replica for    │
+              │  sharded × 100  │                  │  this service ONLY)  │
+              └─────────────────┘                  └──────────┬───────────┘
+                                                              │
+                                                              ▼
+                                              ┌─────────────────────────────┐
+                                              │  Balance Service (shared)   │
+                                              │  - Payments use it          │
+                                              │  - Withdrawals use it      │
+                                              │  - Bulkheaded from us       │
+                                              └─────────────────────────────┘
+                                  │
+                                  ▼
+                  ┌─────────────────────────────┐
+                  │ Order Ledger (Postgres)     │  + Kafka(orders.events)
+                  │ user_id, shares, status,    │
+                  │ idempotency_key             │
+                  └─────────────────────────────┘
+</pre>
+<img src="wise-share-purchase.png" alt="Wise Share Purchase System Design Architecture Diagram" style="width:100%;max-width:900px;border-radius:12px;margin-top:16px;border:1px solid var(--line)" />
+<p style="margin-top:12px"><a href="wise-share-purchase.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+
+  <p>Key idea: <b>we never let raw user traffic hammer the Balance Service directly</b>. Everything goes through our service, which throttles and uses a dedicated connection pool.</p>
+
+  <div class="define"><b>Waiting room</b> = an entry-gate queue that admits only N users per second into the actual purchase flow. <em>Same pattern used by Ticketmaster, Shopify Flash Sales, IPO platforms.</em></div>
+
+  <div class="define"><b>Order ledger</b> = an append-only record of every buy attempt and its outcome. <em>Append-only = once written, never modified. Auditors love it; bugs can't corrupt history.</em></div>
+</section>
+
+<!-- ====================== INVENTORY ====================== -->
+<section class="step" id="inventory">
+  <h2><span class="num">04</span>Inventory — Atomic Share Decrement</h2>
+
+  <p>We need to decrement <code>shares_left</code> for 5M people without ever going below zero. Three options:</p>
+
+  <table>
+    <thead><tr><th>Option</th><th>How</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>Postgres row + <code>SELECT … FOR UPDATE</code></td><td>Lock the inventory row, decrement, commit</td><td>❌ One row, 5k writes/sec → lock queue explodes. Latency spikes to seconds.</td></tr>
+      <tr><td>Redis <code>DECRBY</code></td><td>Single-threaded atomic decrement</td><td>✅ Single Redis can do 100k+ ops/sec. But still a single hot key.</td></tr>
+      <tr><td><b>Sharded Redis counters</b></td><td>Split 10M shares across 100 counters of 100k each; client picks a random shard</td><td>✅✅ <b>This is the answer.</b> 100 counters × 10k ops/sec each = 1M ops/sec headroom.</td></tr>
+    </tbody>
+  </table>
+
+  <p><b>Sharded inventory</b>:</p>
+
+  <pre class="ascii">Redis keys:  inventory:shard:0  = 100,000
+             inventory:shard:1  = 100,000
+             ...
+             inventory:shard:99 = 100,000   (total = 10,000,000)
+
+Buy flow:
+  1. Pick a random shard (or hash by userId for stickiness).
+  2. DECRBY inventory:shard:k N   (atomic; returns the new value).
+  3. If result &lt; 0  →  INCRBY back; try next shard (up to 3 retries).
+  4. After 3 fails  →  return "sold out" to user.</pre>
+
+  <div class="define"><b>Sharded counter</b> = splitting a single hot counter into many small ones to spread write load. <em>Same trick used to track YouTube view counts, ad impression counts, etc.</em></div>
+
+  <div class="define"><b>DECRBY (Redis)</b> = atomically subtract a number from a key, returning the new value. <em>"Atomic" = no two clients ever see the same intermediate value.</em></div>
+
+  <div class="callout"><b>Won't this oversell?</b> No. Redis is single-threaded per key — <code>DECRBY</code> is atomic. The trick is that we <code>INCRBY</code> back if we go negative. The window where a value briefly goes to -3 is invisible to other clients because the next operation on that key is serialized.</div>
+</section>
+
+<!-- ====================== BULKHEAD ====================== -->
+<section class="step" id="bulkhead">
+  <h2><span class="num">05</span>Protecting Balance Service (Bulkhead Pattern)</h2>
+
+  <p>The Balance Service is shared. Payments, withdrawals, transfers all use it. If 5k QPS of share-purchase debits floods it, the rest of Wise goes down — and that's catastrophic.</p>
+
+  <div class="label">The bulkhead pattern</div>
+  <p>"Bulkhead" comes from shipbuilding: walls inside a ship that prevent one flooded compartment from sinking the whole vessel.</p>
+
+  <pre class="ascii">Balance Service (deployed once, shared)
+  ├── Connection pool A   (payments)        — 200 conns
+  ├── Connection pool B   (withdrawals)     — 200 conns
+  ├── Connection pool C   (share-purchase)  — 50 conns  ◄── HARD CAP
+  └── Read-replica R1                       — share-purchase reads ONLY</pre>
+
+  <ul class="bullets">
+    <li><b>Dedicated connection pool</b> for share-purchase, capped at 50 connections. Even if our service goes wild, it can't open more.</li>
+    <li><b>Dedicated read-replica</b> for "what's my balance?" reads. Removes 80% of our DB load from the primary.</li>
+    <li><b>Rate limiter at the edge</b> of Balance Service: max 5k QPS from the share-purchase client, beyond that → 429 Too Many Requests.</li>
+    <li><b>Circuit breaker</b> — if Balance Service latency exceeds 500 ms, the share-purchase service short-circuits and returns "try again in 30s" to users.</li>
+  </ul>
+
+  <div class="define"><b>Bulkhead pattern</b> = isolating resources (connection pools, thread pools, queues, even whole hosts) <i>per caller</i> so that one runaway client cannot starve every other client of the same shared dependency.
+    <em>Name origin: ships have internal walls called bulkheads; if one compartment floods, the wall stops water reaching the next, so the ship stays afloat. In software, the "compartment" is usually a connection pool capped at a hard limit. Concrete example for our case — the Balance Service has 450 total DB connections; we declare three pools at the Balance side: 200 for Payments, 200 for Withdrawals, 50 for Share-Purchase. If our share-purchase service goes berserk and tries to open 5,000 connections, it can <i>only</i> ever consume its 50; the remaining 400 are physically reserved for Payments and Withdrawals, so those flows keep working. Without a bulkhead, our spike would exhaust the whole 450-pool and take down payments too. Closely related to but distinct from a circuit breaker: a bulkhead prevents starvation (resource isolation); a circuit breaker prevents pile-on (stops calling a sick downstream).</em>
+  </div>
+
+  <div class="define"><b>Connection pool</b> = a fixed-size set of pre-opened database connections, reused across requests. <em>Limits how many concurrent queries a service can hammer the DB with.</em></div>
+
+  <div class="define"><b>Read replica</b> = a read-only copy of a database that streams changes from the primary. <em>You read from the replica to take read load off the primary, accepting milliseconds of staleness.</em></div>
+
+  <div class="define"><b>Circuit breaker</b> = a wrapper that detects when a downstream service is unhealthy and stops calling it for a cooldown period. <em>Lets the downstream recover instead of being pounded.</em></div>
+</section>
+
+<!-- ====================== SAGA ====================== -->
+<section class="step" id="saga">
+  <h2><span class="num">06</span>Two-Phase Reserve / Saga Flow</h2>
+
+  <p>We can't run a real distributed transaction across Redis (inventory) and Balance Service (funds). Instead, we use a <b>saga</b>: a sequence of local transactions with compensating actions on failure.</p>
+
+  <div class="label">The buy flow (happy path)</div>
+
+  <pre class="ascii">┌─────────┐                                                          ┌──────────────┐
+│  User   │                                                          │ Balance Svc  │
+└────┬────┘                                                          └──────┬───────┘
+     │                                                                      │
+     │  1. POST /buy {shares:5, idemKey:abc}                                 │
+     │ ─────────────►  Share Purchase Service                                │
+     │                                                                      │
+     │                 2. RESERVE inventory  (DECRBY redis)  ────────────►   │
+     │                                                                      │
+     │                 3. RESERVE funds      (Balance.reserve(£50,abc)) ►    │
+     │                                                                      │
+     │                 4. APPEND order(status=PENDING) to ledger             │
+     │                                                                      │
+     │                 5. COMMIT funds       (Balance.commit(abc))     ►     │
+     │                                                                      │
+     │                 6. APPEND order(status=COMMITTED) to ledger           │
+     │                                                                      │
+     │  ◄──── 7. 200 OK {shares:5, status:COMMITTED}                         │
+     └─────────                                                              ┘</pre>
+
+  <div class="label gold">Compensating actions (if anything fails)</div>
+
+  <table>
+    <thead><tr><th>Fails at step</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>2. Inventory reserve</td><td>Nothing to undo. Return "sold out".</td></tr>
+      <tr><td>3. Funds reserve</td><td>INCRBY shares back to inventory. Return "insufficient funds".</td></tr>
+      <tr><td>5. Funds commit (rare — network blip)</td><td>Retry. Idempotency key makes it safe. If still fails, mark order REVIEW and alert.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="define"><b>Saga pattern</b> = a long-running business transaction implemented as a sequence of local transactions, each with a compensating action if a later step fails. <em>Used instead of two-phase commit when you don't control all the databases.</em></div>
+
+  <div class="define"><b>Reserve / Commit (two-phase action)</b> = first put a soft-hold on a resource ("reserve £50"), then later actually deduct it ("commit"). <em>The Balance Service must support this — otherwise we'd need to fully debit then refund on failure, which the customer would see flicker.</em></div>
+
+  <div class="define"><b>Compensating action</b> = the "undo" for a step that already succeeded, used when a later step in the saga fails. <em>Putting shares back into inventory after a funds failure.</em></div>
+</section>
+
+<!-- ====================== IDEMPOTENCY ====================== -->
+<section class="step" id="idempotency">
+  <h2><span class="num">07</span>Idempotency & At-Least-Once</h2>
+
+  <p>Networks fail. Users click the buy button twice. Mobile retries hidden inside the OS happen. Without idempotency, we'd debit someone twice and oversell shares.</p>
+
+  <div class="label">The pattern</div>
+
+  <ol class="steps">
+    <li>Client generates a UUID per buy attempt: the <b>idempotency key</b>.</li>
+    <li>Sends it as header: <code>Idempotency-Key: abc-123</code>.</li>
+    <li>Share Purchase Service stores <code>(idemKey → order_id, status)</code> in Postgres with a unique index.</li>
+    <li>On a duplicate request with the same key: return the previous response instead of running the saga again.</li>
+    <li>The Balance Service also accepts the same idempotency key on <code>reserve()</code> and <code>commit()</code> — so a retried commit doesn't double-debit.</li>
+  </ol>
+
+  <div class="define"><b>Idempotent</b> = an operation that can be applied any number of times with the same effect as applying it once. <em><code>x = 5</code> is idempotent; <code>x = x + 1</code> is not.</em></div>
+
+  <div class="define"><b>Idempotency key</b> = a unique ID provided by the client so the server can recognize a duplicate of the same logical request and return the original result. <em>Stripe, AWS, every serious payments API uses this.</em></div>
+
+  <div class="define"><b>At-least-once delivery</b> = a messaging guarantee that says "your message will arrive — and possibly more than once." <em>Almost all distributed messaging systems are at-least-once. Idempotency turns that into "effectively exactly once" from the user's perspective.</em></div>
+</section>
+
+<!-- ====================== QUEUE ====================== -->
+<section class="step" id="queue">
+  <h2><span class="num">08</span>Fair Queueing for 5M Users</h2>
+
+  <p>The moment the sale opens, 5M users hit "buy" within seconds. If we let them all through, three bad things happen:</p>
+
+  <ul class="bullets">
+    <li>Inventory shards still get hammered (even with 100 shards, 5M concurrent is a lot).</li>
+    <li>Balance Service spikes.</li>
+    <li>Whoever has the fastest internet/closest data center "wins" — not fair.</li>
+  </ul>
+
+  <div class="label">Virtual waiting room</div>
+
+  <pre class="ascii">1. User clicks "Buy".
+2. They get a token + position in a Redis sorted set:
+   ZADD wait_queue {timestamp_with_jitter} {userId}
+3. Their browser polls /position every 5s and shows: "You are #4,231,109 in line. Est. wait: 12 min."
+4. A leaky-bucket admitter pulls N users/sec off the front:
+   - rate is set so that downstream (inventory + balance) is at 60% capacity
+   - typical rate: 2,000 admits/sec
+5. Admitted user gets a signed short-lived token → uses it to call /buy.
+6. After 10 minutes of inactivity → kicked out.</pre>
+
+  <div class="define"><b>Sorted set (Redis)</b> = a Redis data type that keeps members ordered by a score. <em>Score = signup timestamp = position in queue.</em></div>
+
+  <div class="define"><b>Leaky bucket</b> = a rate-limiting model: requests fill a bucket, leak out at a fixed rate. <em>If the bucket overflows, new requests wait. Used here as a smooth admitter that never lets downstream get overloaded.</em></div>
+
+  <div class="define"><b>Thundering herd</b> = many clients waking up and hammering a service at once. <em>What happens when a sale opens with no waiting room. Fix: jittered timestamps, leaky bucket.</em></div>
+</section>
+
+<!-- ====================== FRAUD ====================== -->
+<section class="step" id="fraud">
+  <h2><span class="num">09</span>Anti-Fraud & Kill Switches</h2>
+
+  <ul class="bullets">
+    <li><b>Per-user cap</b> — max 1,000 shares per customer to prevent whales gobbling up everything.</li>
+    <li><b>KYC gate</b> — only customers with verified accounts older than 30 days can participate.</li>
+    <li><b>Bot detection</b> — CAPTCHA / device fingerprinting at the waiting-room entry.</li>
+    <li><b>Velocity checks</b> — same device buying for 100 accounts → flag.</li>
+    <li><b>Kill switch</b> — feature flag that halts purchases instantly if anything looks wrong. Required for securities regulation.</li>
+    <li><b>Read-only mode</b> — separate flag that disables writes but keeps the dashboard up.</li>
+  </ul>
+
+  <div class="define"><b>Feature flag (kill switch)</b> = a runtime toggle that turns a feature on/off without redeploying. <em>Crucial for regulated systems — auditors require a "stop everything now" button.</em></div>
+
+  <div class="define"><b>KYC (Know Your Customer)</b> = identity verification required for financial products. <em>Wise already runs KYC on every account; we just check the flag.</em></div>
+</section>
+
+<!-- ====================== FAILURE ====================== -->
+<section class="step" id="failure">
+  <h2><span class="num">10</span>Failure Modes</h2>
+
+  <table>
+    <thead><tr><th>Failure</th><th>Impact</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>Redis inventory shard dies</td><td>1% of inventory inaccessible</td><td>RF=3 with sentinel/cluster; auto-failover &lt;5s. Lost inventory recoverable from order ledger (replay).</td></tr>
+      <tr><td>Balance Service unreachable</td><td>No new purchases</td><td>Circuit breaker; users see "try again in 30s"; the sale clock pauses (regulator-friendly).</td></tr>
+      <tr><td>Order Ledger DB primary fails</td><td>No new orders recorded</td><td>Synchronous replica + Postgres failover. ~30s of pending orders replayed from Kafka.</td></tr>
+      <tr><td>Saga crashes mid-flow (between reserve and commit)</td><td>Funds held but no shares</td><td>Saga orchestrator reads "in-flight" sagas from ledger on restart and replays compensation or commit.</td></tr>
+      <tr><td>Network blip retries → double commit attempt</td><td>Could double-debit</td><td>Idempotency keys; Balance Service rejects duplicates.</td></tr>
+      <tr><td>Waiting-room Redis dies</td><td>Lose queue positions (terrible UX)</td><td>Redis AOF persistence + replica. Worst case: degrade to "fair coin flip" admit until restored.</td></tr>
+      <tr><td>One whale buys with botnet</td><td>Unfair allocation</td><td>Per-user cap + velocity checks + manual review queue for outliers.</td></tr>
+      <tr><td>Regulatory halt</td><td>Need to freeze sale instantly</td><td>Kill switch flips a flag read on every request; admitter and saga both refuse new starts.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ====================== CAPACITY SUM ====================== -->
+<section class="step" id="capacity-sum">
+  <h2><span class="num">11</span>Capacity Summary</h2>
+  <table>
+    <thead><tr><th>Layer</th><th>Size</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>CDN</td><td>Global</td><td>Serves "shares left" and static UI; offloads ~1M QPS of reads</td></tr>
+      <tr><td>API Gateway / Waiting Room</td><td>~50 pods</td><td>Admits ~2k users/sec into the buy flow</td></tr>
+      <tr><td>Share Purchase Service</td><td>~30 pods</td><td>~5k buy/sec at peak, plus retries/idempotency lookups</td></tr>
+      <tr><td>Inventory (Redis Cluster)</td><td>100 shards × 3 replicas = 300 nodes</td><td>Sharded counters absorb the write spike with headroom</td></tr>
+      <tr><td>Waiting-Room Redis</td><td>~10 shards</td><td>5M ZADD entries; admit-rate logic</td></tr>
+      <tr><td>Balance-Adapter</td><td>Capped 50 connections, 5k QPS rate limiter</td><td>Bulkhead — physically can't overload Balance Service</td></tr>
+      <tr><td>Order Ledger (Postgres)</td><td>Sharded by userId; 16 shards; sync replica each</td><td>~5k writes/sec + idempotency lookups</td></tr>
+      <tr><td>Kafka (orders.events)</td><td>~10 brokers</td><td>Downstream: reporting, audit, regulator feeds</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ====================== INTERVIEW ====================== -->
+<section class="step" id="interview">
+  <h2><span class="num">12</span>Interview Talking Points</h2>
+  <ol class="steps">
+    <li><b>Lead with the two real problems</b>: hot inventory + protecting a shared dependency. Not "scale 5M users."</li>
+    <li><b>Sharded Redis counters</b> for the inventory hot row.</li>
+    <li><b>Saga + reserve/commit</b> instead of trying to run a real distributed transaction.</li>
+    <li><b>Bulkhead pattern</b> protecting Balance Service: dedicated pool + read replica + rate limit + circuit breaker.</li>
+    <li><b>Idempotency keys</b> end-to-end (client → our service → Balance).</li>
+    <li><b>Waiting room with leaky-bucket admitter</b> for fairness and to keep downstream at 60% capacity.</li>
+    <li><b>Append-only order ledger</b> with Kafka for audit and replay.</li>
+    <li><b>Kill switch + feature flags</b> — it's securities, regulators demand it.</li>
+    <li>Mention <b>per-user cap</b> for fairness — it's a domain concern but also a load mitigation.</li>
+    <li><b>Trade-off to volunteer:</b> "I'm using saga, not 2PC, because I don't own Balance Service's storage. The price is eventual atomicity — a customer can briefly see 'pending' state."</li>
+  </ol>
+</section>
+
+<!-- ====================== TLDR ====================== -->
+<section class="step" id="tldr">
+  <h2><span class="num">13</span>30-Second Pitch</h2>
+  <div class="callout"><b>The Pitch</b><br><br>
+    Two real problems: a 10-million-share hot inventory row and a shared Balance Service that must not degrade.<br><br>
+    I'd put a <b>virtual waiting room</b> in front using a Redis sorted set with a leaky-bucket admitter that lets ~2k users/sec into the actual buy flow — keeps downstream at 60% capacity and gives us fairness.<br><br>
+    For inventory, I'd <b>shard the counter across 100 Redis keys</b> of 100k shares each. <code>DECRBY</code> is atomic; if a shard goes negative I <code>INCRBY</code> back and try another. 1M ops/sec headroom.<br><br>
+    For funds, the Balance Service stays shared, but my service uses a <b>dedicated connection pool, dedicated read replica, rate limiter, and circuit breaker</b> — classic bulkhead. Other Wise products can't see us spike.<br><br>
+    The buy itself is a <b>saga</b>: reserve inventory, reserve funds, append a PENDING order, commit funds, append a COMMITTED order. Each step has a compensating action. Every call carries an <b>idempotency key</b> so retries don't double-debit.<br><br>
+    Append-only <b>order ledger</b> for audit; <b>kill switch</b> for regulatory halt; <b>per-user cap</b> and KYC for fairness.<br><br>
+    Strong consistency on inventory and funds; eventual consistency on reporting. Sale stays up even if reporting lags.
+  </div>
+</section>
+
+<!-- ====================== GLOSSARY ====================== -->
+<section class="step" id="glossary">
+  <h2><span class="num">∞</span>Glossary</h2>
+  <div class="glossary">
+    <div class="gloss-card"><h4>Append-only ledger</h4><p>A table where rows are only inserted, never updated or deleted. Great for auditability — history can't be rewritten.</p></div>
+    <div class="gloss-card"><h4>At-least-once delivery</h4><p>"Message will arrive — possibly more than once." Pair with idempotency to get "effectively exactly once."</p></div>
+    <div class="gloss-card"><h4>Bulkhead pattern</h4><p>Isolate resources per caller so one runaway client can't starve the others. From shipbuilding.</p></div>
+    <div class="gloss-card"><h4>Circuit breaker</h4><p>Wrapper that detects when a downstream is sick and stops calling it for a cooldown. Lets it recover.</p></div>
+    <div class="gloss-card"><h4>Compensating action</h4><p>The "undo" of a saga step, run if a later step fails.</p></div>
+    <div class="gloss-card"><h4>Connection pool</h4><p>Fixed-size set of pre-opened DB connections reused across requests. Hard cap on concurrent queries.</p></div>
+    <div class="gloss-card"><h4>DECRBY (Redis)</h4><p>Atomic subtract from a key, returns new value. Foundation of Redis-based counters.</p></div>
+    <div class="gloss-card"><h4>Distributed transaction</h4><p>One atomic unit of work that spans two or more separate systems. Hard. We usually avoid with sagas.</p></div>
+    <div class="gloss-card"><h4>Feature flag / Kill switch</h4><p>Runtime toggle to enable/disable a feature without redeploy. Mandatory for regulated systems.</p></div>
+    <div class="gloss-card"><h4>Hot row / Hot key</h4><p>A single record everyone wants to update at the same time. Lock contention nightmare.</p></div>
+    <div class="gloss-card"><h4>Idempotent</h4><p>Operation safe to repeat — repeating it has the same effect as doing it once.</p></div>
+    <div class="gloss-card"><h4>Idempotency key</h4><p>Client-generated UUID per logical request, lets server detect and short-circuit duplicates.</p></div>
+    <div class="gloss-card"><h4>KYC</h4><p>Know Your Customer — identity verification required for financial products by regulation.</p></div>
+    <div class="gloss-card"><h4>Leaky bucket</h4><p>Rate-limit model: requests fill a bucket that drains at a fixed rate. Smooths spikes.</p></div>
+    <div class="gloss-card"><h4>Order ledger</h4><p>Append-only record of every order and its outcome. Auditable, replayable, can't be corrupted.</p></div>
+    <div class="gloss-card"><h4>Read replica</h4><p>Read-only copy of a DB streaming from primary. Use to offload read load.</p></div>
+    <div class="gloss-card"><h4>Reserve / Commit</h4><p>Two-step API: first soft-hold a resource, then later finalize. Foundation of safe sagas across services.</p></div>
+    <div class="gloss-card"><h4>Saga pattern</h4><p>Long-running transaction as a sequence of local transactions, each with a compensating action.</p></div>
+    <div class="gloss-card"><h4>Sharded counter</h4><p>Splitting a hot counter into many small ones to spread write load.</p></div>
+    <div class="gloss-card"><h4>Sorted set (Redis)</h4><p>Members ordered by score. Used for queues and rankings.</p></div>
+    <div class="gloss-card"><h4>Source of truth</h4><p>The one authoritative system for a piece of state. Balance Service is the source of truth for funds.</p></div>
+    <div class="gloss-card"><h4>Thundering herd</h4><p>Many clients hitting a service simultaneously (e.g., sale opens). Mitigate with waiting rooms + jitter.</p></div>
+    <div class="gloss-card"><h4>Two-phase commit (2PC)</h4><p>Real distributed transaction protocol. Locks resources across systems. Avoided here — we use saga instead.</p></div>
+    <div class="gloss-card"><h4>Waiting room</h4><p>Entry-gate queue admitting users into the real flow at a controlled rate. Fairness + load shielding.</p></div>
+  </div>
+</section>
+
+</div>
+
+<a href="#" class="top" id="top">↑</a>
+
+<footer>
+  <b>BuildLikeASenior</b> · Think · Design · Grow Like a Senior Engineer<br>
+  <small>System Design · 03 — Wise Share Purchase</small>
+</footer>
+
+<script>
+  const top = document.getElementById('top');
+  window.addEventListener('scroll', () => { top.classList.toggle('show', window.scrollY > 400); });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>How Information Travels · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+    --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+    --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  header.hero .crumb a:hover{color:var(--teal)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .label{color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 8px;font-weight:700}
+  .label.gold{color:var(--gold)}
+
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  .define em{color:var(--muted);font-style:normal;display:block;font-size:13px;margin-top:4px}
+
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .callout b{color:var(--teal)}
+  .warn{background:rgba(239,68,68,.06);border-left:3px solid #ef4444;padding:14px 18px;border-radius:8px;margin:10px 0}
+  .warn b{color:#ef4444}
+
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  td code, th code{background:rgba(0,212,170,.10);padding:1px 6px;border-radius:4px;color:var(--teal);font-size:12px}
+
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto;font-family:'JetBrains Mono',monospace}
+
+  ul.bullets{padding-left:22px}
+  ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px}
+  ol.steps li{margin:8px 0}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .pillbox{background:rgba(91,141,238,.05);border:1px solid rgba(91,141,238,.2);border-radius:10px;padding:14px 16px}
+  .pillbox h4{margin:0 0 6px;font-size:14px;color:var(--blue)}
+  .pillbox p{margin:0;font-size:13.5px;color:#cdd9ee}
+
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="crumb"><a href="index.html">System Design</a> · HOW INFORMATION TRAVELS</div>
+  <span class="badge">Deep Dive</span>
+  <h1 class="title">How Information <span>Travels</span></h1>
+  <p class="sub">From a byte in your laptop to a server across the planet — encapsulation, modulation, radio vs light, undersea cables, total internal reflection in optical fiber, and why latency has a hard physical floor.</p>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#bytes">From Data to Signals: Encapsulation</a></li>
+    <li><a href="#modulation">Modulation: Bits onto a Physical Wave</a></li>
+    <li><a href="#air-vs-fiber">"Through the Air" vs Through Glass</a></li>
+    <li><a href="#undersea">Undersea Cables: The Real Internet</a></li>
+    <li><a href="#fiber">Optical Fiber: Core, Cladding &amp; Light</a></li>
+    <li><a href="#tir">Total Internal Reflection</a></li>
+    <li><a href="#dispersion">Modal Dispersion &amp; Single-Mode Fiber</a></li>
+    <li><a href="#latency">The Speed of Light Is a Hard Floor</a></li>
+    <li><a href="#cdn">Why CDNs &amp; Regional Data Centers Exist</a></li>
+  </ol>
+</nav>
+
+<!-- ====================== BYTES ====================== -->
+<section class="step" id="bytes">
+  <h2><span class="num">01</span>From Data to Signals: Encapsulation</h2>
+
+  <p>When you send a message, it doesn't leave your machine as "text." It's wrapped, layer by layer, each adding a header — like nesting envelopes. This is the network stack at work.</p>
+
+  <pre class="ascii">
+Your data:        "GET /account"
+      |  wrap with TLS  -> encrypted payload
+      v
+   + TCP header   (ports, sequence #, so it arrives reliably and in order)
+      v
+   + IP header    (source IP, destination IP — for routing across the world)
+      v
+   + Link header  (MAC addresses — for the next physical hop)
+      v
+   ===> becomes a stream of BITS: 1010 1100 0011 ...
+  </pre>
+
+  <div class="callout"><b>Key idea:</b> by the time it leaves your network card, your message is just a sequence of <b>1s and 0s</b>. The physical layer's only job: turn those bits into something that can travel — and turn it back at the other end.</div>
+</section>
+
+<!-- ====================== MODULATION ====================== -->
+<section class="step" id="modulation">
+  <h2><span class="num">02</span>Modulation: Bits onto a Physical Wave</h2>
+
+  <div class="define">
+    <b>Modulation</b> = encoding bits onto a physical signal — voltage, light, or radio waves — that can travel through a medium.
+    <em>Demodulation is reading them back at the far end. (That's literally what a "modem" does: MOdulate / DEModulate.)</em>
+  </div>
+
+  <table>
+    <tr><th>Medium</th><th>Carries bits as</th><th>Used for</th></tr>
+    <tr><td><b>Copper wire</b></td><td>Voltage levels (high/low)</td><td>Ethernet, old phone lines</td></tr>
+    <tr><td><b>Radio / air</b></td><td>Electromagnetic waves (freq/amplitude)</td><td>WiFi, cellular, satellite</td></tr>
+    <tr><td><b>Optical fiber</b></td><td>Pulses of light (on = 1, off = 0)</td><td>Internet backbone, undersea</td></tr>
+  </table>
+
+  <pre class="ascii">
+Bits:    1     0     1     1     0
+Light:  ON    off   ON    ON    off    <- a laser flashing billions of times/sec
+  </pre>
+</section>
+
+<!-- ====================== AIR vs FIBER ====================== -->
+<section class="step" id="air-vs-fiber">
+  <h2><span class="num">03</span>"Through the Air" vs Through Glass</h2>
+
+  <p>People imagine data flying "through the air." That's only true for the <b>very first and very last hop</b>. The long-haul middle is overwhelmingly <b>light through glass fiber</b>.</p>
+
+  <pre class="ascii">
+[Your phone] ~~radio~~> [WiFi router / cell tower]   <- AIR: first hop only
+                              |
+                          fiber/copper to ISP
+                              |
+                  ====== FIBER BACKBONE ======        <- light through glass
+                              |
+                  ==== UNDERSEA FIBER CABLE ====       <- across oceans
+                              |
+                          fiber to data center
+                              |
+                        [Server / data center]        <- usually wired, no radio
+  </pre>
+
+  <div class="warn"><b>Common misconception:</b> "the cloud" and WiFi make it feel wireless, but radio is short-range and shared. Essentially all intercontinental traffic is <b>physical glass cable on the ocean floor</b>, not satellites.</div>
+
+  <p class="label gold">THE JOURNEY AS A DIAGRAM</p>
+  <img src="info-travel.svg" alt="Information journey: phone to WiFi/cell tower over radio, then fiber to ISP, undersea fiber cable, to the data center" style="width:100%;max-width:1100px;border-radius:12px;margin-top:6px;border:1px solid var(--line);background:#fff" />
+  <p style="margin:10px 0 0">
+    <a class="badge" href="info-travel.excalidraw" download>↓ info-travel.excalidraw</a>
+    <a class="badge" href="https://excalidraw.com" target="_blank" rel="noopener">Open in Excalidraw</a>
+  </p>
+</section>
+
+<!-- ====================== UNDERSEA ====================== -->
+<section class="step" id="undersea">
+  <h2><span class="num">04</span>Undersea Cables: The Real Internet</h2>
+
+  <ul class="bullets">
+    <li><b>~550+ submarine cables</b> carry roughly <b>99% of intercontinental data</b> — not satellites.</li>
+    <li>The fiber bundle is about as <b>thick as a garden hose</b>; the glass strands inside are thinner than a human hair.</li>
+    <li><b>Repeaters every ~80 km</b> re-amplify the light signal (it weakens over distance), powered by a copper conductor running the cable's length.</li>
+    <li>Laid across ocean floors by specialized ships over months.</li>
+  </ul>
+
+  <div class="warn"><b>Faults are physical:</b> the biggest causes are <b>ship anchors and fishing trawlers</b> dragging the seabed near coasts. (Shark bites are real but rare and overhyped.) A major cut can reroute or slow a region's traffic until a repair ship splices it.</div>
+
+  <div class="callout"><b>Why it matters for design:</b> the internet is physical infrastructure with real geography. A request from Mumbai to a US server <em>must</em> physically cross an ocean — no software trick removes that distance.</div>
+</section>
+
+<!-- ====================== FIBER ====================== -->
+<section class="step" id="fiber">
+  <h2><span class="num">05</span>Optical Fiber: Core, Cladding &amp; Light</h2>
+
+  <p>How does light travel kilometers down a thin, often bending strand of glass without leaking out the sides? Two layers of glass and one elegant physics trick.</p>
+
+  <pre class="ascii">
+   cross-section of a fiber:
+
+      +-----------------------------+
+      |        CLADDING (glass)     |   lower refractive index
+      |   +---------------------+   |
+      |   |   CORE (glass)      |   |   higher refractive index
+      |   |   ~~~ light path ~~ |   |   <- light is trapped in HERE
+      |   +---------------------+   |
+      |        CLADDING (glass)     |
+      +-----------------------------+
+  </pre>
+
+  <div class="grid2">
+    <div class="pillbox">
+      <h4>Core</h4>
+      <p>The thin central glass that actually carries the light. It has a <b>higher refractive index</b> (light travels slightly slower in it).</p>
+    </div>
+    <div class="pillbox">
+      <h4>Cladding</h4>
+      <p>An outer glass layer with a <b>lower refractive index</b>. Its job: reflect escaping light back into the core. It's a mirror made of glass, not metal.</p>
+    </div>
+  </div>
+
+  <div class="define"><b>Refractive index</b><em>A measure of how much a material slows light. Light bends when crossing between materials of different index — and beyond a certain angle, it reflects entirely instead of crossing. That total reflection is what traps the signal.</em></div>
+
+  <p class="label gold">CORE, CLADDING &amp; THE BOUNCING LIGHT</p>
+  <img src="optical-fiber.svg" alt="Optical fiber cross-section: core surrounded by cladding, light zig-zagging down the core via total internal reflection" style="width:100%;max-width:1100px;border-radius:12px;margin-top:6px;border:1px solid var(--line);background:#fff" />
+  <p style="margin:10px 0 0">
+    <a class="badge" href="optical-fiber.excalidraw" download>↓ optical-fiber.excalidraw</a>
+    <a class="badge" href="https://excalidraw.com" target="_blank" rel="noopener">Open in Excalidraw</a>
+  </p>
+</section>
+
+<!-- ====================== TIR ====================== -->
+<section class="step" id="tir">
+  <h2><span class="num">06</span>Total Internal Reflection</h2>
+
+  <div class="define">
+    <b>Total Internal Reflection (TIR)</b> = when light inside the denser core hits the boundary with the cladding at a shallow enough angle (beyond the "critical angle"), <b>100% of it reflects back in</b> — none escapes.
+    <em>This is the same effect that makes the underside of a swimming pool's surface look like a mirror from below.</em>
+  </div>
+
+  <pre class="ascii">
+   CLADDING (lower index)
+  ────────●────────────────●───────────  boundary
+          /\\              /\\            light bounces, never escapes
+         /  \\            /  \\
+   laser●    \\          /    \\
+         \\    \\        /      \\
+  ─────────●────●──────●────────────────  boundary
+   CLADDING (lower index)
+
+  Light zig-zags down the core via repeated total internal reflections,
+  staying trapped even as the fiber bends around corners.
+  </pre>
+
+  <div class="callout"><b>Why it bends around corners:</b> as long as the bend is gentle enough that light still hits the wall beyond the critical angle, TIR keeps working — so fiber can be coiled and routed through buildings and ocean trenches.</div>
+</section>
+
+<!-- ====================== DISPERSION ====================== -->
+<section class="step" id="dispersion">
+  <h2><span class="num">07</span>Modal Dispersion &amp; Single-Mode Fiber</h2>
+
+  <p>The zig-zag has a downside. Light rays bouncing at steeper angles travel a <b>longer total path</b> than rays going nearly straight — so they arrive at slightly different times, smearing the pulse.</p>
+
+  <div class="define"><b>Modal dispersion</b><em>Different light paths ("modes") arrive at different times, blurring a sharp 1/0 pulse into a fuzzy one. Over long distances this limits how fast you can send bits before pulses overlap.</em></div>
+
+  <p class="label gold">THE FIX — SINGLE-MODE FIBER</p>
+  <div class="grid2">
+    <div class="pillbox">
+      <h4>Multi-mode (wide core)</h4>
+      <p>Core ~50 µm. Many zig-zag paths → modal dispersion. Cheap, short range (within a building/campus).</p>
+    </div>
+    <div class="pillbox">
+      <h4>Single-mode (narrow core)</h4>
+      <p>Core ~9 µm — so thin light travels essentially one straight path. No modal dispersion → very long range. Used for the backbone &amp; undersea cables.</p>
+    </div>
+  </div>
+
+  <div class="callout"><b>Intuition:</b> make the hallway so narrow there's only one way to walk down it — everyone arrives together, the pulse stays sharp.</div>
+</section>
+
+<!-- ====================== LATENCY ====================== -->
+<section class="step" id="latency">
+  <h2><span class="num">08</span>The Speed of Light Is a Hard Floor</h2>
+
+  <p>Light in glass travels at about <b>200,000 km/s</b> (~⅔ of its speed in vacuum, because the core slows it). That's fast — but the planet is big, and this sets a floor no engineering can beat.</p>
+
+  <table>
+    <tr><th>Path</th><th>Approx round-trip latency</th></tr>
+    <tr><td>Same city / same data center</td><td>&lt; 1–5 ms</td></tr>
+    <tr><td>London ↔ New York</td><td>~70–80 ms RTT</td></tr>
+    <tr><td>Halfway around the globe (one-way)</td><td>~100+ ms (light alone, before routing/queuing)</td></tr>
+  </table>
+
+  <p class="label">HUMAN PERCEPTION THRESHOLDS</p>
+  <ul class="bullets">
+    <li><b>&lt; ~100 ms</b> — feels "instant" to a human (web clicks, page loads).</li>
+    <li><b>&lt; ~20 ms</b> — needed for real-time gaming, voice/audio, live music.</li>
+    <li>Above these, interactions start to feel laggy regardless of how fast the server is.</li>
+  </ul>
+
+  <div class="warn"><b>The hard truth:</b> real latency is always <em>worse</em> than the light-speed floor — add TCP/TLS handshakes, router hops, queuing, and processing. You can't go faster than physics; you can only <b>move the data closer</b>.</div>
+</section>
+
+<!-- ====================== CDN ====================== -->
+<section class="step" id="cdn">
+  <h2><span class="num">09</span>Why CDNs &amp; Regional Data Centers Exist</h2>
+
+  <p>Since geography is a fixed latency cost, the only way to make things feel fast everywhere is to <b>shorten the physical distance</b> — put copies of data near the user.</p>
+
+  <pre class="ascii">
+Without CDN:   user (Mumbai) ───── 250 ms ─────► origin server (US)   slow
+
+With CDN:      user (Mumbai) ── 5 ms ──► edge node (Mumbai)          fast
+                                              |  (cached copy)
+                              origin (US) fills the cache occasionally
+  </pre>
+
+  <ul class="bullets">
+    <li><b>CDN edge nodes</b> cache static content (images, video, JS) physically near users — the request never crosses an ocean.</li>
+    <li><b>Regional data centers / multi-region deployments</b> place compute and data near major user populations.</li>
+    <li>This is why "design X for global scale" answers always include edge caching and regional replication — they're fighting the speed of light.</li>
+  </ul>
+
+  <div class="callout"><b>Full circle:</b> encapsulation turns your message into bits → modulation turns bits into light → TIR carries that light through fiber across oceans → and because that journey has a physical time cost, we build CDNs to keep the journey short.</div>
+</section>
+
+</div><!-- .wrap -->
+
+<a href="#" class="top" id="topBtn">↑</a>
+
+<footer>
+  <b>BuildLikeASenior</b> · Think · Design · Grow Like a Senior Engineer
+</footer>
+
+<script>
+const btn=document.getElementById('topBtn');
+window.addEventListener('scroll',()=>{btn.classList.toggle('show',window.scrollY>300)});
+</script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Design a Price Search Service · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{--bg:#060d1a;--bg2:#0d1b35;--card:#0f1f3d;--card2:#142a52;--teal:#00d4aa;--blue:#5b8dee;--gold:#f5c842;--rose:#ff6b9d;--text:#e6edf7;--muted:#8aa0c4;--line:rgba(255,255,255,.08)}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  code{background:rgba(91,141,238,.12);padding:1px 6px;border-radius:5px;font-size:.92em;color:#cdd9ee}
+  a{color:var(--teal);text-decoration:none} a:hover{text-decoration:underline}
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+  .meta{margin-top:14px;color:var(--muted);font-size:13px;font-family:'JetBrains Mono',monospace}
+  .meta b{color:var(--gold)}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .warn{background:rgba(255,107,157,.06);border-left:3px solid var(--rose);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  .label{display:block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:700;margin:14px 0 6px}
+  .label.gold{color:var(--gold)}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto}
+  pre.code{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.55;color:#cdd9ee;overflow-x:auto}
+  pre.code .k{color:var(--blue)} pre.code .s{color:var(--teal)} pre.code .c{color:var(--muted)} pre.code .n{color:var(--gold)}
+  ul.bullets{padding-left:22px} ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px} ol.steps li{margin:8px 0}
+  .glossary{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:14px}
+  .gloss-card{background:rgba(91,141,238,.05);border:1px solid rgba(91,141,238,.2);border-radius:10px;padding:14px 16px}
+  .gloss-card h4{margin:0 0 6px;color:var(--blue);font-size:13.5px}
+  .gloss-card p{margin:0;font-size:13px;color:#cdd9ee}
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="crumb"><a href="index.html">System Design</a> · 13</div>
+  <span class="badge">Aggregation · Caching</span>
+  <h1 class="title">Design a <span>Price Search Service</span></h1>
+  <p class="sub">Aggregate prices for a product from many vendor APIs and return them to the front-end — while honoring 1-hour data freshness, minimizing expensive vendor calls, and scaling to 100+ vendors.</p>
+  <div class="meta">Vendor fan-out · 1h TTL cache · cost-aware calls · async refresh</div>
+</header>
+<div class="wrap">
+<nav class="toc"><h3>Walkthrough</h3><ol>
+<li><a href="#req">Problem &amp; Requirements</a></li>
+<li><a href="#naive">The Naive Design &amp; Why It Hurts</a></li>
+<li><a href="#api">API Design</a></li>
+<li><a href="#hld">High-Level Architecture</a></li>
+<li><a href="#cache">Caching Strategy (1h TTL)</a></li>
+<li><a href="#cost">Optimizing Vendor Cost</a></li>
+<li><a href="#scale">Scaling to 100+ Vendors</a></li>
+<li><a href="#reliability">Reliability &amp; Failure Handling</a></li>
+<li><a href="#schema">Data Model</a></li>
+<li><a href="#seq">Sequence Diagrams</a></li>
+<li><a href="#trade">Tradeoffs</a></li>
+<li><a href="#pitch">30-Second Pitch</a></li>
+<li><a href="#gloss">Glossary</a></li>
+</ol></nav>
+
+<section class="step" id="req"><h2><span class="num">01</span>Problem &amp; Requirements</h2>
+<div class="callout"><b>Goal.</b> A customer searches for a product (e.g. <code>productId = 1</code>, "Travel Insurance"). The service queries multiple vendor APIs (A, B, C…), aggregates their prices, and returns a unified list to the front-end.</div>
+<p><b>Functional</b></p>
+<ul class="bullets">
+<li><code>GET /search/product/{id}</code> returns the latest known price from every vendor for that product.</li>
+<li>Each result carries the vendor, price, currency, and freshness (timestamp / age).</li>
+<li>New vendors can be onboarded without redeploying core logic.</li>
+</ul>
+<p><b>Constraints given in the brief</b></p>
+<table><thead><tr><th>#</th><th>Constraint</th><th>Design Implication</th></tr></thead><tbody>
+<tr><td>1</td><td>Vendor data is valid for <b>1 hour</b></td><td>Cache with 1h TTL; never call a vendor if a fresh value exists.</td></tr>
+<tr><td>2</td><td>Each vendor API call <b>costs money</b></td><td>Minimize calls — cache-first, dedupe, batch, refresh lazily.</td></tr>
+<tr><td>3</td><td>(Challenge) scale to <b>100+ vendors</b></td><td>Async fan-out, bounded concurrency, per-vendor isolation, partial results.</td></tr>
+</tbody></table>
+<p><b>Non-Functional</b></p>
+<table><thead><tr><th>Property</th><th>Target</th></tr></thead><tbody>
+<tr><td>Read latency (cache hit)</td><td>&lt; 50 ms p95</td></tr>
+<tr><td>Read latency (cold, partial)</td><td>return cached + refresh async; never block on all vendors</td></tr>
+<tr><td>Availability</td><td>99.9% — degrade gracefully if some vendors are down</td></tr>
+<tr><td>Vendor cost</td><td>Minimize redundant calls; aim &lt; 1 call/vendor/product/hour</td></tr>
+</tbody></table>
+</section>
+
+<section class="step" id="naive"><h2><span class="num">02</span>The Naive Design &amp; Why It Hurts</h2>
+<p>The teammates' first cut: an API that takes a product id, <b>synchronously</b> calls every vendor, writes the result to a DB, and returns it.</p>
+<pre class="ascii">
+UI --GET /search/product/1--> SearchService
+        SearchService --1/A--> Vendor A
+        SearchService --1/B--> Vendor B
+        SearchService --1/C--> Vendor C
+        SearchService --save {A:$100,B:$120,C:$110}--> DB
+UI &lt;-- {A:$100, B:$120, C:$110} -- SearchService
+</pre>
+<div class="warn"><b>Why this breaks down.</b>
+<ul class="bullets" style="margin-top:6px">
+<li><b>Slowest vendor sets your latency.</b> Synchronous fan-out means one slow/timed-out vendor blocks the whole response.</li>
+<li><b>Cost explosion.</b> Every search hits every vendor, even when a price was fetched seconds ago — directly violates constraint #2.</li>
+<li><b>No real cache.</b> Writing to the DB after the fact isn't a cache; the next request still fans out.</li>
+<li><b>One bad vendor fails the request.</b> No isolation or partial results.</li>
+<li><b>Doesn't scale to 100+ vendors.</b> 100 synchronous calls per request is a non-starter.</li>
+</ul></div>
+</section>
+
+<section class="step" id="api"><h2><span class="num">03</span>API Design</h2>
+<p><b>Request</b></p>
+<pre class="code"><span class="k">GET</span> /search/product/1</pre>
+<p><b>Response</b></p>
+<pre class="code">{
+  <span class="s">"productId"</span>: <span class="n">1</span>,
+  <span class="s">"results"</span>: [
+    { <span class="s">"vendor"</span>: <span class="s">"A"</span>, <span class="s">"price"</span>: <span class="n">100</span>, <span class="s">"currency"</span>: <span class="s">"USD"</span>, <span class="s">"asOf"</span>: <span class="s">"2026-06-04T10:00:00Z"</span> },
+    { <span class="s">"vendor"</span>: <span class="s">"B"</span>, <span class="s">"price"</span>: <span class="n">120</span>, <span class="s">"currency"</span>: <span class="s">"USD"</span>, <span class="s">"asOf"</span>: <span class="s">"2026-06-04T10:02:00Z"</span> },
+    { <span class="s">"vendor"</span>: <span class="s">"C"</span>, <span class="s">"price"</span>: <span class="n">110</span>, <span class="s">"currency"</span>: <span class="s">"USD"</span>, <span class="s">"asOf"</span>: <span class="s">"2026-06-04T09:58:00Z"</span> }
+  ],
+  <span class="s">"stale"</span>: <span class="k">false</span>
+}</pre>
+<ul class="bullets">
+<li><b>Idempotent &amp; cacheable.</b> A <code>GET</code> with no side effects; safe to put behind a CDN/edge cache with a short TTL.</li>
+<li><b>Per-vendor freshness.</b> <code>asOf</code> lets the client reason about age; <code>stale</code> flags a degraded (cached-while-refreshing) response.</li>
+<li><b>Pagination/sort.</b> For many vendors, support <code>?sort=price&amp;limit=20</code> and stream the cheapest first.</li>
+<li><b>Onboarding API.</b> <code>POST /vendors</code> registers a vendor adapter (endpoint, auth, rate limit, cost) so new vendors are config, not code.</li>
+</ul>
+</section>
+
+<section class="step" id="hld"><h2><span class="num">04</span>High-Level Architecture</h2>
+<pre class="ascii">
+                         +-----------------------------+
+  UI / Client  --GET-->  |   API Gateway / Edge Cache  |
+                         +--------------+--------------+
+                                        v
+                              +---------------------+        cache hit (fresh)
+                              |   Search Service    |---------------------------> return
+                              |  (read path, fast)  |
+                              +----+-----------+----+
+                                   |           |
+                          read     |           | on miss/stale: enqueue refresh
+                                   v           v
+                         +-------------+   +------------------------+
+                         |  Redis      |   |  Refresh Queue (Kafka) |
+                         |  (hot TTL)  |   +-----------+------------+
+                         +------+------+               |
+                                |                      v
+                                |          +-----------------------------+
+                                |          |   Vendor Worker Pool        |
+                                |          | (bounded concurrency, per-  |
+                                |          |  vendor adapter + breaker)  |
+                                |          +-----+------+------+---------+
+                                |                |      |      |
+                                v                v      v      v
+                         +-------------+      VendorA VendorB VendorC ... (100+)
+                         |  Price DB   | &lt;--- workers write fresh prices
+                         | (jsonb)     |
+                         +-------------+
+</pre>
+<img src="price-search.svg" alt="Price Search Service Architecture Diagram" style="width:100%;max-width:960px;border-radius:12px;margin-top:16px;border:1px solid var(--line);background:#fff" />
+<p style="margin-top:12px"><a href="price-search.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+<ul class="bullets">
+<li><b>Read path</b> is cache-first and never blocks on vendors — it serves Redis/DB and triggers an async refresh when data is missing or stale.</li>
+<li><b>Write/refresh path</b> is decoupled via a queue so vendor latency and cost are absorbed by workers, not user requests.</li>
+<li><b>Vendor adapters</b> normalize each vendor's API/format behind a common interface — adding vendor #101 is config + an adapter, not a rewrite.</li>
+</ul>
+</section>
+
+<section class="step" id="cache"><h2><span class="num">05</span>Caching Strategy (1-Hour TTL)</h2>
+<div class="define"><b>Cache-aside</b> with a per-vendor freshness window. Key: <code>price:{productId}:{vendor}</code> → <code>{price, currency, asOf}</code> with TTL = 1h. A product-level aggregate <code>price:{productId}</code> can also be cached for the hot read.</div>
+<ol class="steps">
+<li><b>Read</b> the product aggregate from Redis. If present and every vendor entry is &lt; 1h old → return immediately (the cheap, fast path).</li>
+<li><b>On miss/stale</b>, return whatever is cached (marked <code>stale</code>) and enqueue a refresh for only the stale vendors — don't block the user.</li>
+<li><b>Workers</b> fetch fresh prices, write to Redis (TTL 1h) and the durable DB, then update the aggregate.</li>
+</ol>
+<div class="callout"><b>Stale-while-revalidate.</b> Serving slightly-stale cached data instantly while refreshing in the background gives fast responses <i>and</i> bounded staleness — ideal when the brief says data is "valid for 1 hour."</div>
+<table><thead><tr><th>Layer</th><th>Role</th><th>TTL</th></tr></thead><tbody>
+<tr><td>Edge/CDN</td><td>Absorb repeated identical reads</td><td>seconds–minutes</td></tr>
+<tr><td>Redis (hot)</td><td>Per-vendor + aggregate prices</td><td>1 hour</td></tr>
+<tr><td>Price DB (jsonb)</td><td>Durable source of truth, survives cache flush</td><td>persistent</td></tr>
+</tbody></table>
+</section>
+
+<section class="step" id="cost"><h2><span class="num">06</span>Optimizing Vendor Cost</h2>
+<p>Constraint #2 says every vendor call costs money. The whole design optimizes for <b>fewest paid calls</b>:</p>
+<ul class="bullets">
+<li><b>Cache-first.</b> A fresh cached value means <b>zero</b> vendor calls — the biggest lever.</li>
+<li><b>Request coalescing (single-flight).</b> If 1,000 users ask for product 1 while it's stale, only <b>one</b> refresh task runs per vendor; the rest wait on/await that result.</li>
+<li><b>Refresh only what expired.</b> Refresh per-vendor, not the whole product, so a vendor refreshed 5 minutes ago isn't called again.</li>
+<li><b>Batch endpoints.</b> If a vendor supports multi-product queries, fetch many productIds in one paid call.</li>
+<li><b>Proactive vs lazy.</b> For hot products, a scheduler pre-warms just before the 1h expiry; cold products refresh lazily on demand only.</li>
+<li><b>Per-vendor rate limits &amp; budgets.</b> Token-bucket per vendor to cap spend and respect their quotas.</li>
+</ul>
+<div class="callout"><b>Single-flight is the key cost saver.</b> Without it, a cache stampede on a popular product turns one expiry into thousands of paid calls.</div>
+</section>
+
+<section class="step" id="scale"><h2><span class="num">07</span>Scaling to 100+ Vendors</h2>
+<ul class="bullets">
+<li><b>Async fan-out, not sync.</b> Publish a refresh event; a worker pool calls vendors in parallel with <b>bounded concurrency</b> — never 100 blocking calls in the request thread.</li>
+<li><b>Per-vendor isolation (bulkhead).</b> A circuit breaker + rate-limit budget is tracked <i>per vendor</i>, so vendor X being slow or down can't starve vendor Y — even though workers are shared.</li>
+<li><b>Partial results.</b> Aggregate whatever returns within a deadline; missing vendors are filled in on the next refresh and surface as <code>stale</code>.</li>
+<li><b>Config-driven adapters.</b> Vendor endpoint, auth, format, cost, and rate limit live in a registry — onboarding is data, not deploys.</li>
+<li><b>Horizontal scale.</b> Partition the refresh topic by vendor (or productId) so workers scale out independently; DLQ for poison messages.</li>
+</ul>
+<pre class="ascii">
+Refresh event {productId:1, vendors:[stale...]}
+        |
+   Kafka topic (partitioned by vendor)
+        |
+   +----+----+----+ ... (bounded worker pool)
+   |    |    |    |
+   wA   wB   wC   w...   each: timeout + retry(backoff+jitter) + breaker
+   |    |    |    |
+   +----+----+----+--> write Redis(1h) + DB(jsonb) --> rebuild aggregate
+</pre>
+
+<p class="label gold" style="margin-top:18px">Worker Model — pool, not 1-per-vendor</p>
+<div class="warn"><b>Common misconception:</b> you do <i>not</i> run one worker per vendor. With 1,000 vendors that would mean 1,000 mostly-idle threads — it doesn't scale and wastes memory/connections.</div>
+<p>Instead, run a <b>fixed, elastic pool</b> of workers (e.g. 20–50). They pull jobs off the queue; each worker handles whatever vendor job it grabs next. This is <b>bounded concurrency</b> — it decouples the number of vendors from the number of workers.</p>
+<table><thead><tr><th></th><th>1 worker per vendor</th><th>Worker pool (chosen)</th></tr></thead><tbody>
+<tr><td>100 vendors</td><td>100 threads, mostly idle</td><td>~30 workers, always busy</td></tr>
+<tr><td>1000 vendors</td><td>1000 threads — falls over</td><td>add workers, not threads-per-vendor</td></tr>
+<tr><td>Resource use</td><td>Wasted memory + connections</td><td>Bounded, predictable</td></tr>
+<tr><td>Scaling knob</td><td>Pinned to vendor count</td><td>Pool size + Kafka partitions</td></tr>
+</tbody></table>
+<div class="callout"><b>What stays per-vendor is <i>policy</i>, not threads.</b> Two things are keyed by vendor and enforced by whichever worker runs the job:
+<ul class="bullets" style="margin-top:6px">
+<li><b>Rate limit / budget</b> — a token bucket per vendor so you never exceed Vendor A's quota or overspend, regardless of which worker calls it.</li>
+<li><b>Circuit breaker</b> — per-vendor breaker state. If Vendor B is down, any worker that picks a Vendor B job sees the breaker open and skips fast, so one bad vendor can't tie up the whole pool.</li>
+</ul></div>
+<p>With <b>30 workers and 100 vendors</b>, all 100 vendor-calls queue up and 30 run concurrently at any instant; as one finishes, that worker pulls the next. Partitioning the Kafka topic by vendor keeps each vendor's jobs ordered and lets you scale noisy vendors independently — workers remain a shared, elastic pool.</p>
+</section>
+
+<section class="step" id="reliability"><h2><span class="num">08</span>Reliability &amp; Failure Handling</h2>
+<table><thead><tr><th>Failure</th><th>Mitigation</th></tr></thead><tbody>
+<tr><td>Vendor slow / timeout</td><td>Per-call timeout + deadline; serve cached, refresh later.</td></tr>
+<tr><td>Vendor down / erroring</td><td>Circuit breaker opens; stop wasting paid calls; retry with backoff + jitter.</td></tr>
+<tr><td>Transient errors</td><td>Bounded retries with exponential backoff &amp; jitter (avoid thundering herd).</td></tr>
+<tr><td>Duplicate refresh events</td><td>Idempotent writes keyed by <code>{productId,vendor,window}</code>; single-flight dedupe.</td></tr>
+<tr><td>Poison messages</td><td>Dead-letter queue + alerting after N failures.</td></tr>
+<tr><td>Cache outage</td><td>Fall back to DB (jsonb) as source of truth; rebuild cache lazily.</td></tr>
+</tbody></table>
+<div class="callout"><b>Graceful degradation.</b> A search returns the cheapest available prices even if a few vendors are temporarily unavailable — partial &gt; nothing.</div>
+</section>
+
+<section class="step" id="schema"><h2><span class="num">09</span>Database Choice &amp; Data Model</h2>
+<p class="label gold">Why a relational store (PostgreSQL) as the source of truth</p>
+<p>The data is small, structured, and read-dominated — a product keyed to a handful of vendor prices. The access pattern is a point lookup by <code>product_id</code>. That makes a single, well-understood relational DB the durable source of truth, with <b>Redis as the hot cache in front</b>.</p>
+<table><thead><tr><th>Option</th><th>Fit</th><th>Verdict</th></tr></thead><tbody>
+<tr><td><b>PostgreSQL</b> (chosen)</td><td>Point lookups by PK, JSONB for the vendor list, transactions for selective per-vendor upserts, cheap to operate</td><td>✅ Durable source of truth</td></tr>
+<tr><td>Redis</td><td>Sub-ms reads, native TTL = the 1h freshness window</td><td>✅ Hot cache, not durable store</td></tr>
+<tr><td>Cassandra / DynamoDB</td><td>Great if write-throughput/partitioning dominated, but here volume is modest</td><td>⚠️ Overkill; use only if products explode to billions</td></tr>
+<tr><td>Elasticsearch</td><td>Only if the brief becomes fuzzy text search over products</td><td>⚠️ Different problem; not for price lookup</td></tr>
+</tbody></table>
+<div class="callout"><b>Rule of thumb:</b> the workload is <i>cache-served point reads with a 1-hour TTL</i>. Redis handles the hot path; Postgres just needs to be durable and survive a cache flush — it is not the bottleneck, so don't reach for a distributed NoSQL store prematurely.</div>
+<p class="label gold" style="margin-top:18px">Schema decision — why both an aggregate row <i>and</i> a per-vendor table</p>
+<p>The brief suggests a single product-keyed row with a JSONB blob of vendor prices. That serves the hot read in one lookup, but it can't express <i>per-vendor</i> freshness or selective refresh. So we keep <b>both</b>:</p>
+<pre class="code"><span class="c">-- Aggregate (matches the brief)</span>
+<span class="k">CREATE TABLE</span> product_prices (
+  product_id  <span class="k">BIGINT</span> <span class="k">PRIMARY KEY</span>,
+  results     <span class="k">JSONB</span>,        <span class="c">-- [{vendor, price, currency, asOf}, ...]</span>
+  updated_at  <span class="k">TIMESTAMPTZ</span>
+);
+
+<span class="c">-- Per-vendor (for selective refresh, cost &amp; freshness)</span>
+<span class="k">CREATE TABLE</span> vendor_prices (
+  product_id  <span class="k">BIGINT</span>,
+  vendor_id   <span class="k">TEXT</span>,
+  price       <span class="k">NUMERIC</span>,
+  currency    <span class="k">TEXT</span>,
+  fetched_at  <span class="k">TIMESTAMPTZ</span>,
+  <span class="k">PRIMARY KEY</span> (product_id, vendor_id)
+);</pre>
+<ul class="bullets">
+<li><code>results JSONB</code> serves the hot read in one row lookup.</li>
+<li><code>vendor_prices.fetched_at</code> drives the 1h TTL decision and selective refresh.</li>
+<li>Index on <code>fetched_at</code> lets a scheduler find soon-to-expire hot products to pre-warm.</li>
+</ul>
+</section>
+
+<section class="step" id="seq"><h2><span class="num">10</span>Sequence Diagrams</h2>
+<p><b>Cache hit (fast, no vendor calls)</b></p>
+<pre class="ascii">
+UI --GET /search/product/1--> SearchService
+   SearchService --get price:1--> Redis  (fresh, &lt;1h)
+UI &lt;-- {results:[A,B,C], stale:false} -- SearchService
+</pre>
+<p><b>Cache miss / stale (serve cached + async refresh)</b></p>
+<pre class="ascii">
+UI --GET /search/product/1--> SearchService
+   SearchService --get price:1--> Redis  (miss or stale)
+   SearchService --publish refresh{1,[A,B,C]}--> Kafka
+UI &lt;-- {results: cached-or-empty, stale:true} -- SearchService   (no blocking)
+
+   Kafka --> Workers --call--> VendorA / VendorB / VendorC
+   Workers --write--> Redis(1h) + DB(jsonb) --> rebuild aggregate
+   (next read is a fast, fresh cache hit)
+</pre>
+</section>
+
+<section class="step" id="trade"><h2><span class="num">11</span>Tradeoffs</h2>
+<table><thead><tr><th>Choice</th><th>Pro</th><th>Con</th></tr></thead><tbody>
+<tr><td>Async refresh (serve stale)</td><td>Fast, cheap, resilient</td><td>Can briefly return up-to-1h-old prices</td></tr>
+<tr><td>Sync fan-out</td><td>Always freshest</td><td>Slow, expensive, fragile (naive design)</td></tr>
+<tr><td>Per-vendor cache</td><td>Selective refresh, less cost</td><td>More keys/bookkeeping</td></tr>
+<tr><td>Pre-warm hot products</td><td>No user-facing miss</td><td>Spends calls on possibly-unread data</td></tr>
+<tr><td>Single-flight</td><td>Kills cache stampede cost</td><td>Slight added coordination/latency on miss</td></tr>
+</tbody></table>
+</section>
+
+<section class="step" id="pitch"><h2><span class="num">12</span>30-Second Pitch</h2>
+<div class="callout">The Price Search Service is a <b>cache-first aggregator</b>. Reads hit Redis with a 1-hour TTL and return instantly; the user request never blocks on vendors. On a miss or stale entry we serve what we have (flagged stale) and publish a refresh event. A bounded worker pool fans out to vendors asynchronously — with per-vendor circuit breakers, retries with backoff, and <b>single-flight</b> so a stampede on a hot product costs one call, not thousands. Fresh prices are written to Redis and a durable jsonb store. New vendors are config-driven adapters, so scaling to 100+ vendors is parallel fan-out plus per-vendor isolation, not a rewrite. The result is fast reads, minimal vendor cost, and graceful degradation when vendors fail.</div>
+</section>
+
+<section class="step" id="gloss"><h2><span class="num">13</span>Glossary</h2>
+<div class="glossary">
+  <div class="gloss-card"><h4>Cache-aside</h4><p>App checks cache first; on miss it loads the source and populates the cache.</p></div>
+  <div class="gloss-card"><h4>Stale-while-revalidate</h4><p>Serve slightly old data instantly while refreshing it in the background.</p></div>
+  <div class="gloss-card"><h4>Single-flight</h4><p>Collapse many concurrent identical refreshes into one underlying call.</p></div>
+  <div class="gloss-card"><h4>Circuit breaker</h4><p>Stop calling a failing vendor for a cooldown so you don't waste cost/time.</p></div>
+  <div class="gloss-card"><h4>Bulkhead</h4><p>Isolate resources per vendor so one bad vendor can't starve the others.</p></div>
+  <div class="gloss-card"><h4>DLQ</h4><p>Dead-letter queue holding messages that repeatedly failed processing.</p></div>
+  <div class="gloss-card"><h4>TTL</h4><p>Time-to-live; here, 1 hour of validity before a price must be refreshed.</p></div>
+  <div class="gloss-card"><h4>Backoff + jitter</h4><p>Increasing, randomized retry delays to avoid synchronized retry storms.</p></div>
+</div>
+</section>
+
+</div>
+<a href="#" class="top" id="top">↑</a>
+<footer><b>BuildLikeASenior</b> · Think · Design · Grow Like a Senior Engineer<br><small>System Design · 13 · Aggregation &amp; Caching</small></footer>
+<script>const top=document.getElementById('top');window.addEventListener('scroll',()=>{top.classList.toggle('show',window.scrollY>400);});</script>
+</body>
+</html>

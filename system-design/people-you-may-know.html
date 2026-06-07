@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Design People You May Know · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{--bg:#060d1a;--bg2:#0d1b35;--card:#0f1f3d;--card2:#142a52;--teal:#00d4aa;--blue:#5b8dee;--gold:#f5c842;--text:#e6edf7;--muted:#8aa0c4;--line:rgba(255,255,255,.08)}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  a{color:var(--teal);text-decoration:none} a:hover{text-decoration:underline}
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+  .meta{margin-top:14px;color:var(--muted);font-size:13px;font-family:'JetBrains Mono',monospace}
+  .meta b{color:var(--gold)}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto}
+  ul.bullets{padding-left:22px} ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px} ol.steps li{margin:8px 0}
+  .glossary{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:14px}
+  .gloss-card{background:rgba(91,141,238,.05);border:1px solid rgba(91,141,238,.2);border-radius:10px;padding:14px 16px}
+  .gloss-card h4{margin:0 0 6px;color:var(--blue);font-size:13.5px}
+  .gloss-card p{margin:0;font-size:13px;color:#cdd9ee}
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="crumb"><a href="index.html">System Design</a> · 05</div>
+  <span class="badge">Social Graph</span>
+  <h1 class="title">Design <span>People You May Know</span></h1>
+  <p class="sub">Generate high-quality connection suggestions at social-network scale using graph signals, ranking features, candidate generation, and online freshness constraints.</p>
+  <div class="meta">100M DAU · low-latency ranking · graph + ML + privacy gates</div>
+</header>
+<div class="wrap">
+<nav class="toc"><h3>Walkthrough</h3><ol>
+<li><a href="#req">Problem & Requirements</a></li>
+<li><a href="#math">Capacity Math</a></li>
+<li><a href="#signals">Core Signals</a></li>
+<li><a href="#hld">High-Level Architecture</a></li>
+<li><a href="#online">Online Request Flow</a></li>
+<li><a href="#offline">Offline Pipeline</a></li>
+<li><a href="#rank">Ranking Strategy</a></li>
+<li><a href="#privacy">Privacy, Safety, Abuse</a></li>
+<li><a href="#trade">Tradeoffs</a></li>
+<li><a href="#pitch">30-Second Pitch</a></li>
+<li><a href="#gloss">Glossary</a></li>
+</ol></nav>
+
+<section class="step" id="req"><h2><span class="num">01</span>Problem & Requirements</h2>
+<div class="callout"><b>Goal.</b> Suggest the top people a user is likely to know and connect with, while respecting blocks, privacy settings, and quality constraints.</div>
+<ul class="bullets">
+<li>Show top-N recommendations per user (e.g., 20 cards).</li>
+<li>Support actions: connect, dismiss, hide, report.</li>
+<li>Update suggestions as graph changes (new friends, imports, groups, jobs, schools).</li>
+<li>Avoid already-connected users and blocked users.</li>
+</ul>
+<table><thead><tr><th>Non-Functional</th><th>Target</th></tr></thead><tbody>
+<tr><td>Read latency</td><td>p95 &lt; 150 ms</td></tr>
+<tr><td>Freshness</td><td>minutes for major graph changes</td></tr>
+<tr><td>Availability</td><td>99.95%+</td></tr>
+<tr><td>Relevance metric</td><td>accept rate uplift, CTR, long-term retention</td></tr>
+</tbody></table>
+</section>
+
+<section class="step" id="math"><h2><span class="num">02</span>Capacity Math</h2>
+<div class="callout"><b>Notation.</b> <code>B</code> is byte, <code>b</code> is bit, <code>1 B = 8 b</code>.</div>
+<ol class="steps">
+<li>100M DAU, each opens PYMK 2 times/day → 200M feed requests/day.</li>
+<li>QPS ≈ 200M / 86,400 ≈ 2,315 avg; at 10x peak ≈ <b>23k QPS</b>.</li>
+<li>If each response has 20 candidates × 120 B summary payload ≈ 2.4 KB/resp.</li>
+<li>Egress at peak ≈ 23k × 2.4 KB ≈ <b>55 MB/s</b>.</li>
+<li>Graph: 1B users, avg 250 edges/user (undirected) → ~125B edges.</li>
+<li>Store compressed adjacency + counters + feature store in distributed graph/kv systems.</li>
+</ol>
+</section>
+
+<section class="step" id="signals"><h2><span class="num">03</span>Core Signals</h2>
+<table><thead><tr><th>Signal</th><th>Example</th><th>Notes</th></tr></thead><tbody>
+<tr><td>Mutual connections</td><td>12 mutuals with candidate</td><td>Most predictive baseline</td></tr>
+<tr><td>Organization overlap</td><td>Same company/team/school</td><td>Strong precision for professional graphs</td></tr>
+<tr><td>Location proximity</td><td>Same city / frequent co-location</td><td>Must be privacy-safe and coarse</td></tr>
+<tr><td>Interaction graph</td><td>Comment/like/message proximity</td><td>Use decayed weights over time</td></tr>
+<tr><td>Contact imports</td><td>Phone/email hash match</td><td>Highly sensitive; strict policy gate</td></tr>
+<tr><td>Session intent</td><td>User exploring a company page</td><td>Short-term reranking feature</td></tr>
+</tbody></table>
+<div class="define"><b>Two-hop candidate generation</b> = "friends of friends" with constraints. Great recall with low cost before heavier ranking.</div>
+</section>
+
+<section class="step" id="hld"><h2><span class="num">04</span>High-Level Architecture</h2>
+<pre class="ascii">
+Client App
+   |
+API Gateway
+   |
+PYMK Service ------------------> Policy Filter (blocks/privacy/age gates)
+   |                                  |
+   |                                  v
+   |----> Candidate Generator ----> Feature Joiner ----> Ranker ----> Top-N Cache
+           |                           |                   |
+           v                           v                   v
+       Graph Store                Feature Store        Model Service
+           ^                           ^
+           |                           |
+     Offline Pipelines (Spark/Flink) + Real-time graph updates (Kafka)
+</pre>
+<img src="people-you-may-know.png" alt="People You May Know System Design Architecture Diagram" style="width:100%;max-width:900px;border-radius:12px;margin-top:16px;border:1px solid var(--line)" />
+<p style="margin-top:12px"><a href="people-you-may-know.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+</section>
+
+<section class="step" id="online"><h2><span class="num">05</span>Online Request Flow</h2>
+<ol class="steps">
+<li>User opens PYMK. API hits PYMK service with userId/context.</li>
+<li>Service checks precomputed Top-N cache for user segment.</li>
+<li>On miss or stale entry: generate 500-2,000 candidates from graph traversals and recall indexes.</li>
+<li>Join features (mutuals, overlap, recency, quality priors).</li>
+<li>Apply policy filter first (blocked/already connected/private accounts).</li>
+<li>Score with model (GBDT/NN), diversify, return top 20.</li>
+<li>Write impressions and actions to event stream for training feedback.</li>
+</ol>
+</section>
+
+<section class="step" id="offline"><h2><span class="num">06</span>Offline Pipeline</h2>
+<ul class="bullets">
+<li>Nightly batch computes heavy graph features: Adamic-Adar, personalized PageRank-like proximity, community overlap.</li>
+<li>Near-real-time stream updates fast features: new edge, dismiss, block, accept.</li>
+<li>Feature store keeps offline+online parity for training/serving consistency.</li>
+<li>Candidate snapshots precomputed for cold users and long-tail users.</li>
+</ul>
+<div class="define"><b>Feature freshness tiers</b>: hot (seconds), warm (minutes), cold (daily) to balance relevance and cost.</div>
+</section>
+
+<section class="step" id="rank"><h2><span class="num">07</span>Ranking Strategy</h2>
+<table><thead><tr><th>Stage</th><th>Count</th><th>Technique</th></tr></thead><tbody>
+<tr><td>Recall</td><td>5k-20k</td><td>Graph heuristics + ANN-like neighbor retrieval</td></tr>
+<tr><td>Pre-rank</td><td>500-2k</td><td>Cheap linear/tree model</td></tr>
+<tr><td>Final rank</td><td>100-500</td><td>Rich model with calibrated score</td></tr>
+<tr><td>Post-rank</td><td>Top 20</td><td>Diversity/fairness/novelty constraints</td></tr>
+</tbody></table>
+<div class="callout"><b>Important.</b> Dismiss actions must down-rank fast. Accept actions should increase similar-candidate weights, but cap reinforcement to avoid filter bubbles.</div>
+</section>
+
+<section class="step" id="privacy"><h2><span class="num">08</span>Privacy, Safety, Abuse</h2>
+<ul class="bullets">
+<li>Hard exclusions first: blocked users, minors policy, legal restrictions.</li>
+<li>Respect profile visibility and discoverability settings.</li>
+<li>Hash+salt sensitive imported contacts, separate access controls.</li>
+<li>Rate-limit and detect growth-hacking abuse bots.</li>
+<li>Explainability snippets: "You both studied at X", "12 mutual connections".</li>
+</ul>
+</section>
+
+<section class="step" id="trade"><h2><span class="num">09</span>Tradeoffs</h2>
+<table><thead><tr><th>Choice</th><th>Pro</th><th>Con</th></tr></thead><tbody>
+<tr><td>Fully online ranking</td><td>Fresh results</td><td>Higher latency and cost</td></tr>
+<tr><td>Heavy precompute</td><td>Fast reads</td><td>Staler suggestions</td></tr>
+<tr><td>Graph DB for everything</td><td>Flexible traversals</td><td>Can be expensive at huge scale</td></tr>
+<tr><td>KV + derived indexes</td><td>Cheaper serving path</td><td>More pipeline complexity</td></tr>
+</tbody></table>
+</section>
+
+<section class="step" id="pitch"><h2><span class="num">10</span>30-Second Pitch</h2>
+<div class="callout">People You May Know is a multi-stage recommendation system. We first generate high-recall candidates from a social graph (mostly two-hop and similarity indexes), then join online/offline features, apply strict privacy and safety filters, and rank with a model to return top-N suggestions under 150 ms. Heavy graph computations are precomputed offline, while key user actions stream in near-real-time to keep suggestions fresh. Blocks, existing connections, and policy checks are always hard constraints before ranking.</div>
+</section>
+
+<section class="step" id="gloss"><h2><span class="num">11</span>Glossary</h2>
+<div class="glossary">
+  <div class="gloss-card"><h4>Adamic-Adar</h4><p>Graph similarity metric weighting rare common neighbors higher than popular ones.</p></div>
+  <div class="gloss-card"><h4>Two-hop neighbors</h4><p>Friends-of-friends; efficient high-recall source for connection candidates.</p></div>
+  <div class="gloss-card"><h4>Feature store</h4><p>Central system serving consistent model features for training and online inference.</p></div>
+  <div class="gloss-card"><h4>Pre-rank</h4><p>Fast intermediate stage that trims candidate set before expensive final ranking.</p></div>
+  <div class="gloss-card"><h4>Diversity rerank</h4><p>Post-processing to avoid repetitive suggestions from the same community.</p></div>
+  <div class="gloss-card"><h4>Policy filter</h4><p>Non-negotiable privacy/safety gates applied before ranking outputs.</p></div>
+</div>
+</section>
+
+</div>
+<a href="#" class="top" id="top">↑</a>
+<footer><b>BuildLikeASenior</b> · Think · Design · Grow Like a Senior Engineer<br><small>System Design · 05 · Social Graph</small></footer>
+<script>const top=document.getElementById('top');window.addEventListener('scroll',()=>{top.classList.toggle('show',window.scrollY>400);});</script>
+</body>
+</html>

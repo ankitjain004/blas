@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Design Razorpay (Payment Gateway) · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{--bg:#060d1a;--bg2:#0d1b35;--card:#0f1f3d;--card2:#142a52;--teal:#00d4aa;--blue:#5b8dee;--gold:#f5c842;--rose:#ff6b9d;--text:#e6edf7;--muted:#8aa0c4;--line:rgba(255,255,255,.08)}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  code{background:rgba(91,141,238,.12);padding:1px 6px;border-radius:5px;font-size:.92em;color:#cdd9ee}
+  a{color:var(--teal);text-decoration:none} a:hover{text-decoration:underline}
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+  .meta{margin-top:14px;color:var(--muted);font-size:13px;font-family:'JetBrains Mono',monospace}
+  .meta b{color:var(--gold)}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .warn{background:rgba(255,107,157,.06);border-left:3px solid var(--rose);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  .label{display:block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:700;margin:14px 0 6px}
+  .label.gold{color:var(--gold)}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto}
+  pre.code{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.55;color:#cdd9ee;overflow-x:auto}
+  pre.code .k{color:var(--blue)} pre.code .s{color:var(--teal)} pre.code .c{color:var(--muted)} pre.code .n{color:var(--gold)}
+  ul.bullets{padding-left:22px} ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px} ol.steps li{margin:8px 0}
+  .calc{background:rgba(245,200,66,.05);border:1px solid rgba(245,200,66,.25);border-radius:10px;padding:14px 18px;margin:12px 0;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7;color:#e9d9a3}
+  .calc b{color:var(--gold)}
+  .glossary{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:14px}
+  .gloss-card{background:rgba(91,141,238,.05);border:1px solid rgba(91,141,238,.2);border-radius:10px;padding:14px 16px}
+  .gloss-card h4{margin:0 0 6px;color:var(--blue);font-size:13.5px}
+  .gloss-card p{margin:0;font-size:13px;color:#cdd9ee}
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="crumb"><a href="index.html">System Design</a> · 15</div>
+  <span class="badge">Payments &amp; Fintech</span>
+  <h1 class="title">Design <span>Razorpay</span></h1>
+  <p class="sub">A payment gateway that authorizes, captures, and settles money between buyers, merchants, and banks — correctly, exactly once, and within PCI-DSS, even when networks fail and clients retry.</p>
+  <div class="meta">5M txns/day · auth → capture → settle · idempotent · double-entry ledger · PCI-DSS</div>
+</header>
+<div class="wrap">
+<nav class="toc"><h3>Walkthrough</h3><ol>
+<li><a href="#req">Problem &amp; Requirements</a></li>
+<li><a href="#math">Back-of-Envelope Estimation</a></li>
+<li><a href="#flow">Payment Lifecycle</a></li>
+<li><a href="#api">API Design</a></li>
+<li><a href="#hld">High-Level Architecture</a></li>
+<li><a href="#idem">Idempotency &amp; Exactly-Once</a></li>
+<li><a href="#ledger">Double-Entry Ledger</a></li>
+<li><a href="#pci">Tokenization &amp; PCI-DSS</a></li>
+<li><a href="#webhook">Webhooks &amp; Settlement</a></li>
+<li><a href="#consistency">Consistency &amp; Reconciliation</a></li>
+<li><a href="#trade">Tradeoffs</a></li>
+<li><a href="#pitch">30-Second Pitch</a></li>
+<li><a href="#gloss">Glossary</a></li>
+</ol></nav>
+
+<section class="step" id="req"><h2><span class="num">01</span>Problem &amp; Requirements</h2>
+<div class="callout"><b>Goal.</b> Sit between a <b>merchant</b> and the <b>banking networks</b> (Visa/Mastercard/UPI/netbanking), accept a payment request, get it authorized and captured, and settle the money to the merchant — with correctness guarantees money systems demand.</div>
+<p class="label">Functional</p>
+<ul class="bullets">
+<li>Create an <b>order</b>; accept a payment via card / UPI / netbanking / wallet.</li>
+<li><b>Authorize</b> (hold funds) then <b>capture</b> (move funds); support refunds.</li>
+<li><b>Settle</b> (payout) collected money to the merchant's bank (T+1/T+2).</li>
+<li><b>Webhooks</b> to notify merchants of status changes.</li>
+<li>Fraud / risk checks before authorization.</li>
+</ul>
+<p class="label">Non-Functional</p>
+<table><thead><tr><th>Property</th><th>Target</th></tr></thead><tbody>
+<tr><td>Correctness</td><td>Never double-charge, never lose money — exactly-once on money moves</td></tr>
+<tr><td>Consistency</td><td>Strong (ACID) on the ledger; money is not eventually consistent</td></tr>
+<tr><td>Availability</td><td>99.99%+ on the authorize path</td></tr>
+<tr><td>Security/Compliance</td><td>PCI-DSS; raw card data (PAN) never stored in app DBs</td></tr>
+<tr><td>Auditability</td><td>Every state change journaled &amp; reconstructable</td></tr>
+</tbody></table>
+</section>
+
+<section class="step" id="math"><h2><span class="num">02</span>Back-of-Envelope Estimation</h2>
+<div class="callout"><b>Assumptions.</b> ~5M transactions/day · avg ticket ₹1,000 · read:write ≈ 10:1 (status checks, dashboards) · each txn writes several ledger + state rows.</div>
+
+<p class="label gold">Write (payment) QPS</p>
+<div class="calc">
+txns/day = <b>5,000,000</b><br>
+seconds/day ≈ 86,400 ≈ <b>1e5</b><br>
+write QPS = 5,000,000 / 86,400 ≈ <b>~58 txns/sec</b><br>
+peak (festival/sale, ×10) ≈ <b>~580 txns/sec</b>
+</div>
+
+<p class="label gold">Read QPS (status, dashboard, webhooks)</p>
+<div class="calc">
+10:1 read:write ⇒ ~580 reads/sec average<br>
+peak ≈ <b>~5,800 reads/sec</b>
+</div>
+
+<p class="label gold">Ledger write amplification</p>
+<div class="calc">
+1 payment ⇒ <b>≥2 ledger legs</b> (debit + credit) + state rows<br>
+≈ 5M × ~6 rows = <b>~30M rows/day</b><br>
+≈ <b>~350 row-writes/sec</b> avg → must shard the ledger by merchant/account
+</div>
+
+<p class="label gold">Money throughput &amp; storage</p>
+<div class="calc">
+GMV/day ≈ 5M × ₹1,000 = <b>₹500 crore/day</b> processed<br>
+ledger entry ≈ ~300 bytes ⇒ 30M × 300B ≈ <b>~9 GB/day</b><br>
+per year ≈ <b>~3.3 TB/year</b> ledger (append-only, never deleted → archive cold)
+</div>
+<div class="warn"><b>Key insight.</b> QPS is <i>modest</i> (~58/sec). The hard part isn't scale — it's <b>correctness under retries and failures</b>: exactly-once money movement, ACID ledger, idempotency, and reconciliation with banks.</div>
+</section>
+
+<section class="step" id="flow"><h2><span class="num">03</span>Payment Lifecycle</h2>
+<div class="define"><b>Two-phase money move.</b> <b>Authorize</b> reserves funds on the buyer's card/account; <b>Capture</b> actually moves them. Splitting the two lets you verify goods/risk before taking money, and supports holds (e.g. hotels).</div>
+<pre class="ascii">
+ created ──▶ authorized ──▶ captured ──▶ settled
+    │            │              │
+    │            ▼              ▼
+    └────▶  auth_failed     refunded
+</pre>
+<ul class="bullets">
+<li><b>created</b> — order exists, no money moved.</li>
+<li><b>authorized</b> — bank approved &amp; reserved funds.</li>
+<li><b>captured</b> — funds taken from buyer, owed to merchant.</li>
+<li><b>settled</b> — paid out to merchant bank (T+1/T+2 batch).</li>
+<li><b>refunded</b> — reverse a captured payment (full/partial).</li>
+</ul>
+<div class="callout">The Payment Service is a <b>state machine</b>: each transition is validated, journaled to the ledger, and is <b>idempotent</b>, so a retried request never advances the state twice.</div>
+</section>
+
+<section class="step" id="api"><h2><span class="num">04</span>API Design</h2>
+<pre class="code"><span class="c">// 1. Merchant creates an order (server-to-server)</span>
+<span class="k">POST</span> /v1/orders
+<span class="k">Idempotency-Key</span>: <span class="s">"ord-9f3a..."</span>
+{ <span class="s">"amount"</span>: <span class="n">100000</span>, <span class="s">"currency"</span>: <span class="s">"INR"</span>, <span class="s">"receipt"</span>: <span class="s">"rcpt#42"</span> }
+&rarr; { <span class="s">"id"</span>: <span class="s">"order_abc"</span>, <span class="s">"status"</span>: <span class="s">"created"</span> }
+
+<span class="c">// 2. Buyer pays — card is tokenized client-side, raw PAN never hits our server</span>
+<span class="k">POST</span> /v1/payments
+<span class="k">Idempotency-Key</span>: <span class="s">"pay-7c1b..."</span>
+{ <span class="s">"order_id"</span>: <span class="s">"order_abc"</span>, <span class="s">"method"</span>: <span class="s">"card"</span>,
+  <span class="s">"token"</span>: <span class="s">"tok_xyz"</span> }
+&rarr; { <span class="s">"id"</span>: <span class="s">"pay_123"</span>, <span class="s">"status"</span>: <span class="s">"authorized"</span> }
+
+<span class="c">// 3. Capture (auto or delayed)</span>
+<span class="k">POST</span> /v1/payments/pay_123/capture { <span class="s">"amount"</span>: <span class="n">100000</span> }
+
+<span class="c">// 4. Refund</span>
+<span class="k">POST</span> /v1/payments/pay_123/refund { <span class="s">"amount"</span>: <span class="n">50000</span> }
+
+<span class="c">// 5. Status (read-heavy)</span>
+<span class="k">GET</span>  /v1/payments/pay_123
+
+<span class="c">// 6. Webhook to merchant (we POST to them, signed + retried)</span>
+<span class="k">POST</span> https://merchant/webhook
+<span class="k">X-Razorpay-Signature</span>: <span class="s">"hmac-sha256(body, secret)"</span>
+{ <span class="s">"event"</span>: <span class="s">"payment.captured"</span>, <span class="s">"payload"</span>: { ... } }</pre>
+<ul class="bullets">
+<li><b>Idempotency-Key</b> on every money-moving POST → safe retries.</li>
+<li><b>Token, not PAN</b> — card data is tokenized in a PCI vault; app servers see only a token.</li>
+<li><b>Signed webhooks</b> let merchants verify authenticity; treat delivery as at-least-once.</li>
+</ul>
+</section>
+
+<section class="step" id="hld"><h2><span class="num">05</span>High-Level Architecture</h2>
+<img src="payment-gateway.svg" alt="Razorpay Payment Gateway Architecture Diagram" style="width:100%;max-width:960px;border-radius:12px;margin-top:16px;border:1px solid var(--line);background:#fff" />
+<p style="margin-top:12px"><a href="payment-gateway.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+<pre class="ascii">
+  Buyer -> Merchant Backend -> API Gateway (authN, rate-limit, idempotency)
+                                     |
+                                     v
+                            Payment Service  (state machine / orchestrator)
+                              |    |    |    \
+        Ledger DB (ACID) <----+    |    |     \--> Risk / Fraud (rules + ML)
+        Token Vault (PCI) <--------+    |
+        Bank/Network Connectors <-------+   (authorize / capture)
+                                     |
+                                     v
+                            Settlement Queue (Kafka)
+                                     |
+                                     v
+                        Settlement / Payout Worker -> Merchant Bank (T+2)
+
+  Webhook Service -> signed, retried callbacks back to Merchant.
+</pre>
+<ul class="bullets">
+<li><b>Payment Service</b> orchestrates the state machine and is the only writer to the ledger.</li>
+<li><b>Token Vault</b> (PCI-DSS, HSM-backed) holds card data; everything else uses tokens.</li>
+<li><b>Bank Connectors</b> abstract each network's quirks behind one internal interface.</li>
+<li><b>Settlement</b> is async (Kafka) — auth/capture are synchronous; payouts are batched.</li>
+</ul>
+</section>
+
+<section class="step" id="idem"><h2><span class="num">06</span>Idempotency &amp; Exactly-Once</h2>
+<div class="define"><b>Idempotency key.</b> A client-supplied unique id per logical operation. The server stores <code>(key → result)</code>; a repeat with the same key returns the <b>stored</b> result instead of charging again.</div>
+<ol class="steps">
+<li>Client sends <code>Idempotency-Key</code> with the charge request.</li>
+<li>Server <code>INSERT</code>s the key in a unique-constrained table <b>before</b> calling the bank.</li>
+<li>If the insert wins → process, store result against the key.</li>
+<li>If the insert hits a duplicate → return the previously stored response (no second charge).</li>
+</ol>
+<div class="callout"><b>Why it's everything here.</b> Networks time out and clients retry. Without idempotency a single timeout becomes a <b>double charge</b>. Combined with the bank's own request-id, this gives <b>exactly-once</b> money movement.</div>
+<div class="warn"><b>Distributed gotcha.</b> "Exactly-once delivery" doesn't exist on the wire — you get <b>at-least-once delivery + idempotent processing</b> = effectively-once. Design every money operation to be replay-safe.</div>
+</section>
+
+<section class="step" id="ledger"><h2><span class="num">07</span>Double-Entry Ledger</h2>
+<div class="define"><b>Double-entry.</b> Every money movement is recorded as equal <b>debits</b> and <b>credits</b> across accounts, so the books always balance (Σ debits = Σ credits). This is how you make money provably correct.</div>
+<pre class="code"><span class="c">-- append-only, immutable journal</span>
+ledger_entries(
+  id, txn_id, account_id, direction,   <span class="c">-- debit | credit</span>
+  amount, currency, created_at)
+
+<span class="c">-- example: capture ₹1000 from buyer to merchant (minus fee)</span>
+txn T1:
+  DEBIT  buyer_settlement_account   1000
+  CREDIT merchant_payable_account    980
+  CREDIT razorpay_fee_account         20
+  <span class="c">-- Σ debit (1000) == Σ credit (1000) ✓</span></pre>
+<ul class="bullets">
+<li><b>Append-only:</b> you never update/delete a ledger row — corrections are new compensating entries.</li>
+<li><b>ACID + sharded</b> by account/merchant; each txn is a single atomic transaction.</li>
+<li><b>Balances are derived</b> by summing entries (often with periodic snapshots for speed).</li>
+<li>Gives you <b>audit, reconciliation, and dispute</b> resolution for free.</li>
+</ul>
+</section>
+
+<section class="step" id="pci"><h2><span class="num">08</span>Tokenization &amp; PCI-DSS</h2>
+<ul class="bullets">
+<li><b>Raw card number (PAN) never touches</b> app servers, logs, or analytics DBs.</li>
+<li>Card data is captured in an iframe / SDK and sent straight to a <b>PCI-DSS vault</b>, which returns a <b>token</b>.</li>
+<li>The vault is HSM-backed, network-isolated, and the only system in PCI scope — shrinking your compliance surface.</li>
+<li>All downstream services (payments, ledger, risk) operate on the <b>token</b>, not the card.</li>
+<li>Encryption in transit (TLS) and at rest; key rotation via the HSM.</li>
+</ul>
+<div class="callout"><b>Why tokenize.</b> It keeps 99% of your infrastructure <b>out of PCI scope</b>, limits blast radius of a breach (tokens are useless outside the vault), and still lets you charge a saved card.</div>
+</section>
+
+<section class="step" id="webhook"><h2><span class="num">09</span>Webhooks &amp; Settlement</h2>
+<p class="label">Webhooks</p>
+<ul class="bullets">
+<li>On each state change we POST a <b>signed</b> event to the merchant's URL.</li>
+<li>Delivery is <b>at-least-once</b> with exponential backoff + retries; merchants must be idempotent.</li>
+<li>Merchants verify <code>X-Razorpay-Signature = HMAC(body, secret)</code> to trust the event.</li>
+</ul>
+<p class="label">Settlement</p>
+<ul class="bullets">
+<li>Captured funds accumulate in a <b>merchant payable</b> account.</li>
+<li>A batch <b>payout worker</b> nets fees, applies holds/reserves, and initiates a bank transfer (NEFT/IMPS/RTGS) on a <b>T+1/T+2</b> schedule.</li>
+<li>Each payout is reconciled against bank statements; mismatches raise exceptions.</li>
+</ul>
+<pre class="ascii">
+captured -> merchant_payable += amount
+                 |  (T+2 batch)
+                 v
+   payout worker -> bank transfer -> reconcile -> settled
+</pre>
+</section>
+
+<section class="step" id="consistency"><h2><span class="num">10</span>Consistency &amp; Reconciliation</h2>
+<ul class="bullets">
+<li><b>Ledger is strongly consistent (ACID)</b> — money is never eventually consistent.</li>
+<li><b>Saga / orchestration</b> across services: if a step fails, run <b>compensating</b> transactions (e.g. void an authorization).</li>
+<li><b>Reconciliation jobs</b> compare our ledger vs bank/network settlement files daily; differences become exceptions to investigate.</li>
+<li><b>Outbox pattern</b> publishes events atomically with the DB write so we never "charge but forget to notify".</li>
+<li><b>Dead-letter queues</b> capture webhooks/payouts that exhausted retries for manual handling.</li>
+</ul>
+<div class="warn"><b>Golden rule.</b> When uncertain about a bank's outcome (timeout), <b>do not assume</b> — query status / reconcile. Guessing creates double-charges or lost money.</div>
+</section>
+
+<section class="step" id="trade"><h2><span class="num">11</span>Tradeoffs</h2>
+<table><thead><tr><th>Choice</th><th>Pro</th><th>Con</th></tr></thead><tbody>
+<tr><td>Synchronous authorize</td><td>Instant yes/no to buyer</td><td>Tied to bank latency/availability</td></tr>
+<tr><td>Async settlement (Kafka)</td><td>Decoupled, batched, resilient</td><td>Money "in flight" until payout; needs reconciliation</td></tr>
+<tr><td>Double-entry ledger</td><td>Provably correct, auditable</td><td>Write amplification; more storage</td></tr>
+<tr><td>Tokenization vault</td><td>Shrinks PCI scope, limits breach</td><td>Extra hop + vault is critical infra</td></tr>
+<tr><td>Strong consistency on ledger</td><td>No lost/duplicated money</td><td>Harder to scale writes; sharding needed</td></tr>
+<tr><td>Idempotency everywhere</td><td>Safe retries, exactly-once</td><td>Key storage + dedup bookkeeping</td></tr>
+</tbody></table>
+</section>
+
+<section class="step" id="pitch"><h2><span class="num">12</span>30-Second Pitch</h2>
+<div class="callout">A payment gateway sits between merchants and the banking networks and turns a risky, retry-prone money move into a correct one. A merchant creates an <b>order</b>, the buyer pays with a <b>tokenized</b> card (raw PAN stays in a PCI-DSS vault), and a <b>Payment Service state machine</b> drives <code>created → authorized → captured → settled</code>. Every money-moving call carries an <b>idempotency key</b> so retries never double-charge, and every transition is journaled to an <b>append-only double-entry ledger</b> that always balances. Authorization is synchronous against <b>bank connectors</b> with fraud checks inline; <b>settlement</b> is async over Kafka, batching payouts to merchant banks on a T+1/T+2 schedule and reconciling against bank files. <b>Signed, retried webhooks</b> keep merchants in sync. The traffic is modest (~58 txns/sec) — the real engineering is exactly-once correctness, ACID money, and reconciliation when banks time out.</div>
+</section>
+
+<section class="step" id="gloss"><h2><span class="num">13</span>Glossary</h2>
+<div class="glossary">
+  <div class="gloss-card"><h4>Authorize vs capture</h4><p>Authorize reserves funds; capture actually moves them. Split enables holds &amp; risk checks.</p></div>
+  <div class="gloss-card"><h4>Idempotency key</h4><p>Client-supplied id making a retried money request safe — returns the prior result.</p></div>
+  <div class="gloss-card"><h4>Double-entry ledger</h4><p>Every txn recorded as equal debits &amp; credits so the books always balance.</p></div>
+  <div class="gloss-card"><h4>Tokenization</h4><p>Replace a card number with a vault token so PAN never hits app systems.</p></div>
+  <div class="gloss-card"><h4>PCI-DSS</h4><p>Security standard for handling card data; tokenization shrinks its scope.</p></div>
+  <div class="gloss-card"><h4>Settlement</h4><p>Batched payout of captured funds to the merchant's bank (T+1/T+2).</p></div>
+  <div class="gloss-card"><h4>Webhook</h4><p>Signed, retried server-to-server event telling the merchant a status changed.</p></div>
+  <div class="gloss-card"><h4>Reconciliation</h4><p>Daily compare of our ledger vs bank files to catch and resolve mismatches.</p></div>
+  <div class="gloss-card"><h4>Saga / compensation</h4><p>On failure, run reversing transactions (e.g. void an auth) to keep money correct.</p></div>
+  <div class="gloss-card"><h4>Outbox pattern</h4><p>Write the event in the same DB txn as the state change so notifications never get lost.</p></div>
+</div>
+</section>
+
+</div>
+<a href="#" class="top" id="top">↑</a>
+<footer><b>BuildLikeASenior</b> · Think · Design · Grow Like a Senior Engineer<br><small>System Design · 15 · Payments &amp; Fintech</small></footer>
+<script>const top=document.getElementById('top');window.addEventListener('scroll',()=>{top.classList.toggle('show',window.scrollY>400);});</script>
+</body>
+</html>

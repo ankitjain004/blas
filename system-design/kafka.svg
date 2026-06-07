@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1137 502" width="1137" height="502" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="1137" height="502" fill="#ffffff"/>
+<g transform="translate(24.599999999999994,18)">
+<rect x="40" y="120" width="130" height="60" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="40" y="230" width="130" height="60" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="300" y="70" width="470" height="320" rx="10" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="320" y="120" width="430" height="45" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="320" y="180" width="430" height="45" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="320" y="240" width="430" height="45" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="850" y="130" width="140" height="50" rx="10" fill="#99e9f2" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="850" y="195" width="140" height="50" rx="10" fill="#99e9f2" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="850" y="260" width="140" height="50" rx="10" fill="#99e9f2" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="320" y="410" width="470" height="50" rx="10" fill="#dee2e6" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="175,150 295,180" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="175,260 295,230" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="755,145 845,205" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="755,205 845,210" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="755,260 845,210" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="20" fill="#1e1e1e" text-anchor="start"><tspan x="330" y="26">Apache Kafka — Components &amp; Data Flow</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="105" y="145.35999999999999">Producer A</tspan><tspan x="105" y="165.83999999999997">(Chat Svc)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="105" y="255.35999999999999">Producer B</tspan><tspan x="105" y="275.84000000000003">(Order Svc)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="180" y="122">produce(key, msg)</tspan><tspan x="180" y="137.36">key -&gt; partition</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="535" y="235.6"> </tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="315" y="90">KAFKA CLUSTER  (3 brokers, replication factor = 3)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="535" y="147.4">Topic: messages   P0  [m0 m1 m2 ..]  (leader B1)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="535" y="207.4">                  P1  [m0 m1 m2 ..]  (leader B2)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="535" y="267.4">                  P2  [m0 m1 m2 ..]  (leader B3)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="320" y="312">offset = position in partition (0,1,2..) -&gt; enables replay</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="320" y="342">followers replicate leaders (ISR) -&gt; fault tolerance</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="920" y="150.35999999999999">Consumer 1</tspan><tspan x="920" y="170.83999999999997">&lt;- P0</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="920" y="215.35999999999999">Consumer 2</tspan><tspan x="920" y="235.83999999999997">&lt;- P1</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="920" y="280.36">Consumer 3</tspan><tspan x="920" y="300.84000000000003">&lt;- P2</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="850" y="112">Consumer Group 'delivery-workers'</tspan><tspan x="850" y="127.36">1 partition -&gt; exactly 1 consumer</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="555" y="440.6">KRaft / ZooKeeper  —  metadata, leader election, ISR tracking</tspan></text>
+</g>
+</svg>

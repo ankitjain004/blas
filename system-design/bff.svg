@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 952 499" width="952" height="499" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="952" height="499" fill="#ffffff"/>
+<g transform="translate(-16,18)">
+<rect x="40" y="80" width="130" height="55" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="40" y="210" width="130" height="55" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="40" y="340" width="130" height="55" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="260" y="75" width="170" height="70" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="260" y="205" width="170" height="70" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="260" y="335" width="170" height="70" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="560" y="70" width="130" height="50" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="560" y="145" width="130" height="50" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="560" y="250" width="130" height="50" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="560" y="350" width="130" height="50" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="175,107 255,107" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="175,237 255,237" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="175,367 255,367" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="435,100 555,95" fill="none" stroke="#868e96" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="435,115 555,170" fill="none" stroke="#868e96" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="435,240 555,275" fill="none" stroke="#868e96" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="435,240 555,175" fill="none" stroke="#868e96" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="435,370 555,375" fill="none" stroke="#868e96" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="435,360 555,170" fill="none" stroke="#868e96" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="20" fill="#1e1e1e" text-anchor="start"><tspan x="240" y="26">Backend for Frontend (BFF) — One Gateway per Client Type</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="105" y="113.1">Mobile App</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="105" y="243.1">Web App</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="105" y="373.1">Partner API</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="345" y="95.11999999999999">Mobile BFF</tspan><tspan x="345" y="115.6">(minimal JSON,</tspan><tspan x="345" y="136.07999999999998">1 call = 3 APIs)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="345" y="225.12">Web BFF</tspan><tspan x="345" y="245.6">(rich JSON,</tspan><tspan x="345" y="266.08000000000004">more fields)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="345" y="355.12">Partner GW</tspan><tspan x="345" y="375.6">(diff auth +</tspan><tspan x="345" y="396.08">rate limits)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="625" y="100.6">User Svc</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="625" y="175.6">Order Svc</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="625" y="280.6">Catalog Svc</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="625" y="380.6">Payment Svc</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="440" y="452">Each BFF aggregates + reshapes data from the SAME shared microservices</tspan></text>
+</g>
+</svg>

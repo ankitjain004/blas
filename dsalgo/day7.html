@@ -62,7 +62,30 @@
   .complexity div{background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.2);border-radius:10px;padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:13px}
   .complexity b{color:var(--teal)}
   pre[class*="language-"]{border-radius:10px;font-size:13px;border:1px solid var(--line);background:#0a1428 !important;margin:8px 0}
-  .mermaid-wrap{background:#fff;border-radius:12px;padding:20px;margin:8px 0;overflow-x:auto;border:1px solid var(--line)}
+  .mermaid-wrap{
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(91,141,238,.10), transparent 60%),
+      radial-gradient(ellipse at 100% 100%, rgba(0,212,170,.08), transparent 55%),
+      linear-gradient(180deg, #0e1a33 0%, #0b1428 100%);
+    border-radius:14px;padding:22px;margin:10px 0;overflow-x:auto;
+    border:1px solid rgba(91,141,238,.18);
+    box-shadow: 0 2px 14px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  .mermaid-wrap .mermaid{display:flex;justify-content:center}
+  .mermaid-wrap svg{max-width:100%;height:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
+  .mermaid-wrap .node rect,
+  .mermaid-wrap .node polygon,
+  .mermaid-wrap .node circle,
+  .mermaid-wrap .node ellipse,
+  .mermaid-wrap .node path{
+    rx:10; ry:10;
+    stroke-width:1.4px !important;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,.35));
+  }
+  .mermaid-wrap .edgePath .path{stroke-width:1.6px !important; opacity:.85}
+  .mermaid-wrap .edgeLabel{background-color:transparent !important; color:#cfe0ff !important; font-size:12px !important}
+  .mermaid-wrap .edgeLabel rect{fill:#0e1a33 !important; opacity:.9}
+  .mermaid-wrap .cluster rect{fill:rgba(91,141,238,.06) !important; stroke:rgba(91,141,238,.25) !important; rx:14; ry:14}
   .mermaid{display:flex;justify-content:center}
   .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99}
   .top.show{opacity:1}
@@ -148,7 +171,7 @@
   <div class="approach"><ol>
     <li>lo = max(pages); hi = sum(pages).</li>
     <li>While <code>lo &lt;= hi</code>: pick <code>mid</code>; if feasible(mid) → record <code>ans = mid</code>, <code>hi = mid - 1</code> (try tighter). Else <code>lo = mid + 1</code>.</li>
-    <li>feasible(cap): walk books, accumulate, start new student when overflow; return studentsUsed ≤ m.</li>
+    <li>feasible(cap): walk books, accumulate, start new student when overflow; return used &le; m.</li>
   </ol></div>
 
   <div class="section-title">Visual</div>
@@ -170,35 +193,35 @@ flowchart LR
  * Trick: binary search on the ANSWER. The function feasible(cap) is monotone — once a
  * cap works, every larger cap also works — so we converge in O(n log(sum-max)).
  */
-int allocateMinimumPages(int[] pagesPerBook, int totalStudents){
-  if(totalStudents &gt; pagesPerBook.length) return -1;             // can't give everyone a book
+int allocateMinimumPages(int[] pages, int k){
+  if(k &gt; pages.length) return -1;                                // can't give everyone a book
 
   int lo = 0, hi = 0;
-  for(int pages : pagesPerBook){ lo = Math.max(lo, pages); hi += pages; }
+  for(int p : pages){ lo = Math.max(lo, p); hi += p; }
 
-  int answerCap = hi;                                            // sum always works as a fallback
+  int ans = hi;                                                  // sum always works as a fallback
   while(lo &lt;= hi){
-    int candidateCap = lo + (hi - lo) / 2;
-    if(canSplitWithinCap(pagesPerBook, totalStudents, candidateCap)){
-      answerCap = candidateCap;                                  // cap works → try tighter
-      hi = candidateCap - 1;
+    int mid = lo + (hi - lo) / 2;
+    if(canSplitWithinCap(pages, k, mid)){
+      ans = mid;                                                 // cap works → try tighter
+      hi = mid - 1;
     } else {
-      lo = candidateCap + 1;                                     // cap too small → relax
+      lo = mid + 1;                                              // cap too small → relax
     }
   }
-  return answerCap;
+  return ans;
 }
 
-private boolean canSplitWithinCap(int[] pages, int allowedStudents, int cap){
-  int studentsUsed = 1;
-  int runningPages  = 0;
-  for(int pageCount : pages){
-    if(runningPages + pageCount &gt; cap){
-      studentsUsed++;
-      runningPages = pageCount;
-      if(studentsUsed &gt; allowedStudents) return false;
+private boolean canSplitWithinCap(int[] pages, int k, int cap){
+  int used = 1;
+  int sum  = 0;
+  for(int p : pages){
+    if(sum + p &gt; cap){
+      used++;
+      sum = p;
+      if(used &gt; k) return false;
     } else {
-      runningPages += pageCount;
+      sum += p;
     }
   }
   return true;
@@ -260,31 +283,31 @@ flowchart LR
  * Trick: binary search on the gap d. canPlace(d) is monotone-decreasing in d (larger
  * gap → fewer cows fit), so we look for the largest d that still fits all k cows.
  */
-int aggressiveCows(int[] stallPositions, int totalCows){
-  Arrays.sort(stallPositions);
-  int lo = 1, hi = stallPositions[stallPositions.length - 1] - stallPositions[0];
-  int bestGap = 0;
+int aggressiveCows(int[] stalls, int k){
+  Arrays.sort(stalls);
+  int lo = 1, hi = stalls[stalls.length - 1] - stalls[0];
+  int best = 0;
 
   while(lo &lt;= hi){
-    int candidateGap = lo + (hi - lo) / 2;
-    if(canPlaceAllCowsWithGap(stallPositions, totalCows, candidateGap)){
-      bestGap = candidateGap;                                    // gap works → try larger
-      lo = candidateGap + 1;
+    int mid = lo + (hi - lo) / 2;
+    if(canPlaceAllCowsWithGap(stalls, k, mid)){
+      best = mid;                                                // gap works → try larger
+      lo = mid + 1;
     } else {
-      hi = candidateGap - 1;                                     // gap too big
+      hi = mid - 1;                                              // gap too big
     }
   }
-  return bestGap;
+  return best;
 }
 
-private boolean canPlaceAllCowsWithGap(int[] stalls, int totalCows, int requiredGap){
-  int cowsPlaced     = 1;
-  int lastPlacedAt   = stalls[0];
+private boolean canPlaceAllCowsWithGap(int[] stalls, int k, int gap){
+  int placed = 1;
+  int last   = stalls[0];
   for(int i = 1; i &lt; stalls.length; i++){
-    if(stalls[i] - lastPlacedAt &gt;= requiredGap){
-      cowsPlaced++;
-      lastPlacedAt = stalls[i];
-      if(cowsPlaced &gt;= totalCows) return true;
+    if(stalls[i] - last &gt;= gap){
+      placed++;
+      last = stalls[i];
+      if(placed &gt;= k) return true;
     }
   }
   return false;
@@ -348,21 +371,21 @@ flowchart TD
  * Trick: classic "remove-one, recursively-sort-rest, insert-into-sorted" pattern. The
  * insert step itself recurses to bubble the value down to the correct depth.
  */
-void sortStack(Deque&lt;Integer&gt; stack){
-  if(stack.isEmpty()) return;
-  int currentTop = stack.pop();
-  sortStack(stack);
-  insertInSortedOrder(stack, currentTop);
+void sortStack(Deque&lt;Integer&gt; st){
+  if(st.isEmpty()) return;
+  int x = st.pop();
+  sortStack(st);
+  insertInSortedOrder(st, x);
 }
 
-private void insertInSortedOrder(Deque&lt;Integer&gt; stack, int valueToInsert){
-  if(stack.isEmpty() || stack.peek() &lt;= valueToInsert){
-    stack.push(valueToInsert);
+private void insertInSortedOrder(Deque&lt;Integer&gt; st, int x){
+  if(st.isEmpty() || st.peek() &lt;= x){
+    st.push(x);
     return;
   }
-  int largerValue = stack.pop();                              // hold it aside
-  insertInSortedOrder(stack, valueToInsert);                  // recurse on smaller stack
-  stack.push(largerValue);                                    // put it back on top
+  int y = st.pop();                                          // hold it aside
+  insertInSortedOrder(st, x);                                // recurse on smaller stack
+  st.push(y);                                                // put it back on top
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n²)</b></div><div>Space <b>O(n)</b> recursion</div></div>
 </article>
@@ -427,36 +450,36 @@ flowchart LR
  * answer is simply how many BFS levels we run. Track fresh count to detect unreachable.
  */
 int orangesRotting(int[][] grid){
-  int rows = grid.length, cols = grid[0].length;
-  Deque&lt;int[]&gt; bfsQueue = new ArrayDeque&lt;&gt;();
-  int freshOranges = 0;
+  int m = grid.length, n = grid[0].length;
+  Deque&lt;int[]&gt; q = new ArrayDeque&lt;&gt;();
+  int fresh = 0;
 
-  for(int r = 0; r &lt; rows; r++)
-    for(int c = 0; c &lt; cols; c++){
-      if(grid[r][c] == 2) bfsQueue.offer(new int[]{ r, c });
-      else if(grid[r][c] == 1) freshOranges++;
+  for(int r = 0; r &lt; m; r++)
+    for(int c = 0; c &lt; n; c++){
+      if(grid[r][c] == 2) q.offer(new int[]{ r, c });
+      else if(grid[r][c] == 1) fresh++;
     }
-  if(freshOranges == 0) return 0;
+  if(fresh == 0) return 0;
 
-  int minutesElapsed = 0;
-  int[][] fourDirections = { {-1,0}, {1,0}, {0,-1}, {0,1} };
+  int mins = 0;
+  int[][] dirs = { {-1,0}, {1,0}, {0,-1}, {0,1} };
 
-  while(!bfsQueue.isEmpty() &amp;&amp; freshOranges &gt; 0){
-    int levelSize = bfsQueue.size();
-    for(int s = 0; s &lt; levelSize; s++){
-      int[] cell = bfsQueue.poll();
-      for(int[] d : fourDirections){
-        int nr = cell[0] + d[0], nc = cell[1] + d[1];
-        if(nr &lt; 0 || nc &lt; 0 || nr &gt;= rows || nc &gt;= cols) continue;
+  while(!q.isEmpty() &amp;&amp; fresh &gt; 0){
+    int sz = q.size();
+    for(int s = 0; s &lt; sz; s++){
+      int[] cur = q.poll();
+      for(int[] d : dirs){
+        int nr = cur[0] + d[0], nc = cur[1] + d[1];
+        if(nr &lt; 0 || nc &lt; 0 || nr &gt;= m || nc &gt;= n) continue;
         if(grid[nr][nc] != 1) continue;
         grid[nr][nc] = 2;                                       // rot it
-        freshOranges--;
-        bfsQueue.offer(new int[]{ nr, nc });
+        fresh--;
+        q.offer(new int[]{ nr, nc });
       }
     }
-    minutesElapsed++;
+    mins++;
   }
-  return freshOranges == 0 ? minutesElapsed : -1;
+  return fresh == 0 ? mins : -1;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(m·n)</b></div><div>Space <b>O(m·n)</b></div></div>
 </article>
@@ -538,33 +561,33 @@ flowchart TD
  * NOTE: use long internally to avoid overflow on signed-int edge cases.
  */
 class MinStack {
-  private Deque&lt;Long&gt; stack = new ArrayDeque&lt;&gt;();
-  private long        runningMin;
+  private Deque&lt;Long&gt; st = new ArrayDeque&lt;&gt;();
+  private long        min;
 
-  public void push(int incomingValue){
-    long x = incomingValue;
-    if(stack.isEmpty()){
-      stack.push(x);
-      runningMin = x;
-    } else if(x &gt;= runningMin){
-      stack.push(x);
+  public void push(int val){
+    long x = val;
+    if(st.isEmpty()){
+      st.push(x);
+      min = x;
+    } else if(x &gt;= min){
+      st.push(x);
     } else {
-      stack.push(2 * x - runningMin);                          // encoded flag value
-      runningMin = x;
+      st.push(2 * x - min);                                   // encoded flag value
+      min = x;
     }
   }
 
   public void pop(){
-    long top = stack.pop();
-    if(top &lt; runningMin) runningMin = 2 * runningMin - top;    // restore previous min
+    long top = st.pop();
+    if(top &lt; min) min = 2 * min - top;                        // restore previous min
   }
 
   public int top(){
-    long top = stack.peek();
-    return (int) (top &lt; runningMin ? runningMin : top);
+    long top = st.peek();
+    return (int) (top &lt; min ? min : top);
   }
 
-  public int getMin(){ return (int) runningMin; }
+  public int getMin(){ return (int) min; }
 }</code></pre>
   <div class="complexity"><div>Time <b>O(1) per op</b></div><div>Space <b>O(n)</b></div></div>
 </article>
@@ -625,33 +648,33 @@ flowchart TD
  * a[i] is the minimum?" — len = nextSmaller[i] - prevSmaller[i] - 1. Each value owns
  * exactly one window length and contributes to answer[len].
  */
-int[] maxOfMinForEveryWindowSize(int[] numbers){
-  int n = numbers.length;
+int[] maxOfMinForEveryWindowSize(int[] a){
+  int n = a.length;
   int[] prevSmaller = new int[n];
   int[] nextSmaller = new int[n];
-  Deque&lt;Integer&gt; monotonicStack = new ArrayDeque&lt;&gt;();
+  Deque&lt;Integer&gt; st = new ArrayDeque&lt;&gt;();
 
   for(int i = 0; i &lt; n; i++){
-    while(!monotonicStack.isEmpty() &amp;&amp; numbers[monotonicStack.peek()] &gt;= numbers[i]) monotonicStack.pop();
-    prevSmaller[i] = monotonicStack.isEmpty() ? -1 : monotonicStack.peek();
-    monotonicStack.push(i);
+    while(!st.isEmpty() &amp;&amp; a[st.peek()] &gt;= a[i]) st.pop();
+    prevSmaller[i] = st.isEmpty() ? -1 : st.peek();
+    st.push(i);
   }
-  monotonicStack.clear();
+  st.clear();
   for(int i = n - 1; i &gt;= 0; i--){
-    while(!monotonicStack.isEmpty() &amp;&amp; numbers[monotonicStack.peek()] &gt;= numbers[i]) monotonicStack.pop();
-    nextSmaller[i] = monotonicStack.isEmpty() ? n : monotonicStack.peek();
-    monotonicStack.push(i);
+    while(!st.isEmpty() &amp;&amp; a[st.peek()] &gt;= a[i]) st.pop();
+    nextSmaller[i] = st.isEmpty() ? n : st.peek();
+    st.push(i);
   }
 
-  int[] answerByWindowSize = new int[n + 1];                  // 1-indexed
+  int[] ans = new int[n + 1];                                // 1-indexed
   for(int i = 0; i &lt; n; i++){
-    int widestWindowLen = nextSmaller[i] - prevSmaller[i] - 1;
-    answerByWindowSize[widestWindowLen] = Math.max(answerByWindowSize[widestWindowLen], numbers[i]);
+    int len = nextSmaller[i] - prevSmaller[i] - 1;
+    ans[len] = Math.max(ans[len], a[i]);
   }
   for(int k = n - 1; k &gt;= 1; k--){                           // back-fill: longer also fills shorter
-    answerByWindowSize[k] = Math.max(answerByWindowSize[k], answerByWindowSize[k + 1]);
+    ans[k] = Math.max(ans[k], ans[k + 1]);
   }
-  return Arrays.copyOfRange(answerByWindowSize, 1, n + 1);
+  return Arrays.copyOfRange(ans, 1, n + 1);
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(n)</b></div></div>
 
@@ -770,16 +793,16 @@ flowchart LR
  * confirms (or returns -1).
  */
 int findCelebrity(int n){
-  int leftPointer = 0, rightPointer = n - 1;
-  while(leftPointer &lt; rightPointer){
-    if(knows(leftPointer, rightPointer)) leftPointer++;        // l knows someone → l isn't celeb
-    else                                  rightPointer--;       // l doesn't know r → r isn't celeb
+  int l = 0, r = n - 1;
+  while(l &lt; r){
+    if(knows(l, r)) l++;                                       // l knows someone → l isn't celeb
+    else            r--;                                       // l doesn't know r → r isn't celeb
   }
-  int candidate = leftPointer;
+  int candidate = l;
 
-  for(int person = 0; person &lt; n; person++){
-    if(person == candidate) continue;
-    if(knows(candidate, person) || !knows(person, candidate)) return -1;
+  for(int i = 0; i &lt; n; i++){
+    if(i == candidate) continue;
+    if(knows(candidate, i) || !knows(i, candidate)) return -1;
   }
   return candidate;
 }
@@ -848,23 +871,23 @@ flowchart TD
 static final class Frame { final TreeNode node; final int hd; Frame(TreeNode n, int h){ node = n; hd = h; } }
 
 List&lt;Integer&gt; bottomView(TreeNode root){
-  List&lt;Integer&gt; result = new ArrayList&lt;&gt;();
-  if(root == null) return result;
+  List&lt;Integer&gt; res = new ArrayList&lt;&gt;();
+  if(root == null) return res;
 
-  TreeMap&lt;Integer, Integer&gt; columnToValue = new TreeMap&lt;&gt;();
-  Deque&lt;Frame&gt; queue = new ArrayDeque&lt;&gt;();
-  queue.offer(new Frame(root, 0));
+  TreeMap&lt;Integer, Integer&gt; map = new TreeMap&lt;&gt;();
+  Deque&lt;Frame&gt; q = new ArrayDeque&lt;&gt;();
+  q.offer(new Frame(root, 0));
 
-  while(!queue.isEmpty()){
-    Frame f = queue.poll();
+  while(!q.isEmpty()){
+    Frame f = q.poll();
     TreeNode node = f.node;
     int      hd   = f.hd;
-    columnToValue.put(hd, node.val);                          // always overwrite
-    if(node.left  != null) queue.offer(new Frame(node.left,  hd - 1));
-    if(node.right != null) queue.offer(new Frame(node.right, hd + 1));
+    map.put(hd, node.val);                                    // always overwrite
+    if(node.left  != null) q.offer(new Frame(node.left,  hd - 1));
+    if(node.right != null) q.offer(new Frame(node.right, hd + 1));
   }
-  result.addAll(columnToValue.values());
-  return result;
+  res.addAll(map.values());
+  return res;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n log n)</b></div><div>Space <b>O(n)</b></div></div>
 </article>
@@ -928,23 +951,23 @@ flowchart TD
 // reuse same Frame { TreeNode node; int hd; }
 
 List&lt;Integer&gt; topView(TreeNode root){
-  List&lt;Integer&gt; result = new ArrayList&lt;&gt;();
-  if(root == null) return result;
+  List&lt;Integer&gt; res = new ArrayList&lt;&gt;();
+  if(root == null) return res;
 
-  TreeMap&lt;Integer, Integer&gt; columnToValue = new TreeMap&lt;&gt;();
-  Deque&lt;Frame&gt; queue = new ArrayDeque&lt;&gt;();
-  queue.offer(new Frame(root, 0));
+  TreeMap&lt;Integer, Integer&gt; map = new TreeMap&lt;&gt;();
+  Deque&lt;Frame&gt; q = new ArrayDeque&lt;&gt;();
+  q.offer(new Frame(root, 0));
 
-  while(!queue.isEmpty()){
-    Frame f = queue.poll();
+  while(!q.isEmpty()){
+    Frame f = q.poll();
     TreeNode node = f.node;
     int      hd   = f.hd;
-    columnToValue.putIfAbsent(hd, node.val);                  // first writer wins
-    if(node.left  != null) queue.offer(new Frame(node.left,  hd - 1));
-    if(node.right != null) queue.offer(new Frame(node.right, hd + 1));
+    map.putIfAbsent(hd, node.val);                            // first writer wins
+    if(node.left  != null) q.offer(new Frame(node.left,  hd - 1));
+    if(node.right != null) q.offer(new Frame(node.right, hd + 1));
   }
-  result.addAll(columnToValue.values());
-  return result;
+  res.addAll(map.values());
+  return res;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n log n)</b></div><div>Space <b>O(n)</b></div></div>
 </article>
@@ -1011,22 +1034,22 @@ List&lt;List&lt;Integer&gt;&gt; allThreeTraversals(TreeNode root){
   List&lt;Integer&gt; pre = new ArrayList&lt;&gt;(), in = new ArrayList&lt;&gt;(), post = new ArrayList&lt;&gt;();
   if(root == null) return List.of(pre, in, post);
 
-  Deque&lt;Frame&gt; stack = new ArrayDeque&lt;&gt;();
-  stack.push(new Frame(root, 1));
+  Deque&lt;Frame&gt; st = new ArrayDeque&lt;&gt;();
+  st.push(new Frame(root, 1));
 
-  while(!stack.isEmpty()){
-    Frame f = stack.pop();
+  while(!st.isEmpty()){
+    Frame f = st.pop();
     TreeNode node = f.node;
     int      state = f.state;
 
     if(state == 1){                                            // first visit → preorder
       pre.add(node.val);
-      stack.push(new Frame(node, 2));
-      if(node.left != null) stack.push(new Frame(node.left, 1));
+      st.push(new Frame(node, 2));
+      if(node.left != null) st.push(new Frame(node.left, 1));
     } else if(state == 2){                                     // second visit → inorder
       in.add(node.val);
-      stack.push(new Frame(node, 3));
-      if(node.right != null) stack.push(new Frame(node.right, 1));
+      st.push(new Frame(node, 3));
+      if(node.right != null) st.push(new Frame(node.right, 1));
     } else {                                                   // third visit → postorder
       post.add(node.val);
     }
@@ -1160,17 +1183,17 @@ flowchart LR
  * right (search for a larger candidate still &lt; key). Otherwise go left.
  */
 TreeNode inorderPredecessor(TreeNode root, int key){
-  TreeNode candidatePredecessor = null;
+  TreeNode pred = null;
   TreeNode cur = root;
   while(cur != null){
     if(cur.val &lt; key){
-      candidatePredecessor = cur;                              // record &amp; chase higher
+      pred = cur;                                              // record &amp; chase higher
       cur = cur.right;
     } else {
       cur = cur.left;
     }
   }
-  return candidatePredecessor;
+  return pred;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(h)</b></div><div>Space <b>O(1)</b></div></div>
 </article>
@@ -1250,13 +1273,13 @@ private NodeInfo postOrderInfo(TreeNode node, int[] best){
     info.sizeIfBst  = 0;
     return info;
   }
-  NodeInfo leftInfo  = postOrderInfo(node.left,  best);
-  NodeInfo rightInfo = postOrderInfo(node.right, best);
+  NodeInfo l = postOrderInfo(node.left,  best);
+  NodeInfo r = postOrderInfo(node.right, best);
 
-  if(leftInfo.subtreeMax &lt; node.val &amp;&amp; node.val &lt; rightInfo.subtreeMin){
-    info.subtreeMin = Math.min(leftInfo.subtreeMin, node.val);
-    info.subtreeMax = Math.max(rightInfo.subtreeMax, node.val);
-    info.sizeIfBst  = leftInfo.sizeIfBst + rightInfo.sizeIfBst + 1;
+  if(l.subtreeMax &lt; node.val &amp;&amp; node.val &lt; r.subtreeMin){
+    info.subtreeMin = Math.min(l.subtreeMin, node.val);
+    info.subtreeMax = Math.max(r.subtreeMax, node.val);
+    info.sizeIfBst  = l.sizeIfBst + r.sizeIfBst + 1;
     best[0] = Math.max(best[0], info.sizeIfBst);
   } else {                                                     // poison so ancestors fail
     info.subtreeMin = Integer.MIN_VALUE;
@@ -1325,38 +1348,38 @@ flowchart LR
  */
 String serialize(TreeNode root){
   if(root == null) return "";
-  StringBuilder out = new StringBuilder();
-  Deque&lt;TreeNode&gt; queue = new ArrayDeque&lt;&gt;();
-  queue.offer(root);
-  while(!queue.isEmpty()){
-    TreeNode node = queue.poll();
-    if(node == null){ out.append("#,"); continue; }
-    out.append(node.val).append(',');
-    queue.offer(node.left);
-    queue.offer(node.right);
+  StringBuilder sb = new StringBuilder();
+  Deque&lt;TreeNode&gt; q = new ArrayDeque&lt;&gt;();
+  q.offer(root);
+  while(!q.isEmpty()){
+    TreeNode node = q.poll();
+    if(node == null){ sb.append("#,"); continue; }
+    sb.append(node.val).append(',');
+    q.offer(node.left);
+    q.offer(node.right);
   }
-  return out.toString();
+  return sb.toString();
 }
 
 TreeNode deserialize(String data){
   if(data == null || data.isEmpty()) return null;
   String[] tokens = data.split(",");
   TreeNode root = new TreeNode(Integer.parseInt(tokens[0]));
-  Deque&lt;TreeNode&gt; queue = new ArrayDeque&lt;&gt;();
-  queue.offer(root);
-  int cursor = 1;
-  while(!queue.isEmpty() &amp;&amp; cursor &lt; tokens.length){
-    TreeNode parent = queue.poll();
-    if(!tokens[cursor].equals("#")){
-      parent.left = new TreeNode(Integer.parseInt(tokens[cursor]));
-      queue.offer(parent.left);
+  Deque&lt;TreeNode&gt; q = new ArrayDeque&lt;&gt;();
+  q.offer(root);
+  int i = 1;
+  while(!q.isEmpty() &amp;&amp; i &lt; tokens.length){
+    TreeNode cur = q.poll();
+    if(!tokens[i].equals("#")){
+      cur.left = new TreeNode(Integer.parseInt(tokens[i]));
+      q.offer(cur.left);
     }
-    cursor++;
-    if(cursor &lt; tokens.length &amp;&amp; !tokens[cursor].equals("#")){
-      parent.right = new TreeNode(Integer.parseInt(tokens[cursor]));
-      queue.offer(parent.right);
+    i++;
+    if(i &lt; tokens.length &amp;&amp; !tokens[i].equals("#")){
+      cur.right = new TreeNode(Integer.parseInt(tokens[i]));
+      q.offer(cur.right);
     }
-    cursor++;
+    i++;
   }
   return root;
 }</code></pre>
@@ -1428,31 +1451,31 @@ flowchart TD
  * Removing a word from the set the moment it's enqueued = O(1) "visited" marking.
  */
 int ladderLength(String beginWord, String endWord, List&lt;String&gt; wordList){
-  Set&lt;String&gt; dictionary = new HashSet&lt;&gt;(wordList);
-  if(!dictionary.contains(endWord)) return 0;
+  Set&lt;String&gt; dict = new HashSet&lt;&gt;(wordList);
+  if(!dict.contains(endWord)) return 0;
 
-  Deque&lt;String&gt; bfsQueue = new ArrayDeque&lt;&gt;();
-  bfsQueue.offer(beginWord);
-  dictionary.remove(beginWord);
-  int stepsFromBegin = 1;
+  Deque&lt;String&gt; q = new ArrayDeque&lt;&gt;();
+  q.offer(beginWord);
+  dict.remove(beginWord);
+  int steps = 1;
 
-  while(!bfsQueue.isEmpty()){
-    int levelSize = bfsQueue.size();
-    for(int k = 0; k &lt; levelSize; k++){
-      char[] current = bfsQueue.poll().toCharArray();
-      for(int pos = 0; pos &lt; current.length; pos++){
-        char originalChar = current[pos];
+  while(!q.isEmpty()){
+    int sz = q.size();
+    for(int k = 0; k &lt; sz; k++){
+      char[] cur = q.poll().toCharArray();
+      for(int pos = 0; pos &lt; cur.length; pos++){
+        char orig = cur[pos];
         for(char c = 'a'; c &lt;= 'z'; c++){
-          if(c == originalChar) continue;
-          current[pos] = c;
-          String candidate = new String(current);
-          if(candidate.equals(endWord)) return stepsFromBegin + 1;
-          if(dictionary.remove(candidate)) bfsQueue.offer(candidate);   // visit + dedup
+          if(c == orig) continue;
+          cur[pos] = c;
+          String next = new String(cur);
+          if(next.equals(endWord)) return steps + 1;
+          if(dict.remove(next)) q.offer(next);                           // visit + dedup
         }
-        current[pos] = originalChar;                                     // restore
+        cur[pos] = orig;                                                 // restore
       }
     }
-    stepsFromBegin++;
+    steps++;
   }
   return 0;
 }</code></pre>
@@ -1475,13 +1498,13 @@ int ladderLength(String beginWord, String endWord, List&lt;String&gt; wordList){
     <p><b>Input A:</b> V=4, edges = <code>[0&rarr;1, 1&rarr;2, 2&rarr;0, 2&rarr;3]</code>&nbsp;·&nbsp;<b>Output:</b> <code>true</code> (cycle present)</p>
     <ol>
       <li>indegrees = [1, 1, 1, 1]. None zero &rarr; queue starts empty.</li>
-      <li>processedCount = 0 &lt; V = 4 &rarr; return <code>true</code>.</li>
+      <li>processed count = 0 &lt; V = 4 &rarr; return <code>true</code>.</li>
     </ol>
     <p><b>Input B (edge):</b> V=4, edges = <code>[0&rarr;1, 0&rarr;2, 1&rarr;3, 2&rarr;3]</code> (DAG)&nbsp;·&nbsp;<b>Output:</b> <code>false</code></p>
     <ol>
       <li>indegrees = [0, 1, 1, 2]. Enqueue 0.</li>
       <li>Pop 0 &rarr; indegrees [_, 0, 0, 2]; enqueue 1, 2. Pop 1, 2 &rarr; indegree[3] = 0; enqueue 3.</li>
-      <li>processedCount = 4 = V &rarr; return <code>false</code>.</li>
+      <li>processed count = 4 = V &rarr; return <code>false</code>.</li>
     </ol>
   </div>
 
@@ -1519,22 +1542,22 @@ flowchart LR
  * Trick: a DAG can be fully topologically sorted; a cyclic graph cannot. Count how many
  * nodes Kahn's pops. If &lt; V, the leftover nodes form a cycle (their indegree stays &gt; 0).
  */
-boolean hasCycleDirected(int vertexCount, List&lt;List&lt;Integer&gt;&gt; adjacency){
-  int[] indegree = new int[vertexCount];
-  for(int u = 0; u &lt; vertexCount; u++)
-    for(int v : adjacency.get(u)) indegree[v]++;
+boolean hasCycleDirected(int n, List&lt;List&lt;Integer&gt;&gt; adj){
+  int[] indeg = new int[n];
+  for(int u = 0; u &lt; n; u++)
+    for(int v : adj.get(u)) indeg[v]++;
 
-  Deque&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();
-  for(int v = 0; v &lt; vertexCount; v++) if(indegree[v] == 0) queue.offer(v);
+  Deque&lt;Integer&gt; q = new ArrayDeque&lt;&gt;();
+  for(int v = 0; v &lt; n; v++) if(indeg[v] == 0) q.offer(v);
 
-  int processedCount = 0;
-  while(!queue.isEmpty()){
-    int u = queue.poll();
-    processedCount++;
-    for(int v : adjacency.get(u))
-      if(--indegree[v] == 0) queue.offer(v);
+  int count = 0;
+  while(!q.isEmpty()){
+    int u = q.poll();
+    count++;
+    for(int v : adj.get(u))
+      if(--indeg[v] == 0) q.offer(v);
   }
-  return processedCount &lt; vertexCount;
+  return count &lt; n;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(V + E)</b></div><div>Space <b>O(V)</b></div></div>
 </article>
@@ -1594,23 +1617,23 @@ flowchart LR
  * Trick: the pop-order from Kahn IS a valid topological order. Same code as cycle
  * detection — we just record the order instead of counting.
  */
-int[] topologicalSort(int vertexCount, List&lt;List&lt;Integer&gt;&gt; adjacency){
-  int[] indegree = new int[vertexCount];
-  for(int u = 0; u &lt; vertexCount; u++)
-    for(int v : adjacency.get(u)) indegree[v]++;
+int[] topologicalSort(int n, List&lt;List&lt;Integer&gt;&gt; adj){
+  int[] indeg = new int[n];
+  for(int u = 0; u &lt; n; u++)
+    for(int v : adj.get(u)) indeg[v]++;
 
-  Deque&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();
-  for(int v = 0; v &lt; vertexCount; v++) if(indegree[v] == 0) queue.offer(v);
+  Deque&lt;Integer&gt; q = new ArrayDeque&lt;&gt;();
+  for(int v = 0; v &lt; n; v++) if(indeg[v] == 0) q.offer(v);
 
-  int[] order = new int[vertexCount];
+  int[] order = new int[n];
   int   idx   = 0;
-  while(!queue.isEmpty()){
-    int u = queue.poll();
+  while(!q.isEmpty()){
+    int u = q.poll();
     order[idx++] = u;
-    for(int v : adjacency.get(u))
-      if(--indegree[v] == 0) queue.offer(v);
+    for(int v : adj.get(u))
+      if(--indeg[v] == 0) q.offer(v);
   }
-  if(idx &lt; vertexCount) throw new IllegalStateException("graph has a cycle");
+  if(idx &lt; n) throw new IllegalStateException("graph has a cycle");
   return order;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(V + E)</b></div><div>Space <b>O(V)</b></div></div>
@@ -1676,21 +1699,21 @@ flowchart LR
  * Trick: BFS naturally assigns "alternating layers" 0/1. Any edge that links two
  * same-colored nodes proves an odd cycle ⇒ not bipartite. Loop over every component.
  */
-boolean isBipartiteBFS(int vertexCount, List&lt;List&lt;Integer&gt;&gt; adjacency){
-  int[] color = new int[vertexCount];
+boolean isBipartiteBFS(int n, List&lt;List&lt;Integer&gt;&gt; adj){
+  int[] color = new int[n];
   Arrays.fill(color, -1);
 
-  for(int start = 0; start &lt; vertexCount; start++){
+  for(int start = 0; start &lt; n; start++){
     if(color[start] != -1) continue;
     color[start] = 0;
-    Deque&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();
-    queue.offer(start);
-    while(!queue.isEmpty()){
-      int u = queue.poll();
-      for(int v : adjacency.get(u)){
+    Deque&lt;Integer&gt; q = new ArrayDeque&lt;&gt;();
+    q.offer(start);
+    while(!q.isEmpty()){
+      int u = q.poll();
+      for(int v : adj.get(u)){
         if(color[v] == -1){
           color[v] = 1 - color[u];
-          queue.offer(v);
+          q.offer(v);
         } else if(color[v] == color[u]){
           return false;
         }
@@ -1758,21 +1781,21 @@ flowchart TD
  * Trick: identical idea to BFS variant — alternate colors along edges; mismatch on a
  * previously visited node means odd cycle. DFS is easier to write but eats stack space.
  */
-boolean isBipartiteDFS(int vertexCount, List&lt;List&lt;Integer&gt;&gt; adjacency){
-  int[] color = new int[vertexCount];
+boolean isBipartiteDFS(int n, List&lt;List&lt;Integer&gt;&gt; adj){
+  int[] color = new int[n];
   Arrays.fill(color, -1);
-  for(int v = 0; v &lt; vertexCount; v++){
-    if(color[v] == -1 &amp;&amp; !dfsTwoColor(v, 0, color, adjacency)) return false;
+  for(int v = 0; v &lt; n; v++){
+    if(color[v] == -1 &amp;&amp; !dfsTwoColor(v, 0, color, adj)) return false;
   }
   return true;
 }
 
-private boolean dfsTwoColor(int u, int c, int[] color, List&lt;List&lt;Integer&gt;&gt; adjacency){
+private boolean dfsTwoColor(int u, int c, int[] color, List&lt;List&lt;Integer&gt;&gt; adj){
   color[u] = c;
-  for(int neighbor : adjacency.get(u)){
-    if(color[neighbor] == -1){
-      if(!dfsTwoColor(neighbor, 1 - c, color, adjacency)) return false;
-    } else if(color[neighbor] == c){
+  for(int v : adj.get(u)){
+    if(color[v] == -1){
+      if(!dfsTwoColor(v, 1 - c, color, adj)) return false;
+    } else if(color[v] == c){
       return false;
     }
   }
@@ -2074,9 +2097,9 @@ int jobScheduling(int[] startTime, int[] endTime, int[] profit){
 
   dp[0] = jobs[0][2];
   for(int i = 1; i &lt; n; i++){
-    int latestNonConflictingIdx = upperBoundLE(ends, jobs[i][0], i - 1);
-    int takeProfit = jobs[i][2] + (latestNonConflictingIdx &gt;= 0 ? dp[latestNonConflictingIdx] : 0);
-    dp[i] = Math.max(dp[i - 1], takeProfit);
+    int k = upperBoundLE(ends, jobs[i][0], i - 1);
+    int take = jobs[i][2] + (k &gt;= 0 ? dp[k] : 0);
+    dp[i] = Math.max(dp[i - 1], take);
   }
   return dp[n - 1];
 }
@@ -2241,23 +2264,23 @@ int[] maximizeXor(int[] nums, int[][] queries){
   Arrays.sort(order, (a, b) -&gt; queries[a][1] - queries[b][1]);
 
   BitTrieNode root = new BitTrieNode();
-  int[] answer = new int[q];
-  int   numsCursor = 0;
+  int[] ans = new int[q];
+  int   k   = 0;
 
   for(int idx : order){
     int x = queries[idx][0], m = queries[idx][1];
-    while(numsCursor &lt; nums.length &amp;&amp; nums[numsCursor] &lt;= m){
-      insertIntoBitTrie(root, nums[numsCursor++]);
+    while(k &lt; nums.length &amp;&amp; nums[k] &lt;= m){
+      insertIntoBitTrie(root, nums[k++]);
     }
-    answer[idx] = root.any ? queryMaxXor(root, x) : -1;
+    ans[idx] = root.any ? queryMaxXor(root, x) : -1;
   }
-  return answer;
+  return ans;
 }
 
-private void insertIntoBitTrie(BitTrieNode root, int value){
+private void insertIntoBitTrie(BitTrieNode root, int val){
   BitTrieNode cur = root;
   for(int bit = 30; bit &gt;= 0; bit--){
-    int b = (value &gt;&gt; bit) &amp; 1;
+    int b = (val &gt;&gt; bit) &amp; 1;
     if(cur.child[b] == null) cur.child[b] = new BitTrieNode();
     cur = cur.child[b];
   }
@@ -2266,17 +2289,17 @@ private void insertIntoBitTrie(BitTrieNode root, int value){
 
 private int queryMaxXor(BitTrieNode root, int x){
   BitTrieNode cur = root;
-  int xorResult = 0;
+  int res = 0;
   for(int bit = 30; bit &gt;= 0; bit--){
-    int wantBit = 1 - ((x &gt;&gt; bit) &amp; 1);
-    if(cur.child[wantBit] != null){
-      xorResult |= (1 &lt;&lt; bit);
-      cur = cur.child[wantBit];
+    int want = 1 - ((x &gt;&gt; bit) &amp; 1);
+    if(cur.child[want] != null){
+      res |= (1 &lt;&lt; bit);
+      cur = cur.child[want];
     } else {
-      cur = cur.child[1 - wantBit];
+      cur = cur.child[1 - want];
     }
   }
-  return xorResult;
+  return res;
 }</code></pre>
   <div class="complexity"><div>Time <b>O((n + q) · 30)</b></div><div>Space <b>O(n · 30)</b></div></div>
 </article>
@@ -2297,15 +2320,30 @@ private int queryMaxXor(BitTrieNode root, int x){
     startOnLoad: true,
     theme: 'base',
     themeVariables: {
-      primaryColor: '#0f1f3d',
-      primaryTextColor: '#ffffff',
-      primaryBorderColor: '#00d4aa',
-      lineColor: '#5b8dee',
-      secondaryColor: '#142a52',
-      tertiaryColor: '#1a3060',
-      fontFamily: 'Inter, sans-serif'
+      background: 'transparent',
+      primaryColor: '#16294e',
+      primaryTextColor: '#e6edf7',
+      primaryBorderColor: '#5b8dee',
+      secondaryColor: '#0f3a33',
+      secondaryTextColor: '#e6edf7',
+      secondaryBorderColor: '#00d4aa',
+      tertiaryColor: '#1f3b6e',
+      tertiaryTextColor: '#e6edf7',
+      tertiaryBorderColor: '#7aa6ff',
+      lineColor: '#7aa6ff',
+      textColor: '#cfe0ff',
+      mainBkg: '#16294e',
+      nodeBorder: '#5b8dee',
+      clusterBkg: 'rgba(91,141,238,.06)',
+      clusterBorder: 'rgba(91,141,238,.25)',
+      defaultLinkColor: '#7aa6ff',
+      titleColor: '#f5c842',
+      edgeLabelBackground: '#0e1a33',
+      nodeTextColor: '#e6edf7',
+      fontFamily: 'Inter, sans-serif',
+      fontSize: '14px'
     },
-    flowchart:{ htmlLabels:true, curve:'basis' }
+    flowchart:{ htmlLabels:true, curve:'basis', padding:14, nodeSpacing:42, rankSpacing:48 }
   });
 </script>
 <script>

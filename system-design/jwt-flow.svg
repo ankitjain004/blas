@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 923 706" width="923" height="706" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="923" height="706" fill="#ffffff"/>
+<g transform="translate(-16,18)">
+<rect x="180" y="60" width="360" height="46" rx="10" fill="#ffd8a8" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="180" y="122" width="360" height="46" rx="10" fill="#ffc9c9" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="180" y="184" width="360" height="46" rx="10" fill="#ffec99" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="180" y="246" width="360" height="46" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="180" y="308" width="360" height="46" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="180" y="370" width="360" height="46" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="180" y="432" width="360" height="46" rx="10" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="180" y="494" width="360" height="46" rx="10" fill="#ffc9c9" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="180" y="556" width="360" height="46" rx="10" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="180" y="618" width="360" height="46" rx="10" fill="#99e9f2" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="360,106 360,122" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="360,168 360,184" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="360,230 360,246" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="360,292 360,308" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="360,354 360,370" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="360,416 360,432" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="360,478 360,494" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="360,540 360,556" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="360,602 360,618" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="20" fill="#1e1e1e" text-anchor="start"><tspan x="150" y="26">Request Flow with JWT Auth — GET /images/123</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="360" y="88.6">1. TLS Termination</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="552" y="81">decrypt HTTPS → read plain HTTP + headers</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="360" y="150.6">2. WAF / IP Check</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="552" y="143">block SQLi / XSS / bad IPs  → else pass</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="360" y="212.6">3. Rate Limit</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="552" y="205">INCR rate:ankit:&lt;min&gt; in Redis → 429 if over</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="360" y="274.6">4. Authentication (JWT)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="552" y="267">verify signature w/ JWKS public key + check exp/iss/aud</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="360" y="336.6">5. Authorization (RBAC)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="552" y="329">role 'editor' grants 'image:read'? → else 403</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="360" y="398.6">6. Transform</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="552" y="391">strip Authorization; add X-User-Id: ankit, X-Request-Id</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="360" y="460.6">7. Route + Load Balance</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="552" y="453">/images/* → discovery (100 pods) → pow2 → pod 10.0.0.42</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="360" y="522.6">8. Circuit Breaker</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="552" y="515">service OPEN? → 503 fast-fail, else continue</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="360" y="584.6">9. Proxy Upstream</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="552" y="577">mTLS re-encrypt (or plain HTTP in trusted VPC)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="360" y="646.6">image-service pod 10.0.0.42</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="552" y="635">fine-grained authz:</tspan><tspan x="552" y="649.08">'does ankit own image 123?' (own DB)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#7048e8" text-anchor="start"><tspan x="40" y="262">JWT verify =</tspan><tspan x="40" y="277.36">PURE CRYPTO</tspan><tspan x="40" y="292.72">(no DB call):</tspan><tspan x="40" y="308.08">verify(sig,</tspan><tspan x="40" y="323.44"> pub key) +</tspan><tspan x="40" y="338.8"> exp/iss/aud</tspan><tspan x="40" y="354.15999999999997">→ stateless,</tspan><tspan x="40" y="369.52"> scales to</tspan><tspan x="40" y="384.88"> millions</tspan></text>
+</g>
+</svg>

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 853 602" width="853" height="602" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="853" height="602" fill="#ffffff"/>
+<g transform="translate(-26,18)">
+<rect x="50" y="40" width="140" height="50" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="365" y="40" width="150" height="50" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="685" y="40" width="170" height="50" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="120,90 120,560" fill="none" stroke="#868e96" stroke-width="1"/>
+<polyline points="440,90 440,560" fill="none" stroke="#868e96" stroke-width="1"/>
+<polyline points="770,90 770,560" fill="none" stroke="#868e96" stroke-width="1"/>
+<polyline points="120,140 440,140" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="120,195 770,195" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="120,255 770,255" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="770,315 440,315" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="440,375 770,375" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="770,435 440,435" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="440,495 120,495" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="20" fill="#1e1e1e" text-anchor="start"><tspan x="180" y="26">OAuth 2.0 — Authorization Code Flow</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="120" y="60.36">User</tspan><tspan x="120" y="80.83999999999999">(Browser)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="440" y="60.36">Your App</tspan><tspan x="440" y="80.83999999999999">(Client)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="770" y="60.36">Auth Server</tspan><tspan x="770" y="80.83999999999999">(Google / Okta)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="126" y="132">1. Click "Login with Google"</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="126" y="187">2. 302 redirect → /authorize?client_id&amp;scope</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="126" y="247">3. User logs in + consents</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="446" y="307">4. redirect back: /callback?code=AUTH_CODE</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="446" y="367">5. POST /token { code, client_secret }</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="446" y="427">6. { access_token, id_token, refresh_token }</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="126" y="487">7. set session / return JWT</tspan></text>
+</g>
+</svg>

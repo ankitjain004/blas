@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 922 582" width="922" height="582" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="922" height="582" fill="#ffffff"/>
+<g transform="translate(-16,18)">
+<rect x="40" y="95" width="110" height="50" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="40" y="175" width="110" height="50" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="425" y="80" width="150" height="55" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="425" y="150" width="150" height="55" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="425" y="220" width="150" height="55" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="40" y="360" width="110" height="50" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="40" y="440" width="110" height="50" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="265" y="380" width="210" height="90" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="555" y="350" width="130" height="50" rx="10" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="555" y="420" width="130" height="50" rx="10" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="555" y="490" width="130" height="50" rx="10" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="155,110 415,105" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="155,125 415,195" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="155,135 415,280" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="155,195 415,110" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="155,200 415,195" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="155,210 415,280" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="155,380 260,420" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="155,460 260,425" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="480,400 550,375" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="480,425 550,460" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="480,415 550,515" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="20" fill="#1e1e1e" text-anchor="start"><tspan x="230" y="26">Why an API Gateway? — Cross-cutting Concerns in One Place</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#e03131" text-anchor="start"><tspan x="40" y="69">■ WITHOUT GATEWAY  —  every service re-implements auth + rate-limit + logging</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="95" y="125.6">Mobile</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="95" y="205.6">Web</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="500" y="102.86">User Svc</tspan><tspan x="500" y="123.34">(auth+limit)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="500" y="172.85999999999999">Order Svc</tspan><tspan x="500" y="193.33999999999997">(auth+limit)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="500" y="242.85999999999999">Payment Svc</tspan><tspan x="500" y="263.34000000000003">(auth+limit)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="600" y="162">N×M wiring,</tspan><tspan x="600" y="177.36">duplicated logic</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#2f9e44" text-anchor="start"><tspan x="40" y="334">■ WITH GATEWAY  —  concerns handled ONCE; services stay simple</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="95" y="390.6">Mobile</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="95" y="470.6">Web</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="370" y="420.36">API Gateway</tspan><tspan x="370" y="440.84000000000003">auth · rate-limit · route · log · TLS</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="620" y="380.6">User Svc</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="620" y="450.6">Order Svc</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="620" y="520.6">Payment Svc</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="700" y="412">single entry point;</tspan><tspan x="700" y="427.36">services = pure</tspan><tspan x="700" y="442.72">business logic</tspan></text>
+</g>
+</svg>

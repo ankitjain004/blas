@@ -71,12 +71,51 @@
   .complexity div{background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.2);border-radius:10px;padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:13px}
   .complexity b{color:var(--teal)}
   pre[class*="language-"]{border-radius:10px;font-size:13px;border:1px solid var(--line);background:#0a1428 !important;margin:8px 0}
-  .mermaid-wrap{background:#fff;border-radius:12px;padding:20px;margin:8px 0;overflow-x:auto;border:1px solid var(--line)}
+  .mermaid-wrap{
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(91,141,238,.10), transparent 60%),
+      radial-gradient(ellipse at 100% 100%, rgba(0,212,170,.08), transparent 55%),
+      linear-gradient(180deg, #0e1a33 0%, #0b1428 100%);
+    border-radius:14px;padding:22px;margin:10px 0;overflow-x:auto;
+    border:1px solid rgba(91,141,238,.18);
+    box-shadow: 0 2px 14px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  .mermaid-wrap .mermaid{display:flex;justify-content:center}
+  .mermaid-wrap svg{max-width:100%;height:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
+  /* Soften mermaid node shapes — rounded, glowing, less mechanical */
+  .mermaid-wrap .node rect,
+  .mermaid-wrap .node polygon,
+  .mermaid-wrap .node circle,
+  .mermaid-wrap .node ellipse,
+  .mermaid-wrap .node path{
+    rx:10; ry:10;
+    stroke-width:1.4px !important;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,.35));
+  }
+  .mermaid-wrap .edgePath .path{stroke-width:1.6px !important; opacity:.85}
+  .mermaid-wrap .edgeLabel{background-color:transparent !important; color:#cfe0ff !important; font-size:12px !important}
+  .mermaid-wrap .edgeLabel rect{fill:#0e1a33 !important; opacity:.9}
+  .mermaid-wrap .cluster rect{fill:rgba(91,141,238,.06) !important; stroke:rgba(91,141,238,.25) !important; rx:14; ry:14}
   .mermaid{display:flex;justify-content:center}
   .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99}
   .top.show{opacity:1}
   footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
   footer b{color:var(--teal)}
+
+  /* ====== INTERACTIVE ANIMATION FRAMEWORK ====== */
+  .anim{background:linear-gradient(180deg,#0a1832,#08122a);border:1px solid rgba(91,141,238,.18);border-radius:16px;padding:18px 20px;margin:8px 0;box-shadow:0 12px 40px -22px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .anim-canvas{width:100%;background:radial-gradient(900px 400px at 50% -20%,rgba(91,141,238,.10),transparent 60%),#091530;border:1px solid rgba(255,255,255,.07);border-radius:12px;display:block;box-shadow:inset 0 2px 20px rgba(0,0,0,.45)}
+  .anim-controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:14px 0 4px}
+  .anim-btn{background:linear-gradient(135deg,var(--teal),#0aa37e);color:#04221a;border:none;border-radius:10px;padding:9px 17px;font-size:13px;font-weight:700;cursor:pointer;transition:transform .12s,box-shadow .2s;font-family:'Inter',sans-serif;box-shadow:0 5px 16px -4px rgba(0,212,170,.5)}
+  .anim-btn.sec{background:linear-gradient(135deg,var(--blue),#3a6fd0);color:#fff;box-shadow:0 5px 16px -4px rgba(91,141,238,.5)}
+  .anim-btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);box-shadow:none}
+  .anim-btn:hover{transform:translateY(-2px)}
+  .anim-btn:active{transform:translateY(0)}
+  .anim-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+  .anim-stats{display:flex;gap:18px;flex-wrap:wrap;margin:12px 0 2px;font-size:13px;color:var(--muted)}
+  .anim-stats b{color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:15px}
+  .anim-note{background:linear-gradient(90deg,rgba(91,141,238,.12),rgba(91,141,238,.04));border-left:3px solid var(--blue);padding:11px 15px;border-radius:8px;margin-top:12px;font-size:13.5px;color:#dbe6f7;min-height:20px;transition:all .2s}
+  .anim-note b{color:var(--teal)}
 </style>
 </head>
 <body>
@@ -185,6 +224,110 @@ flowchart LR
   F --> G["Handle row 0 & col 0 last"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-1" class="anim-canvas" width="720" height="260"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM1.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM1.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM1.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-1">Press <b>Step</b> to scan the matrix and mark rows/columns that contain a zero.</div>
+  </div>
+  <script>
+  /* ===== Shared animation helpers (retina + polished primitives) ===== */
+  const AnimKit = {
+    setup(cv){
+      const ctx=cv.getContext('2d');
+      const dpr=window.devicePixelRatio||1;
+      const cssW=cv.width, cssH=cv.height;
+      if(!cv.dataset.hi){
+        cv.dataset.hi='1'; cv.dataset.w=cssW; cv.dataset.h=cssH;
+        cv.width=cssW*dpr; cv.height=cssH*dpr;
+        cv.style.width=cssW+'px'; cv.style.height=cssH+'px';
+        ctx.scale(dpr,dpr);
+      }
+      return {ctx,W:+cv.dataset.w,H:+cv.dataset.h};
+    },
+    roundRect(ctx,x,y,w,h,r){
+      ctx.beginPath();
+      ctx.moveTo(x+r,y);
+      ctx.arcTo(x+w,y,x+w,y+h,r);
+      ctx.arcTo(x+w,y+h,x,y+h,r);
+      ctx.arcTo(x,y+h,x,y,r);
+      ctx.arcTo(x,y,x+w,y,r);
+      ctx.closePath();
+    },
+    cell(ctx,x,y,w,h,{fill,grad,glow,border}={}){
+      ctx.save();
+      if(glow){ ctx.shadowColor=glow; ctx.shadowBlur=18; }
+      this.roundRect(ctx,x,y,w,h,9);
+      if(grad){ const g=ctx.createLinearGradient(x,y,x,y+h); g.addColorStop(0,grad[0]); g.addColorStop(1,grad[1]); ctx.fillStyle=g; }
+      else ctx.fillStyle=fill||'#13264b';
+      ctx.fill();
+      ctx.restore();
+      this.roundRect(ctx,x,y,w,h,9);
+      ctx.strokeStyle=border||'rgba(255,255,255,.10)'; ctx.lineWidth=1.2; ctx.stroke();
+    },
+    text(ctx,t,x,y,{color='#e6edf7',font='bold 20px JetBrains Mono',align='center'}={}){
+      ctx.fillStyle=color; ctx.font=font; ctx.textAlign=align; ctx.textBaseline='middle';
+      ctx.fillText(t,x,y);
+    }
+  };
+
+  const ANIM1 = (function(){
+    const cv=document.getElementById('animc-1');
+    const note=document.getElementById('anim-note-1');
+    const orig=[[0,1,2,0],[3,4,5,2],[1,3,1,5]];
+    let M,rows,cols,phase,scan,timer;
+    function reset(){
+      M=orig.map(r=>r.slice()); rows=new Set(); cols=new Set();
+      phase=0; scan=0; stop();
+      note.innerHTML='Press <b>Step</b> to scan the matrix and mark rows/columns that contain a zero.';
+      draw();
+    }
+    const R=3,C=4;
+    function draw(scanCell){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const cw=82,ch=62, ox=(W-C*cw)/2, oy=(H-R*ch)/2;
+      for(let i=0;i<R;i++)for(let j=0;j<C;j++){
+        const x=ox+j*cw+4,y=oy+i*ch+4,w=cw-8,h=ch-8;
+        const isZeroNow = M[i][j]===0 && phase>=2;
+        const marked = rows.has(i)||cols.has(j);
+        const scanning = scanCell&&scanCell[0]===i&&scanCell[1]===j;
+        let opt;
+        if(scanning) opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.6)',border:'rgba(245,200,66,.8)'};
+        else if(isZeroNow) opt={grad:['#ff7b7b','#d44545'],glow:'rgba(255,107,107,.5)',border:'rgba(255,107,107,.7)'};
+        else if(marked) opt={grad:['#3a2540','#2a1a30'],border:'rgba(255,107,107,.35)'};
+        else opt={grad:['#15294e','#0f1f3d'],border:'rgba(255,255,255,.10)'};
+        AnimKit.cell(ctx,x,y,w,h,opt);
+        const dark = scanning||isZeroNow;
+        AnimKit.text(ctx,M[i][j],x+w/2,y+h/2,{color:dark?'#0a1428':'#e6edf7',font:'bold 22px JetBrains Mono'});
+      }
+    }
+    function step(){
+      if(phase===0){ // scanning
+        const i=Math.floor(scan/C), j=scan%C;
+        if(M[i][j]===0){ rows.add(i); cols.add(j);
+          note.innerHTML=`Found <b>0</b> at (${i},${j}) → mark row ${i} and column ${j}.`; }
+        else note.innerHTML=`Scanning (${i},${j}) = ${M[i][j]} — not zero.`;
+        draw([i,j]); scan++;
+        if(scan>=R*C){ phase=2; note.innerHTML='Scan complete. Press <b>Step</b> to zero all marked rows & columns.'; }
+        return;
+      }
+      if(phase===2){ // apply zeros
+        for(let i=0;i<R;i++)for(let j=0;j<C;j++) if(rows.has(i)||cols.has(j)) M[i][j]=0;
+        phase=3; draw(); note.innerHTML='Done ✓ Every marked row and column is now <b>zeroed</b>.';
+        return;
+      }
+    }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(phase>=3){stop();return;} step(); },700); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Sets every entire row and column to 0 if any cell in that row/column is 0.
@@ -192,27 +335,27 @@ flowchart LR
  * Column 0 needs a separate boolean because it shares cell (0,0) with row 0.
  */
 void setZeroes(int[][] matrix){
-  int rowCount = matrix.length;
-  int colCount = matrix[0].length;
-  boolean firstColumnHasZero = false;
+  int m = matrix.length;
+  int n = matrix[0].length;
+  boolean col0 = false;
 
   // ---- Pass 1: scan & mark zeros into the first row / first column ----
-  for(int row = 0; row &lt; rowCount; row++){
-    if(matrix[row][0] == 0) firstColumnHasZero = true;        // remember separately
-    for(int col = 1; col &lt; colCount; col++){
-      if(matrix[row][col] == 0){
-        matrix[row][0] = 0;                                   // mark the row
-        matrix[0][col] = 0;                                   // mark the column
+  for(int i = 0; i &lt; m; i++){
+    if(matrix[i][0] == 0) col0 = true;                        // remember separately
+    for(int j = 1; j &lt; n; j++){
+      if(matrix[i][j] == 0){
+        matrix[i][0] = 0;                                     // mark the row
+        matrix[0][j] = 0;                                     // mark the column
       }
     }
   }
 
   // ---- Pass 2: zero the cells, processing bottom-up so we don't overwrite markers too early ----
-  for(int row = rowCount - 1; row &gt;= 0; row--){
-    for(int col = colCount - 1; col &gt;= 1; col--){             // skip column 0 here
-      if(matrix[row][0] == 0 || matrix[0][col] == 0) matrix[row][col] = 0;
+  for(int i = m - 1; i &gt;= 0; i--){
+    for(int j = n - 1; j &gt;= 1; j--){                          // skip column 0 here
+      if(matrix[i][0] == 0 || matrix[0][j] == 0) matrix[i][j] = 0;
     }
-    if(firstColumnHasZero) matrix[row][0] = 0;                // handle column 0 last
+    if(col0) matrix[i][0] = 0;                                // handle column 0 last
   }
 }</code></pre>
   <div class="complexity"><div>Time <b>O(R·C)</b></div><div>Space <b>O(1)</b></div></div>
@@ -262,32 +405,98 @@ flowchart LR
   R --> O[Rotated 90° CW]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-2" class="anim-canvas" width="720" height="260"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM2.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM2.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM2.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-2">Press <b>Step</b> to transpose (swap across the diagonal), then reverse each row.</div>
+  </div>
+  <script>
+  const ANIM2 = (function(){
+    const cv=document.getElementById('animc-2');
+    const note=document.getElementById('anim-note-2');
+    const orig=[[1,2,3],[4,5,6],[7,8,9]];
+    const N=3; let M,swaps,idx,phase,timer;
+    function buildTranspose(){ const s=[]; for(let i=0;i<N;i++)for(let j=i+1;j<N;j++)s.push([i,j]); return s; }
+    function buildReverse(){ const s=[]; for(let i=0;i<N;i++)s.push([i,0,i,N-1]); return s; }
+    let tswaps,rswaps;
+    function reset(){
+      M=orig.map(r=>r.slice()); tswaps=buildTranspose(); rswaps=buildReverse();
+      idx=0; phase=1; stop();
+      note.innerHTML='Press <b>Step</b> to transpose (swap across the diagonal), then reverse each row.';
+      draw();
+    }
+    function draw(hl){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const cw=72,ch=72, ox=(W-N*cw)/2, oy=(H-N*ch)/2;
+      for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+        const x=ox+j*cw+4,y=oy+i*ch+4,w=cw-8,h=ch-8;
+        const hot=hl&&hl.some(([a,b])=>a===i&&b===j);
+        let opt;
+        if(hot) opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.6)',border:'rgba(245,200,66,.8)'};
+        else if(i===j) opt={grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.35)'};
+        else opt={grad:['#15294e','#0f1f3d'],border:'rgba(255,255,255,.10)'};
+        AnimKit.cell(ctx,x,y,w,h,opt);
+        AnimKit.text(ctx,M[i][j],x+w/2,y+h/2,{color:hot?'#0a1428':'#e6edf7',font:'bold 24px JetBrains Mono'});
+      }
+    }
+    function step(){
+      if(phase===1){
+        if(idx<tswaps.length){
+          const [i,j]=tswaps[idx]; const t=M[i][j];M[i][j]=M[j][i];M[j][i]=t;
+          note.innerHTML=`<b>Transpose:</b> swap (${i},${j}) ↔ (${j},${i}).`;
+          draw([[i,j],[j,i]]); idx++;
+        }
+        if(idx>=tswaps.length){ phase=2; idx=0; setTimeout(()=>{note.innerHTML='Transpose done. Now <b>reverse each row</b>.';},0); }
+        return;
+      }
+      if(phase===2){
+        if(idx<rswaps.length){
+          const [i,a,,b]=rswaps[idx]; const t=M[i][a];M[i][a]=M[i][b];M[i][b]=t;
+          note.innerHTML=`<b>Reverse row ${i}:</b> swap columns ${a} ↔ ${b}.`;
+          draw([[i,a],[i,b]]); idx++;
+        }
+        if(idx>=rswaps.length){ phase=3; note.innerHTML='Done ✓ Matrix rotated <b>90° clockwise</b>.'; }
+        return;
+      }
+    }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(phase>=3){stop();return;} step(); },650); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Rotates an n x n matrix 90 degrees clockwise, in place.
  * Trick: a 90-CW rotation == transpose along the main diagonal, then reverse each row.
  */
 void rotate(int[][] matrix){
-  int size = matrix.length;
+  int n = matrix.length;
 
-  // ---- 1) Transpose: swap matrix[row][col] with matrix[col][row] for col &gt; row ----
-  for(int row = 0; row &lt; size; row++){
-    for(int col = row + 1; col &lt; size; col++){
-      int swapTemp = matrix[row][col];
-      matrix[row][col] = matrix[col][row];
-      matrix[col][row] = swapTemp;
+  // ---- 1) Transpose: swap matrix[i][j] with matrix[j][i] for j &gt; i ----
+  for(int i = 0; i &lt; n; i++){
+    for(int j = i + 1; j &lt; n; j++){
+      int tmp = matrix[i][j];
+      matrix[i][j] = matrix[j][i];
+      matrix[j][i] = tmp;
     }
   }
 
   // ---- 2) Reverse each row (mirror left-right) ----
-  for(int row = 0; row &lt; size; row++){
-    int leftIdx = 0, rightIdx = size - 1;
-    while(leftIdx &lt; rightIdx){
-      int swapTemp = matrix[row][leftIdx];
-      matrix[row][leftIdx]  = matrix[row][rightIdx];
-      matrix[row][rightIdx] = swapTemp;
-      leftIdx++;
-      rightIdx--;
+  for(int i = 0; i &lt; n; i++){
+    int l = 0, r = n - 1;
+    while(l &lt; r){
+      int tmp = matrix[i][l];
+      matrix[i][l]  = matrix[i][r];
+      matrix[i][r] = tmp;
+      l++;
+      r--;
     }
   }
 }</code></pre>
@@ -346,6 +555,60 @@ flowchart TD
   H --> L
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-3" class="anim-canvas" width="720" height="240"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM3.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM3.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM3.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">Target <b>11</b> · lo <b id="a3lo">0</b> · hi <b id="a3hi">11</b> · mid <b id="a3mid">-</b></div>
+    <div class="anim-note" id="anim-note-3">Treat the matrix as a flat sorted array of 12 cells. Press <b>Step</b> to binary search.</div>
+  </div>
+  <script>
+  const ANIM3 = (function(){
+    const cv=document.getElementById('animc-3');
+    const note=document.getElementById('anim-note-3');
+    const M=[[1,3,5,7],[10,11,16,20],[23,30,34,60]]; const R=3,C=4,target=11;
+    let lo,hi,mid,done,found,timer;
+    function reset(){ lo=0;hi=R*C-1;mid=-1;done=false;found=false;stop();
+      upd(); note.innerHTML='Treat the matrix as a flat sorted array of 12 cells. Press <b>Step</b> to binary search.';
+      draw(); }
+    function upd(){ document.getElementById('a3lo').textContent=lo;
+      document.getElementById('a3hi').textContent=hi;
+      document.getElementById('a3mid').textContent=mid<0?'-':mid; }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const cw=74,ch=58, ox=(W-C*cw)/2, oy=(H-R*ch)/2;
+      for(let i=0;i<R;i++)for(let j=0;j<C;j++){
+        const k=i*C+j, x=ox+j*cw+4,y=oy+i*ch+4,w=cw-8,h=ch-8;
+        const inWin=k>=lo&&k<=hi;
+        let opt, dark=false;
+        if(done&&k===mid&&found) {opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.6)',border:'rgba(0,212,170,.85)'};dark=true;}
+        else if(k===mid) {opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.6)',border:'rgba(245,200,66,.85)'};dark=true;}
+        else if(inWin) opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.45)'};
+        else opt={grad:['#101d36','#0c1729'],border:'rgba(255,255,255,.06)'};
+        AnimKit.cell(ctx,x,y,w,h,opt);
+        AnimKit.text(ctx,M[i][j],x+w/2,y+h/2,{color:dark?'#0a1428':(inWin?'#e6edf7':'#5a6e92'),font:'bold 20px JetBrains Mono'});
+      }
+    }
+    function step(){
+      if(done) return;
+      if(lo>hi){ done=true; note.innerHTML='lo &gt; hi → target <b>not found</b>.'; draw(); return; }
+      mid=(lo+hi)>>1; const v=M[Math.floor(mid/C)][mid%C]; upd();
+      if(v===target){ done=true; found=true; note.innerHTML=`mid=${mid} → value <b>${v}</b> = target ✓ <b>Found!</b>`; draw(); return; }
+      if(v<target){ note.innerHTML=`mid=${mid} → ${v} &lt; 11 → search right (lo=${mid+1}).`; lo=mid+1; }
+      else { note.innerHTML=`mid=${mid} → ${v} &gt; 11 → search left (hi=${mid-1}).`; hi=mid-1; }
+      draw(); upd();
+    }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(done){stop();return;} step(); },800); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Searches for `target` in a row-sorted matrix where each row's first element
@@ -353,21 +616,21 @@ flowchart TD
  * sorted array of size rows*cols and binary-searches it.
  */
 boolean searchInSortedMatrix(int[][] matrix, int target){
-  int rowCount = matrix.length;
-  int colCount = matrix[0].length;
+  int m = matrix.length;
+  int n = matrix[0].length;
 
-  int low  = 0;
-  int high = rowCount * colCount - 1;
+  int lo  = 0;
+  int hi = m * n - 1;
 
-  while(low &lt;= high){
-    int midIndex = (low + high) &gt;&gt;&gt; 1;                       // unsigned shift = avoids overflow
-    int midRow   = midIndex / colCount;                      // map 1-D index back to 2-D coords
-    int midCol   = midIndex % colCount;
-    int midValue = matrix[midRow][midCol];
+  while(lo &lt;= hi){
+    int mid = (lo + hi) &gt;&gt;&gt; 1;                                // unsigned shift = avoids overflow
+    int r   = mid / n;                                      // map 1-D index back to 2-D coords
+    int c   = mid % n;
+    int v   = matrix[r][c];
 
-    if(midValue == target)      return true;
-    else if(midValue &lt; target)  low  = midIndex + 1;
-    else                        high = midIndex - 1;
+    if(v == target)      return true;
+    else if(v &lt; target)  lo  = mid + 1;
+    else                 hi = mid - 1;
   }
   return false;
 }</code></pre>
@@ -423,23 +686,85 @@ flowchart LR
   N --> B
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-4" class="anim-canvas" width="720" height="240"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM4.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM4.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM4.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-4">Target = 9. Walk the array asking: "have I seen <b>9 − current</b> before?"</div>
+  </div>
+  <script>
+  const ANIM4 = (function(){
+    const cv=document.getElementById('animc-4');
+    const note=document.getElementById('anim-note-4');
+    const nums=[2,7,11,15], target=9;
+    let i,map,done,found,timer;
+    function reset(){ i=0;map=new Map();done=false;found=null;stop();
+      note.innerHTML='Target = 9. Walk the array asking: "have I seen <b>9 − current</b> before?"';
+      draw(); }
+    function draw(active){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const cw=88,ch=64, ox=(W-nums.length*cw)/2, oy=34;
+      // array
+      for(let k=0;k<nums.length;k++){
+        const x=ox+k*cw+4,w=cw-8;
+        let opt, dark=false;
+        if(found&&(k===found[0]||k===found[1])){ opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.6)',border:'rgba(0,212,170,.85)'}; dark=true; }
+        else if(k===active){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.6)',border:'rgba(245,200,66,.85)'}; dark=true; }
+        else if(k<i) opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.4)'};
+        else opt={grad:['#15294e','#0f1f3d'],border:'rgba(255,255,255,.10)'};
+        AnimKit.cell(ctx,x,oy,w,ch,opt);
+        AnimKit.text(ctx,nums[k],x+w/2,oy+ch/2,{color:dark?'#0a1428':'#e6edf7',font:'bold 24px JetBrains Mono'});
+        AnimKit.text(ctx,'i='+k,x+w/2,oy+ch+16,{color:'#8aa0c4',font:'12px JetBrains Mono'});
+      }
+      // map
+      AnimKit.text(ctx,'seen map {value → index}:',ox,oy+ch+52,{color:'#8aa0c4',font:'13px Inter',align:'left'});
+      let mx=ox; const entries=[...map.entries()];
+      ctx.font='bold 15px JetBrains Mono';
+      entries.forEach(([v,idx])=>{
+        const label=`${v}:${idx}`; const w=ctx.measureText(label).width+24;
+        AnimKit.cell(ctx,mx,oy+ch+64,w,32,{grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.45)'});
+        AnimKit.text(ctx,label,mx+w/2,oy+ch+80,{color:'#cfdcf2',font:'bold 15px JetBrains Mono'});
+        mx+=w+9;
+      });
+    }
+    function step(){
+      if(done) return;
+      if(i>=nums.length){ done=true; note.innerHTML='No pair found.'; return; }
+      const need=target-nums[i];
+      if(map.has(need)){ found=[map.get(need),i]; done=true;
+        note.innerHTML=`At i=${i}, need ${need} — <b>found</b> at index ${map.get(need)} → answer [${found[0]}, ${found[1]}] ✓`;
+        draw(i); return; }
+      note.innerHTML=`At i=${i} (value ${nums[i]}), need ${need} — not seen. Store ${nums[i]}→${i}.`;
+      map.set(nums[i],i); draw(i); i++;
+    }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(done){stop();return;} step(); },850); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Returns the indices of two numbers in `nums` that add up to `target`.
  * Walks the array once, asking the hash map: "have I already seen the complement?"
  */
 int[] twoSum(int[] nums, int target){
-  Map&lt;Integer, Integer&gt; valueToIndex = new HashMap&lt;&gt;();
+  Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();
 
-  for(int currentIndex = 0; currentIndex &lt; nums.length; currentIndex++){
-    int currentValue = nums[currentIndex];
-    int complement   = target - currentValue;             // what we still need
+  for(int i = 0; i &lt; nums.length; i++){
+    int x = nums[i];
+    int need = target - x;                                 // what we still need
 
-    if(valueToIndex.containsKey(complement)){
-      int complementIndex = valueToIndex.get(complement);
-      return new int[]{ complementIndex, currentIndex };
+    if(map.containsKey(need)){
+      int j = map.get(need);
+      return new int[]{ j, i };
     }
-    valueToIndex.put(currentValue, currentIndex);         // remember for future lookups
+    map.put(x, i);                                         // remember for future lookups
   }
   return new int[]{ -1, -1 };                             // no pair found
 }</code></pre>
@@ -495,23 +820,95 @@ flowchart LR
   R6[3] --> R5
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-5" class="anim-canvas" width="720" height="220"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM5.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM5.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM5.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-5">Three pointers: <b>prev</b>, <b>curr</b>, <b>next</b>. Each step flips one arrow backwards.</div>
+  </div>
+  <script>
+  const ANIM5 = (function(){
+    const cv=document.getElementById('animc-5');
+    const note=document.getElementById('anim-note-5');
+    const vals=[1,2,3,4,5];
+    let flipped,prev,curr,done,timer;
+    function reset(){ flipped=0; prev=-1; curr=0; done=false; stop();
+      note.innerHTML='Three pointers: <b>prev</b>, <b>curr</b>, <b>next</b>. Each step flips one arrow backwards.';
+      draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const n=vals.length, r=26, gap=(W-90)/(n-1), oy=H/2;
+      // arrows
+      for(let k=0;k<n-1;k++){
+        const x1=45+k*gap, x2=45+(k+1)*gap;
+        const reversed = k<flipped;
+        ctx.save();
+        if(reversed){ ctx.shadowColor='rgba(0,212,170,.5)'; ctx.shadowBlur=8; }
+        ctx.strokeStyle=reversed?'#00d4aa':'#3a4d72'; ctx.lineWidth=3; ctx.lineCap='round';
+        ctx.beginPath();
+        if(reversed){ ctx.moveTo(x2-r,oy); ctx.lineTo(x1+r,oy); }
+        else { ctx.moveTo(x1+r,oy); ctx.lineTo(x2-r,oy); }
+        ctx.stroke();
+        const hx=reversed?x1+r:x2-r, dir=reversed?-1:1;
+        ctx.beginPath(); ctx.moveTo(hx,oy); ctx.lineTo(hx-dir*10,oy-6); ctx.lineTo(hx-dir*10,oy+6); ctx.closePath();
+        ctx.fillStyle=reversed?'#00d4aa':'#3a4d72'; ctx.fill();
+        ctx.restore();
+      }
+      // nodes
+      for(let k=0;k<n;k++){
+        const x=45+k*gap;
+        ctx.save();
+        const isCurr=k===curr, isPrev=k===prev;
+        if(isCurr){ ctx.shadowColor='rgba(245,200,66,.6)'; ctx.shadowBlur=20; }
+        else if(isPrev){ ctx.shadowColor='rgba(0,212,170,.5)'; ctx.shadowBlur=16; }
+        const g=ctx.createLinearGradient(x,oy-r,x,oy+r);
+        if(isCurr){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+        else if(isPrev){ g.addColorStop(0,'#1ad9b0'); g.addColorStop(1,'#0aa37e'); }
+        else { g.addColorStop(0,'#15294e'); g.addColorStop(1,'#0f1f3d'); }
+        ctx.beginPath(); ctx.arc(x,oy,r,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(x,oy,r,0,Math.PI*2);
+        ctx.strokeStyle=isCurr?'rgba(245,200,66,.85)':isPrev?'rgba(0,212,170,.85)':'rgba(255,255,255,.15)'; ctx.lineWidth=1.6; ctx.stroke();
+        AnimKit.text(ctx,vals[k],x,oy,{color:(isCurr||isPrev)?'#0a1428':'#e6edf7',font:'bold 20px JetBrains Mono'});
+        if(isPrev) AnimKit.text(ctx,'prev',x,oy-r-13,{color:'#00d4aa',font:'bold 12px Inter'});
+        if(isCurr) AnimKit.text(ctx,'curr',x,oy-r-13,{color:'#f5c842',font:'bold 12px Inter'});
+      }
+    }
+    function step(){
+      if(done) return;
+      if(curr>=vals.length){ done=true; note.innerHTML='<b>curr = null</b> → return prev = '+vals[vals.length-1]+'. List reversed ✓'; draw(); return; }
+      note.innerHTML=`Flip node <b>${vals[curr]}</b>: point it back to ${prev<0?'null':vals[prev]}, then advance prev→curr, curr→next.`;
+      flipped++; prev=curr; curr++; draw();
+      if(curr>=vals.length){ note.innerHTML='<b>curr = null</b> → return prev = '+vals[vals.length-1]+'. List reversed ✓'; }
+    }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(done){stop();return;} step(); },750); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code · Iterative (Java)</div>
 <pre><code class="language-java">/**
  * Reverses a singly-linked list iteratively.
- * Maintains 3 pointers: `previousNode` (already reversed part),
- * `currentNode` (the one being flipped), `nextNode` (safety save before we lose it).
+ * Maintains 3 pointers: `prev` (already reversed part),
+ * `cur` (the one being flipped), `next` (safety save before we lose it).
  */
 ListNode reverseListIterative(ListNode head){
-  ListNode previousNode = null;
-  ListNode currentNode  = head;
+  ListNode prev = null;
+  ListNode cur  = head;
 
-  while(currentNode != null){
-    ListNode nextNode = currentNode.next;   // save next BEFORE we overwrite the pointer
-    currentNode.next  = previousNode;       // flip the arrow backwards
-    previousNode      = currentNode;        // shift the "reversed-so-far" tail forward
-    currentNode       = nextNode;           // advance the worker
+  while(cur != null){
+    ListNode next = cur.next;   // save next BEFORE we overwrite the pointer
+    cur.next  = prev;           // flip the arrow backwards
+    prev      = cur;            // shift the "reversed-so-far" tail forward
+    cur       = next;           // advance the worker
   }
-  return previousNode;                       // previousNode ends up as the new head
+  return prev;                   // prev ends up as the new head
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
 
@@ -581,6 +978,63 @@ flowchart LR
   B[b walks B then A] --> X
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-6" class="anim-canvas" width="720" height="240"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM6.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM6.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM6.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-6">Each pointer walks its list then jumps to the other's head. After m+n steps they align.</div>
+  </div>
+  <script>
+  const ANIM6 = (function(){
+    const cv=document.getElementById('animc-6');
+    const note=document.getElementById('anim-note-6');
+    // physical node ids; shared chain = s8,s4,s5 (intersection at s8)
+    const pathA=['a4','a1','s8','s4','s5','b5','b6','b1','s8','s4','s5'];
+    const pathB=['b5','b6','b1','s8','s4','s5','a4','a1','s8','s4','s5'];
+    const label={a4:'4',a1:'1',s8:'8',s4:'4',s5:'5',b5:'5',b6:'6',b1:'1'};
+    let p,done,timer;
+    function reset(){ p=0;done=false;stop();
+      note.innerHTML='Each pointer walks its list then jumps to the other\u2019s head. After m+n steps they align.';
+      draw(); }
+    function row(ctx,seq,y,ptr,W){
+      const n=seq.length, cw=58, ox=(W-n*cw)/2;
+      for(let k=0;k<n;k++){
+        const x=ox+k*cw+3,w=cw-6,h=46;
+        const isPtr=k===ptr, meet=done&&isPtr;
+        let opt,dark=false;
+        if(meet){opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.6)',border:'rgba(0,212,170,.85)'};dark=true;}
+        else if(isPtr){opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.6)',border:'rgba(245,200,66,.85)'};dark=true;}
+        else if(seq[k][0]==='s')opt={grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.3)'};
+        else opt={grad:['#15294e','#0f1f3d'],border:'rgba(255,255,255,.10)'};
+        AnimKit.cell(ctx,x,y,w,h,opt);
+        AnimKit.text(ctx,label[seq[k]],x+w/2,y+h/2,{color:dark?'#0a1428':'#e6edf7',font:'bold 18px JetBrains Mono'});
+      }
+    }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      AnimKit.text(ctx,'pA  (list A → list B)',20,34,{color:'#8aa0c4',font:'12px Inter',align:'left'});
+      row(ctx,pathA,46,p,W);
+      AnimKit.text(ctx,'pB  (list B → list A)',20,150,{color:'#8aa0c4',font:'12px Inter',align:'left'});
+      row(ctx,pathB,162,p,W);
+    }
+    function step(){
+      if(done) return;
+      if(pathA[p]===pathB[p]){ done=true; note.innerHTML=`Step ${p}: both pointers reach the <b>same node (8)</b> \u2192 intersection found \u2713`; draw(); return; }
+      note.innerHTML=`Step ${p}: pA at <b>${label[pathA[p]]}</b>, pB at <b>${label[pathB[p]]}</b> \u2014 different nodes, advance both.`;
+      draw(); p++;
+      if(pathA[p]===pathB[p]){ /* will resolve next step */ }
+    }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(done){stop();return;} step(); },700); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Returns the node where two singly-linked lists meet, or null if they never do.
@@ -591,15 +1045,15 @@ flowchart LR
 ListNode getIntersectionNode(ListNode headA, ListNode headB){
   if(headA == null || headB == null) return null;
 
-  ListNode walkerA = headA;
-  ListNode walkerB = headB;
+  ListNode a = headA;
+  ListNode b = headB;
 
   // Loop terminates because both walkers traverse exactly lenA + lenB nodes total.
-  while(walkerA != walkerB){
-    walkerA = (walkerA == null) ? headB : walkerA.next;   // hop onto list B at the end
-    walkerB = (walkerB == null) ? headA : walkerB.next;   // hop onto list A at the end
+  while(a != b){
+    a = (a == null) ? headB : a.next;   // hop onto list B at the end
+    b = (b == null) ? headA : b.next;   // hop onto list A at the end
   }
-  return walkerA;   // intersection node, or null if no intersection
+  return a;   // intersection node, or null if no intersection
 }</code></pre>
   <div class="complexity"><div>Time <b>O(m+n)</b></div><div>Space <b>O(1)</b></div></div>
 </article>
@@ -651,6 +1105,79 @@ flowchart LR
   Cut[Cut at L - k - 1] --> NewH[New head & tail]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-7" class="anim-canvas" width="720" height="240"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM7.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM7.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM7.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-7">List 1→2→3→4→5, k=2. Find new tail at index L−k−1 = 2, then cut.</div>
+  </div>
+  <script>
+  const ANIM7 = (function(){
+    const cv=document.getElementById('animc-7');
+    const note=document.getElementById('anim-note-7');
+    const vals=[1,2,3,4,5], k=2, L=5, newTail=L-k-1; // index 2 (node 3)
+    let phase,walk,timer;
+    function reset(){ phase=0; walk=0; stop();
+      note.innerHTML='List 1\u21922\u21923\u21924\u21925, k=2. Find new tail at index L\u2212k\u22121 = 2, then cut.';
+      draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const n=vals.length, r=24, gap=(W-100)/(n-1), oy=H/2, ox=50;
+      // arrows
+      for(let i=0;i<n-1;i++){
+        const x1=ox+i*gap, x2=ox+(i+1)*gap;
+        const cut = phase>=2 && i===newTail;
+        ctx.save();
+        if(cut){ ctx.setLineDash([5,4]); ctx.strokeStyle='#ff6b6b'; }
+        else { ctx.strokeStyle='#3a4d72'; }
+        ctx.lineWidth=2.5; ctx.lineCap='round';
+        ctx.beginPath(); ctx.moveTo(x1+r,oy); ctx.lineTo(x2-r,oy); ctx.stroke();
+        if(!cut){ ctx.beginPath(); ctx.moveTo(x2-r,oy); ctx.lineTo(x2-r-9,oy-5); ctx.lineTo(x2-r-9,oy+5); ctx.closePath(); ctx.fillStyle='#3a4d72'; ctx.fill(); }
+        ctx.restore();
+      }
+      // ring arrow tail->head when phase>=1
+      if(phase>=1 && phase<3){
+        const xT=ox+(n-1)*gap, xH=ox;
+        ctx.save(); ctx.strokeStyle='#5b8dee'; ctx.lineWidth=2; ctx.setLineDash([4,3]);
+        ctx.beginPath(); ctx.moveTo(xT,oy+r); ctx.bezierCurveTo(xT,oy+70,xH,oy+70,xH,oy+r); ctx.stroke();
+        ctx.restore();
+      }
+      // nodes
+      for(let i=0;i<n;i++){
+        const x=ox+i*gap;
+        ctx.save();
+        const isNT=phase>=1&&i===newTail, isNH=phase>=2&&i===newTail+1;
+        if(isNT){ ctx.shadowColor='rgba(255,107,107,.6)'; ctx.shadowBlur=18; }
+        else if(isNH){ ctx.shadowColor='rgba(0,212,170,.6)'; ctx.shadowBlur=18; }
+        const g=ctx.createLinearGradient(x,oy-r,x,oy+r);
+        if(isNT){ g.addColorStop(0,'#ff7b7b'); g.addColorStop(1,'#d44545'); }
+        else if(isNH){ g.addColorStop(0,'#1ad9b0'); g.addColorStop(1,'#0aa37e'); }
+        else { g.addColorStop(0,'#15294e'); g.addColorStop(1,'#0f1f3d'); }
+        ctx.beginPath(); ctx.arc(x,oy,r,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(x,oy,r,0,Math.PI*2);
+        ctx.strokeStyle=isNT?'rgba(255,107,107,.85)':isNH?'rgba(0,212,170,.85)':'rgba(255,255,255,.15)'; ctx.lineWidth=1.6; ctx.stroke();
+        AnimKit.text(ctx,vals[i],x,oy,{color:(isNT||isNH)?'#0a1428':'#e6edf7',font:'bold 19px JetBrains Mono'});
+        if(isNT) AnimKit.text(ctx,'new tail',x,oy-r-13,{color:'#ff6b6b',font:'bold 11px Inter'});
+        if(isNH) AnimKit.text(ctx,'new head',x,oy-r-13,{color:'#00d4aa',font:'bold 11px Inter'});
+      }
+    }
+    function step(){
+      if(phase===0){ phase=1; note.innerHTML='Close the list into a <b>ring</b> (tail → head), and count length L=5.'; draw(); return; }
+      if(phase===1){ phase=2; note.innerHTML=`New tail at index L\u2212k\u22121 = <b>2</b> (node 3). Node after it (node 4) becomes the <b>new head</b>.`; draw(); return; }
+      if(phase===2){ phase=3; note.innerHTML='Cut the ring after the new tail \u2192 result <b>4\u21925\u21921\u21922\u21923</b> \u2713'; draw(); return; }
+    }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(phase>=3){stop();return;} step(); },900); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Rotates a singly-linked list to the RIGHT by k positions.
@@ -660,21 +1187,20 @@ ListNode rotateRight(ListNode head, int k){
   if(head == null || head.next == null || k == 0) return head;
 
   // ---- 1) Walk to the tail and count length along the way ----
-  int listLength = 1;
-  ListNode oldTail = head;
-  while(oldTail.next != null){
-    oldTail = oldTail.next;
-    listLength++;
+  int n = 1;
+  ListNode tail = head;
+  while(tail.next != null){
+    tail = tail.next;
+    n++;
   }
 
   // ---- 2) Close the loop into a circle ----
-  oldTail.next = head;
+  tail.next = head;
 
   // ---- 3) The new tail is at position (length - k%length - 1) from the original head ----
-  int rotateBy        = k % listLength;
-  int stepsToNewTail  = listLength - rotateBy - 1;
-  ListNode newTail    = head;
-  while(stepsToNewTail-- &gt; 0) newTail = newTail.next;
+  int steps        = n - k % n - 1;
+  ListNode newTail = head;
+  while(steps-- &gt; 0) newTail = newTail.next;
 
   // ---- 4) The node after the new tail is the new head; cut the circle there ----
   ListNode newHead = newTail.next;
@@ -734,6 +1260,77 @@ flowchart TD
   K --> L
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-8" class="anim-canvas" width="720" height="300"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM8.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM8.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM8.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">Picked <b id="a8count">0</b> · lastEnd <b id="a8last">−∞</b></div>
+    <div class="anim-note" id="anim-note-8">Meetings sorted by end time. Greedily pick each one that starts after the last picked end.</div>
+  </div>
+  <script>
+  const ANIM8 = (function(){
+    const cv=document.getElementById('animc-8');
+    const note=document.getElementById('anim-note-8');
+    // sorted by end: (1,2)(3,4)(0,6)(5,7)(8,9)(5,9)
+    const mtg=[[1,2],[3,4],[0,6],[5,7],[8,9],[5,9]];
+    const maxT=10;
+    let i,lastEnd,count,states,done,timer;
+    function reset(){ i=0;lastEnd=-1;count=0;done=false;
+      states=mtg.map(()=>0); stop();
+      document.getElementById('a8count').textContent='0';
+      document.getElementById('a8last').textContent='−∞';
+      note.innerHTML='Meetings sorted by end time. Greedily pick each one that starts after the last picked end.';
+      draw(); }
+    function draw(active){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const ox=50, ow=W-90, rowH=34, oy=24;
+      // axis
+      ctx.strokeStyle='rgba(255,255,255,.12)'; ctx.lineWidth=1;
+      for(let t=0;t<=maxT;t++){ const x=ox+ow*t/maxT;
+        ctx.beginPath(); ctx.moveTo(x,oy); ctx.lineTo(x,oy+mtg.length*rowH+6); ctx.stroke();
+        AnimKit.text(ctx,t,x,oy+mtg.length*rowH+18,{color:'#5a6e92',font:'11px JetBrains Mono'});
+      }
+      // lastEnd marker
+      if(lastEnd>=0){ const x=ox+ow*lastEnd/maxT;
+        ctx.save(); ctx.strokeStyle='rgba(0,212,170,.7)'; ctx.lineWidth=2; ctx.setLineDash([4,3]);
+        ctx.beginPath(); ctx.moveTo(x,oy-2); ctx.lineTo(x,oy+mtg.length*rowH+6); ctx.stroke(); ctx.restore();
+      }
+      // bars
+      mtg.forEach((m,k)=>{
+        const x1=ox+ow*m[0]/maxT, x2=ox+ow*m[1]/maxT, y=oy+k*rowH+4, h=rowH-12;
+        let opt,dark=false;
+        if(states[k]===1){opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.5)',border:'rgba(0,212,170,.8)'};dark=true;}
+        else if(states[k]===2)opt={grad:['#3a2540','#2a1a30'],border:'rgba(255,107,107,.4)'};
+        else if(k===active){opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.8)'};dark=true;}
+        else opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.4)'};
+        AnimKit.cell(ctx,x1,y,Math.max(x2-x1,26),h,opt);
+        AnimKit.text(ctx,`(${m[0]},${m[1]})`,(x1+Math.max(x2,x1+26))/2,y+h/2,{color:dark?'#0a1428':'#cfe0ff',font:'bold 12px JetBrains Mono'});
+      });
+    }
+    function step(){
+      if(done) return;
+      if(i>=mtg.length){ done=true; note.innerHTML=`All processed. Maximum non-overlapping meetings = <b>${count}</b> \u2713`; draw(); return; }
+      const m=mtg[i];
+      if(m[0]>lastEnd){ states[i]=1; count++; lastEnd=m[1];
+        note.innerHTML=`Meeting (${m[0]},${m[1]}): starts after lastEnd \u2192 <b>PICK</b> (count=${count}).`;
+        document.getElementById('a8count').textContent=count;
+        document.getElementById('a8last').textContent=lastEnd;
+      } else { states[i]=2;
+        note.innerHTML=`Meeting (${m[0]},${m[1]}): starts before lastEnd=${lastEnd} \u2192 <b>SKIP</b>.`;
+      }
+      draw(i); i++;
+    }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(done){stop();return;} step(); },850); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Returns the maximum number of non-overlapping meetings that fit in one room.
@@ -741,26 +1338,26 @@ flowchart TD
  * that ends earliest leaves the largest possible suffix for the rest -- so always
  * take the meeting that finishes soonest.
  */
-int maxMeetings(int[] startTimes, int[] endTimes){
-  int meetingCount = startTimes.length;
+int maxMeetings(int[] start, int[] end){
+  int n = start.length;
 
   // We sort INDICES (not times) so we can still look up matching start/end pairs.
-  Integer[] meetingsByEndTime = new Integer[meetingCount];
-  for(int i = 0; i &lt; meetingCount; i++) meetingsByEndTime[i] = i;
-  Arrays.sort(meetingsByEndTime, (a, b) -&gt; endTimes[a] - endTimes[b]);
+  Integer[] order = new Integer[n];
+  for(int i = 0; i &lt; n; i++) order[i] = i;
+  Arrays.sort(order, (a, b) -&gt; end[a] - end[b]);
 
   // The earliest-ending meeting is always part of an optimal answer.
-  int meetingsHeld = 1;
-  int lastEndTime  = endTimes[meetingsByEndTime[0]];
+  int cnt = 1;
+  int last = end[order[0]];
 
-  for(int i = 1; i &lt; meetingCount; i++){
-    int meetingIdx = meetingsByEndTime[i];
-    if(startTimes[meetingIdx] &gt; lastEndTime){               // strictly after previous end
-      meetingsHeld++;
-      lastEndTime = endTimes[meetingIdx];
+  for(int i = 1; i &lt; n; i++){
+    int j = order[i];
+    if(start[j] &gt; last){                                    // strictly after previous end
+      cnt++;
+      last = end[j];
     }
   }
-  return meetingsHeld;
+  return cnt;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n log n)</b></div><div>Space <b>O(n)</b></div></div>
 
@@ -860,20 +1457,108 @@ flowchart TD
   NP --> P4["skip a 1"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-9" class="anim-canvas" width="720" height="320"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM9.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM9.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM9.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-9">Array [1,2,3]. Each level decides pick/skip. Leaves collect the 2³ = 8 subset sums.</div>
+  </div>
+  <script>
+  const ANIM9 = (function(){
+    const cv=document.getElementById('animc-9');
+    const note=document.getElementById('anim-note-9');
+    const arr=[1,2,3];
+    // build binary tree: node {sum, depth, x, y, children}
+    let nodes,order,leaves;
+    function build(){
+      nodes=[]; const levelY=[40,120,200,285];
+      function rec(depth,sum,xL,xR){
+        const x=(xL+xR)/2, id=nodes.length;
+        const node={id,depth,sum,x,y:levelY[depth],children:[]};
+        nodes.push(node);
+        if(depth<arr.length){
+          node.children.push(rec(depth+1,sum+arr[depth],xL,(xL+xR)/2));
+          node.children.push(rec(depth+1,sum,(xL+xR)/2,xR));
+        }
+        return id;
+      }
+      rec(0,0,30,690);
+      // preorder DFS visiting order
+      order=[]; (function dfs(id){ order.push(id); nodes[id].children.forEach(dfs); })(0);
+      leaves=[];
+    }
+    let step_i,done,visited,timer;
+    function reset(){ build(); step_i=0; done=false; visited=new Set(); leaves=[]; stop();
+      note.innerHTML='Array [1,2,3]. Each level decides pick/skip. Leaves collect the 2\u00b3 = 8 subset sums.';
+      draw(); }
+    function draw(cur){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      // edges
+      nodes.forEach(nd=>{
+        nd.children.forEach((cid,ci)=>{
+          const c=nodes[cid];
+          const on=visited.has(cid);
+          ctx.strokeStyle=on?(ci===0?'rgba(0,212,170,.7)':'rgba(91,141,238,.6)'):'rgba(255,255,255,.08)';
+          ctx.lineWidth=on?2.2:1.2;
+          ctx.beginPath(); ctx.moveTo(nd.x,nd.y); ctx.lineTo(c.x,c.y); ctx.stroke();
+          const mx=(nd.x+c.x)/2, my=(nd.y+c.y)/2;
+          if(on){ AnimKit.text(ctx,ci===0?'+'+arr[nd.depth]:'skip',mx,my,{color:ci===0?'#00d4aa':'#8aa0c4',font:'10px Inter'}); }
+        });
+      });
+      // nodes
+      nodes.forEach(nd=>{
+        const isLeaf=nd.depth===arr.length, isCur=nd.id===cur, on=visited.has(nd.id);
+        const r=isLeaf?17:15;
+        ctx.save();
+        if(isCur){ ctx.shadowColor='rgba(245,200,66,.6)'; ctx.shadowBlur=16; }
+        const g=ctx.createLinearGradient(nd.x,nd.y-r,nd.x,nd.y+r);
+        if(isCur){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+        else if(isLeaf&&on){ g.addColorStop(0,'#1ad9b0'); g.addColorStop(1,'#0aa37e'); }
+        else if(on){ g.addColorStop(0,'#1b3566'); g.addColorStop(1,'#152a52'); }
+        else { g.addColorStop(0,'#13213d'); g.addColorStop(1,'#0e1a30'); }
+        ctx.beginPath(); ctx.arc(nd.x,nd.y,r,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(nd.x,nd.y,r,0,Math.PI*2);
+        ctx.strokeStyle=isCur?'rgba(245,200,66,.9)':on?'rgba(91,141,238,.5)':'rgba(255,255,255,.10)'; ctx.lineWidth=1.4; ctx.stroke();
+        AnimKit.text(ctx,nd.sum,nd.x,nd.y,{color:(isCur||(isLeaf&&on))?'#0a1428':'#cfe0ff',font:'bold 13px JetBrains Mono'});
+      });
+      // collected sums
+      AnimKit.text(ctx,'subset sums: ['+leaves.join(', ')+']',W/2,H-8,{color:'#f5c842',font:'bold 13px JetBrains Mono'});
+    }
+    function step(){
+      if(done) return;
+      if(step_i>=order.length){ done=true; note.innerHTML=`Done \u2713 All 8 subset sums collected: [${leaves.join(', ')}]`; draw(); return; }
+      const id=order[step_i]; visited.add(id); const nd=nodes[id];
+      if(nd.depth===arr.length){ leaves.push(nd.sum);
+        note.innerHTML=`Leaf reached \u2192 record subset sum <b>${nd.sum}</b>.`; }
+      else note.innerHTML=`At depth ${nd.depth}, running sum ${nd.sum}: branch <b>pick</b> (+${arr[nd.depth]}) then <b>skip</b>.`;
+      draw(id); step_i++;
+    }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(done){stop();return;} step(); },550); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Generates the sums of every one of the 2^n subsets of `nums`.
  * Pure pick / skip recursion: at each index decide whether to include `nums[index]`.
  */
-void collectSubsetSums(int index, int runningSum, int[] nums, List&lt;Integer&gt; allSums){
-  if(index == nums.length){             // leaf: every element decided
-    allSums.add(runningSum);
+void collectSubsetSums(int i, int sum, int[] nums, List&lt;Integer&gt; res){
+  if(i == nums.length){                 // leaf: every element decided
+    res.add(sum);
     return;
   }
-  // Branch 1: PICK nums[index]  -- add it to the running sum
-  collectSubsetSums(index + 1, runningSum + nums[index], nums, allSums);
-  // Branch 2: SKIP nums[index]  -- leave the running sum unchanged
-  collectSubsetSums(index + 1, runningSum,               nums, allSums);
+  // Branch 1: PICK nums[i]  -- add it to the running sum
+  collectSubsetSums(i + 1, sum + nums[i], nums, res);
+  // Branch 2: SKIP nums[i]  -- leave the running sum unchanged
+  collectSubsetSums(i + 1, sum,               nums, res);
 }</code></pre>
   <div class="complexity"><div>Time <b>O(2ⁿ)</b></div><div>Space <b>O(n) recursion</b></div></div>
 </article>
@@ -923,34 +1608,109 @@ flowchart TD
   C --> L[Leaf -&gt; record permutation]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-10" class="anim-canvas" width="720" height="330"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM10.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM10.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM10.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-10">Array [1,2,3]. At each level we fix one slot by swapping in each remaining candidate. Leaves are the 3! = 6 permutations.</div>
+  </div>
+  <script>
+  const ANIM10 = (function(){
+    const cv=document.getElementById('animc-10');
+    const note=document.getElementById('anim-note-10');
+    let nodes,order,leaves,leafX;
+    function build(){
+      nodes=[]; leafX=30; const levelY=[34,120,206,292];
+      // node {arr, depth, fixed(index just fixed), x, y, children}
+      function rec(arr,depth){
+        const id=nodes.length;
+        const node={id,arr:arr.slice(),depth,y:levelY[depth],children:[],x:0};
+        nodes.push(node);
+        if(depth===arr.length){ node.x=leafX; leafX+=Math.min(118,(690-30)/5); }
+        else {
+          for(let j=depth;j<arr.length;j++){
+            const a=arr.slice(); [a[depth],a[j]]=[a[j],a[depth]];
+            node.children.push(rec(a,depth+1));
+          }
+          node.x = (nodes[node.children[0]].x + nodes[node.children[node.children.length-1]].x)/2;
+        }
+        return id;
+      }
+      rec([1,2,3],0);
+      order=[]; (function dfs(id){ order.push(id); nodes[id].children.forEach(dfs); })(0);
+    }
+    let step_i,done,visited,timer;
+    function reset(){ build(); step_i=0; done=false; visited=new Set(); leaves=[]; stop();
+      note.innerHTML='Array [1,2,3]. At each level we fix one slot by swapping in each remaining candidate. Leaves are the 3! = 6 permutations.';
+      draw(); }
+    function draw(cur){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      nodes.forEach(nd=>{ nd.children.forEach(cid=>{ const c=nodes[cid], on=visited.has(cid);
+        ctx.strokeStyle=on?'rgba(91,141,238,.6)':'rgba(255,255,255,.07)'; ctx.lineWidth=on?2:1.1;
+        ctx.beginPath(); ctx.moveTo(nd.x,nd.y+12); ctx.lineTo(c.x,c.y-12); ctx.stroke();
+      }); });
+      nodes.forEach(nd=>{
+        const isLeaf=nd.depth===nd.arr.length, isCur=nd.id===cur, on=visited.has(nd.id);
+        const label='['+nd.arr.join(',')+']';
+        const w=46,h=24,x=nd.x-w/2,y=nd.y-h/2;
+        let opt,dark=false;
+        if(isCur){opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.55)',border:'rgba(245,200,66,.85)'};dark=true;}
+        else if(isLeaf&&on){opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.45)',border:'rgba(0,212,170,.8)'};dark=true;}
+        else if(on)opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.5)'};
+        else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.10)'};
+        AnimKit.cell(ctx,x,y,w,h,opt);
+        AnimKit.text(ctx,label,nd.x,nd.y,{color:dark?'#0a1428':'#cfe0ff',font:'bold 12px JetBrains Mono'});
+      });
+      AnimKit.text(ctx,leaves.length?('found: '+leaves.map(p=>p.join('')).join('  ')):'',W/2,H-7,{color:'#f5c842',font:'bold 12px JetBrains Mono'});
+    }
+    function step(){
+      if(done) return;
+      if(step_i>=order.length){ done=true; note.innerHTML=`Done \u2713 All 6 permutations: ${leaves.map(p=>'['+p.join(',')+']').join(', ')}`; draw(); return; }
+      const id=order[step_i]; visited.add(id); const nd=nodes[id];
+      if(nd.depth===nd.arr.length){ leaves.push(nd.arr.slice());
+        note.innerHTML=`All slots fixed \u2192 record permutation <b>[${nd.arr.join(',')}]</b>.`; }
+      else note.innerHTML=`Fix slot ${nd.depth}: try swapping in each candidate from index ${nd.depth}.`;
+      draw(id); step_i++;
+    }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(done){stop();return;} step(); },520); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Generates every permutation of `nums` via swap-in-place backtracking.
- * `prefixLength` is the number of slots already fixed; positions [0..prefixLength)
- * hold the chosen prefix, positions [prefixLength..n) hold the remaining pool to try.
+ * `k` is the number of slots already fixed; positions [0..k)
+ * hold the chosen prefix, positions [k..n) hold the remaining pool to try.
  */
-void permute(int prefixLength, int[] nums, List&lt;List&lt;Integer&gt;&gt; allPermutations){
-  if(prefixLength == nums.length){
+void permute(int k, int[] nums, List&lt;List&lt;Integer&gt;&gt; res){
+  if(k == nums.length){
     // All slots filled -- record an immutable snapshot of nums.
-    List&lt;Integer&gt; permutationSnapshot = new ArrayList&lt;&gt;(nums.length);
-    for(int value : nums) permutationSnapshot.add(value);
-    allPermutations.add(permutationSnapshot);
+    List&lt;Integer&gt; perm = new ArrayList&lt;&gt;(nums.length);
+    for(int x : nums) perm.add(x);
+    res.add(perm);
     return;
   }
 
-  // Try each remaining candidate in the slot at index `prefixLength`.
-  for(int candidateIdx = prefixLength; candidateIdx &lt; nums.length; candidateIdx++){
-    swap(nums, prefixLength, candidateIdx);            // place candidate into slot
-    permute(prefixLength + 1, nums, allPermutations);  // recurse on the smaller subproblem
-    swap(nums, prefixLength, candidateIdx);            // backtrack: restore for next try
+  // Try each remaining candidate in the slot at index `k`.
+  for(int j = k; j &lt; nums.length; j++){
+    swap(nums, k, j);            // place candidate into slot
+    permute(k + 1, nums, res);   // recurse on the smaller subproblem
+    swap(nums, k, j);            // backtrack: restore for next try
   }
 }
 
 /** In-place swap helper. */
 void swap(int[] arr, int i, int j){
-  int temp = arr[i];
+  int t = arr[i];
   arr[i]   = arr[j];
-  arr[j]   = temp;
+  arr[j]   = t;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n · n!)</b></div><div>Space <b>O(n)</b></div></div>
 </article>
@@ -1005,18 +1765,81 @@ flowchart TD
     </ol>
   </div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-11" class="anim-canvas" width="720" height="180"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM11.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM11.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM11.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">lo <b id="a11lo">1</b> · hi <b id="a11hi">27</b> · mid <b id="a11mid">–</b> · mid³ <b id="a11pow">–</b></div>
+    <div class="anim-note" id="anim-note-11">n=3, m=27. Binary-search the answer range [1,27]; the function x³ is monotonic.</div>
+  </div>
+  <script>
+  const ANIM11 = (function(){
+    const cv=document.getElementById('animc-11');
+    const note=document.getElementById('anim-note-11');
+    const n=3,m=27;
+    let lo,hi,mid,found,done,timer;
+    function powCap(x){ let r=1; for(let i=0;i<n;i++){ r*=x; if(r>m) return m+1; } return r; }
+    function reset(){ lo=1;hi=m;mid=null;found=null;done=false; stop();
+      setStats();
+      note.innerHTML='n=3, m=27. Binary-search the answer range [1,27]; the function x\u00b3 is monotonic.';
+      draw(); }
+    function setStats(){
+      document.getElementById('a11lo').textContent=lo;
+      document.getElementById('a11hi').textContent=hi;
+      document.getElementById('a11mid').textContent=mid??'–';
+      document.getElementById('a11pow').textContent=mid?(powCap(mid)>m?'>m':powCap(mid)):'–';
+    }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const N=m, ox=24, gap=(W-48)/N, cw=gap-3, y=54, h=42;
+      for(let v=1;v<=N;v++){
+        const x=ox+(v-1)*gap;
+        const inWin=v>=lo&&v<=hi, isMid=v===mid, isFound=found===v;
+        let opt,dark=false;
+        if(isFound){opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.55)',border:'rgba(0,212,170,.85)'};dark=true;}
+        else if(isMid){opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.85)'};dark=true;}
+        else if(inWin)opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.5)'};
+        else opt={grad:['#101c33','#0c1626'],border:'rgba(255,255,255,.06)'};
+        AnimKit.cell(ctx,x,y,cw,h,opt);
+        AnimKit.text(ctx,v,x+cw/2,y+h/2,{color:dark?'#0a1428':(inWin?'#cfe0ff':'#4a5a78'),font:'bold 11px JetBrains Mono'});
+      }
+      if(lo<=hi){
+        AnimKit.text(ctx,'lo',ox+(lo-1)*gap+cw/2,y-12,{color:'#5b8dee',font:'bold 11px Inter'});
+        AnimKit.text(ctx,'hi',ox+(hi-1)*gap+cw/2,y+h+14,{color:'#5b8dee',font:'bold 11px Inter'});
+      }
+    }
+    function step(){
+      if(done) return;
+      if(lo>hi){ done=true; note.innerHTML='lo &gt; hi \u2192 no integer root \u2192 return <b>-1</b>'; draw(); return; }
+      mid=Math.floor((lo+hi)/2); const p=powCap(mid); setStats();
+      if(p===m){ found=mid; done=true; note.innerHTML=`mid=${mid}, ${mid}\u00b3=${mid*mid*mid} == m \u2192 <b>return ${mid}</b> \u2713`; draw(); return; }
+      if(p<m){ note.innerHTML=`mid=${mid}, ${mid}\u00b3=${p} &lt; 27 \u2192 go right, lo=${mid+1}`; lo=mid+1; }
+      else { note.innerHTML=`mid=${mid}, ${mid}\u00b3 ${powCap(mid)>m?'overflows cap ':''}&gt; 27 \u2192 go left, hi=${mid-1}`; hi=mid-1; }
+      draw();
+    }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(done){stop();return;} step(); },900); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Computes base^exponent but caps the result at (cap + 1) once the cap is exceeded.
  * Lets us compare big powers against `cap` without ever overflowing.
  */
-long powerWithCap(long base, int exponent, long cap){
-  long result = 1;
-  for(int step = 0; step &lt; exponent; step++){
-    result *= base;
-    if(result &gt; cap) return cap + 1;       // early break -- we only care if it exceeded cap
+long powerWithCap(long base, int exp, long cap){
+  long res = 1;
+  for(int i = 0; i &lt; exp; i++){
+    res *= base;
+    if(res &gt; cap) return cap + 1;       // early break -- we only care if it exceeded cap
   }
-  return result;
+  return res;
 }
 
 /**
@@ -1024,14 +1847,14 @@ long powerWithCap(long base, int exponent, long cap){
  * Binary searches the answer range [1..m] because x -&gt; x^n is monotonically increasing.
  */
 int nthRoot(int n, int m){
-  long low = 1, high = m;
-  while(low &lt;= high){
-    long midCandidate  = (low + high) / 2;
-    long midToThePower = powerWithCap(midCandidate, n, m);
+  long lo = 1, hi = m;
+  while(lo &lt;= hi){
+    long mid = (lo + hi) / 2;
+    long p   = powerWithCap(mid, n, m);
 
-    if(midToThePower == m)       return (int) midCandidate;
-    else if(midToThePower &lt; m)   low  = midCandidate + 1;
-    else                         high = midCandidate - 1;
+    if(p == m)       return (int) mid;
+    else if(p &lt; m)   lo  = mid + 1;
+    else             hi = mid - 1;
   }
   return -1;
 }</code></pre>
@@ -1084,6 +1907,90 @@ flowchart TD
   E["extractMax: take data[0]"] --> M["move last to index 0"]
   M --> SD["sift-down while child &gt; node"]
   </pre></div>
+
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-12" class="anim-canvas" width="720" height="300"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM12.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM12.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM12.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-12">Insert 5, 3, 8, 1, 9 one by one. Each new value sifts up while it is bigger than its parent.</div>
+  </div>
+  <script>
+  const ANIM12 = (function(){
+    const cv=document.getElementById('animc-12');
+    const note=document.getElementById('anim-note-12');
+    const vals=[5,3,8,1,9];
+    // precompute frames
+    function buildFrames(){
+      const f=[], heap=[];
+      vals.forEach(v=>{
+        heap.push(v); let i=heap.length-1;
+        f.push({arr:heap.slice(),act:i,par:-1,msg:`insert ${v}: place at end (index ${i}).`});
+        while(i>0){ const p=(i-1>>1);
+          if(heap[i]<=heap[p]){ f.push({arr:heap.slice(),act:i,par:p,ok:true,msg:`${heap[i]} \u2264 parent ${heap[p]} \u2192 stop.`}); break; }
+          f.push({arr:heap.slice(),act:i,par:p,cmp:true,msg:`${heap[i]} &gt; parent ${heap[p]} \u2192 swap up.`});
+          [heap[i],heap[p]]=[heap[p],heap[i]];
+          f.push({arr:heap.slice(),act:p,par:-1,msg:`after swap \u2192 [${heap.join(',')}]`});
+          i=p;
+        }
+        if(i===0) f.push({arr:heap.slice(),act:0,par:-1,msg:`reached root \u2192 [${heap.join(',')}]`});
+      });
+      f.push({arr:heap.slice(),act:-1,par:-1,done:true,msg:`All inserted. Max-heap = [${heap.join(',')}] \u2713`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=buildFrames(); idx=0; stop();
+      note.innerHTML='Insert 5, 3, 8, 1, 9 one by one. Each new value sifts up while it is bigger than its parent.';
+      draw(); }
+    function pos(i,W){
+      const lvl=Math.floor(Math.log2(i+1)), cnt=1<<lvl, posIn=i-(cnt-1);
+      const y=40+lvl*78, x=W*(posIn+0.5)/cnt;
+      return {x,y};
+    }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx], arr=fr.arr, r=21;
+      // edges
+      for(let i=1;i<arr.length;i++){ const p=(i-1>>1), a=pos(i,W), b=pos(p,W);
+        const hl=(fr.act===i&&fr.par===p);
+        ctx.strokeStyle=hl?(fr.cmp?'rgba(245,200,66,.8)':'rgba(0,212,170,.7)'):'rgba(255,255,255,.09)';
+        ctx.lineWidth=hl?2.4:1.2;
+        ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+      }
+      for(let i=0;i<arr.length;i++){ const p=pos(i,W);
+        const isAct=fr.act===i, isPar=fr.par===i;
+        ctx.save();
+        if(isAct){ ctx.shadowColor=fr.cmp?'rgba(245,200,66,.6)':fr.ok?'rgba(0,212,170,.5)':'rgba(91,141,238,.5)'; ctx.shadowBlur=16; }
+        const g=ctx.createLinearGradient(p.x,p.y-r,p.x,p.y+r);
+        if(isAct&&fr.cmp){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+        else if(isAct&&fr.ok){ g.addColorStop(0,'#1ad9b0'); g.addColorStop(1,'#0aa37e'); }
+        else if(isAct){ g.addColorStop(0,'#5b8dee'); g.addColorStop(1,'#3a6bd0'); }
+        else if(isPar){ g.addColorStop(0,'#1f3b6e'); g.addColorStop(1,'#16294e'); }
+        else { g.addColorStop(0,'#15294e'); g.addColorStop(1,'#0f1f3d'); }
+        ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
+        ctx.strokeStyle=isAct?'rgba(255,255,255,.5)':'rgba(255,255,255,.12)'; ctx.lineWidth=1.4; ctx.stroke();
+        AnimKit.text(ctx,arr[i],p.x,p.y,{color:(isAct&&(fr.cmp||fr.ok))?'#0a1428':'#e6edf7',font:'bold 16px JetBrains Mono'});
+        AnimKit.text(ctx,i,p.x+r-3,p.y-r+2,{color:'#5a6e92',font:'9px JetBrains Mono'});
+      }
+      // array form
+      const ay=H-26, aw=34, ax=W/2-arr.length*aw/2;
+      for(let i=0;i<arr.length;i++){ const x=ax+i*aw;
+        AnimKit.cell(ctx,x,ay,aw-4,22,{grad:fr.act===i?['#5b8dee','#3a6bd0']:['#13213d','#0e1a30'],border:'rgba(255,255,255,.1)'});
+        AnimKit.text(ctx,arr[i],x+(aw-4)/2,ay+11,{color:'#cfe0ff',font:'bold 12px JetBrains Mono'});
+      }
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },700); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
 
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">class MaxHeap{
@@ -1178,30 +2085,92 @@ flowchart LR
   Pop["pop"] --> Dec["read arr top then top--"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-13" class="anim-canvas" width="720" height="280"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM13.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM13.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM13.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">top <b id="a13top">−1</b> · size <b id="a13size">0</b></div>
+    <div class="anim-note" id="anim-note-13">Operations: push(10), push(20), push(30), top(), pop(), size(). Only the top index changes.</div>
+  </div>
+  <script>
+  const ANIM13 = (function(){
+    const cv=document.getElementById('animc-13');
+    const note=document.getElementById('anim-note-13');
+    const ops=[['push',10],['push',20],['push',30],['top'],['pop'],['size']];
+    let stack,top,i,flash,timer,done;
+    function reset(){ stack=[];top=-1;i=0;flash=null;done=false; stop();
+      setStats();
+      note.innerHTML='Operations: push(10), push(20), push(30), top(), pop(), size(). Only the top index changes.';
+      draw(); }
+    function setStats(){ document.getElementById('a13top').textContent=top; document.getElementById('a13size').textContent=top+1; }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const cap=5, cw=120, ch=40, cx=W/2-cw/2, base=H-30;
+      for(let s=0;s<cap;s++){
+        const y=base-(s+1)*ch+6, has=s<stack.length;
+        const isFlash=flash&&flash.idx===s;
+        let opt,dark=false;
+        if(isFlash&&flash.type==='push'){opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.5)',border:'rgba(0,212,170,.85)'};dark=true;}
+        else if(isFlash&&flash.type==='pop'){opt={grad:['#3a2540','#2a1a30'],border:'rgba(255,107,107,.6)'};}
+        else if(isFlash&&flash.type==='peek'){opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.85)'};dark=true;}
+        else if(has)opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.5)'};
+        else opt={grad:['#0e1729','#0b1320'],border:'rgba(255,255,255,.05)'};
+        AnimKit.cell(ctx,cx,y,cw,ch-4,opt);
+        if(has||isFlash) AnimKit.text(ctx,isFlash&&flash.type==='pop'?flash.val:stack[s],cx+cw/2,y+(ch-4)/2,{color:dark?'#0a1428':(has?'#cfe0ff':'#3a4a68'),font:'bold 16px JetBrains Mono'});
+        AnimKit.text(ctx,s,cx-16,y+(ch-4)/2,{color:'#5a6e92',font:'11px JetBrains Mono'});
+      }
+      // top pointer arrow
+      if(top>=0){ const y=base-(top+1)*ch+6+(ch-4)/2;
+        ctx.save(); ctx.fillStyle='#f5c842'; ctx.font='bold 12px Inter';
+        AnimKit.text(ctx,'top \u2192',cx+cw+34,y,{color:'#f5c842',font:'bold 12px Inter'}); ctx.restore();
+      }
+    }
+    function step(){
+      if(done) return;
+      if(i>=ops.length){ done=true; note.innerHTML='All operations done \u2713'; flash=null; draw(); return; }
+      const op=ops[i]; flash=null;
+      if(op[0]==='push'){ stack.push(op[1]); top++; flash={type:'push',idx:top,val:op[1]};
+        note.innerHTML=`<b>push(${op[1]})</b>: top++ \u2192 ${top}, store at index ${top}.`; }
+      else if(op[0]==='top'){ flash={type:'peek',idx:top}; note.innerHTML=`<b>top()</b> \u2192 returns arr[${top}] = ${stack[top]} (no change).`; }
+      else if(op[0]==='pop'){ const v=stack.pop(); flash={type:'pop',idx:top,val:v}; top--; note.innerHTML=`<b>pop()</b> \u2192 returns ${v}, top-- \u2192 ${top}.`; }
+      else if(op[0]==='size'){ note.innerHTML=`<b>size()</b> \u2192 top+1 = ${top+1}.`; flash=null; }
+      setStats(); draw(); i++;
+    }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(done){stop();return;} step(); },900); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Fixed-capacity stack backed by a primitive int array. All ops are O(1).
  */
 class ArrayStack{
-  private final int[] buffer;        // underlying storage; never resized
-  private int topIndex = -1;         // index of the current top; -1 means "empty"
+  private final int[] arr;           // underlying storage; never resized
+  private int top = -1;              // index of the current top; -1 means "empty"
 
-  ArrayStack(int capacity){ this.buffer = new int[capacity]; }
+  ArrayStack(int capacity){ this.arr = new int[capacity]; }
 
   /** Pushes a value on top. Caller must ensure capacity. */
-  void push(int value){ buffer[++topIndex] = value; }
+  void push(int x){ arr[++top] = x; }
 
   /** Removes and returns the top value. Caller must ensure non-empty. */
-  int  pop()      { return buffer[topIndex--]; }
+  int  pop()      { return arr[top--]; }
 
   /** Returns the top value without removing it. */
-  int  peek()     { return buffer[topIndex]; }
+  int  peek()     { return arr[top]; }
 
   /** Number of elements currently in the stack. */
-  int  size()     { return topIndex + 1; }
+  int  size()     { return top + 1; }
 
   /** Whether the stack is empty. */
-  boolean isEmpty(){ return topIndex == -1; }
+  boolean isEmpty(){ return top == -1; }
 }</code></pre>
   <div class="complexity"><div>Time <b>O(1)</b> per op</div><div>Space <b>O(capacity)</b></div></div>
 </article>
@@ -1258,6 +2227,85 @@ flowchart TD
   P --> I
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-14" class="anim-canvas" width="720" height="280"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM14.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM14.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM14.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-14">[4, 8, 5, 2, 25]. Walk right→left with a monotonic increasing stack; the top is each element's next-smaller.</div>
+  </div>
+  <script>
+  const ANIM14 = (function(){
+    const cv=document.getElementById('animc-14');
+    const note=document.getElementById('anim-note-14');
+    const arr=[4,8,5,2,25];
+    // frames
+    function build(){
+      const f=[], st=[], ans=new Array(arr.length).fill(null);
+      for(let i=arr.length-1;i>=0;i--){
+        f.push({i,st:st.slice(),ans:ans.slice(),phase:'look',msg:`i=${i} (value ${arr[i]}): pop stack while top \u2265 ${arr[i]}.`});
+        while(st.length && st[st.length-1]>=arr[i]){
+          f.push({i,st:st.slice(),ans:ans.slice(),phase:'pop',msg:`top ${st[st.length-1]} \u2265 ${arr[i]} \u2192 pop.`});
+          st.pop();
+        }
+        ans[i]= st.length? st[st.length-1] : -1;
+        f.push({i,st:st.slice(),ans:ans.slice(),phase:'ans',msg:`nextSmaller[${i}] = ${ans[i]==-1?'-1 (stack empty)':ans[i]}.`});
+        st.push(arr[i]);
+        f.push({i,st:st.slice(),ans:ans.slice(),phase:'push',msg:`push ${arr[i]} as candidate for indices to the left.`});
+      }
+      f.push({i:-1,st:st.slice(),ans:ans.slice(),done:true,msg:`Done \u2713 nextSmaller = [${ans.join(', ')}]`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop();
+      note.innerHTML='[4, 8, 5, 2, 25]. Walk right\u2192left with a monotonic increasing stack; the top is each element\u0027s next-smaller.';
+      draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      // array row
+      const n=arr.length, aw=58, ax=W/2-n*aw/2, ay=40;
+      AnimKit.text(ctx,'array',ax-30,ay+22,{color:'#8aa0c4',font:'11px Inter',align:'right'});
+      for(let k=0;k<n;k++){ const x=ax+k*aw;
+        const isCur=fr.i===k;
+        let opt,dark=false;
+        if(isCur){opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.85)'};dark=true;}
+        else if(fr.i>=0&&k<fr.i)opt={grad:['#101c33','#0c1626'],border:'rgba(255,255,255,.06)'};
+        else opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.4)'};
+        AnimKit.cell(ctx,x,ay,aw-6,44,opt);
+        AnimKit.text(ctx,arr[k],x+(aw-6)/2,ay+22,{color:dark?'#0a1428':'#cfe0ff',font:'bold 16px JetBrains Mono'});
+        AnimKit.text(ctx,k,x+(aw-6)/2,ay+58,{color:'#5a6e92',font:'10px JetBrains Mono'});
+      }
+      // ans row
+      const ry=ay+92;
+      AnimKit.text(ctx,'ans',ax-30,ry+18,{color:'#8aa0c4',font:'11px Inter',align:'right'});
+      for(let k=0;k<n;k++){ const x=ax+k*aw, val=fr.ans[k];
+        const set=val!==null;
+        AnimKit.cell(ctx,x,ry,aw-6,36,{grad:set?['#0f3a33','#0c2b27']:['#0e1729','#0b1320'],border:set?'rgba(0,212,170,.4)':'rgba(255,255,255,.05)'});
+        if(set) AnimKit.text(ctx,val,x+(aw-6)/2,ry+18,{color:'#7ff0d4',font:'bold 14px JetBrains Mono'});
+      }
+      // stack (horizontal, growing right)
+      const sy=ry+74, sw=46;
+      AnimKit.text(ctx,'stack',ax-30,sy+16,{color:'#8aa0c4',font:'11px Inter',align:'right'});
+      ctx.strokeStyle='rgba(255,255,255,.1)'; ctx.strokeRect(ax-2,sy-2,n*sw+4,36);
+      fr.st.forEach((v,si)=>{ const x=ax+si*sw;
+        const isTop=si===fr.st.length-1;
+        const popping=fr.phase==='pop'&&isTop;
+        AnimKit.cell(ctx,x,sy,sw-6,32,{grad:popping?['#3a2540','#2a1a30']:isTop?['#1f3b6e','#16294e']:['#15294e','#0f1f3d'],glow:popping?'rgba(255,107,107,.4)':null,border:popping?'rgba(255,107,107,.6)':isTop?'rgba(91,141,238,.6)':'rgba(255,255,255,.1)'});
+        AnimKit.text(ctx,v,x+(sw-6)/2,sy+16,{color:'#cfe0ff',font:'bold 14px JetBrains Mono'});
+      });
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },750); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * For each i, returns the FIRST element strictly smaller than nums[i] to the right,
@@ -1265,25 +2313,25 @@ flowchart TD
  */
 int[] nextSmallerElement(int[] nums){
   int n = nums.length;
-  int[] nextSmaller = new int[n];
+  int[] res = new int[n];
 
   // Stack of values seen to the right of `i`. Kept monotonically INCREASING from top down,
   // so the top is always the smallest "still useful" candidate for any future i.
-  Deque&lt;Integer&gt; candidateStack = new ArrayDeque&lt;&gt;();
+  Deque&lt;Integer&gt; st = new ArrayDeque&lt;&gt;();
 
   for(int i = n - 1; i &gt;= 0; i--){
-    int currentValue = nums[i];
+    int x = nums[i];
 
     // Anything &gt;= current can never be the "next smaller" for indices to the LEFT of i,
     // because i itself is closer and smaller-or-equal. Pop them.
-    while(!candidateStack.isEmpty() &amp;&amp; candidateStack.peek() &gt;= currentValue){
-      candidateStack.pop();
+    while(!st.isEmpty() &amp;&amp; st.peek() &gt;= x){
+      st.pop();
     }
 
-    nextSmaller[i] = candidateStack.isEmpty() ? -1 : candidateStack.peek();
-    candidateStack.push(currentValue);            // current becomes a candidate for i-1, i-2, ...
+    res[i] = st.isEmpty() ? -1 : st.peek();
+    st.push(x);                                   // current becomes a candidate for i-1, i-2, ...
   }
-  return nextSmaller;
+  return res;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(n)</b></div></div>
 </article>
@@ -1333,31 +2381,85 @@ flowchart LR
   W --> O["blue is sky the"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-15" class="anim-canvas" width="720" height="200"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM15.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM15.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM15.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-15">"the sky is blue" — walk right→left, append each word to the result in reverse order.</div>
+  </div>
+  <script>
+  const ANIM15 = (function(){
+    const cv=document.getElementById('animc-15');
+    const note=document.getElementById('anim-note-15');
+    const words=['the','sky','is','blue'];
+    let picked,i,done,timer;
+    function reset(){ picked=[]; i=words.length-1; done=false; stop();
+      note.innerHTML='&quot;the sky is blue&quot; \u2014 walk right\u2192left, append each word to the result in reverse order.';
+      draw(-1); }
+    function draw(active){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      // source words
+      const sy=42, ww=130, gap=14, totalW=words.length*ww+(words.length-1)*gap, sx=W/2-totalW/2;
+      AnimKit.text(ctx,'input',sx-8,sy+24,{color:'#8aa0c4',font:'11px Inter',align:'right'});
+      words.forEach((w,k)=>{ const x=sx+k*(ww+gap);
+        const isAct=k===active, taken=k>i;
+        let opt,dark=false;
+        if(isAct){opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.85)'};dark=true;}
+        else if(taken)opt={grad:['#101c33','#0c1626'],border:'rgba(255,255,255,.06)'};
+        else opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.4)'};
+        AnimKit.cell(ctx,x,sy,ww,48,opt);
+        AnimKit.text(ctx,w,x+ww/2,sy+24,{color:dark?'#0a1428':(taken?'#4a5a78':'#cfe0ff'),font:'bold 17px Inter'});
+      });
+      // result
+      const ry=128;
+      AnimKit.text(ctx,'result',sx-8,ry+24,{color:'#8aa0c4',font:'11px Inter',align:'right'});
+      const res=picked.join(' ')||'\u2026';
+      AnimKit.cell(ctx,sx,ry,totalW,48,{grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.45)'});
+      AnimKit.text(ctx,res,sx+totalW/2,ry+24,{color:'#7ff0d4',font:'bold 18px Inter'});
+    }
+    function step(){
+      if(done) return;
+      if(i<0){ done=true; note.innerHTML=`Done \u2713 result = &quot;${picked.join(' ')}&quot;`; draw(-1); return; }
+      picked.push(words[i]);
+      note.innerHTML=`Pick word &quot;${words[i]}&quot; \u2192 result so far: &quot;${picked.join(' ')}&quot;`;
+      draw(i); i--;
+    }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(done){stop();return;} step(); },800); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Reverses the order of words in a string and collapses any run of spaces to one.
  * Walks right-to-left, picking up one word at a time and appending to a builder.
  */
-String reverseWords(String input){
-  input = input.trim();                                       // drop leading / trailing spaces
-  StringBuilder reversedSentence = new StringBuilder();
+String reverseWords(String s){
+  s = s.trim();                                               // drop leading / trailing spaces
+  StringBuilder sb = new StringBuilder();
 
-  int cursor = input.length() - 1;
-  while(cursor &gt;= 0){
+  int i = s.length() - 1;
+  while(i &gt;= 0){
 
     // Step 1: skip any spaces between words.
-    while(cursor &gt;= 0 &amp;&amp; input.charAt(cursor) == ' ') cursor--;
-    int wordEndInclusive = cursor;
+    while(i &gt;= 0 &amp;&amp; s.charAt(i) == ' ') i--;
+    int end = i;
 
     // Step 2: walk back to the first character of this word.
-    while(cursor &gt;= 0 &amp;&amp; input.charAt(cursor) != ' ') cursor--;
-    int wordStartInclusive = cursor + 1;
+    while(i &gt;= 0 &amp;&amp; s.charAt(i) != ' ') i--;
+    int start = i + 1;
 
     // Step 3: append " word" (or just "word" for the very first token).
-    if(reversedSentence.length() &gt; 0) reversedSentence.append(' ');
-    reversedSentence.append(input, wordStartInclusive, wordEndInclusive + 1);
+    if(sb.length() &gt; 0) sb.append(' ');
+    sb.append(s, start, end + 1);
   }
-  return reversedSentence.toString();
+  return sb.toString();
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(n)</b></div></div>
 </article>
@@ -1416,6 +2518,80 @@ flowchart TD
   U -- yes --> Up["Update L=i, R=i+z i"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-16" class="anim-canvas" width="720" height="220"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM16.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM16.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM16.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-16">s = "aabaa". Compute z[i] using a Z-box [L,R]; inside the box we warm-start from a mirror.</div>
+  </div>
+  <script>
+  const ANIM16 = (function(){
+    const cv=document.getElementById('animc-16');
+    const note=document.getElementById('anim-note-16');
+    const s='aabaa';
+    function build(){
+      const n=s.length, z=new Array(n).fill(null), f=[]; let L=0,R=0;
+      f.push({z:z.slice(),i:-1,L,R,msg:'z[0] = 0 by convention. Start with empty Z-box.'});
+      z[0]=0;
+      for(let i=1;i<n;i++){
+        let start=0;
+        if(i<R){ start=Math.min(R-i,z[i-L]); z[i]=start;
+          f.push({z:z.slice(),i,L,R,mir:i-L,msg:`i=${i} inside box \u2192 warm-start z[${i}]=min(R-i, z[${i-L}])=${start}.`}); }
+        else { z[i]=0; f.push({z:z.slice(),i,L,R,msg:`i=${i} outside box \u2192 start z[${i}]=0, compare from scratch.`}); }
+        while(i+z[i]<n && s[z[i]]===s[i+z[i]]){ z[i]++;
+          f.push({z:z.slice(),i,L,R,cmp:[z[i]-1,i+z[i]-1],msg:`s[${z[i]-1}]='${s[z[i]-1]}' == s[${i+z[i]-1}]='${s[i+z[i]-1]}' \u2192 extend, z[${i}]=${z[i]}.`}); }
+        if(i+z[i]>R){ L=i; R=i+z[i]; f.push({z:z.slice(),i,L,R,box:true,msg:`extended past R \u2192 slide Z-box to [${L},${R}].`}); }
+        else f.push({z:z.slice(),i,L,R,msg:`z[${i}]=${z[i]} fixed; box stays [${L},${R}].`});
+      }
+      f.push({z:z.slice(),i:-1,L,R,done:true,msg:`Done \u2713 z = [${z.join(', ')}]`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop();
+      note.innerHTML='s = &quot;aabaa&quot;. Compute z[i] using a Z-box [L,R]; inside the box we warm-start from a mirror.';
+      draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx], n=s.length, cw=72, ox=W/2-n*cw/2;
+      // Z-box highlight band
+      if(fr.R>fr.L){ ctx.fillStyle='rgba(91,141,238,.10)';
+        ctx.fillRect(ox+fr.L*cw,30,(fr.R-fr.L)*cw-4,54); 
+        AnimKit.text(ctx,`Z-box [${fr.L},${fr.R})`,ox+(fr.L)*cw+((fr.R-fr.L)*cw-4)/2,22,{color:'#5b8dee',font:'bold 11px Inter'});
+      }
+      // chars
+      AnimKit.text(ctx,'s',ox-26,57,{color:'#8aa0c4',font:'11px Inter',align:'right'});
+      for(let k=0;k<n;k++){ const x=ox+k*cw;
+        const isI=fr.i===k, isMir=fr.mir===k, inCmp=fr.cmp&&(fr.cmp[0]===k||fr.cmp[1]===k);
+        let opt,dark=false;
+        if(isI){opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.85)'};dark=true;}
+        else if(inCmp){opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.4)',border:'rgba(0,212,170,.8)'};dark=true;}
+        else if(isMir)opt={grad:['#1f3b6e','#16294e'],border:'rgba(91,141,238,.7)'};
+        else opt={grad:['#15294e','#0f1f3d'],border:'rgba(255,255,255,.1)'};
+        AnimKit.cell(ctx,x,32,cw-6,50,opt);
+        AnimKit.text(ctx,s[k],x+(cw-6)/2,57,{color:dark?'#0a1428':'#cfe0ff',font:'bold 20px JetBrains Mono'});
+        AnimKit.text(ctx,k,x+(cw-6)/2,98,{color:'#5a6e92',font:'10px JetBrains Mono'});
+      }
+      // z row
+      const zy=120;
+      AnimKit.text(ctx,'z',ox-26,zy+20,{color:'#8aa0c4',font:'11px Inter',align:'right'});
+      for(let k=0;k<n;k++){ const x=ox+k*cw, val=fr.z[k];
+        const set=val!==null;
+        AnimKit.cell(ctx,x,zy,cw-6,36,{grad:set?(fr.i===k?['#3a3416','#2a260f']:['#0f3a33','#0c2b27']):['#0e1729','#0b1320'],border:set?'rgba(0,212,170,.4)':'rgba(255,255,255,.05)'});
+        if(set) AnimKit.text(ctx,val,x+(cw-6)/2,zy+18,{color:'#7ff0d4',font:'bold 16px JetBrains Mono'});
+      }
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },800); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Computes the Z-array of `s`: zArray[i] = length of the longest substring starting
@@ -1424,33 +2600,32 @@ flowchart TD
  */
 int[] zFunction(String s){
   int n = s.length();
-  int[] zArray = new int[n];
+  int[] z = new int[n];
 
-  // [zBoxLeft, zBoxRight) is the rightmost-ending "match window" found so far,
-  // i.e. s[zBoxLeft..zBoxRight) equals s[0..zBoxRight - zBoxLeft).
-  int zBoxLeft = 0, zBoxRight = 0;
+  // [l, r) is the rightmost-ending "match window" found so far,
+  // i.e. s[l..r) equals s[0..r - l).
+  int l = 0, r = 0;
 
   for(int i = 1; i &lt; n; i++){
 
     // If i is INSIDE the current Z-box we can warm-start using a mirrored value.
-    if(i &lt; zBoxRight){
-      int mirroredIdx        = i - zBoxLeft;
-      int remainingInBox     = zBoxRight - i;
-      zArray[i] = Math.min(remainingInBox, zArray[mirroredIdx]);
+    if(i &lt; r){
+      int rem = r - i;
+      z[i] = Math.min(rem, z[i - l]);
     }
 
     // Try to extend the match character by character beyond the warm-started value.
-    while(i + zArray[i] &lt; n &amp;&amp; s.charAt(zArray[i]) == s.charAt(i + zArray[i])){
-      zArray[i]++;
+    while(i + z[i] &lt; n &amp;&amp; s.charAt(z[i]) == s.charAt(i + z[i])){
+      z[i]++;
     }
 
     // If we extended past the existing right boundary, slide the Z-box.
-    if(i + zArray[i] &gt; zBoxRight){
-      zBoxLeft  = i;
-      zBoxRight = i + zArray[i];
+    if(i + z[i] &gt; r){
+      l = i;
+      r = i + z[i];
     }
   }
-  return zArray;
+  return z;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(n)</b></div></div>
 </article>
@@ -1506,32 +2681,115 @@ flowchart TD
   S -- yes --> D[Done]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-17" class="anim-canvas" width="720" height="300"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM17.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM17.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM17.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-17">Tree {4,2,6,1,3,5,7}. Walk left pushing onto stack; pop=emit; jump right; repeat.</div>
+  </div>
+  <script>
+  const ANIM17 = (function(){
+    const cv=document.getElementById('animc-17');
+    const note=document.getElementById('anim-note-17');
+    // nodes: id -> {val,l,r,x,y}
+    const T={
+      0:{v:4,l:1,r:2}, 1:{v:2,l:3,r:4}, 2:{v:6,l:5,r:6},
+      3:{v:1,l:-1,r:-1},4:{v:3,l:-1,r:-1},5:{v:5,l:-1,r:-1},6:{v:7,l:-1,r:-1}
+    };
+    const POS={0:{x:360,y:50},1:{x:210,y:115},2:{x:510,y:115},3:{x:130,y:180},4:{x:290,y:180},5:{x:430,y:180},6:{x:590,y:180}};
+    function build(){
+      const f=[], st=[], out=[]; let cur=0;
+      f.push({cur,st:[...st],out:[...out],msg:'curr=root(4). Begin left dive.'});
+      while(cur!==-1 || st.length){
+        while(cur!==-1){ st.push(cur);
+          f.push({cur,st:[...st],out:[...out],push:true,msg:`push ${T[cur].v}, then curr=left.`});
+          cur=T[cur].l;
+        }
+        const top=st.pop(); out.push(T[top].v);
+        f.push({cur:top,st:[...st],out:[...out],pop:true,msg:`stack non-empty \u2192 pop ${T[top].v}, emit it.`});
+        cur=T[top].r;
+        f.push({cur,st:[...st],out:[...out],msg:cur===-1?`right is null \u2192 loop back to pop next.`:`curr=right(${T[cur].v}) \u2192 dive left again.`});
+      }
+      f.push({cur:-1,st:[...st],out:[...out],done:true,msg:`Done \u2713 inorder = [${out.join(', ')}]`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop();
+      note.innerHTML='Tree {4,2,6,1,3,5,7}. Walk left pushing onto stack; pop=emit; jump right; repeat.';
+      draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      // edges
+      Object.entries(T).forEach(([id,nd])=>{ const p=POS[id]; [nd.l,nd.r].forEach(c=>{ if(c<0)return; const cp=POS[c];
+        ctx.strokeStyle='rgba(255,255,255,.10)'; ctx.lineWidth=1.3;
+        ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(cp.x,cp.y); ctx.stroke();
+      });});
+      // nodes
+      Object.entries(T).forEach(([id,nd])=>{ const p=POS[id], idn=+id;
+        const isCur=fr.cur===idn, onSt=fr.st.includes(idn), emitted=fr.out.includes(nd.v) && !onSt && fr.cur!==idn;
+        ctx.save();
+        if(isCur){ ctx.shadowColor=fr.pop?'rgba(0,212,170,.55)':'rgba(245,200,66,.55)'; ctx.shadowBlur=16; }
+        const g=ctx.createLinearGradient(p.x,p.y-20,p.x,p.y+20);
+        if(isCur&&fr.pop){ g.addColorStop(0,'#1ad9b0'); g.addColorStop(1,'#0aa37e'); }
+        else if(isCur){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+        else if(onSt){ g.addColorStop(0,'#1f3b6e'); g.addColorStop(1,'#16294e'); }
+        else if(emitted){ g.addColorStop(0,'#0f3a33'); g.addColorStop(1,'#0c2b27'); }
+        else { g.addColorStop(0,'#13213d'); g.addColorStop(1,'#0e1a30'); }
+        ctx.beginPath(); ctx.arc(p.x,p.y,20,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(p.x,p.y,20,0,Math.PI*2);
+        ctx.strokeStyle=isCur?'rgba(255,255,255,.5)':onSt?'rgba(91,141,238,.7)':emitted?'rgba(0,212,170,.6)':'rgba(255,255,255,.10)';
+        ctx.lineWidth=1.4; ctx.stroke();
+        AnimKit.text(ctx,nd.v,p.x,p.y,{color:(isCur||emitted)?'#0a1428':'#e6edf7',font:'bold 16px JetBrains Mono'});
+      });
+      // stack box
+      const sy=215, sw=44; AnimKit.text(ctx,'stack \u2192',30,sy+15,{color:'#8aa0c4',font:'11px Inter',align:'left'});
+      fr.st.forEach((id,si)=>{ const x=90+si*sw;
+        AnimKit.cell(ctx,x,sy,sw-4,28,{grad:['#1f3b6e','#16294e'],border:'rgba(91,141,238,.6)'});
+        AnimKit.text(ctx,T[id].v,x+(sw-4)/2,sy+14,{color:'#cfe0ff',font:'bold 13px JetBrains Mono'});
+      });
+      // out
+      AnimKit.text(ctx,'output: ['+fr.out.join(', ')+']',W/2,H-12,{color:'#f5c842',font:'bold 13px JetBrains Mono'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },700); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Iterative inorder traversal: Left -&gt; Root -&gt; Right.
  * Use an explicit stack to simulate the call stack of the recursive version.
  */
 List&lt;Integer&gt; inorderTraversal(TreeNode root){
-  List&lt;Integer&gt; inorderResult = new ArrayList&lt;&gt;();
-  Deque&lt;TreeNode&gt; ancestorStack = new ArrayDeque&lt;&gt;();
-  TreeNode currentNode = root;
+  List&lt;Integer&gt; res = new ArrayList&lt;&gt;();
+  Deque&lt;TreeNode&gt; st = new ArrayDeque&lt;&gt;();
+  TreeNode cur = root;
 
-  while(currentNode != null || !ancestorStack.isEmpty()){
+  while(cur != null || !st.isEmpty()){
 
     // 1) Dive as far LEFT as possible, remembering each ancestor on the stack.
-    while(currentNode != null){
-      ancestorStack.push(currentNode);
-      currentNode = currentNode.left;
+    while(cur != null){
+      st.push(cur);
+      cur = cur.left;
     }
 
     // 2) The deepest unvisited ancestor is the next node in inorder.
-    currentNode = ancestorStack.pop();
-    inorderResult.add(currentNode.val);
+    cur = st.pop();
+    res.add(cur.val);
 
     // 3) Now explore its right subtree (which itself starts with another left dive).
-    currentNode = currentNode.right;
+    cur = cur.right;
   }
-  return inorderResult;
+  return res;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b></div></div>
 </article>
@@ -1582,6 +2840,83 @@ flowchart LR
   E --> S
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-18" class="anim-canvas" width="720" height="290"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM18.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM18.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM18.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-18">Tree [3,9,20,null,null,15,7]. Snapshot queue size; drain that many nodes as one level.</div>
+  </div>
+  <script>
+  const ANIM18 = (function(){
+    const cv=document.getElementById('animc-18');
+    const note=document.getElementById('anim-note-18');
+    const T={0:{v:3,l:1,r:2},1:{v:9,l:-1,r:-1},2:{v:20,l:3,r:4},3:{v:15,l:-1,r:-1},4:{v:7,l:-1,r:-1}};
+    const POS={0:{x:360,y:50},1:{x:240,y:120},2:{x:480,y:120},3:{x:400,y:190},4:{x:560,y:190}};
+    function build(){
+      const f=[],levels=[],q=[0];
+      f.push({q:[...q],cur:-1,levels:[],msg:'queue = [3]. Start outer loop.'});
+      while(q.length){
+        const sz=q.length, lvl=[];
+        f.push({q:[...q],cur:-1,levels:[...levels.map(l=>[...l])],snap:sz,msg:`snapshot size=${sz} \u2192 drain ${sz} nodes as one level.`});
+        for(let i=0;i<sz;i++){
+          const id=q.shift(); lvl.push(T[id].v);
+          f.push({q:[...q],cur:id,levels:[...levels.map(l=>[...l]),[...lvl]],msg:`poll ${T[id].v}, add to current level.`});
+          if(T[id].l!==-1){ q.push(T[id].l); f.push({q:[...q],cur:T[id].l,enq:true,levels:[...levels.map(l=>[...l]),[...lvl]],msg:`enqueue left child ${T[T[id].l].v}.`}); }
+          if(T[id].r!==-1){ q.push(T[id].r); f.push({q:[...q],cur:T[id].r,enq:true,levels:[...levels.map(l=>[...l]),[...lvl]],msg:`enqueue right child ${T[T[id].r].v}.`}); }
+        }
+        levels.push(lvl);
+        f.push({q:[...q],cur:-1,levels:[...levels.map(l=>[...l])],msg:`level complete \u2192 [${lvl.join(', ')}]`});
+      }
+      f.push({q:[],cur:-1,levels:[...levels.map(l=>[...l])],done:true,msg:`Done \u2713 levels = [${levels.map(l=>'['+l.join(',')+']').join(', ')}]`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop();
+      note.innerHTML='Tree [3,9,20,null,null,15,7]. Snapshot queue size; drain that many nodes as one level.';
+      draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      Object.entries(T).forEach(([id,nd])=>{ const p=POS[id]; [nd.l,nd.r].forEach(c=>{ if(c<0)return; const cp=POS[c];
+        ctx.strokeStyle='rgba(255,255,255,.10)'; ctx.lineWidth=1.3; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(cp.x,cp.y); ctx.stroke(); });});
+      Object.entries(T).forEach(([id,nd])=>{ const p=POS[id], idn=+id;
+        const isCur=fr.cur===idn, inQ=fr.q.includes(idn), emitted=fr.levels.some(l=>l.includes(nd.v));
+        ctx.save();
+        if(isCur){ ctx.shadowColor=fr.enq?'rgba(91,141,238,.5)':'rgba(245,200,66,.55)'; ctx.shadowBlur=16; }
+        const g=ctx.createLinearGradient(p.x,p.y-20,p.x,p.y+20);
+        if(isCur&&!fr.enq){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+        else if(isCur&&fr.enq){ g.addColorStop(0,'#5b8dee'); g.addColorStop(1,'#3a6bd0'); }
+        else if(inQ){ g.addColorStop(0,'#1f3b6e'); g.addColorStop(1,'#16294e'); }
+        else if(emitted){ g.addColorStop(0,'#0f3a33'); g.addColorStop(1,'#0c2b27'); }
+        else { g.addColorStop(0,'#13213d'); g.addColorStop(1,'#0e1a30'); }
+        ctx.beginPath(); ctx.arc(p.x,p.y,20,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(p.x,p.y,20,0,Math.PI*2);
+        ctx.strokeStyle=isCur?'rgba(255,255,255,.5)':inQ?'rgba(91,141,238,.6)':emitted?'rgba(0,212,170,.5)':'rgba(255,255,255,.1)';
+        ctx.lineWidth=1.4; ctx.stroke();
+        AnimKit.text(ctx,nd.v,p.x,p.y,{color:(isCur||emitted)?'#0a1428':'#e6edf7',font:'bold 14px JetBrains Mono'});
+      });
+      // queue row
+      const qy=225, qw=46;
+      AnimKit.text(ctx,'queue \u2192',26,qy+15,{color:'#8aa0c4',font:'11px Inter',align:'left'});
+      fr.q.forEach((id,k)=>{ const x=92+k*qw;
+        AnimKit.cell(ctx,x,qy,qw-4,28,{grad:['#1f3b6e','#16294e'],border:'rgba(91,141,238,.6)'});
+        AnimKit.text(ctx,T[id].v,x+(qw-4)/2,qy+14,{color:'#cfe0ff',font:'bold 13px JetBrains Mono'});
+      });
+      AnimKit.text(ctx,'levels: '+fr.levels.map(l=>'['+l.join(',')+']').join('  '),W/2,H-10,{color:'#f5c842',font:'bold 12px JetBrains Mono'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },700); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * BFS level-order traversal. Outer loop processes ONE level per iteration by
@@ -1591,20 +2926,20 @@ List&lt;List&lt;Integer&gt;&gt; levelOrder(TreeNode root){
   List&lt;List&lt;Integer&gt;&gt; levels = new ArrayList&lt;&gt;();
   if(root == null) return levels;
 
-  Deque&lt;TreeNode&gt; bfsQueue = new ArrayDeque&lt;&gt;();
-  bfsQueue.offer(root);
+  Deque&lt;TreeNode&gt; q = new ArrayDeque&lt;&gt;();
+  q.offer(root);
 
-  while(!bfsQueue.isEmpty()){
-    int nodesOnThisLevel = bfsQueue.size();           // snapshot BEFORE we add children
-    List&lt;Integer&gt; currentLevelValues = new ArrayList&lt;&gt;(nodesOnThisLevel);
+  while(!q.isEmpty()){
+    int sz = q.size();                                // snapshot BEFORE we add children
+    List&lt;Integer&gt; level = new ArrayList&lt;&gt;(sz);
 
-    for(int i = 0; i &lt; nodesOnThisLevel; i++){
-      TreeNode node = bfsQueue.poll();
-      currentLevelValues.add(node.val);
-      if(node.left  != null) bfsQueue.offer(node.left);
-      if(node.right != null) bfsQueue.offer(node.right);
+    for(int i = 0; i &lt; sz; i++){
+      TreeNode node = q.poll();
+      level.add(node.val);
+      if(node.left  != null) q.offer(node.left);
+      if(node.right != null) q.offer(node.right);
     }
-    levels.add(currentLevelValues);
+    levels.add(level);
   }
   return levels;
 }</code></pre>
@@ -1659,9 +2994,87 @@ flowchart TD
   U --> Ret["return node.val + max(leftGain, rightGain)"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-19" class="anim-canvas" width="720" height="290"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM19.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM19.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM19.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">best <b id="a19best">−∞</b></div>
+    <div class="anim-note" id="anim-note-19">Tree [-10, 9, 20, null, null, 15, 7]. DFS post-order: each node updates "bend here" best and returns max one-side gain.</div>
+  </div>
+  <script>
+  const ANIM19 = (function(){
+    const cv=document.getElementById('animc-19');
+    const note=document.getElementById('anim-note-19');
+    const T={0:{v:-10,l:1,r:2},1:{v:9,l:-1,r:-1},2:{v:20,l:3,r:4},3:{v:15,l:-1,r:-1},4:{v:7,l:-1,r:-1}};
+    const POS={0:{x:360,y:55},1:{x:200,y:130},2:{x:520,y:130},3:{x:430,y:205},4:{x:610,y:205}};
+    function build(){
+      const f=[]; const gain={}; let best=-Infinity, bendNode=null;
+      function dfs(id){
+        if(id===-1) return 0;
+        f.push({cur:id,gain:{...gain},best,bendNode,phase:'enter',msg:`enter node ${T[id].v}.`});
+        const L=Math.max(0,dfs(T[id].l));
+        const R=Math.max(0,dfs(T[id].r));
+        const bend=T[id].v+L+R;
+        f.push({cur:id,gain:{...gain},best,bendNode,L,R,phase:'compute',msg:`at ${T[id].v}: L=${L}, R=${R}; bend candidate = ${T[id].v}+${L}+${R} = ${bend}.`});
+        if(bend>best){ best=bend; bendNode=id;
+          f.push({cur:id,gain:{...gain},best,bendNode,L,R,phase:'best',msg:`new global best = ${best} (bend at ${T[id].v}).`}); }
+        const ret=T[id].v+Math.max(L,R);
+        gain[id]=ret;
+        f.push({cur:id,gain:{...gain},best,bendNode,L,R,phase:'return',ret,msg:`return up: ${T[id].v}+max(${L},${R}) = ${ret}.`});
+        return ret;
+      }
+      dfs(0);
+      f.push({cur:-1,gain:{...gain},best,bendNode,done:true,msg:`Done \u2713 maximum path sum = ${best}`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop();
+      document.getElementById('a19best').textContent='−∞';
+      note.innerHTML='Tree [-10, 9, 20, null, null, 15, 7]. DFS post-order: each node updates &quot;bend here&quot; best and returns max one-side gain.';
+      draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      document.getElementById('a19best').textContent=fr.best===-Infinity?'−∞':fr.best;
+      Object.entries(T).forEach(([id,nd])=>{ const p=POS[id]; [nd.l,nd.r].forEach(c=>{ if(c<0)return; const cp=POS[c];
+        ctx.strokeStyle='rgba(255,255,255,.10)'; ctx.lineWidth=1.3; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(cp.x,cp.y); ctx.stroke(); });});
+      Object.entries(T).forEach(([id,nd])=>{ const p=POS[id], idn=+id;
+        const isCur=fr.cur===idn, isBend=fr.bendNode===idn, hasG=fr.gain[idn]!==undefined;
+        ctx.save();
+        if(isCur){ ctx.shadowColor=fr.phase==='best'?'rgba(245,200,66,.65)':'rgba(91,141,238,.5)'; ctx.shadowBlur=18; }
+        const g=ctx.createLinearGradient(p.x,p.y-22,p.x,p.y+22);
+        if(isBend&&!isCur){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+        else if(isCur&&fr.phase==='best'){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+        else if(isCur){ g.addColorStop(0,'#5b8dee'); g.addColorStop(1,'#3a6bd0'); }
+        else if(hasG){ g.addColorStop(0,'#0f3a33'); g.addColorStop(1,'#0c2b27'); }
+        else { g.addColorStop(0,'#13213d'); g.addColorStop(1,'#0e1a30'); }
+        ctx.beginPath(); ctx.arc(p.x,p.y,22,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(p.x,p.y,22,0,Math.PI*2);
+        ctx.strokeStyle=(isCur||isBend)?'rgba(255,255,255,.55)':hasG?'rgba(0,212,170,.55)':'rgba(255,255,255,.1)';
+        ctx.lineWidth=1.5; ctx.stroke();
+        AnimKit.text(ctx,nd.v,p.x,p.y,{color:(isCur&&fr.phase!=='enter')||isBend?'#0a1428':'#e6edf7',font:'bold 14px JetBrains Mono'});
+        if(hasG) AnimKit.text(ctx,'g='+fr.gain[idn],p.x,p.y+34,{color:'#7ff0d4',font:'bold 11px JetBrains Mono'});
+      });
+      if(fr.phase==='compute'||fr.phase==='best'){
+        AnimKit.text(ctx,`L=${fr.L}, R=${fr.R}`,W/2,H-30,{color:'#cfe0ff',font:'12px JetBrains Mono'});
+      }
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },750); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">// Tracks the best answer across the whole tree (a path may bend at any node).
-int globalBestPathSum;
+int best;
 
 /**
  * Returns the maximum sum of any node-to-node path in the tree.
@@ -1669,28 +3082,28 @@ int globalBestPathSum;
  * OR it can be a contributor to its parent (then only one side may be reused).
  */
 int maxPathSum(TreeNode root){
-  globalBestPathSum = Integer.MIN_VALUE;
-  maxDownwardGain(root);
-  return globalBestPathSum;
+  best = Integer.MIN_VALUE;
+  dfs(root);
+  return best;
 }
 
 /**
  * Returns the maximum sum of a path that STARTS at `node` and goes strictly DOWNWARD.
- * Side-effect: updates `globalBestPathSum` with the best path that BENDS at `node`.
+ * Side-effect: updates `best` with the best path that BENDS at `node`.
  */
-private int maxDownwardGain(TreeNode node){
+private int dfs(TreeNode node){
   if(node == null) return 0;
 
   // Discard negative subtrees -- not taking them is strictly better.
-  int leftGain  = Math.max(0, maxDownwardGain(node.left));
-  int rightGain = Math.max(0, maxDownwardGain(node.right));
+  int l = Math.max(0, dfs(node.left));
+  int r = Math.max(0, dfs(node.right));
 
   // "Bend at this node" candidate uses BOTH children plus the node's own value.
-  int bendingPathSum = node.val + leftGain + rightGain;
-  globalBestPathSum  = Math.max(globalBestPathSum, bendingPathSum);
+  int bend = node.val + l + r;
+  best     = Math.max(best, bend);
 
   // To a parent, this subtree can contribute only the BIGGER side.
-  return node.val + Math.max(leftGain, rightGain);
+  return node.val + Math.max(l, r);
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b> recursion</div></div>
 </article>
@@ -1744,6 +3157,129 @@ flowchart LR
   CL1 -->|wire| CR1 -->|wire| CL2 -->|wire| CR2
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-20" class="anim-canvas" width="720" height="290"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM20.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM20.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM20.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-20">Perfect tree [1..7]. Use level k's already-wired next chain to wire level k+1.</div>
+  </div>
+  <script>
+  const ANIM20 = (function(){
+    const cv=document.getElementById('animc-20');
+    const note=document.getElementById('anim-note-20');
+    const T={0:{v:1,l:1,r:2},1:{v:2,l:3,r:4},2:{v:3,l:5,r:6},3:{v:4,l:-1,r:-1},4:{v:5,l:-1,r:-1},5:{v:6,l:-1,r:-1},6:{v:7,l:-1,r:-1}};
+    const POS={0:{x:360,y:50},1:{x:200,y:130},2:{x:520,y:130},3:{x:120,y:210},4:{x:280,y:210},5:{x:440,y:210},6:{x:600,y:210}};
+    function build(){
+      const f=[], next={};
+      f.push({next:{...next},cur:-1,wire:null,msg:'Start: levelHead = root(1). All next pointers null.'});
+      // level 0 -> level 1
+      let head=0;
+      while(T[head].l!==-1){
+        let cur=head;
+        while(cur!==-1){
+          f.push({next:{...next},cur,wire:null,msg:`At parent ${T[cur].v}: wire its two children.`});
+          next[T[cur].l]=T[cur].r;
+          f.push({next:{...next},cur,wire:[T[cur].l,T[cur].r],msg:`${T[T[cur].l].v}.next = ${T[T[cur].r].v} (same parent).`});
+          const nxt = next[cur]!==undefined ? next[cur] : -1;
+          if(nxt!==-1){
+            // find parent id by value (we stored values as next, but to draw we need ids — keep both maps)
+          }
+          // Build by id-next instead
+          const nxtParent = nextId[cur] ?? -1;
+          if(nxtParent!==-1){ nextId[T[cur].r]=T[nxtParent].l;
+            f.push({next:{...next},cur,wire:[T[cur].r,T[nxtParent].l],msg:`${T[T[cur].r].v}.next = ${T[T[nxtParent].l].v} (bridge across parents).`}); }
+          else f.push({next:{...next},cur,wire:null,msg:`${T[T[cur].r].v}.next = null (rightmost on this level).`});
+          nextId[T[cur].l]=T[cur].r;
+          cur = nextId[cur] ?? -1;
+        }
+        head=T[head].l;
+        f.push({next:{...next},cur:-1,wire:null,msg:`Descend: levelHead = ${T[head].v}.`});
+      }
+      f.push({next:{...next},cur:-1,done:true,msg:'Done \u2713 every node now points to its right neighbor on its level.'});
+      return f;
+    }
+    // need id-based next map; refactor cleaner
+    let nextId;
+    function buildSafe(){
+      const f=[]; nextId={}; const nextVal=()=>{};
+      f.push({next:{...nextId},cur:-1,wire:null,msg:'Start: levelHead = root(1). All next pointers null.'});
+      let head=0;
+      while(T[head].l!==-1){
+        let cur=head;
+        while(cur!==-1){
+          f.push({next:{...nextId},cur,wire:null,msg:`At parent ${T[cur].v}: wire its two children.`});
+          nextId[T[cur].l]=T[cur].r;
+          f.push({next:{...nextId},cur,wire:[T[cur].l,T[cur].r],msg:`${T[T[cur].l].v}.next = ${T[T[cur].r].v} (same parent).`});
+          const np=nextId[cur];
+          if(np!==undefined){
+            nextId[T[cur].r]=T[np].l;
+            f.push({next:{...nextId},cur,wire:[T[cur].r,T[np].l],msg:`${T[T[cur].r].v}.next = ${T[T[np].l].v} (bridge across parents).`});
+          } else {
+            f.push({next:{...nextId},cur,wire:null,msg:`${T[T[cur].r].v}.next = null (rightmost on this level).`});
+          }
+          cur = nextId[cur] ?? -1;
+        }
+        head=T[head].l;
+        f.push({next:{...nextId},cur:-1,wire:null,msg:`Descend: levelHead = ${T[head].v}.`});
+      }
+      f.push({next:{...nextId},cur:-1,done:true,msg:'Done \u2713 every node now points to its right neighbor on its level.'});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=buildSafe(); idx=0; stop();
+      note.innerHTML='Perfect tree [1..7]. Use level k\u0027s already-wired next chain to wire level k+1.';
+      draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      // tree edges
+      Object.entries(T).forEach(([id,nd])=>{ const p=POS[id]; [nd.l,nd.r].forEach(c=>{ if(c<0)return; const cp=POS[c];
+        ctx.strokeStyle='rgba(255,255,255,.08)'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(cp.x,cp.y); ctx.stroke(); });});
+      // next pointers (curved arrows)
+      Object.entries(fr.next).forEach(([from,to])=>{
+        const a=POS[from], b=POS[to];
+        const justWired=fr.wire && fr.wire[0]==+from && fr.wire[1]==to;
+        ctx.save();
+        ctx.strokeStyle=justWired?'rgba(0,212,170,.95)':'rgba(91,141,238,.6)';
+        ctx.lineWidth=justWired?2.6:1.6;
+        if(justWired){ ctx.shadowColor='rgba(0,212,170,.5)'; ctx.shadowBlur=10; }
+        ctx.beginPath(); ctx.moveTo(a.x+18,a.y-4);
+        const mx=(a.x+b.x)/2, my=Math.min(a.y,b.y)-22;
+        ctx.quadraticCurveTo(mx,my,b.x-18,b.y-4); ctx.stroke();
+        // arrow head
+        ctx.fillStyle=justWired?'#00d4aa':'#5b8dee';
+        ctx.beginPath(); ctx.moveTo(b.x-18,b.y-4); ctx.lineTo(b.x-26,b.y-10); ctx.lineTo(b.x-26,b.y+2); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      });
+      // nodes
+      Object.entries(T).forEach(([id,nd])=>{ const p=POS[id], idn=+id;
+        const isCur=fr.cur===idn, wired=fr.next[idn]!==undefined||Object.values(fr.next).includes(idn);
+        ctx.save();
+        if(isCur){ ctx.shadowColor='rgba(245,200,66,.55)'; ctx.shadowBlur=14; }
+        const g=ctx.createLinearGradient(p.x,p.y-20,p.x,p.y+20);
+        if(isCur){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+        else if(wired){ g.addColorStop(0,'#0f3a33'); g.addColorStop(1,'#0c2b27'); }
+        else { g.addColorStop(0,'#13213d'); g.addColorStop(1,'#0e1a30'); }
+        ctx.beginPath(); ctx.arc(p.x,p.y,20,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(p.x,p.y,20,0,Math.PI*2);
+        ctx.strokeStyle=isCur?'rgba(255,255,255,.55)':wired?'rgba(0,212,170,.55)':'rgba(255,255,255,.1)';
+        ctx.lineWidth=1.4; ctx.stroke();
+        AnimKit.text(ctx,nd.v,p.x,p.y,{color:isCur?'#0a1428':'#e6edf7',font:'bold 14px JetBrains Mono'});
+      });
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },800); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Wires `next` pointers so each node points to its right neighbor on the same level.
@@ -1753,25 +3289,25 @@ flowchart LR
 Node connect(Node root){
   if(root == null) return null;
 
-  Node leftmostOfCurrentLevel = root;
+  Node head = root;
 
   // Stop when we reach the leaves -- they have no children to wire.
-  while(leftmostOfCurrentLevel.left != null){
+  while(head.left != null){
 
     // Sweep across the current level using the next-chain that's already there.
-    Node parentNode = leftmostOfCurrentLevel;
-    while(parentNode != null){
+    Node cur = head;
+    while(cur != null){
       // Wire the two children of THIS parent.
-      parentNode.left.next  = parentNode.right;
+      cur.left.next  = cur.right;
 
       // Wire across siblings: rightChild -&gt; leftChildOfNextParent (if any).
-      parentNode.right.next = (parentNode.next != null) ? parentNode.next.left : null;
+      cur.right.next = (cur.next != null) ? cur.next.left : null;
 
-      parentNode = parentNode.next;
+      cur = cur.next;
     }
 
     // Drop down one level (perfect tree, so leftmost is always reachable via .left).
-    leftmostOfCurrentLevel = leftmostOfCurrentLevel.left;
+    head = head.left;
   }
   return root;
 }</code></pre>
@@ -1829,6 +3365,79 @@ flowchart TD
   L --> R
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-21" class="anim-canvas" width="720" height="280"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM21.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM21.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM21.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">key <b>11</b> · floor <b id="a21f">−∞</b></div>
+    <div class="anim-note" id="anim-note-21">BST {2,4,7,8,10,12,14}, key=11. Walk down: ≤key → save & go right, else go left.</div>
+  </div>
+  <script>
+  const ANIM21 = (function(){
+    const cv=document.getElementById('animc-21');
+    const note=document.getElementById('anim-note-21');
+    const T={0:{v:8,l:1,r:2},1:{v:4,l:3,r:4},2:{v:12,l:5,r:6},3:{v:2,l:-1,r:-1},4:{v:7,l:-1,r:-1},5:{v:10,l:-1,r:-1},6:{v:14,l:-1,r:-1}};
+    const POS={0:{x:360,y:50},1:{x:200,y:120},2:{x:520,y:120},3:{x:120,y:200},4:{x:280,y:200},5:{x:440,y:200},6:{x:600,y:200}};
+    const KEY=11;
+    function build(){
+      const f=[],path=[]; let floor=-Infinity,cur=0,found=null;
+      while(cur!==-1){
+        f.push({cur,floor,found:null,path:[...path],phase:'visit',msg:`at ${T[cur].v}: compare with key ${KEY}.`});
+        if(T[cur].v===KEY){ found=cur; f.push({cur,floor:KEY,found,path:[...path,cur],phase:'eq',msg:`${T[cur].v} == ${KEY} \u2192 return ${KEY}.`}); break; }
+        if(T[cur].v<KEY){ floor=T[cur].v;
+          f.push({cur,floor,found,path:[...path,cur],phase:'le',msg:`${T[cur].v} \u2264 ${KEY} \u2192 floor=${floor}, go right.`});
+          path.push(cur); cur=T[cur].r;
+        } else {
+          f.push({cur,floor,found,path:[...path,cur],phase:'gt',msg:`${T[cur].v} &gt; ${KEY} \u2192 go left.`});
+          path.push(cur); cur=T[cur].l;
+        }
+      }
+      if(cur===-1) f.push({cur:-1,floor,found,path:[...path],done:true,msg:`fell off \u2192 return floor = ${floor===-Infinity?'-1':floor}.`});
+      else f.push({cur,floor:KEY,found,path:[...path],done:true,msg:`Done \u2713 return ${KEY}.`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop();
+      document.getElementById('a21f').textContent='−∞';
+      note.innerHTML='BST {2,4,7,8,10,12,14}, key=11. Walk down: \u2264key \u2192 save \u0026 go right, else go left.';
+      draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      document.getElementById('a21f').textContent=fr.floor===-Infinity?'−∞':fr.floor;
+      Object.entries(T).forEach(([id,nd])=>{ const p=POS[id]; [nd.l,nd.r].forEach(c=>{ if(c<0)return; const cp=POS[c];
+        const onPath=fr.path.includes(+id) && (fr.path.includes(c)||fr.cur===c);
+        ctx.strokeStyle=onPath?'rgba(245,200,66,.65)':'rgba(255,255,255,.10)'; ctx.lineWidth=onPath?2.2:1.2;
+        ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(cp.x,cp.y); ctx.stroke(); });});
+      Object.entries(T).forEach(([id,nd])=>{ const p=POS[id], idn=+id;
+        const isCur=fr.cur===idn, onPath=fr.path.includes(idn), isFound=fr.found===idn, isFloor=nd.v===fr.floor;
+        ctx.save();
+        if(isCur){ ctx.shadowColor=fr.phase==='eq'?'rgba(0,212,170,.6)':'rgba(245,200,66,.55)'; ctx.shadowBlur=16; }
+        const g=ctx.createLinearGradient(p.x,p.y-20,p.x,p.y+20);
+        if(isCur&&fr.phase==='eq'){ g.addColorStop(0,'#1ad9b0'); g.addColorStop(1,'#0aa37e'); }
+        else if(isCur){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+        else if(isFloor){ g.addColorStop(0,'#0f3a33'); g.addColorStop(1,'#0c2b27'); }
+        else if(onPath){ g.addColorStop(0,'#1f3b6e'); g.addColorStop(1,'#16294e'); }
+        else { g.addColorStop(0,'#13213d'); g.addColorStop(1,'#0e1a30'); }
+        ctx.beginPath(); ctx.arc(p.x,p.y,21,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(p.x,p.y,21,0,Math.PI*2);
+        ctx.strokeStyle=(isCur||isFloor)?'rgba(255,255,255,.5)':'rgba(255,255,255,.1)'; ctx.lineWidth=1.4; ctx.stroke();
+        AnimKit.text(ctx,nd.v,p.x,p.y,{color:(isCur||isFloor)?'#0a1428':'#e6edf7',font:'bold 14px JetBrains Mono'});
+      });
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },900); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Returns the largest BST value that is &lt;= key, or Integer.MIN_VALUE if none exists.
@@ -1836,20 +3445,20 @@ flowchart TD
  * best floor candidate, and we move right hoping to find an even larger one.
  */
 int floor(TreeNode root, int key){
-  int bestFloorSoFar = Integer.MIN_VALUE;
-  TreeNode currentNode = root;
+  int ans = Integer.MIN_VALUE;
+  TreeNode cur = root;
 
-  while(currentNode != null){
-    if(currentNode.val == key) return key;                  // exact match -- can't beat this
+  while(cur != null){
+    if(cur.val == key) return key;                          // exact match -- can't beat this
 
-    if(currentNode.val &lt; key){
-      bestFloorSoFar = currentNode.val;                     // valid candidate, try for a larger one on the right
-      currentNode    = currentNode.right;
+    if(cur.val &lt; key){
+      ans = cur.val;                                        // valid candidate, try for a larger one on the right
+      cur = cur.right;
     } else {
-      currentNode    = currentNode.left;                    // current is too big; floor must be smaller
+      cur = cur.left;                                       // current is too big; floor must be smaller
     }
   }
-  return bestFloorSoFar;
+  return ans;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(h)</b></div><div>Space <b>O(1)</b></div></div>
 </article>
@@ -1901,10 +3510,104 @@ flowchart LR
   IN --> Close[Close cycle: last &lt;-&gt; head]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-22" class="anim-canvas" width="720" height="320"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM22.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM22.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM22.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-22">BST {4,2,5,1,3}. Inorder visit links prev↔node; finally close ring tail↔head.</div>
+  </div>
+  <script>
+  const ANIM22 = (function(){
+    const cv=document.getElementById('animc-22');
+    const note=document.getElementById('anim-note-22');
+    const T={0:{v:4,l:1,r:2},1:{v:2,l:3,r:4},2:{v:5,l:-1,r:-1},3:{v:1,l:-1,r:-1},4:{v:3,l:-1,r:-1}};
+    const POS={0:{x:360,y:50},1:{x:240,y:120},2:{x:480,y:120},3:{x:160,y:190},4:{x:320,y:190}};
+    // DLL slots in inorder order
+    const ORDER=[3,1,4,0,2]; // 1,2,3,4,5
+    const DLL_X=[100,220,340,460,580], DLL_Y=265;
+    function build(){
+      const f=[], links=[], visited=new Set(); let prev=null,head=null;
+      function dfs(id){
+        if(id===-1) return;
+        dfs(T[id].l);
+        visited.add(id);
+        if(prev===null){ head=id; f.push({cur:id,links:[...links],visited:new Set(visited),msg:`first inorder node \u2192 head = ${T[id].v}.`}); }
+        else { links.push([prev,id]); f.push({cur:id,links:[...links],visited:new Set(visited),msg:`link ${T[prev].v} \u2194 ${T[id].v}.`}); }
+        prev=id;
+        dfs(T[id].r);
+      }
+      dfs(0);
+      links.push([prev,head,true]);
+      f.push({cur:-1,links:[...links],visited:new Set(visited),done:true,msg:`close cycle: ${T[prev].v} \u2194 ${T[head].v} (head).`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop();
+      note.innerHTML='BST {4,2,5,1,3}. Inorder visit links prev\u2194node; finally close ring tail\u2194head.';
+      draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      // tree edges
+      Object.entries(T).forEach(([id,nd])=>{ const p=POS[id]; [nd.l,nd.r].forEach(c=>{ if(c<0)return; const cp=POS[c];
+        ctx.strokeStyle='rgba(255,255,255,.10)'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(cp.x,cp.y); ctx.stroke(); });});
+      // tree nodes
+      Object.entries(T).forEach(([id,nd])=>{ const p=POS[id], idn=+id;
+        const isCur=fr.cur===idn, v=fr.visited.has(idn);
+        ctx.save();
+        if(isCur){ ctx.shadowColor='rgba(245,200,66,.55)'; ctx.shadowBlur=14; }
+        const g=ctx.createLinearGradient(p.x,p.y-20,p.x,p.y+20);
+        if(isCur){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+        else if(v){ g.addColorStop(0,'#0f3a33'); g.addColorStop(1,'#0c2b27'); }
+        else { g.addColorStop(0,'#13213d'); g.addColorStop(1,'#0e1a30'); }
+        ctx.beginPath(); ctx.arc(p.x,p.y,20,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(p.x,p.y,20,0,Math.PI*2);
+        ctx.strokeStyle=(isCur||v)?'rgba(255,255,255,.5)':'rgba(255,255,255,.1)'; ctx.lineWidth=1.4; ctx.stroke();
+        AnimKit.text(ctx,nd.v,p.x,p.y,{color:(isCur||v)?'#0a1428':'#e6edf7',font:'bold 14px JetBrains Mono'});
+      });
+      // DLL row
+      AnimKit.text(ctx,'DLL',32,DLL_Y+12,{color:'#8aa0c4',font:'11px Inter',align:'left'});
+      ORDER.forEach((id,k)=>{ const x=DLL_X[k];
+        const placed=fr.visited.has(id);
+        AnimKit.cell(ctx,x,DLL_Y,90,32,{grad:placed?['#1b3566','#152a52']:['#0e1729','#0b1320'],border:placed?'rgba(91,141,238,.6)':'rgba(255,255,255,.06)'});
+        if(placed) AnimKit.text(ctx,T[id].v,x+45,DLL_Y+16,{color:'#cfe0ff',font:'bold 14px JetBrains Mono'});
+      });
+      // links in DLL
+      fr.links.forEach(L=>{
+        const ai=ORDER.indexOf(L[0]), bi=ORDER.indexOf(L[1]);
+        if(ai<0||bi<0) return;
+        const isClose=L[2];
+        ctx.save();
+        ctx.strokeStyle=isClose?'rgba(245,200,66,.9)':'rgba(0,212,170,.8)';
+        ctx.lineWidth=2.2;
+        if(isClose){ ctx.shadowColor='rgba(245,200,66,.5)'; ctx.shadowBlur=10; }
+        if(isClose){
+          const ax=DLL_X[ai]+90, bx=DLL_X[bi];
+          ctx.beginPath(); ctx.moveTo(ax,DLL_Y+16); ctx.bezierCurveTo(ax+30,DLL_Y+60,bx-30,DLL_Y+60,bx,DLL_Y+16); ctx.stroke();
+        } else {
+          const ax=DLL_X[ai]+90, bx=DLL_X[bi];
+          ctx.beginPath(); ctx.moveTo(ax,DLL_Y+16); ctx.lineTo(bx,DLL_Y+16); ctx.stroke();
+        }
+        ctx.restore();
+      });
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },800); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">// Fields used during the inorder walk to stitch nodes into a DLL.
-Node dllHead;       // will become the head of the resulting doubly-linked list
-Node dllPrevious;   // last node visited so far in inorder
+Node head;       // will become the head of the resulting doubly-linked list
+Node prev;       // last node visited so far in inorder
 
 /**
  * Inorder DFS. Each visited node is wired to the previously visited one, building
@@ -1915,13 +3618,13 @@ void inorderStitch(Node node){
 
   inorderStitch(node.left);
 
-  if(dllPrevious == null){
-    dllHead = node;                // very first node visited becomes the DLL head
+  if(prev == null){
+    head = node;                   // very first node visited becomes the DLL head
   } else {
-    dllPrevious.right = node;      // prev -&gt; node
-    node.left         = dllPrevious; // node -&gt; prev
+    prev.right = node;             // prev -&gt; node
+    node.left  = prev;             // node -&gt; prev
   }
-  dllPrevious = node;              // advance the "previously visited" marker
+  prev = node;                     // advance the "previously visited" marker
 
   inorderStitch(node.right);
 }
@@ -1931,16 +3634,16 @@ void inorderStitch(Node node){
  * After the inorder walk, close the ring by linking the last node back to the head.
  */
 Node treeToDoublyLinkedList(Node root){
-  dllHead = null;
-  dllPrevious = null;
+  head = null;
+  prev = null;
 
   inorderStitch(root);
 
-  if(dllHead != null){             // close the cycle: head &lt;-&gt; tail
-    dllHead.left      = dllPrevious;
-    dllPrevious.right = dllHead;
+  if(head != null){                // close the cycle: head &lt;-&gt; tail
+    head.left  = prev;
+    prev.right = head;
   }
-  return dllHead;
+  return head;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b></div></div>
 </article>
@@ -1993,30 +3696,117 @@ flowchart LR
   C --> N[Recurse neighbors · attach]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-23" class="anim-canvas" width="720" height="290"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM23.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM23.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM23.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-23">4-node cycle 1–2–3–4–1. DFS clones each node, wires neighbors; map breaks cycles.</div>
+  </div>
+  <script>
+  const ANIM23 = (function(){
+    const cv=document.getElementById('animc-23');
+    const note=document.getElementById('anim-note-23');
+    const nodes=[1,2,3,4];
+    const adj={1:[2,4],2:[1,3],3:[2,4],4:[3,1]};
+    const ORIG_POS={1:{x:120,y:80},2:{x:260,y:80},3:{x:260,y:200},4:{x:120,y:200}};
+    const CLONE_POS={1:{x:460,y:80},2:{x:600,y:80},3:{x:600,y:200},4:{x:460,y:200}};
+    function build(){
+      const f=[],cloneMap=new Set(),wired=[];
+      function dfs(u){
+        if(cloneMap.has(u)){ f.push({cur:u,cloneMap:new Set(cloneMap),wired:[...wired],hit:true,msg:`visit ${u}: already in map \u2192 return its clone (cycle broken).`}); return; }
+        cloneMap.add(u); f.push({cur:u,cloneMap:new Set(cloneMap),wired:[...wired],create:true,msg:`visit ${u}: not in map \u2192 create clone, map.put.`});
+        for(const v of adj[u]){
+          f.push({cur:u,nbr:v,cloneMap:new Set(cloneMap),wired:[...wired],msg:`recurse into neighbor ${v} of ${u}.`});
+          dfs(v);
+          wired.push([u,v]); f.push({cur:u,cloneMap:new Set(cloneMap),wired:[...wired],wire:[u,v],msg:`attach clone(${v}) to clone(${u}).neighbors.`});
+        }
+      }
+      dfs(1);
+      f.push({cur:-1,cloneMap:new Set(cloneMap),wired:[...wired],done:true,msg:`Done \u2713 deep copy built.`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop();
+      note.innerHTML='4-node cycle 1\u20132\u20133\u20134\u20131. DFS clones each node, wires neighbors; map breaks cycles.';
+      draw(); }
+    function drawSide(ctx,POS,fr,clone){
+      const edges=[[1,2],[2,3],[3,4],[4,1]];
+      edges.forEach(([a,b])=>{ const pa=POS[a],pb=POS[b];
+        let on=false;
+        if(clone){ on=fr.wired.some(w=>(w[0]===a&&w[1]===b)||(w[0]===b&&w[1]===a)); }
+        ctx.strokeStyle=on?'rgba(0,212,170,.75)':(clone?'rgba(255,255,255,.06)':'rgba(91,141,238,.45)');
+        ctx.lineWidth=on?2.4:1.4; ctx.beginPath(); ctx.moveTo(pa.x,pa.y); ctx.lineTo(pb.x,pb.y); ctx.stroke();
+      });
+      nodes.forEach(v=>{ const p=POS[v];
+        const isCur=fr.cur===v && !clone, isNbr=fr.nbr===v && !clone, hasClone=fr.cloneMap.has(v);
+        ctx.save();
+        if(isCur){ ctx.shadowColor='rgba(245,200,66,.55)'; ctx.shadowBlur=14; }
+        const g=ctx.createLinearGradient(p.x,p.y-20,p.x,p.y+20);
+        if(clone){
+          if(hasClone){ g.addColorStop(0,'#1ad9b0'); g.addColorStop(1,'#0aa37e'); }
+          else { g.addColorStop(0,'#0e1729'); g.addColorStop(1,'#0b1320'); }
+        } else {
+          if(isCur){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+          else if(isNbr){ g.addColorStop(0,'#5b8dee'); g.addColorStop(1,'#3a6bd0'); }
+          else { g.addColorStop(0,'#15294e'); g.addColorStop(1,'#0f1f3d'); }
+        }
+        ctx.beginPath(); ctx.arc(p.x,p.y,22,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(p.x,p.y,22,0,Math.PI*2);
+        ctx.strokeStyle=(clone&&hasClone)?'rgba(0,212,170,.7)':(isCur||isNbr)?'rgba(255,255,255,.5)':'rgba(255,255,255,.1)';
+        ctx.lineWidth=1.5; ctx.stroke();
+        const dark=(clone&&hasClone)||isCur;
+        AnimKit.text(ctx,(clone?"'":"")+v,p.x,p.y,{color:(clone&&!hasClone)?'#3a4a68':(dark?'#0a1428':'#e6edf7'),font:'bold 14px JetBrains Mono'});
+      });
+    }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      AnimKit.text(ctx,'original',190,30,{color:'#5b8dee',font:'bold 12px Inter'});
+      AnimKit.text(ctx,'clones',530,30,{color:'#00d4aa',font:'bold 12px Inter'});
+      // divider
+      ctx.strokeStyle='rgba(255,255,255,.08)'; ctx.lineWidth=1; ctx.setLineDash([3,4]);
+      ctx.beginPath(); ctx.moveTo(W/2,40); ctx.lineTo(W/2,240); ctx.stroke(); ctx.setLineDash([]);
+      drawSide(ctx,ORIG_POS,fr,false);
+      drawSide(ctx,CLONE_POS,fr,true);
+      AnimKit.text(ctx,`map: {${[...fr.cloneMap].map(v=>v+"\u2192'"+v).join(', ')}}`,W/2,265,{color:'#f5c842',font:'bold 12px JetBrains Mono'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },700); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">// Hash map serves dual purpose: visited-set + lookup of "have I cloned this node already?"
-Map&lt;Node, Node&gt; originalToClone = new HashMap&lt;&gt;();
+Map&lt;Node, Node&gt; map = new HashMap&lt;&gt;();
 
 /**
- * Returns a deep copy of the connected undirected graph reachable from `originalNode`.
+ * Returns a deep copy of the connected undirected graph reachable from `node`.
  * DFS that creates the clone BEFORE recursing into neighbors, so cycles don't loop forever.
  */
-Node cloneGraph(Node originalNode){
-  if(originalNode == null) return null;
+Node cloneGraph(Node node){
+  if(node == null) return null;
 
   // Already cloned? Reuse to preserve graph identity (no duplicates, cycles preserved).
-  if(originalToClone.containsKey(originalNode)){
-    return originalToClone.get(originalNode);
+  if(map.containsKey(node)){
+    return map.get(node);
   }
 
   // Create the clone shell first, register it, THEN recurse -- this is what breaks cycles.
-  Node clonedNode = new Node(originalNode.val);
-  originalToClone.put(originalNode, clonedNode);
+  Node copy = new Node(node.val);
+  map.put(node, copy);
 
-  for(Node originalNeighbor : originalNode.neighbors){
-    clonedNode.neighbors.add(cloneGraph(originalNeighbor));
+  for(Node nb : node.neighbors){
+    copy.neighbors.add(cloneGraph(nb));
   }
-  return clonedNode;
+  return copy;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(V+E)</b></div><div>Space <b>O(V)</b></div></div>
 </article>
@@ -2070,6 +3860,101 @@ flowchart LR
   TR --> P2
   P2 --> SCC["Each DFS tree = one SCC"]
   </pre></div>
+
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-24" class="anim-canvas" width="720" height="320"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM24.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM24.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM24.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-24">Edges 1→2, 2→3, 3→1, 3→4, 4→5. Pass 1: DFS pushes finish order. Pass 2: pop and DFS the transpose.</div>
+  </div>
+  <script>
+  const ANIM24 = (function(){
+    const cv=document.getElementById('animc-24');
+    const note=document.getElementById('anim-note-24');
+    const N=5;
+    const adj={1:[2],2:[3],3:[1,4],4:[5],5:[]};
+    const tadj={}; for(let i=1;i<=N;i++) tadj[i]=[];
+    Object.entries(adj).forEach(([u,vs])=>vs.forEach(v=>tadj[v].push(+u)));
+    const POS={1:{x:150,y:90},2:{x:260,y:60},3:{x:260,y:130},4:{x:400,y:130},5:{x:520,y:130}};
+    function build(){
+      const f=[],stack=[],visited=new Set(),sccs=[],sccOf={};
+      function dfs1(u){ visited.add(u);
+        f.push({phase:1,cur:u,visited:new Set(visited),stack:[...stack],sccs:[...sccs.map(s=>[...s])],sccOf:{...sccOf},msg:`pass-1 DFS visit ${u}.`});
+        for(const v of adj[u]) if(!visited.has(v)) dfs1(v);
+        stack.push(u); f.push({phase:1,cur:u,visited:new Set(visited),stack:[...stack],sccs:[...sccs.map(s=>[...s])],sccOf:{...sccOf},finish:true,msg:`finish ${u} \u2192 push on stack.`});
+      }
+      for(let v=1;v<=N;v++) if(!visited.has(v)) dfs1(v);
+      f.push({phase:'mid',visited:new Set(),stack:[...stack],sccs:[],sccOf:{},msg:`Pass 1 done. Stack (top\u2192bottom) = [${[...stack].reverse().join(', ')}]. Now build transpose & pass 2.`});
+      visited.clear();
+      function dfs2(u,id){ visited.add(u); sccOf[u]=id; sccs[id].push(u);
+        f.push({phase:2,cur:u,visited:new Set(visited),stack:[...stack],sccs:[...sccs.map(s=>[...s])],sccOf:{...sccOf},msg:`pass-2 DFS on transpose visits ${u} \u2192 SCC #${id+1}.`});
+        for(const v of tadj[u]) if(!visited.has(v)) dfs2(v,id);
+      }
+      while(stack.length){
+        const v=stack.pop();
+        f.push({phase:2,popped:v,visited:new Set(visited),stack:[...stack],sccs:[...sccs.map(s=>[...s])],sccOf:{...sccOf},msg:`pop ${v} from stack.`});
+        if(visited.has(v)) { f.push({phase:2,visited:new Set(visited),stack:[...stack],sccs:[...sccs.map(s=>[...s])],sccOf:{...sccOf},msg:`${v} already in an SCC \u2192 skip.`}); continue; }
+        sccs.push([]); dfs2(v,sccs.length-1);
+      }
+      f.push({phase:'done',visited:new Set(visited),stack:[],sccs:[...sccs.map(s=>[...s])],sccOf:{...sccOf},done:true,msg:`Done \u2713 SCCs = ${sccs.map(s=>'{'+s.join(',')+'}').join(', ')}`});
+      return f;
+    }
+    const SCC_COLORS=[['#1ad9b0','#0aa37e'],['#f6d04a','#e0a91e'],['#ff7b7b','#d44545'],['#a78bfa','#7c5edb']];
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop();
+      note.innerHTML='Edges 1\u21922, 2\u21923, 3\u21921, 3\u21924, 4\u21925. Pass 1: DFS pushes finish order. Pass 2: pop and DFS the transpose.';
+      draw(); }
+    function drawArrow(ctx,a,b,col,lw){
+      ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=lw||1.4;
+      const dx=b.x-a.x, dy=b.y-a.y, len=Math.hypot(dx,dy), ux=dx/len, uy=dy/len;
+      const sx=a.x+ux*22, sy=a.y+uy*22, ex=b.x-ux*24, ey=b.y-uy*24;
+      ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(ex,ey); ctx.stroke();
+      ctx.fillStyle=col; ctx.beginPath();
+      ctx.moveTo(ex,ey); ctx.lineTo(ex-ux*8-uy*4,ey-uy*8+ux*4); ctx.lineTo(ex-ux*8+uy*4,ey-uy*8-ux*4); ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      const useT = fr.phase===2 || fr.phase==='done';
+      AnimKit.text(ctx,useT?'Transpose graph':'Original graph',W/2,22,{color:useT?'#00d4aa':'#5b8dee',font:'bold 12px Inter'});
+      const E = useT? tadj : adj;
+      Object.entries(E).forEach(([u,vs])=>vs.forEach(v=>{ drawArrow(ctx,POS[u],POS[v],'rgba(255,255,255,.18)',1.4); }));
+      for(let v=1;v<=N;v++){ const p=POS[v];
+        const isCur=fr.cur===v, isPop=fr.popped===v, sccId=fr.sccOf[v];
+        ctx.save();
+        if(isCur||isPop){ ctx.shadowColor='rgba(245,200,66,.55)'; ctx.shadowBlur=14; }
+        const g=ctx.createLinearGradient(p.x,p.y-21,p.x,p.y+21);
+        if(sccId!==undefined){ const c=SCC_COLORS[sccId%SCC_COLORS.length]; g.addColorStop(0,c[0]); g.addColorStop(1,c[1]); }
+        else if(isCur||isPop){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+        else if(fr.visited&&fr.visited.has(v)){ g.addColorStop(0,'#1f3b6e'); g.addColorStop(1,'#16294e'); }
+        else { g.addColorStop(0,'#13213d'); g.addColorStop(1,'#0e1a30'); }
+        ctx.beginPath(); ctx.arc(p.x,p.y,20,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(p.x,p.y,20,0,Math.PI*2);
+        ctx.strokeStyle=(sccId!==undefined||isCur||isPop)?'rgba(255,255,255,.55)':'rgba(255,255,255,.1)'; ctx.lineWidth=1.4; ctx.stroke();
+        AnimKit.text(ctx,v,p.x,p.y,{color:(sccId!==undefined||isCur||isPop)?'#0a1428':'#e6edf7',font:'bold 14px JetBrains Mono'});
+      }
+      // stack
+      const sy=210, sw=44;
+      AnimKit.text(ctx,'finish stack (top\u2192bottom):',32,sy-8,{color:'#8aa0c4',font:'11px Inter',align:'left'});
+      [...fr.stack].reverse().forEach((v,k)=>{ const x=32+k*sw;
+        AnimKit.cell(ctx,x,sy,sw-4,28,{grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.6)'});
+        AnimKit.text(ctx,v,x+(sw-4)/2,sy+14,{color:'#cfe0ff',font:'bold 14px JetBrains Mono'});
+      });
+      AnimKit.text(ctx,'SCCs: '+fr.sccs.map(s=>'{'+s.join(',')+'}').join('  '),W/2,H-10,{color:'#f5c842',font:'bold 13px JetBrains Mono'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },700); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
 
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">List&lt;List&lt;Integer&gt;&gt; kosarajuSCC(int n, List&lt;Integer&gt;[] graph){
@@ -2165,6 +4050,81 @@ flowchart LR
   A --> X
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-25" class="anim-canvas" width="720" height="260"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM25.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM25.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM25.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">curMax <b id="a25mx">–</b> · curMin <b id="a25mn">–</b> · ans <b id="a25a">–</b></div>
+    <div class="anim-note" id="anim-note-25">[2, 3, -2, 4, -1]. Track running max and min; negatives swap them.</div>
+  </div>
+  <script>
+  const ANIM25 = (function(){
+    const cv=document.getElementById('animc-25');
+    const note=document.getElementById('anim-note-25');
+    const nums=[2,3,-2,4,-1];
+    function build(){
+      const f=[]; let mx=nums[0],mn=nums[0],ans=nums[0];
+      f.push({i:0,mx,mn,ans,swap:false,msg:`init: curMax=curMin=ans=${nums[0]}.`});
+      for(let i=1;i<nums.length;i++){
+        const x=nums[i], swap=x<0;
+        if(swap){ [mx,mn]=[mn,mx]; f.push({i,mx,mn,ans,swap:true,msg:`x=${x} &lt; 0 \u2192 swap curMax \u2194 curMin.`}); }
+        const newMx=Math.max(x,mx*x), newMn=Math.min(x,mn*x);
+        mx=newMx; mn=newMn;
+        f.push({i,mx,mn,ans,msg:`curMax=max(${x}, prev*${x})=${mx}; curMin=min(${x}, prev*${x})=${mn}.`});
+        if(mx>ans){ ans=mx; f.push({i,mx,mn,ans,best:true,msg:`update ans = ${ans}.`}); }
+        else f.push({i,mx,mn,ans,msg:`ans stays ${ans}.`});
+      }
+      f.push({i:-1,mx,mn,ans,done:true,msg:`Done \u2713 max product = ${ans}`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop();
+      document.getElementById('a25mx').textContent='–'; document.getElementById('a25mn').textContent='–'; document.getElementById('a25a').textContent='–';
+      note.innerHTML='[2, 3, -2, 4, -1]. Track running max and min; negatives swap them.';
+      draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      document.getElementById('a25mx').textContent=fr.mx;
+      document.getElementById('a25mn').textContent=fr.mn;
+      document.getElementById('a25a').textContent=fr.ans;
+      const n=nums.length, cw=88, ox=W/2-n*cw/2, y=40;
+      AnimKit.text(ctx,'nums',ox-30,y+30,{color:'#8aa0c4',font:'11px Inter',align:'right'});
+      for(let k=0;k<n;k++){ const x=ox+k*cw, val=nums[k];
+        const isCur=fr.i===k, isBest=fr.best&&fr.i===k;
+        let opt,dark=false;
+        if(isBest){opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.55)',border:'rgba(0,212,170,.85)'};dark=true;}
+        else if(isCur&&fr.swap){opt={grad:['#ff7b7b','#d44545'],glow:'rgba(255,107,107,.45)',border:'rgba(255,107,107,.85)'};dark=true;}
+        else if(isCur){opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.85)'};dark=true;}
+        else if(k<fr.i)opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.4)'};
+        else opt={grad:['#101c33','#0c1626'],border:'rgba(255,255,255,.06)'};
+        AnimKit.cell(ctx,x,y,cw-6,56,opt);
+        AnimKit.text(ctx,val,x+(cw-6)/2,y+30,{color:dark?'#0a1428':'#cfe0ff',font:'bold 20px JetBrains Mono'});
+        AnimKit.text(ctx,k,x+(cw-6)/2,y+72,{color:'#5a6e92',font:'10px JetBrains Mono'});
+      }
+      // big stats panel
+      const py=150, pw=200;
+      ['curMax','curMin','ans'].forEach((lbl,k)=>{
+        const x=W/2 - pw*1.55 + k*pw*1.05;
+        const val = [fr.mx,fr.mn,fr.ans][k];
+        const color = ['#f6d04a','#ff8aa7','#1ad9b0'][k];
+        AnimKit.cell(ctx,x,py,pw,56,{grad:['#101e3a','#0a1428'],border:'rgba(255,255,255,.08)'});
+        AnimKit.text(ctx,lbl,x+pw/2,py+18,{color:'#8aa0c4',font:'bold 11px Inter'});
+        AnimKit.text(ctx,val,x+pw/2,py+42,{color,font:'bold 22px JetBrains Mono'});
+      });
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },750); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Largest product of any contiguous subarray.
@@ -2172,27 +4132,27 @@ flowchart LR
  * because a future negative number can flip the smallest (most negative) into the largest.
  */
 int maxProduct(int[] nums){
-  int runningMax = nums[0];           // best product of any subarray ending HERE
-  int runningMin = nums[0];           // worst product of any subarray ending HERE
-  int globalBest = nums[0];           // overall answer
+  int mx = nums[0];                   // best product of any subarray ending HERE
+  int mn = nums[0];                   // worst product of any subarray ending HERE
+  int ans = nums[0];                  // overall answer
 
   for(int i = 1; i &lt; nums.length; i++){
-    int currentValue = nums[i];
+    int x = nums[i];
 
     // A negative value swaps the roles: yesterday's min times negative is today's max.
-    if(currentValue &lt; 0){
-      int swapTemp = runningMax;
-      runningMax   = runningMin;
-      runningMin   = swapTemp;
+    if(x &lt; 0){
+      int t = mx;
+      mx    = mn;
+      mn    = t;
     }
 
     // Either extend the previous subarray or start fresh at the current value.
-    runningMax = Math.max(currentValue, runningMax * currentValue);
-    runningMin = Math.min(currentValue, runningMin * currentValue);
+    mx = Math.max(x, mx * x);
+    mn = Math.min(x, mn * x);
 
-    globalBest = Math.max(globalBest, runningMax);
+    ans = Math.max(ans, mx);
   }
-  return globalBest;
+  return ans;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
 </article>
@@ -2246,36 +4206,107 @@ flowchart TD
   M --> A["dp[i][j] = grid[i][j] + min"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-26" class="anim-canvas" width="720" height="260"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM26.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM26.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM26.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-26">Grid 3×3. Each cell takes min(above, left) and adds its own value.</div>
+  </div>
+  <script>
+  const ANIM26 = (function(){
+    const cv=document.getElementById('animc-26');
+    const note=document.getElementById('anim-note-26');
+    const G=[[1,3,1],[1,5,1],[4,2,1]];
+    function build(){
+      const f=[], m=G.length,n=G[0].length, dp=Array.from({length:m},()=>Array(n).fill(null));
+      dp[0][0]=G[0][0]; f.push({dp:dp.map(r=>[...r]),i:0,j:0,msg:`base: dp[0][0] = grid[0][0] = ${G[0][0]}.`});
+      for(let j=1;j<n;j++){ dp[0][j]=dp[0][j-1]+G[0][j];
+        f.push({dp:dp.map(r=>[...r]),i:0,j,from:[[0,j-1]],msg:`top row: dp[0][${j}] = dp[0][${j-1}]+${G[0][j]} = ${dp[0][j]}.`}); }
+      for(let i=1;i<m;i++){ dp[i][0]=dp[i-1][0]+G[i][0];
+        f.push({dp:dp.map(r=>[...r]),i,j:0,from:[[i-1,0]],msg:`left col: dp[${i}][0] = dp[${i-1}][0]+${G[i][0]} = ${dp[i][0]}.`});
+        for(let j=1;j<n;j++){ const a=dp[i-1][j],l=dp[i][j-1];
+          dp[i][j]=G[i][j]+Math.min(a,l);
+          const pick = a<l? [i-1,j] : [i,j-1];
+          f.push({dp:dp.map(r=>[...r]),i,j,from:[[i-1,j],[i,j-1]],pick,msg:`dp[${i}][${j}] = ${G[i][j]} + min(${a},${l}) = ${dp[i][j]}.`});
+        }
+      }
+      f.push({dp:dp.map(r=>[...r]),i:m-1,j:n-1,done:true,goal:true,msg:`Done \u2713 min path sum = ${dp[m-1][n-1]}.`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop();
+      note.innerHTML='Grid 3\u00d73. Each cell takes min(above, left) and adds its own value.';
+      draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx], m=G.length,n=G[0].length, cw=80, ox=80, oy=40;
+      // grid
+      AnimKit.text(ctx,'grid',ox-12,oy-14,{color:'#5b8dee',font:'bold 11px Inter',align:'right'});
+      for(let i=0;i<m;i++) for(let j=0;j<n;j++){
+        const x=ox+j*cw, y=oy+i*cw;
+        AnimKit.cell(ctx,x,y,cw-6,cw-6,{grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'});
+        AnimKit.text(ctx,G[i][j],x+(cw-6)/2,y+18,{color:'#8aa0c4',font:'11px JetBrains Mono'});
+      }
+      // dp values overlay
+      const dox=400;
+      AnimKit.text(ctx,'dp',dox-12,oy-14,{color:'#00d4aa',font:'bold 11px Inter',align:'right'});
+      for(let i=0;i<m;i++) for(let j=0;j<n;j++){
+        const x=dox+j*cw, y=oy+i*cw;
+        const val=fr.dp[i][j];
+        const isCur=fr.i===i&&fr.j===j, isFrom=fr.from&&fr.from.some(p=>p[0]===i&&p[1]===j), isPick=fr.pick&&fr.pick[0]===i&&fr.pick[1]===j, isGoal=fr.goal&&i===m-1&&j===n-1;
+        let opt,dark=false;
+        if(isCur){opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.85)'};dark=true;}
+        else if(isGoal){opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.55)',border:'rgba(0,212,170,.85)'};dark=true;}
+        else if(isPick){opt={grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.6)'};}
+        else if(isFrom){opt={grad:['#1f3b6e','#16294e'],border:'rgba(91,141,238,.6)'};}
+        else if(val!==null)opt={grad:['#15294e','#0f1f3d'],border:'rgba(91,141,238,.3)'};
+        else opt={grad:['#0e1729','#0b1320'],border:'rgba(255,255,255,.05)'};
+        AnimKit.cell(ctx,x,y,cw-6,cw-6,opt);
+        AnimKit.text(ctx,val===null?'·':val,x+(cw-6)/2,y+(cw-6)/2,{color:(dark||isPick)?'#0a1428':(val!==null?'#cfe0ff':'#3a4a68'),font:'bold 18px JetBrains Mono'});
+      }
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },700); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Minimum sum path from grid[0][0] to grid[m-1][n-1], moving only right or down.
- * dp[col] = min sum to reach the current row at column `col`. Updated in place
- * row by row: BEFORE assignment dp[col] holds the value from the row above;
+ * dp[j] = min sum to reach the current row at column `j`. Updated in place
+ * row by row: BEFORE assignment dp[j] holds the value from the row above;
  * AFTER assignment it holds the value for the current row.
  */
 int minPathSum(int[][] grid){
-  int rowCount = grid.length;
-  int colCount = grid[0].length;
-  int[] minSumToReach = new int[colCount];
+  int m = grid.length;
+  int n = grid[0].length;
+  int[] dp = new int[n];
 
   // Top-left corner is the base case.
-  minSumToReach[0] = grid[0][0];
+  dp[0] = grid[0][0];
   // Top row: only the "come from left" option is available.
-  for(int col = 1; col &lt; colCount; col++){
-    minSumToReach[col] = minSumToReach[col - 1] + grid[0][col];
+  for(int j = 1; j &lt; n; j++){
+    dp[j] = dp[j - 1] + grid[0][j];
   }
 
-  // Process each subsequent row, reusing minSumToReach as a rolling 1-D DP.
-  for(int row = 1; row &lt; rowCount; row++){
-    minSumToReach[0] += grid[row][0];                 // first column: only "come from above"
+  // Process each subsequent row, reusing dp as a rolling 1-D DP.
+  for(int i = 1; i &lt; m; i++){
+    dp[0] += grid[i][0];                              // first column: only "come from above"
 
-    for(int col = 1; col &lt; colCount; col++){
-      int costFromAbove = minSumToReach[col];         // value still from PREVIOUS row
-      int costFromLeft  = minSumToReach[col - 1];     // value already updated for THIS row
-      minSumToReach[col] = grid[row][col] + Math.min(costFromAbove, costFromLeft);
+    for(int j = 1; j &lt; n; j++){
+      int up   = dp[j];                               // value still from PREVIOUS row
+      int left = dp[j - 1];                           // value already updated for THIS row
+      dp[j] = grid[i][j] + Math.min(up, left);
     }
   }
-  return minSumToReach[colCount - 1];
+  return dp[n - 1];
 }</code></pre>
   <div class="complexity"><div>Time <b>O(m·n)</b></div><div>Space <b>O(n)</b> rolling row</div></div>
 </article>
@@ -2331,11 +4362,106 @@ flowchart TD
   l --> e(("e · isEnd: apple"))
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-27" class="anim-canvas" width="720" height="320"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM27.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM27.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM27.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-27">Insert "apple", search "app" → false, startsWith "app" → true, insert "app", search "app" → true.</div>
+  </div>
+  <script>
+  const ANIM27 = (function(){
+    const cv=document.getElementById('animc-27');
+    const note=document.getElementById('anim-note-27');
+    // node ids for path a-p-p-l-e: r,1(a),2(p),3(p),4(l),5(e)
+    const POS={r:{x:120,y:50},1:{x:220,y:110},2:{x:320,y:170},3:{x:420,y:230},4:{x:520,y:170},5:{x:620,y:110}};
+    const LABEL={r:'·',1:'a',2:'p',3:'p',4:'l',5:'e'};
+    function build(){
+      const f=[];
+      const exists=new Set(['r']), ends=new Set();
+      function st(extra){ return {exists:new Set(exists),ends:new Set(ends),...extra}; }
+      f.push(st({msg:'Empty trie. Only root exists.'}));
+      // insert apple
+      const path=['r',1,2,3,4,5];
+      f.push(st({op:'insert("apple")',cur:'r',msg:'insert("apple") \u2192 walk from root.'}));
+      for(let i=1;i<path.length;i++){ const id=path[i];
+        exists.add(id);
+        f.push(st({op:'insert("apple")',cur:id,wire:[path[i-1],id],msg:`create node '${LABEL[id]}' under '${LABEL[path[i-1]]}'.`}));
+      }
+      ends.add(5);
+      f.push(st({op:'insert("apple")',cur:5,end:true,msg:`mark 'e' as isEnd \u2192 word "apple" stored.`}));
+      // search "app"
+      f.push(st({op:'search("app")',cur:'r',msg:'search("app") \u2192 walk a,p,p.'}));
+      for(const id of [1,2,3]) f.push(st({op:'search("app")',cur:id,probe:true,msg:`step to '${LABEL[id]}'.`}));
+      f.push(st({op:'search("app")',cur:3,fail:true,msg:`reached 2nd p but isEnd=false \u2192 return <b>false</b>.`}));
+      // startsWith "app"
+      f.push(st({op:'startsWith("app")',cur:'r',msg:'startsWith("app") \u2192 only path needs to exist.'}));
+      for(const id of [1,2,3]) f.push(st({op:'startsWith("app")',cur:id,probe:true,msg:`step to '${LABEL[id]}'.`}));
+      f.push(st({op:'startsWith("app")',cur:3,ok:true,msg:'path exists \u2192 return <b>true</b>.'}));
+      // insert "app"
+      f.push(st({op:'insert("app")',cur:3,msg:'insert("app") \u2192 walk existing path.'}));
+      ends.add(3);
+      f.push(st({op:'insert("app")',cur:3,end:true,msg:`mark 2nd p as isEnd \u2192 word "app" stored.`}));
+      // search "app"
+      f.push(st({op:'search("app")',cur:'r',msg:'search("app") again.'}));
+      for(const id of [1,2,3]) f.push(st({op:'search("app")',cur:id,probe:true,msg:`step to '${LABEL[id]}'.`}));
+      f.push(st({op:'search("app")',cur:3,ok:true,done:true,msg:'isEnd=true \u2192 return <b>true</b> \u2713'}));
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop();
+      note.innerHTML='Insert &quot;apple&quot;, search &quot;app&quot; \u2192 false, startsWith &quot;app&quot; \u2192 true, insert &quot;app&quot;, search &quot;app&quot; \u2192 true.';
+      draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      const edges=[['r',1],[1,2],[2,3],[3,4],[4,5]];
+      edges.forEach(([a,b])=>{ if(!fr.exists.has(a)||!fr.exists.has(b)) return;
+        const pa=POS[a], pb=POS[b];
+        const fresh=fr.wire && fr.wire[0]==a && fr.wire[1]==b;
+        ctx.strokeStyle=fresh?'rgba(245,200,66,.85)':'rgba(91,141,238,.4)'; ctx.lineWidth=fresh?2.4:1.4;
+        ctx.beginPath(); ctx.moveTo(pa.x,pa.y); ctx.lineTo(pb.x,pb.y); ctx.stroke();
+        // edge letter
+        const mx=(pa.x+pb.x)/2, my=(pa.y+pb.y)/2-8;
+        AnimKit.text(ctx,LABEL[b],mx,my,{color:'#cfe0ff',font:'bold 11px JetBrains Mono'});
+      });
+      Object.keys(POS).forEach(id=>{ if(!fr.exists.has(id)) return;
+        const p=POS[id], isCur=String(fr.cur)===String(id), isEnd=fr.ends.has(+id)||fr.ends.has(id);
+        ctx.save();
+        if(isCur){ ctx.shadowColor=fr.fail?'rgba(255,107,107,.55)':fr.ok?'rgba(0,212,170,.55)':fr.end?'rgba(245,200,66,.6)':'rgba(91,141,238,.5)'; ctx.shadowBlur=14; }
+        const g=ctx.createLinearGradient(p.x,p.y-20,p.x,p.y+20);
+        if(isCur&&fr.fail){ g.addColorStop(0,'#ff7b7b'); g.addColorStop(1,'#d44545'); }
+        else if(isCur&&fr.ok){ g.addColorStop(0,'#1ad9b0'); g.addColorStop(1,'#0aa37e'); }
+        else if(isCur){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+        else if(isEnd){ g.addColorStop(0,'#0f3a33'); g.addColorStop(1,'#0c2b27'); }
+        else { g.addColorStop(0,'#15294e'); g.addColorStop(1,'#0f1f3d'); }
+        ctx.beginPath(); ctx.arc(p.x,p.y,21,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(p.x,p.y,21,0,Math.PI*2);
+        ctx.strokeStyle=isEnd?'rgba(0,212,170,.85)':isCur?'rgba(255,255,255,.6)':'rgba(255,255,255,.12)';
+        ctx.lineWidth=isEnd?2:1.4; ctx.stroke();
+        if(isEnd){ ctx.beginPath(); ctx.arc(p.x,p.y,16,0,Math.PI*2); ctx.strokeStyle='rgba(0,212,170,.55)'; ctx.lineWidth=1.2; ctx.stroke(); }
+        AnimKit.text(ctx,LABEL[id],p.x,p.y,{color:(isCur||isEnd)?'#0a1428':'#e6edf7',font:'bold 14px JetBrains Mono'});
+      });
+      if(fr.op) AnimKit.text(ctx,fr.op,W/2,28,{color:'#f5c842',font:'bold 13px JetBrains Mono'});
+      AnimKit.text(ctx,'inner ring = isEnd',W/2,H-12,{color:'#5a6e92',font:'10px Inter'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },700); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">class Trie{
   static class TrieNode{
     TrieNode[] children = new TrieNode[26];
-    boolean isEndOfWord;
+    boolean isEnd;
   }
   TrieNode root = new TrieNode();
 
@@ -2346,7 +4472,7 @@ flowchart TD
       if(node.children[idx] == null) node.children[idx] = new TrieNode();
       node = node.children[idx];
     }
-    node.isEndOfWord = true;
+    node.isEnd = true;
   }
 
   // Walks the trie following `s`. Returns the final node, or null if any char is missing.
@@ -2360,7 +4486,7 @@ flowchart TD
     return node;
   }
 
-  boolean search(String word)      { TrieNode node = walk(word);   return node != null &amp;&amp; node.isEndOfWord; }
+  boolean search(String word)      { TrieNode node = walk(word);   return node != null &amp;&amp; node.isEnd; }
   boolean startsWith(String prefix){ return walk(prefix) != null; }
 }</code></pre>
   <div class="complexity"><div>Time <b>O(L)</b> per op</div><div>Space <b>O(N·L)</b></div></div>
@@ -2382,15 +4508,30 @@ flowchart TD
     startOnLoad: true,
     theme: 'base',
     themeVariables: {
-      primaryColor: '#0f1f3d',
-      primaryTextColor: '#ffffff',
-      primaryBorderColor: '#00d4aa',
-      lineColor: '#5b8dee',
-      secondaryColor: '#142a52',
-      tertiaryColor: '#1a3060',
-      fontFamily: 'Inter, sans-serif'
+      background: 'transparent',
+      primaryColor: '#16294e',
+      primaryTextColor: '#e6edf7',
+      primaryBorderColor: '#5b8dee',
+      secondaryColor: '#0f3a33',
+      secondaryTextColor: '#e6edf7',
+      secondaryBorderColor: '#00d4aa',
+      tertiaryColor: '#1f3b6e',
+      tertiaryTextColor: '#e6edf7',
+      tertiaryBorderColor: '#7aa6ff',
+      lineColor: '#7aa6ff',
+      textColor: '#cfe0ff',
+      mainBkg: '#16294e',
+      nodeBorder: '#5b8dee',
+      clusterBkg: 'rgba(91,141,238,.06)',
+      clusterBorder: 'rgba(91,141,238,.25)',
+      defaultLinkColor: '#7aa6ff',
+      titleColor: '#f5c842',
+      edgeLabelBackground: '#0e1a33',
+      nodeTextColor: '#e6edf7',
+      fontFamily: 'Inter, sans-serif',
+      fontSize: '14px'
     },
-    flowchart:{ htmlLabels:true, curve:'basis' }
+    flowchart:{ htmlLabels:true, curve:'basis', padding:14, nodeSpacing:42, rankSpacing:48 }
   });
 </script>
 <script>

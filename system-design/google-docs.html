@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Design Google Docs · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+    --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+    --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+  .meta{margin-top:14px;color:var(--muted);font-size:13px;font-family:'JetBrains Mono',monospace}
+  .meta b{color:var(--gold)}
+
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .label{color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 8px;font-weight:700}
+  .label.gold{color:var(--gold)}
+
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  .define em{color:var(--muted);font-style:normal;display:block;font-size:13px;margin-top:4px}
+
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .callout b{color:var(--teal)}
+  .warn{background:rgba(239,68,68,.06);border-left:3px solid #ef4444;padding:14px 18px;border-radius:8px;margin:10px 0}
+  .warn b{color:#ef4444}
+
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  td code,th code{background:rgba(0,212,170,.10);padding:1px 6px;border-radius:4px;color:var(--teal);font-size:12px}
+
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto}
+
+  ul.bullets{padding-left:22px}
+  ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px}
+  ol.steps li{margin:8px 0}
+
+  .glossary{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:14px}
+  .gloss-card{background:rgba(91,141,238,.05);border:1px solid rgba(91,141,238,.2);border-radius:10px;padding:14px 16px}
+  .gloss-card h4{margin:0 0 6px;color:var(--blue);font-size:13.5px}
+  .gloss-card p{margin:0;font-size:13px;color:#cdd9ee}
+
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="crumb"><a href="index.html">System Design</a> · 04</div>
+  <span class="badge">Real-Time Collaboration</span>
+  <h1 class="title">Design <span>Google Docs</span></h1>
+  <p class="sub">1M concurrent editors typing into the same documents with sub-second peer visibility, offline support, and never-lose-a-keystroke durability — built on CRDTs over WebSockets.</p>
+  <div class="meta">1M concurrent · 1M ops/sec · p99 peer &lt; 1 s · <b>AP over CP</b></div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <h3>Walkthrough</h3>
+  <ol>
+    <li><a href="#req">Problem &amp; Requirements</a></li>
+    <li><a href="#math">Capacity Math</a></li>
+    <li><a href="#hard">Why "Concurrent Editing" is the Hard Part</a></li>
+    <li><a href="#hld">High-Level Architecture</a></li>
+    <li><a href="#flow">Happy-Path Flow — one keystroke</a></li>
+    <li><a href="#storage">Storage Model</a></li>
+    <li><a href="#shard">Sharding &amp; Routing</a></li>
+    <li><a href="#offline">Offline Edits &amp; Reconnection</a></li>
+    <li><a href="#perm">Permissions, Comments, Cursors</a></li>
+    <li><a href="#fail">Failure Handling</a></li>
+    <li><a href="#cap">Capacity Summary</a></li>
+    <li><a href="#talk">Interview Talking Points</a></li>
+    <li><a href="#pitch">30-Second Pitch</a></li>
+    <li><a href="#gloss">Glossary</a></li>
+  </ol>
+</nav>
+
+<!-- ============ REQ ============ -->
+<section class="step" id="req">
+  <h2><span class="num">01</span>Problem &amp; Requirements</h2>
+
+  <div class="callout"><b>The ask.</b> Real-time collaborative document editor — multiple users edit the same doc, see each other's changes within a second, never lose a keystroke, work offline.</div>
+
+  <div class="label">Functional</div>
+  <ul class="bullets">
+    <li>Multiple users edit the <b>same document concurrently</b> (text + basic formatting).</li>
+    <li>Changes propagate to all other viewers within <b>~1 second</b>.</li>
+    <li><b>Persistent</b> — close the tab, come back, doc is still there with full history.</li>
+    <li><b>Presence</b> — see who else is in the doc (avatars, live cursors).</li>
+    <li><b>Offline edits</b> sync once the user reconnects.</li>
+    <li><b>Permissions</b> — owner, editor, commenter, viewer.</li>
+  </ul>
+
+  <div class="label">Non-Functional</div>
+  <ul class="bullets">
+    <li><b>~100M DAU</b>, average user has 10 docs, 1% are co-edited simultaneously.</li>
+    <li><b>Latency</b>: local echo &lt; 50 ms, peer visibility p99 &lt; 1 s.</li>
+    <li><b>Availability &gt; Consistency</b> — never block typing; converge eventually.</li>
+    <li><b>Durability</b>: never lose a committed keystroke (11 nines).</li>
+  </ul>
+</section>
+
+<!-- ============ MATH ============ -->
+<section class="step" id="math">
+  <h2><span class="num">02</span>Capacity Math</h2>
+
+  <div class="callout"><b>Notation.</b> <code>b</code> = bit, <code>B</code> = byte, <code>1 B = 8 b</code>. <code>1 KB = 10³ B</code>, <code>1 MB = 10⁶ B</code>, <code>1 GB = 10⁹ B</code>, <code>1 TB = 10¹² B</code>. <code>1 char = 1 B</code> (UTF-8 ASCII).</div>
+
+  <ol class="steps">
+    <li><b>Active concurrent editors</b> = 100M DAU × 1% co-edit = <b>10⁶ concurrent sessions</b>.</li>
+    <li><b>Edit ops/sec</b> = 10⁶ × 4 chars/sec × 20% active = <b>~10⁶ ops/sec</b> (≈1M ops/sec).</li>
+    <li><b>Per-op payload</b> (CRDT op: position + char + clientId + ts) ≈ <b>60 B</b>.</li>
+    <li><b>Edit ingress bandwidth</b> = 10⁶ × 60 B = <b>60 MB/s</b>.</li>
+    <li><b>Fan-out egress</b> (each op → ~3 peers) = 60 MB/s × 3 = <b>180 MB/s</b>.</li>
+    <li><b>Storage</b>: 10⁹ docs × 50 KB avg = 50 TB body + 100 TB op log + 50 TB snapshots = <b>~200 TB</b>; replicated RF=3 → ~600 TB raw.</li>
+  </ol>
+</section>
+
+<!-- ============ HARD ============ -->
+<section class="step" id="hard">
+  <h2><span class="num">03</span>Why "Concurrent Editing" is the Hard Part</h2>
+
+  <p>If Alice and Bob both type at the same position at the same time, naïve last-write-wins <b>loses one of them</b>. The system must let every replica apply ops in any order and <b>converge to the same final document</b>.</p>
+
+  <table>
+    <thead><tr><th>Approach</th><th>How it works</th><th>Tradeoff</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Operational Transformation (OT)</b></td>
+        <td>Ops are <code>insert(pos, char)</code> / <code>delete(pos, len)</code>. Server <b>transforms</b> each op against intervening ops to keep positions valid.</td>
+        <td>Requires a <b>central server</b> to serialize transforms. Original Google Docs design.</td>
+      </tr>
+      <tr>
+        <td><b>CRDT</b> (sequence CRDT, e.g. RGA / Yjs / Automerge)</td>
+        <td>Each character gets a globally unique, totally ordered ID (<code>(clientId, lamport, fractional-pos)</code>). Ops are <b>commutative</b> — any order works.</td>
+        <td>No central serialization needed. Composes with offline edits. Modern Google Docs, Figma, Notion.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout"><b>Pick CRDT.</b> The server stops being the source of truth for ordering — it becomes a relay + persistence layer. Offline edits "just work". Cost: per-character metadata + tombstones for deleted chars (CRDTs grow over time → snapshot compaction matters).</div>
+
+  <div class="define"><b>CRDT (Conflict-free Replicated Data Type)</b> = a data structure where concurrent updates from different replicas always converge to the same state without coordination. <em>For text editing, a sequence CRDT assigns each character a unique ID so inserts at the same position have a deterministic tie-break.</em></div>
+
+  <div class="define"><b>Tombstone</b> = a "deleted" marker the CRDT keeps so a concurrent insert <i>after</i> a deleted character still anchors correctly. <em>Tombstones grow forever unless snapshot compaction removes them.</em></div>
+</section>
+
+<!-- ============ HLD ============ -->
+<section class="step" id="hld">
+  <h2><span class="num">04</span>High-Level Architecture</h2>
+
+  <pre class="ascii">
+═══════════════════ EDIT PATH (hot, p99 &lt; 1 s) ═══════════════════
+
+  Browser A ─┐    WebSocket (CRDT op stream)    ┌─ Browser C
+  (CRDT      │                                  │ (CRDT replica)
+   replica) ─┤                                  ├─
+            ▼                                  ▼
+       ┌──────────────────────────────────────────┐
+       │  Realtime Collab Server                  │
+       │  - sticky session by doc_id              │
+       │  - in-memory CRDT replica per active doc │
+       │  - fans out ops to peers in the doc      │
+       │  - tracks presence + live cursors        │
+       └──────┬───────────────────────────┬───────┘
+              │ append ops                │ cross-pod relay
+              ▼                           ▼
+       ┌──────────────────┐        ┌──────────────────┐
+       │ Kafka            │        │ Redis Pub/Sub    │
+       │ doc.ops.{shard}  │        │ doc:{doc_id}     │
+       │ (durable log)    │        │ (low latency)    │
+       └──────┬───────────┘        └──────────────────┘
+              │
+              ▼
+       ┌──────────────────┐
+       │ Op-log store     │   append-only, key=(doc_id, op_seq)
+       │ Cassandra/Scylla │   90-day retention
+       └──────┬───────────┘
+              │ hourly snapshot
+              ▼
+       ┌──────────────────┐   ┌──────────────────┐
+       │ Spanner          │   │ S3 (snapshots)   │
+       │ (doc metadata,   │──►│ gzipped CRDT     │
+       │  snapshot_seq)   │   │ state per doc    │
+       └──────────────────┘   └──────────────────┘
+
+═══════════════════ CONTROL PATH ═══════════════════
+
+  Browser ─► API Gateway ─► Doc Service ─► Spanner (ACL, title, share)
+                                 │
+                                 └─► Auth / Permission Service
+  </pre>
+  <img src="google-docs.png" alt="Google Docs System Design Architecture Diagram" style="width:100%;max-width:900px;border-radius:12px;margin-top:16px;border:1px solid var(--line)" />
+  <p style="margin-top:12px"><a href="google-docs.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+
+  <div class="define"><b>Collab Server</b> = a stateful pod that owns the live CRDT replicas for a set of documents. <em>Every editor of a single doc routes to the same Collab Server pod — fan-out happens inside one process. Pod crash = ~5 s reconnect + replay from snapshot.</em></div>
+
+  <div class="define"><b>Redis Pub/Sub for cross-pod relay</b> = when two editors of the same doc somehow land on different pods (region failover, brief sticky-session miss), the secondary pod subscribes to <code>doc:{doc_id}</code> on Redis to receive ops from the home pod. <em>The home pod is still the source of truth; Redis Pub/Sub is just a fast best-effort bridge.</em></div>
+</section>
+
+<!-- ============ FLOW ============ -->
+<section class="step" id="flow">
+  <h2><span class="num">05</span>Happy-Path Flow — One Keystroke</h2>
+
+  <ol class="steps">
+    <li><b>Alice types "X"</b>. Her browser CRDT generates <code>{type:"ins", id:(clientA, lamport=42), after:"id-9", char:"X"}</code>.</li>
+    <li><b>Local echo</b>: CRDT applies the op locally first → "X" renders within 50 ms. <b>Never blocks on network.</b></li>
+    <li>Op sent over the persistent <b>WebSocket</b> to the Collab Server pod that owns this doc.</li>
+    <li>Collab Server:
+      <ul class="bullets">
+        <li>Applies op to in-memory CRDT replica.</li>
+        <li>Publishes to <b>Kafka</b> <code>doc.ops.{shard}</code> for durability.</li>
+        <li>Publishes to <b>Redis</b> <code>doc:{doc_id}</code> for cross-pod fan-out.</li>
+        <li>Broadcasts to every other WebSocket connected to this doc on the same pod.</li>
+      </ul>
+    </li>
+    <li><b>Bob's browser</b> receives the op via WebSocket, applies to its CRDT. "X" appears.</li>
+    <li>Async: a <b>persistence worker</b> consumes Kafka → writes op to Cassandra.</li>
+    <li>Hourly: a <b>snapshotter</b> merges recent ops into the compacted CRDT body in S3, advances <code>snapshot_seq</code> in Spanner, old ops can be truncated.</li>
+  </ol>
+
+  <div class="callout"><b>Alice → Bob end-to-end:</b> typically 100–400 ms, p99 &lt; 1 s. Local echo is independent of network.</div>
+</section>
+
+<!-- ============ STORAGE ============ -->
+<section class="step" id="storage">
+  <h2><span class="num">06</span>Storage Model</h2>
+
+  <table>
+    <thead><tr><th>Table</th><th>Engine</th><th>Key</th><th>Value</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>documents</code></td><td>Spanner</td><td><code>doc_id</code></td><td>title, owner, acl, snapshot_seq, latest_body_ref</td><td>Metadata + snapshot pointer</td></tr>
+      <tr><td><code>doc_ops</code></td><td>Cassandra</td><td><code>(doc_id, op_seq)</code></td><td>op blob (~60 B)</td><td>Append-only op log, 90-day retention</td></tr>
+      <tr><td><code>doc_snapshots</code></td><td>S3</td><td><code>doc_id/{snapshot_seq}</code></td><td>gzipped CRDT state</td><td>Fast load on doc-open</td></tr>
+      <tr><td><code>presence</code></td><td>Redis</td><td><code>doc:{doc_id}:users</code></td><td>set of (user, cursor, color, last_seen)</td><td>Live cursors, TTL 30 s</td></tr>
+      <tr><td><code>user_docs</code></td><td>Spanner</td><td><code>(user_id, doc_id)</code></td><td>role, last_opened</td><td>"My Drive" listing</td></tr>
+    </tbody>
+  </table>
+
+  <div class="label">Loading a doc</div>
+  <ol class="steps">
+    <li>Look up <code>documents.snapshot_seq</code> (latest compacted version).</li>
+    <li>Fetch the snapshot from S3 (one big read, ~50 KB gzipped).</li>
+    <li>Replay any <code>doc_ops</code> with <code>op_seq &gt; snapshot_seq</code> (usually &lt; 100 ops).</li>
+    <li>Hand resulting CRDT to client. Total: ~100 ms.</li>
+  </ol>
+</section>
+
+<!-- ============ SHARD ============ -->
+<section class="step" id="shard">
+  <h2><span class="num">07</span>Sharding &amp; Routing</h2>
+
+  <p><b>Shard key = <code>doc_id</code></b> (consistent hashing). Every doc maps to exactly one "home" Collab Server pod via a shard map kept in etcd / ZooKeeper.</p>
+
+  <ul class="bullets">
+    <li>When a user opens a doc, the API Gateway looks up the home pod and sticky-routes the WebSocket there.</li>
+    <li>All editors of one doc share <b>one in-memory CRDT replica</b> → cheap intra-process fan-out.</li>
+    <li>A doc with <b>&gt;500 concurrent editors</b> triggers promotion to a "leader + N relays" topology: the leader serializes ops, relays just fan out to read-mostly viewers.</li>
+  </ul>
+
+  <div class="callout"><b>Why this matters.</b> 99% of fan-out stays inside a single process. Only cross-region scenarios touch Redis Pub/Sub. Network egress stays bounded.</div>
+
+  <div class="warn"><b>Hot doc risk.</b> One viral file (e.g., the IPO prospectus, a leaked exam) with 10k editors will saturate a single pod's CPU. Mitigation: auto-promote to leader/relay; shed presence updates first (drop cursor frequency from 200 ms → 1 s); never shed actual edit ops.</div>
+</section>
+
+<!-- ============ OFFLINE ============ -->
+<section class="step" id="offline">
+  <h2><span class="num">08</span>Offline Edits &amp; Reconnection</h2>
+
+  <ul class="bullets">
+    <li>Browser keeps an <b>unacked op queue</b> in IndexedDB.</li>
+    <li>When offline, ops still apply locally (CRDT property) — user keeps editing without any spinner.</li>
+    <li>On reconnect:
+      <ol class="steps">
+        <li>Client sends last-seen server <code>op_seq</code> and its unacked ops.</li>
+        <li>Server sends back ops <code>&gt; last_seen_seq</code>.</li>
+        <li>Client merges — CRDT handles conflicts automatically.</li>
+      </ol>
+    </li>
+    <li>Result: 6 hours of in-flight edits on a plane → land → reconnect → everything syncs cleanly, no "merge conflict" dialog.</li>
+  </ul>
+
+  <div class="define"><b>WAL (Write-Ahead Log)</b> = a local append-only log written <i>before</i> acknowledging an op. <em>The Collab Server keeps a WAL on local disk; on crash, replay the WAL into Kafka so no acked op is lost.</em></div>
+</section>
+
+<!-- ============ PERM ============ -->
+<section class="step" id="perm">
+  <h2><span class="num">09</span>Permissions, Comments, Cursors</h2>
+
+  <ul class="bullets">
+    <li><b>ACL check</b> happens at WebSocket-handshake time (Gateway → Auth Service). Cached for the session; revocation broadcasts a kick message over the same channel.</li>
+    <li><b>Comments</b> are a separate CRDT layer keyed by an anchor range in the doc — when text moves, the anchor moves with it. Stored in <code>doc_comments</code>.</li>
+    <li><b>Live cursors / presence</b> live entirely in Redis with TTL 30 s — <b>never persisted</b>. Each client broadcasts its cursor position every 200 ms over the same WebSocket.</li>
+  </ul>
+
+  <div class="callout"><b>Presence is ephemeral on purpose.</b> Treating "who's looking at the doc" as durable state means restoring it after every restart, replicating it geographically, and paying storage for data that's stale in 30 seconds. Redis with TTL is the right answer.</div>
+</section>
+
+<!-- ============ FAIL ============ -->
+<section class="step" id="fail">
+  <h2><span class="num">10</span>Failure Handling</h2>
+
+  <table>
+    <thead><tr><th>Failure</th><th>Impact</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>Collab Server pod crashes</td><td>Disconnects all sessions on that pod</td><td>Clients auto-reconnect; new pod loads CRDT from snapshot + op log; recovery &lt; 5 s</td></tr>
+      <tr><td>Kafka outage</td><td>Ops not durably persisted</td><td>Local clients keep editing (CRDT); Collab Server buffers in memory + local WAL; replays when Kafka recovers</td></tr>
+      <tr><td>Cassandra outage</td><td>Op writes blocked</td><td>Same as Kafka — buffer in WAL, alert ops, eventually drain</td></tr>
+      <tr><td>Network partition between two users</td><td>They edit independently</td><td>CRDT merge on reconnect — no data loss, both edits preserved</td></tr>
+      <tr><td>Concurrent edit at same position</td><td>Two chars at "same" spot</td><td><code>(client_id, lamport)</code> tie-break → deterministic order on every replica</td></tr>
+      <tr><td>Snapshotter falls behind</td><td>Slow doc loads (many ops to replay)</td><td>Multiple snapshotter workers; alert at lag &gt; 1 h</td></tr>
+      <tr><td>Hot doc (10k editors on viral file)</td><td>Pod CPU saturates</td><td>Auto-promote to leader+relay topology; shed presence updates first</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ CAP ============ -->
+<section class="step" id="cap">
+  <h2><span class="num">11</span>Capacity Summary</h2>
+
+  <table>
+    <thead><tr><th>Layer</th><th>Instances</th><th>Per-instance</th><th>Total</th></tr></thead>
+    <tbody>
+      <tr><td>API Gateway</td><td>~50 pods</td><td>3k QPS</td><td>150k QPS</td></tr>
+      <tr><td>Collab Server (WS + CRDT)</td><td>~500 pods</td><td>2k docs, ~20k users</td><td>1M concurrent users</td></tr>
+      <tr><td>Kafka</td><td>~30 brokers</td><td>~30k msg/s</td><td>~1M ops/s</td></tr>
+      <tr><td>Cassandra (op log)</td><td>~100 nodes, RF=3</td><td>10k writes/s</td><td>100 TB op data</td></tr>
+      <tr><td>Spanner (metadata)</td><td>managed</td><td>—</td><td>10⁹ docs</td></tr>
+      <tr><td>S3 (snapshots)</td><td>managed</td><td>—</td><td>50 TB</td></tr>
+      <tr><td>Redis (presence + relay)</td><td>~20 shards × 2 replicas</td><td>100k ops/s primary</td><td>—</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ TALK ============ -->
+<section class="step" id="talk">
+  <h2><span class="num">12</span>Interview Talking Points</h2>
+
+  <ol class="steps">
+    <li><b>Lead with CRDT vs OT</b> — CRDT removes the server from correctness, enables offline.</li>
+    <li><b>Local echo first</b> — typing must never block on the network.</li>
+    <li><b>Sticky-route by <code>doc_id</code></b> — fan-out stays in-process for the common case.</li>
+    <li><b>Op log + snapshots</b> — append-only Cassandra log; hourly compaction into S3.</li>
+    <li><b>WebSocket</b> for live edits; HTTP only for control plane (open, share, list).</li>
+    <li><b>AP over CP</b> — never block typing; converge afterward.</li>
+    <li><b>Presence is ephemeral</b> — Redis with TTL, never the database.</li>
+    <li><b>Hot docs get promoted</b> to leader/relay topology for 10k-editor viral scenarios.</li>
+    <li><b>Trade-offs</b>: CRDT tombstone overhead, snapshot frequency vs replay cost, sticky-session vs even load.</li>
+    <li><b>Extensions</b>: suggestion mode, version history UI, real-time chat sidebar, ML grammar service consuming the op stream.</li>
+  </ol>
+</section>
+
+<!-- ============ PITCH ============ -->
+<section class="step" id="pitch">
+  <h2><span class="num">13</span>30-Second Pitch</h2>
+
+  <div class="callout">
+    Google Docs at 1M concurrent editors is fundamentally a <b>CRDT replicated over WebSockets</b>. Each keystroke becomes a CRDT op with a globally unique ID; the client <b>applies it locally first</b> (instant feedback), then ships it over a sticky WebSocket to a <b>Collab Server pod</b> that owns the doc (sharded by <code>doc_id</code>). That pod fans out to every other editor and appends the op to <b>Kafka → Cassandra</b> for durability. Every hour a <b>snapshotter</b> compacts ops into a gzipped CRDT state in <b>S3</b>, so opening a doc = "fetch snapshot + replay tail ops". Offline edits accumulate in IndexedDB and merge cleanly on reconnect — that's the CRDT superpower. <b>AP over CP</b>: never block typing; converge eventually. Presence lives in <b>Redis with a 30 s TTL</b> and never touches the database.
+  </div>
+</section>
+
+<!-- ============ GLOSS ============ -->
+<section class="step" id="gloss">
+  <h2><span class="num">14</span>Glossary</h2>
+
+  <div class="glossary">
+    <div class="gloss-card"><h4>CRDT</h4><p>Conflict-free Replicated Data Type — concurrent ops from different replicas always converge without coordination.</p></div>
+    <div class="gloss-card"><h4>OT (Operational Transformation)</h4><p>Alternative to CRDT: a central server rewrites concurrent ops to keep positions consistent.</p></div>
+    <div class="gloss-card"><h4>Lamport timestamp</h4><p><code>(counter, clientId)</code> tuple giving a total order across distributed events without clock sync.</p></div>
+    <div class="gloss-card"><h4>Tombstone</h4><p>A "deleted" marker kept in a CRDT so concurrent inserts after a delete still order correctly.</p></div>
+    <div class="gloss-card"><h4>Sticky session</h4><p>Load balancer pins one client connection to one backend pod for the lifetime of the session.</p></div>
+    <div class="gloss-card"><h4>WebSocket</h4><p>Full-duplex TCP-based protocol for low-latency bidirectional messages — used here instead of HTTP polling.</p></div>
+    <div class="gloss-card"><h4>WAL (Write-Ahead Log)</h4><p>Local append-only log written before acknowledging an op, so a crash can replay anything not yet shipped to Kafka.</p></div>
+    <div class="gloss-card"><h4>Snapshot</h4><p>Periodically materialized full document state, used to avoid replaying years of ops on doc-open.</p></div>
+    <div class="gloss-card"><h4>Presence</h4><p>Ephemeral metadata about who's currently viewing or editing (cursors, avatars, colors).</p></div>
+    <div class="gloss-card"><h4>Fan-out</h4><p>Distributing one incoming event to many connected listeners.</p></div>
+    <div class="gloss-card"><h4>Sharding by <code>doc_id</code></h4><p>Every document deterministically maps to one home pod; same idea as Kafka partitioning or DB sharding.</p></div>
+    <div class="gloss-card"><h4>AP vs CP (CAP)</h4><p>AP = always available, eventually consistent. Docs picks AP because blocking typing is worse than briefly diverging.</p></div>
+  </div>
+</section>
+
+</div>
+
+<a href="#" class="top" id="top">↑</a>
+
+<footer>
+  <b>BuildLikeASenior</b> · Think · Design · Grow Like a Senior Engineer<br>
+  <small>System Design · 04 · Real-Time Collaboration</small>
+</footer>
+
+<script>
+  const top = document.getElementById('top');
+  window.addEventListener('scroll', () => { top.classList.toggle('show', window.scrollY > 400); });
+</script>
+
+</body>
+</html>

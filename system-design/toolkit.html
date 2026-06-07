@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>System Design Toolkit · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+    --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+    --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  header.hero .crumb a:hover{color:var(--teal)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .label{color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 8px;font-weight:700}
+  .label.gold{color:var(--gold)}
+
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  .define em{color:var(--muted);font-style:normal;display:block;font-size:13px;margin-top:4px}
+
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .callout b{color:var(--teal)}
+  .warn{background:rgba(239,68,68,.06);border-left:3px solid #ef4444;padding:14px 18px;border-radius:8px;margin:10px 0}
+  .warn b{color:#ef4444}
+
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  td code, th code{background:rgba(0,212,170,.10);padding:1px 6px;border-radius:4px;color:var(--teal);font-size:12px}
+
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto;font-family:'JetBrains Mono',monospace}
+
+  ul.bullets{padding-left:22px}
+  ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px}
+  ol.steps li{margin:8px 0}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .pillbox{background:rgba(91,141,238,.05);border:1px solid rgba(91,141,238,.2);border-radius:10px;padding:14px 16px}
+  .pillbox h4{margin:0 0 6px;font-size:14px;color:var(--blue)}
+  .pillbox p{margin:0;font-size:13.5px;color:#cdd9ee}
+
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="crumb"><a href="index.html">System Design</a> · TOOLKIT</div>
+  <span class="badge">Staff / Senior Reference</span>
+  <h1 class="title">System Design <span>Toolkit</span></h1>
+  <p class="sub">The components, patterns, and numbers a senior engineer is expected to know cold in a system-design interview — with when to use each, when <i>not</i> to, and which production technology backs it.</p>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <h3>Walkthrough</h3>
+  <ol>
+    <li><a href="#numbers">Numbers Every Senior Should Know</a></li>
+    <li><a href="#load">Load Balancers &amp; Service Discovery</a></li>
+    <li><a href="#api">API Styles &amp; Gateways</a></li>
+    <li><a href="#cache">Caching Layers</a></li>
+    <li><a href="#db">Databases — SQL vs NoSQL vs NewSQL</a></li>
+    <li><a href="#shard">Sharding &amp; Partitioning</a></li>
+    <li><a href="#repl">Replication &amp; Consensus</a></li>
+    <li><a href="#queues">Queues, Streams &amp; Pub/Sub</a></li>
+    <li><a href="#search">Search &amp; Analytics Engines</a></li>
+    <li><a href="#blob">Object &amp; Blob Storage, CDN</a></li>
+    <li><a href="#consistency">Consistency Models &amp; CAP/PACELC</a></li>
+    <li><a href="#txn">Distributed Transactions &amp; Sagas</a></li>
+    <li><a href="#idem">Idempotency &amp; Exactly-Once</a></li>
+    <li><a href="#reliability">Reliability Patterns</a></li>
+    <li><a href="#scaling">Scaling Patterns</a></li>
+    <li><a href="#obs">Observability — Logs, Metrics, Traces</a></li>
+    <li><a href="#sec">Security Essentials</a></li>
+    <li><a href="#delivery">Deployment, Feature Flags, A/B</a></li>
+    <li><a href="#interview">How to Use This in a 45-min Interview</a></li>
+  </ol>
+</nav>
+
+<!-- ====================== NUMBERS ====================== -->
+<section class="step" id="numbers">
+  <h2><span class="num">01</span>Numbers Every Senior Should Know (Latency &amp; Throughput Cheat Sheet)</h2>
+
+  <p>You don't need to memorize all of these to four significant digits — you need order-of-magnitude. Capacity math always uses byte (<code>B</code>, uppercase) for storage and bit (<code>b</code>, lowercase) for network speeds. <code>1 B = 8 b</code>.</p>
+
+  <table>
+    <thead><tr><th>Operation</th><th>Time</th><th>Mental model</th></tr></thead>
+    <tbody>
+      <tr><td>L1 cache reference</td><td>~1 ns</td><td>"The CPU just looked next door."</td></tr>
+      <tr><td>Main memory (RAM) reference</td><td>~100 ns</td><td>100× slower than L1.</td></tr>
+      <tr><td>SSD random read (NVMe)</td><td>~10 µs</td><td>100× slower than RAM.</td></tr>
+      <tr><td>Round trip in same datacenter</td><td>~0.5 ms</td><td>One LAN hop.</td></tr>
+      <tr><td>HDD seek</td><td>~5 ms</td><td>Spinning disk is ancient by now.</td></tr>
+      <tr><td>Round trip cross-region (US ↔ EU)</td><td>~80 ms</td><td>Speed of light, basically.</td></tr>
+      <tr><td>Round trip cross-globe (US ↔ India)</td><td>~250 ms</td><td>One human notice it.</td></tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead><tr><th>Throughput unit</th><th>Typical sustained</th><th>Used for sizing</th></tr></thead>
+    <tbody>
+      <tr><td>1 Gbps NIC</td><td>~120 MB/s</td><td>per-host network ceiling for old VMs</td></tr>
+      <tr><td>10 / 25 Gbps NIC (modern cloud)</td><td>~1.2 / 3 GB/s</td><td>per-host network ceiling for new VMs</td></tr>
+      <tr><td>NVMe SSD</td><td>~3 GB/s read, 100k+ IOPS</td><td>per-disk ceiling</td></tr>
+      <tr><td>Postgres single-node write</td><td>~5–10k TPS</td><td>before you need replication / sharding</td></tr>
+      <tr><td>Redis (single instance, single thread)</td><td>~100–150k ops/s</td><td>per-instance ceiling for INCR/GET/SET</td></tr>
+      <tr><td>Kafka broker</td><td>~100–500 MB/s ingest</td><td>per-broker ceiling</td></tr>
+      <tr><td>One Kafka partition</td><td>~50–100 MB/s</td><td>per-partition ceiling</td></tr>
+      <tr><td>Cassandra/Scylla node</td><td>~50k writes/s</td><td>per-node ceiling, RF=3</td></tr>
+      <tr><td>Single TCP connection</td><td>limited by RTT × window</td><td>WAN: ~10 MB/s without tuning</td></tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead><tr><th>Order of magnitude</th><th>Bytes</th><th>"What fits"</th></tr></thead>
+    <tbody>
+      <tr><td>1 KB</td><td>10³ B</td><td>One JSON record</td></tr>
+      <tr><td>1 MB</td><td>10⁶ B</td><td>One book (text), small image</td></tr>
+      <tr><td>1 GB</td><td>10⁹ B</td><td>One DVD movie, one full Wikipedia language dump compressed</td></tr>
+      <tr><td>1 TB</td><td>10¹² B</td><td>One small startup's full DB</td></tr>
+      <tr><td>1 PB</td><td>10¹⁵ B</td><td>Big-tech daily logs</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout"><b>Interview shortcut.</b> 1 day ≈ 10⁵ seconds (86,400 rounded). 1 month ≈ 2.6 × 10⁶ s. 1 year ≈ 3.15 × 10⁷ s. Use these to convert daily numbers into per-second QPS in your head.</div>
+</section>
+
+<!-- ====================== LOAD ====================== -->
+<section class="step" id="load">
+  <h2><span class="num">02</span>Load Balancers &amp; Service Discovery</h2>
+
+  <p>A load balancer distributes incoming requests across many backend instances. Without it, you can't add capacity by adding machines.</p>
+
+  <table>
+    <thead><tr><th>Layer</th><th>What it sees</th><th>Examples</th><th>Use for</th></tr></thead>
+    <tbody>
+      <tr><td><b>L4</b> (transport)</td><td>TCP/UDP packets — only IPs and ports</td><td>AWS NLB, HAProxy in TCP mode, IPVS</td><td>Raw TCP, gRPC streams, low-latency, anything not HTTP</td></tr>
+      <tr><td><b>L7</b> (application)</td><td>HTTP headers, URLs, cookies, JWT claims</td><td>AWS ALB, Nginx, Envoy, HAProxy in HTTP mode</td><td>Path-based routing, sticky sessions, TLS termination, request transforms</td></tr>
+      <tr><td><b>Service mesh sidecar</b></td><td>L7 but per-pod</td><td>Envoy (Istio), Linkerd</td><td>East-west traffic inside a Kubernetes cluster</td></tr>
+      <tr><td><b>Global / DNS-based</b></td><td>Just hostnames</td><td>Route 53 latency-based routing, Cloudflare LB</td><td>Multi-region failover, geo-routing</td></tr>
+    </tbody>
+  </table>
+
+  <div class="label">Common balancing algorithms</div>
+  <ul class="bullets">
+    <li><b>Round-robin</b> — simplest; ignores actual load.</li>
+    <li><b>Least connections</b> — sends to the backend with fewest open connections; great for variable-duration requests.</li>
+    <li><b>Weighted</b> — bigger boxes get more traffic. Used during canary rollouts (1% → 10% → 100%).</li>
+    <li><b>Consistent hashing</b> — same key always lands on the same backend; key for caches and stateful services (see §5 sharding).</li>
+    <li><b>Power of two choices</b> — pick two random backends, send to the less-loaded one. Provably near-optimal, very cheap.</li>
+  </ul>
+
+  <div class="define"><b>Sticky session (session affinity)</b> = the LB pins one client to one backend for the lifetime of a session. <em>Used when the backend holds in-memory state for that user. Cost: harder to rebalance load; lose the pod, lose the state.</em></div>
+
+  <div class="define"><b>Service discovery</b> = the mechanism services use to find each other's IPs. <em>Examples: Kubernetes Services + DNS, Consul, etcd, Eureka. The LB and discovery are usually combined in modern stacks.</em></div>
+</section>
+
+<!-- ====================== API ====================== -->
+<section class="step" id="api">
+  <h2><span class="num">03</span>API Styles &amp; Gateways</h2>
+
+  <table>
+    <thead><tr><th>Style</th><th>Sweet spot</th><th>Watch out for</th></tr></thead>
+    <tbody>
+      <tr><td><b>REST / JSON</b></td><td>Public APIs, resource CRUD, easy debugging</td><td>Chatty for nested data; weak typing</td></tr>
+      <tr><td><b>gRPC</b> (HTTP/2 + protobuf)</td><td>Internal service-to-service, polyglot teams, low CPU/network cost</td><td>Browser support, harder debugging without tools</td></tr>
+      <tr><td><b>GraphQL</b></td><td>Mobile clients that want to pick fields; aggregating many backends</td><td>Caching, N+1 queries, complex authz</td></tr>
+      <tr><td><b>WebSocket / SSE</b></td><td>Live bidirectional (chat, docs, dashboards)</td><td>Sticky LB, harder failover, harder rate-limiting</td></tr>
+      <tr><td><b>Webhooks</b></td><td>Async callbacks from your service to a customer's URL</td><td>Retries, idempotency, signature verification</td></tr>
+    </tbody>
+  </table>
+
+  <div class="define"><b>API Gateway</b> = the single managed entry point in front of many backend services. <em>Owns: TLS termination, authentication, rate limiting, request validation, routing, response transformation, observability. Examples: AWS API Gateway, Kong, Apigee, Envoy at the edge, Cloudflare Workers. In a small system the LB does this; in a microservices system you need a dedicated gateway tier.</em></div>
+
+  <div class="define"><b>BFF (Backend-for-Frontend)</b> = a small gateway-style service per client type (one for web, one for mobile) that aggregates downstream microservices into the exact shape the UI needs. <em>Keeps clients dumb; keeps your microservices uncontaminated by UI concerns.</em></div>
+</section>
+
+<!-- ====================== CACHE ====================== -->
+<section class="step" id="cache">
+  <h2><span class="num">04</span>Caching Layers</h2>
+
+  <p>Caches are the cheapest performance lever there is — and the most dangerous source of subtle bugs (stale data, thundering herds, cache stampedes). Senior expectation: pick the <i>right</i> cache layer, name its invalidation strategy.</p>
+
+  <table>
+    <thead><tr><th>Layer</th><th>Where</th><th>TTL typical</th><th>Examples</th></tr></thead>
+    <tbody>
+      <tr><td>Browser / client</td><td>End-user device</td><td>seconds–hours</td><td><code>Cache-Control</code> headers, IndexedDB</td></tr>
+      <tr><td>CDN / edge</td><td>Cloudflare/Fastly/Akamai PoPs</td><td>10s–1h</td><td>HTML, JSON, images, video segments</td></tr>
+      <tr><td>API gateway / reverse proxy</td><td>In front of your services</td><td>seconds</td><td>Nginx, Varnish, Envoy</td></tr>
+      <tr><td>Application / distributed</td><td>Beside your services</td><td>seconds–days</td><td>Redis, Memcached, Hazelcast</td></tr>
+      <tr><td>Local / in-process</td><td>Inside the JVM/Node/Go process</td><td>seconds</td><td>Caffeine (Java), <code>sync.Map</code>+TTL (Go), LRU dict</td></tr>
+      <tr><td>Materialized view</td><td>Inside the database</td><td>refresh on schedule</td><td>Postgres materialized views, BigQuery</td></tr>
+    </tbody>
+  </table>
+
+  <div class="label">Caching strategies</div>
+  <table>
+    <thead><tr><th>Pattern</th><th>Read path</th><th>Write path</th><th>When</th></tr></thead>
+    <tbody>
+      <tr><td><b>Cache-aside</b> (lazy)</td><td>App checks cache → miss → load from DB → populate cache</td><td>App writes to DB; invalidates / updates cache</td><td>Most common; works for any DB</td></tr>
+      <tr><td><b>Read-through</b></td><td>App asks cache; cache loads from DB on miss</td><td>Same as cache-aside</td><td>When cache library supports it (e.g., Caffeine)</td></tr>
+      <tr><td><b>Write-through</b></td><td>Same as cache-aside</td><td>App writes to cache; cache writes through to DB synchronously</td><td>Strong consistency between cache &amp; DB; slower writes</td></tr>
+      <tr><td><b>Write-behind</b> (write-back)</td><td>Same</td><td>App writes to cache; cache writes to DB <i>asynchronously</i></td><td>Burst writes; data loss risk on cache crash</td></tr>
+      <tr><td><b>Refresh-ahead</b></td><td>Background refresh near expiry</td><td>—</td><td>Hot keys you can't afford to be cold</td></tr>
+    </tbody>
+  </table>
+
+  <div class="label gold">The four cache failure modes you must mention</div>
+  <ul class="bullets">
+    <li><b>Cache stampede / thundering herd</b> — TTL expires on a hot key; all requests miss simultaneously and hammer the DB. Fix: single-flight (request coalescing / locking), jittered TTLs, probabilistic early expiration.</li>
+    <li><b>Stale read</b> — DB updated, cache not invalidated. Fix: write-through, or invalidate-before-update, or accept eventual consistency.</li>
+    <li><b>Hot key</b> — one key gets 10× the traffic of others, saturates one shard. Fix: replicate hot key across shards, or add a local in-process tier.</li>
+    <li><b>Negative caching</b> — cache also stores "not found" results to prevent DB scans on bad lookups.</li>
+  </ul>
+
+  <div class="define"><b>Memcached vs Redis</b> = Memcached is a pure LRU key-value cache (multi-threaded, very simple). Redis is single-threaded but offers data structures (lists, sets, sorted sets, hashes, streams), persistence, scripts, pub/sub, and cluster mode. <em>Default to Redis unless you specifically need Memcached's multi-threaded simplicity.</em></div>
+</section>
+
+<!-- ====================== DB ====================== -->
+<section class="step" id="db">
+  <h2><span class="num">05</span>Databases — SQL vs NoSQL vs NewSQL</h2>
+
+  <table>
+    <thead><tr><th>Family</th><th>Examples</th><th>Strengths</th><th>Weak when</th></tr></thead>
+    <tbody>
+      <tr><td><b>Relational (SQL)</b></td><td>Postgres, MySQL, Oracle</td><td>ACID transactions, joins, mature tooling, strong consistency</td><td>Horizontal write scaling; very high write volume; schema-fluid data</td></tr>
+      <tr><td><b>Key-value</b></td><td>DynamoDB, Redis (as store), RocksDB, Riak</td><td>Massive horizontal scale, predictable single-key latency</td><td>Queries beyond by-key; ad-hoc analytics</td></tr>
+      <tr><td><b>Wide-column</b></td><td>Cassandra, ScyllaDB, HBase, Bigtable</td><td>Huge write throughput, time-series, log-style data</td><td>Joins, ad-hoc queries, transactions across rows</td></tr>
+      <tr><td><b>Document</b></td><td>MongoDB, DocumentDB, Firestore</td><td>Flexible schema, nested data, fast prototyping</td><td>Multi-doc transactions (improving), join-heavy queries</td></tr>
+      <tr><td><b>Graph</b></td><td>Neo4j, JanusGraph, AWS Neptune</td><td>Relationship-traversal queries (social graph, fraud rings)</td><td>Tabular workloads, very wide writes</td></tr>
+      <tr><td><b>Search</b></td><td>Elasticsearch, OpenSearch, Solr</td><td>Full-text search, fuzzy match, facets</td><td>Source of truth for money/state</td></tr>
+      <tr><td><b>Time-series</b></td><td>Prometheus (metrics), InfluxDB, TimescaleDB, ClickHouse</td><td>Range scans over time, compression, downsampling</td><td>Random by-id lookups</td></tr>
+      <tr><td><b>NewSQL / distributed SQL</b></td><td>Spanner, CockroachDB, YugabyteDB, TiDB</td><td>SQL semantics + horizontal scale + strong consistency</td><td>Cost; latency floor of multi-region commits</td></tr>
+      <tr><td><b>OLAP / columnar</b></td><td>Snowflake, BigQuery, ClickHouse, Redshift</td><td>Aggregations over billions of rows</td><td>Point reads, OLTP transactions</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout"><b>Default for a new service.</b> Postgres until proven otherwise. Add Redis for caching, add a search index when needed, move heavy analytics to ClickHouse/BigQuery, only reach for a distributed DB when single-leader writes truly cap you out. Most "we need NoSQL" instincts are wrong.</div>
+
+  <div class="define"><b>OLTP vs OLAP</b> = Online Transaction Processing = lots of small reads/writes by ID (your live app DB). Online Analytical Processing = few big aggregations over huge datasets (your data warehouse). <em>You usually want one of each, connected by a pipeline (CDC, ETL).</em></div>
+
+  <div class="define"><b>CDC (Change Data Capture)</b> = streaming every insert/update/delete out of an OLTP DB as events. <em>Tools: Debezium (Postgres/MySQL binlog), AWS DMS, Materialize. Feeds search indexes, OLAP warehouses, and caches.</em></div>
+</section>
+
+<!-- ====================== SHARD ====================== -->
+<section class="step" id="shard">
+  <h2><span class="num">06</span>Sharding &amp; Partitioning</h2>
+
+  <p>One logical dataset split into many physical pieces by some key, so each piece can be served by a different machine. Same pattern applies to databases, caches, queues, and in-memory app servers.</p>
+
+  <table>
+    <thead><tr><th>Strategy</th><th>How</th><th>Pros</th><th>Cons</th></tr></thead>
+    <tbody>
+      <tr><td><b>Range</b></td><td>e.g., user_id 1–1M → shard 0; 1M–2M → shard 1</td><td>Range scans are local</td><td>New rows pile onto the highest shard ("hotspot at the end")</td></tr>
+      <tr><td><b>Hash</b></td><td><code>shard = hash(key) % N</code></td><td>Even distribution</td><td>Range scans go to all shards; resharding moves ~all data</td></tr>
+      <tr><td><b>Consistent hash</b></td><td>Keys + nodes both placed on a ring; key goes to the next node clockwise</td><td>Adding a node moves only ~1/N of keys</td><td>Slightly less even; needs virtual nodes</td></tr>
+      <tr><td><b>Directory / lookup</b></td><td>External shard map (e.g., Vitess, custom)</td><td>Full flexibility, can split hot shards</td><td>Shard map is critical-path metadata; needs HA itself</td></tr>
+      <tr><td><b>Geo / locality</b></td><td>By region of the user</td><td>Latency, data residency (GDPR)</td><td>Cross-region queries are slow</td></tr>
+    </tbody>
+  </table>
+
+  <div class="label gold">The shard key is the most important decision</div>
+  <ul class="bullets">
+    <li>Must <b>distribute evenly</b> (no celebrity / Beyoncé problem).</li>
+    <li>Must match the <b>dominant query pattern</b> — if 99% of queries fetch by <code>user_id</code>, shard by <code>user_id</code>.</li>
+    <li>Avoid sharding by anything monotonic (time, auto-incrementing id) without bucketing — you'll create a write hotspot.</li>
+    <li>Resharding is expensive and risky. Pick something stable.</li>
+  </ul>
+
+  <div class="define"><b>Hot shard</b> = one shard receiving disproportionate traffic. <em>Fixes: replicate that shard more, split it further (sub-shard by a secondary key), or push hot keys into a local cache. Famous example: Twitter's "celebrity tweet" fan-out problem.</em></div>
+
+  <div class="define"><b>Virtual nodes / vnodes</b> = a real machine owns many small ring positions instead of one. <em>Used by Cassandra, DynamoDB. Smoothes load and makes adding/removing nodes cheap.</em></div>
+</section>
+
+<!-- ====================== REPL ====================== -->
+<section class="step" id="repl">
+  <h2><span class="num">07</span>Replication &amp; Consensus</h2>
+
+  <p>Replication = keeping copies of data on multiple machines. Sharding splits data; replication copies it. You usually need both.</p>
+
+  <table>
+    <thead><tr><th>Topology</th><th>How</th><th>Use when</th><th>Risk</th></tr></thead>
+    <tbody>
+      <tr><td><b>Single-leader (primary/replica)</b></td><td>All writes go to one node; replicas pull async or sync</td><td>OLTP DBs (Postgres, MySQL)</td><td>Replica lag → stale reads</td></tr>
+      <tr><td><b>Multi-leader</b></td><td>Writes accepted at many nodes; merged later</td><td>Geo-distributed editing</td><td>Conflicts need resolution (LWW, CRDT)</td></tr>
+      <tr><td><b>Leaderless</b> (Dynamo-style)</td><td>Writes go to N nodes; W ack, R reads merged</td><td>Cassandra, DynamoDB</td><td>Tunable but tricky consistency</td></tr>
+      <tr><td><b>Quorum (Raft/Paxos)</b></td><td>Majority must ack writes</td><td>etcd, Spanner, CockroachDB, ZooKeeper</td><td>Latency = slowest of (N/2 + 1)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="define"><b>Synchronous vs asynchronous replication</b> = sync = leader waits for replicas to confirm before acking the client (safer, slower). Async = leader acks immediately, replicates in the background (faster, can lose recent writes on failover). <em>Most cloud DBs default to one sync replica + many async followers.</em></div>
+
+  <div class="define"><b>Raft / Paxos (consensus algorithms)</b> = protocols that let a group of nodes agree on the same sequence of values despite crashes. <em>You don't implement them by hand — you use etcd, Consul, ZooKeeper, or a DB built on them (Spanner, CockroachDB). Senior expectation: know the names, the majority-quorum rule, and that they cost at least one round trip.</em></div>
+
+  <div class="define"><b>Quorum (W + R &gt; N)</b> = in a leaderless system with replication factor N, if writes acknowledge from W nodes and reads ask R nodes, then W+R&gt;N guarantees at least one node sees both → no stale reads. <em>Typical: N=3, W=2, R=2.</em></div>
+
+  <div class="define"><b>Read replica</b> = a follower used for serving reads to take load off the primary. <em>Replica lag means reads may be slightly stale. Don't read your own writes from a replica unless you handle it.</em></div>
+</section>
+
+<!-- ====================== QUEUES ====================== -->
+<section class="step" id="queues">
+  <h2><span class="num">08</span>Queues, Streams &amp; Pub/Sub</h2>
+
+  <table>
+    <thead><tr><th>Tool</th><th>Model</th><th>Ordering</th><th>Retention</th><th>Sweet spot</th></tr></thead>
+    <tbody>
+      <tr><td><b>Kafka</b></td><td>Partitioned commit log; consumers track offsets</td><td>Per-partition</td><td>Hours–months (configurable)</td><td>High-throughput streams, event sourcing, log pipelines</td></tr>
+      <tr><td><b>Pulsar</b></td><td>Like Kafka but compute / storage separated</td><td>Per-partition</td><td>Configurable</td><td>Multi-tenant, geo-replication</td></tr>
+      <tr><td><b>Kinesis</b></td><td>AWS-managed Kafka-ish</td><td>Per-shard</td><td>24h–365d</td><td>AWS-native pipelines</td></tr>
+      <tr><td><b>RabbitMQ</b></td><td>Brokered queue (AMQP)</td><td>Per-queue</td><td>Until acked</td><td>Task queues with routing, work distribution</td></tr>
+      <tr><td><b>SQS</b></td><td>Distributed queue (no ordering by default)</td><td>FIFO mode = per-group</td><td>Up to 14 days</td><td>Background jobs, simple decoupling</td></tr>
+      <tr><td><b>Google Pub/Sub</b></td><td>Fully managed pub/sub</td><td>Optional</td><td>7 days</td><td>GCP-native fan-out</td></tr>
+      <tr><td><b>NATS / NATS JetStream</b></td><td>Lightweight pub/sub + persisted streams</td><td>Per-subject</td><td>Configurable</td><td>Edge, IoT, microservices messaging</td></tr>
+      <tr><td><b>Redis Streams</b></td><td>In-Redis log</td><td>Per-stream</td><td>Capped</td><td>Small streams co-located with your cache</td></tr>
+    </tbody>
+  </table>
+
+  <div class="label">Delivery semantics</div>
+  <ul class="bullets">
+    <li><b>At-most-once</b> — fire and forget; can lose messages. Cheap.</li>
+    <li><b>At-least-once</b> — guarantees delivery, may deliver twice. Default for most systems. Forces the consumer to be idempotent.</li>
+    <li><b>Exactly-once</b> — every message processed exactly once. Real systems achieve "effectively once" via at-least-once + idempotency keys. Kafka has transactional producers/consumers for end-to-end exactly-once within Kafka.</li>
+  </ul>
+
+  <div class="define"><b>Dead-letter queue (DLQ)</b> = a side queue where messages go after N failed processing attempts. <em>Lets the rest of the pipeline keep moving while a human investigates the poison messages.</em></div>
+
+  <div class="define"><b>Consumer group</b> = a set of consumers cooperating to read a topic; Kafka assigns each partition to exactly one consumer in the group. <em>Add more consumers → process faster, up to the partition count.</em></div>
+
+  <div class="define"><b>Event sourcing</b> = storing the sequence of events as the source of truth, rebuilding state by replaying them. <em>Kafka is a popular backing store. Pairs well with CQRS (Command-Query Responsibility Segregation) for read models.</em></div>
+</section>
+
+<!-- ====================== SEARCH ====================== -->
+<section class="step" id="search">
+  <h2><span class="num">09</span>Search &amp; Analytics Engines</h2>
+
+  <div class="grid2">
+    <div class="pillbox"><h4>Elasticsearch / OpenSearch</h4><p>Inverted-index full-text search, fuzzy match, faceting, aggregations. Best for logs, products, documents. Sharded by index; query fan-out across shards.</p></div>
+    <div class="pillbox"><h4>ClickHouse</h4><p>Columnar OLAP database. Crushes group-by/aggregation queries on billions of rows. Used by Yandex, Cloudflare, Uber. Great for log analytics and time-series.</p></div>
+    <div class="pillbox"><h4>Druid / Pinot</h4><p>Real-time analytics — ingest from Kafka, query in &lt;1s. Used for dashboards over event streams.</p></div>
+    <div class="pillbox"><h4>BigQuery / Snowflake / Redshift</h4><p>Cloud data warehouses. Decoupled storage + compute, SQL, petabyte scale. Used for analytics, ML feature engineering, BI.</p></div>
+    <div class="pillbox"><h4>Vector databases</h4><p>Pinecone, Weaviate, Milvus, pgvector. Store embeddings, do approximate nearest-neighbor search. Used for semantic search, RAG, recommendations.</p></div>
+    <div class="pillbox"><h4>Trie / Aho-Corasick / FST</h4><p>In-memory prefix or pattern structures. Used for typeahead, URL routing, dictionary matching.</p></div>
+  </div>
+
+  <div class="define"><b>Inverted index</b> = a map from term → list of documents containing it. <em>The core data structure of Elasticsearch. Lookups are O(1) per term plus list-merge.</em></div>
+
+  <div class="define"><b>Approximate Nearest Neighbor (ANN)</b> = "find the K most similar vectors to this one, fast". <em>Exact NN is O(N); ANN algorithms like HNSW, IVF give sub-linear time with controlled recall. The backbone of modern semantic search.</em></div>
+</section>
+
+<!-- ====================== BLOB ====================== -->
+<section class="step" id="blob">
+  <h2><span class="num">10</span>Object / Blob Storage &amp; CDN</h2>
+
+  <div class="grid2">
+    <div class="pillbox"><h4>Object storage</h4><p>S3, GCS, Azure Blob, R2. Practically infinite, durable (11 nines), cheap (~$0.02/GB/mo). Latency 50–200 ms per object — not a database. Best for large immutable blobs: images, video, ML datasets, log archives.</p></div>
+    <div class="pillbox"><h4>Block storage</h4><p>EBS, GCE PD. Looks like a disk to a VM. Used for DB data files. Not shared.</p></div>
+    <div class="pillbox"><h4>File storage</h4><p>EFS, NFS, Filestore. Shared POSIX filesystem across VMs. Pricier; rarely the right answer.</p></div>
+    <div class="pillbox"><h4>CDN</h4><p>Cloudflare, Fastly, Akamai, CloudFront. Hundreds of PoPs worldwide caching static and (configurably) dynamic responses near users. Honors <code>Cache-Control</code>. Critical for low-latency global apps.</p></div>
+  </div>
+
+  <div class="define"><b>Pre-signed URL</b> = a temporary URL generated by your backend that grants direct, time-limited access to an S3 object. <em>Lets clients upload/download directly to/from S3, bypassing your servers. Massive bandwidth saver.</em></div>
+
+  <div class="define"><b>Multipart upload</b> = splitting a large upload into chunks uploaded in parallel, then assembled server-side. <em>Required for objects &gt; 5 GB on S3; recommended for anything &gt; 100 MB.</em></div>
+
+  <div class="define"><b>Cache-Control headers</b> = the HTTP headers (<code>max-age</code>, <code>s-maxage</code>, <code>stale-while-revalidate</code>, <code>private</code>, <code>no-store</code>) that tell browsers and CDNs how to cache a response. <em>Knowing these by name is table-stakes for a senior front-end / platform engineer.</em></div>
+</section>
+
+<!-- ====================== CONSISTENCY ====================== -->
+<section class="step" id="consistency">
+  <h2><span class="num">11</span>Consistency Models &amp; CAP / PACELC</h2>
+
+  <p>Consistency = which value a reader sees after a writer commits. Stronger consistency is more expensive (latency, availability). Pick deliberately.</p>
+
+  <table>
+    <thead><tr><th>Model</th><th>Guarantee</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><b>Strict / linearizable</b></td><td>Every read sees the latest committed write, instantly, globally</td><td>etcd, Spanner reads, single-node Postgres</td></tr>
+      <tr><td><b>Sequential</b></td><td>All clients see operations in the same order</td><td>ZooKeeper</td></tr>
+      <tr><td><b>Causal</b></td><td>Cause-and-effect preserved; concurrent ops may differ across clients</td><td>Cosmos DB session, Git</td></tr>
+      <tr><td><b>Read-your-writes</b></td><td>You see your own writes immediately; others lag</td><td>Many session-mode DBs</td></tr>
+      <tr><td><b>Eventual</b></td><td>Replicas converge "eventually" with no time bound</td><td>DNS, S3 (historically), Cassandra default</td></tr>
+    </tbody>
+  </table>
+
+  <div class="define"><b>CAP theorem</b> = under a network partition, a distributed system must choose between Consistency (refuse reads/writes that could be wrong) and Availability (answer with possibly stale data). <em>CP example: etcd refuses writes on minority side. AP example: Cassandra serves whatever each side has. Note: this only matters <i>during</i> a partition.</em></div>
+
+  <div class="define"><b>PACELC</b> = the better mental model. <em>During Partitions: choose A or C. Else: choose Latency or Consistency. Most real-world tradeoffs are about latency vs consistency in normal operation, not partition behavior.</em></div>
+
+  <div class="define"><b>ACID vs BASE</b> = ACID (Atomicity, Consistency, Isolation, Durability) — the SQL transaction guarantees. BASE (Basically Available, Soft state, Eventual consistency) — the NoSQL alternative. <em>Most modern systems sit on a spectrum, not a binary.</em></div>
+
+  <div class="define"><b>Isolation levels</b> = SQL ladder of how aggressively concurrent transactions can see each other's effects. <em>Read uncommitted → Read committed → Repeatable read → Snapshot → Serializable. Postgres default is Read committed; you usually want Snapshot/Repeatable read for money flows.</em></div>
+</section>
+
+<!-- ====================== TXN ====================== -->
+<section class="step" id="txn">
+  <h2><span class="num">12</span>Distributed Transactions &amp; Sagas</h2>
+
+  <p>A transaction across two services (e.g., debit funds in Service A + decrement inventory in Service B) cannot use a single DB transaction. Three real options:</p>
+
+  <table>
+    <thead><tr><th>Pattern</th><th>How it works</th><th>Use when</th></tr></thead>
+    <tbody>
+      <tr><td><b>2-phase commit (2PC)</b></td><td>Coordinator asks all participants "prepare?", then "commit" or "abort"</td><td>Same DB family, trusted network. Avoid across teams/services — blocks on coordinator crash.</td></tr>
+      <tr><td><b>Saga (orchestrated)</b></td><td>Central orchestrator calls services in sequence; each step has a compensating action on failure</td><td>Money flows, order pipelines, multi-service workflows. Most common in real systems.</td></tr>
+      <tr><td><b>Saga (choreographed)</b></td><td>Each service emits events; others react; failure events trigger compensations</td><td>Loosely coupled teams; harder to reason about end-to-end</td></tr>
+      <tr><td><b>Outbox pattern</b></td><td>Service writes business row + outbox row in one local DB txn; a relay publishes outbox rows to Kafka</td><td>Guarantees "I committed the row → I will publish the event" without 2PC. Pairs with sagas.</td></tr>
+      <tr><td><b>Try / Confirm / Cancel (TCC)</b></td><td>Each service exposes Reserve → Commit/Rollback</td><td>Payments, ticket booking, share purchase</td></tr>
+    </tbody>
+  </table>
+
+  <div class="define"><b>Compensating action</b> = the business-level undo for a step that already succeeded. <em>Not the same as a rollback — the side effect already happened (an email was sent, a hold was placed). The compensation explicitly counteracts it (send a cancellation email, release the hold).</em></div>
+
+  <div class="define"><b>Outbox pattern</b> = avoids the dual-write problem ("how do I atomically write to DB and publish to Kafka?"). <em>Trick: only write to the DB, including an outbox table; a CDC relay (Debezium) tails the DB log and publishes. Now there's only one source of truth.</em></div>
+</section>
+
+<!-- ====================== IDEM ====================== -->
+<section class="step" id="idem">
+  <h2><span class="num">13</span>Idempotency &amp; Exactly-Once</h2>
+
+  <p>In any distributed system, retries are inevitable: timeouts, network blips, mobile OS retries. Without idempotency, retries cause double-charges, double-orders, double-everything.</p>
+
+  <div class="callout"><b>The pattern.</b> Client generates a UUID per logical operation — the <b>idempotency key</b>. Server stores <code>(idemKey → result)</code> with a unique index. On a duplicate, return the cached result instead of executing again. Stripe, AWS, PayPal, every serious payments API does this.</div>
+
+  <div class="label">Where to enforce idempotency</div>
+  <ul class="bullets">
+    <li><b>HTTP layer</b> — middleware that captures <code>Idempotency-Key</code> header, returns cached response.</li>
+    <li><b>DB layer</b> — unique constraint on (user_id, idemKey).</li>
+    <li><b>Consumer layer</b> — Kafka consumers store last-processed offset; re-deliveries are skipped.</li>
+  </ul>
+
+  <div class="define"><b>Effectively-once delivery</b> = at-least-once delivery + idempotent processing. <em>From the user's perspective, indistinguishable from exactly-once. The honest framing of every "exactly-once" claim.</em></div>
+
+  <div class="define"><b>Optimistic concurrency control (OCC)</b> = read with a version number; write only if version unchanged; retry on conflict. <em>Cheap when conflicts are rare. Used by ETags in HTTP, <code>version</code> columns in DBs.</em></div>
+</section>
+
+<!-- ====================== RELIABILITY ====================== -->
+<section class="step" id="reliability">
+  <h2><span class="num">14</span>Reliability Patterns</h2>
+
+  <table>
+    <thead><tr><th>Pattern</th><th>Problem it solves</th><th>How</th></tr></thead>
+    <tbody>
+      <tr><td><b>Timeout</b></td><td>Hung calls block resources forever</td><td>Set per-call deadlines; propagate via gRPC deadline / HTTP <code>timeout</code></td></tr>
+      <tr><td><b>Retry with backoff + jitter</b></td><td>Transient failures</td><td>Exponential backoff (e.g., 50ms, 100, 200, 400) + ±20% jitter to avoid synchronized retries</td></tr>
+      <tr><td><b>Circuit breaker</b></td><td>Hammering a sick service</td><td>After N failures, "open" the circuit for cooldown; let one probe through; recover</td></tr>
+      <tr><td><b>Bulkhead</b></td><td>One bad caller starves others of shared resources</td><td>Separate thread / connection pools per caller</td></tr>
+      <tr><td><b>Rate limiter</b></td><td>Bursts overwhelm downstream</td><td>Token bucket, leaky bucket, sliding window. Local or distributed (Redis)</td></tr>
+      <tr><td><b>Load shedding</b></td><td>Saturation</td><td>Drop low-priority traffic at the front door, preserve critical paths</td></tr>
+      <tr><td><b>Graceful degradation</b></td><td>Partial outage</td><td>Return reduced functionality (cached data, fewer features) instead of erroring</td></tr>
+      <tr><td><b>Chaos engineering</b></td><td>Hidden coupling</td><td>Deliberately kill nodes / inject latency in prod-like envs (Chaos Monkey)</td></tr>
+      <tr><td><b>Health checks</b></td><td>LB sends traffic to dead pods</td><td><code>/healthz</code> (liveness) and <code>/readyz</code> (readiness) endpoints</td></tr>
+    </tbody>
+  </table>
+
+  <div class="define"><b>Token bucket vs Leaky bucket</b> = both rate-limit, slightly different shape. <em>Token bucket allows bursts up to capacity then steady refill (used by AWS API limits). Leaky bucket smooths into a constant outflow (used as a fair admitter, e.g., waiting rooms).</em></div>
+
+  <div class="define"><b>Liveness vs Readiness probe</b> = liveness = "is the process alive?" (restart if no). Readiness = "is it ready to take traffic?" (remove from LB if no). <em>You need both; a pod can be alive but warming up.</em></div>
+</section>
+
+<!-- ====================== SCALING ====================== -->
+<section class="step" id="scaling">
+  <h2><span class="num">15</span>Scaling Patterns</h2>
+
+  <ul class="bullets">
+    <li><b>Vertical scaling</b> — bigger box. Easy until you can't buy a bigger box. Limited by single-machine RAM/CPU.</li>
+    <li><b>Horizontal scaling</b> — more boxes. Hard mode: state. Easy mode: stateless services behind an LB.</li>
+    <li><b>Stateless services</b> — every request can go to any pod. Restart-friendly. Push state out to DB, cache, queue.</li>
+    <li><b>Auto-scaling</b> — HPA (Kubernetes) scales pod count by CPU/memory/custom metric. VPA scales pod size. Cluster-autoscaler scales nodes.</li>
+    <li><b>Read replicas</b> — scale reads cheaply; writes still bottleneck on the primary.</li>
+    <li><b>Caching</b> — scales reads dramatically; doesn't help writes.</li>
+    <li><b>Sharding</b> — the only way to scale writes past one machine.</li>
+    <li><b>Async / queue offload</b> — push slow work behind a queue; respond fast.</li>
+    <li><b>Precompute / materialize</b> — do the expensive thing at write time, cache the result for read time. (Typeahead pre-computed top-K is the canonical example.)</li>
+    <li><b>Multi-region / geo-distribution</b> — for latency + disaster recovery. Costs: data residency law, cross-region replication latency, conflict resolution.</li>
+  </ul>
+
+  <div class="callout"><b>Senior heuristic.</b> Default to <i>stateless services + sharded data store + read replicas + cache</i>. Reach for multi-region only when you have a real reason (compliance, RTO &lt; 1 min, &gt;200 ms users).</div>
+</section>
+
+<!-- ====================== OBS ====================== -->
+<section class="step" id="obs">
+  <h2><span class="num">16</span>Observability — Logs, Metrics, Traces</h2>
+
+  <p>The three pillars. Senior expectation: name them, know what each is good at, and never use one for the wrong job.</p>
+
+  <table>
+    <thead><tr><th>Pillar</th><th>What</th><th>Tools</th><th>Use for</th></tr></thead>
+    <tbody>
+      <tr><td><b>Logs</b></td><td>High-cardinality textual records</td><td>Loki, ELK, Datadog Logs, ClickHouse</td><td>Debugging specific incidents, audit trails</td></tr>
+      <tr><td><b>Metrics</b></td><td>Numeric time-series, pre-aggregated</td><td>Prometheus, Datadog, M3</td><td>Dashboards, SLO tracking, alerts</td></tr>
+      <tr><td><b>Traces</b></td><td>One request's path across services</td><td>Jaeger, Tempo, Datadog APM, OpenTelemetry</td><td>Finding the slow service in a chain</td></tr>
+      <tr><td><b>Profiles</b></td><td>CPU / memory breakdown over time</td><td>pprof, Pyroscope, Parca</td><td>Finding the hot function / leak</td></tr>
+    </tbody>
+  </table>
+
+  <div class="define"><b>SLI / SLO / SLA</b> = Service Level Indicator (the measurement), Objective (your internal target), Agreement (the contract you signed with a customer). <em>Example: SLI = "% of requests &lt; 200 ms". SLO = 99.9% monthly. SLA = 99.5% monthly with refunds below.</em></div>
+
+  <div class="define"><b>Error budget</b> = the allowed unreliability in your SLO. <em>If SLO is 99.9%, you have 43 min/month of "allowed" downtime. Use it for risky deploys; when burned, freeze features and focus on reliability.</em></div>
+
+  <div class="define"><b>OpenTelemetry (OTel)</b> = the open standard for instrumenting code with metrics, logs, and traces in one library. <em>The 2026 default — don't write vendor-specific instrumentation.</em></div>
+</section>
+
+<!-- ====================== SEC ====================== -->
+<section class="step" id="sec">
+  <h2><span class="num">17</span>Security Essentials</h2>
+
+  <ul class="bullets">
+    <li><b>TLS everywhere</b> — including inside the cluster (mTLS via service mesh).</li>
+    <li><b>Authentication vs Authorization</b> — authn = who you are (OAuth/OIDC, JWT, SSO). authz = what you can do (RBAC, ABAC, policies via OPA/Cedar).</li>
+    <li><b>Secret management</b> — never in env vars or git. Use Vault, AWS Secrets Manager, GCP Secret Manager. Rotate.</li>
+    <li><b>Encryption at rest</b> — KMS-managed keys; envelope encryption for large payloads.</li>
+    <li><b>Defense in depth</b> — WAF at the edge, rate limit, authz at gateway, authz again at service, authz again at DB.</li>
+    <li><b>OWASP Top 10 awareness</b> — SQLi, XSS, SSRF, broken access control, insecure deserialization.</li>
+    <li><b>PII / GDPR</b> — minimize collection, encrypt, support deletion ("right to be forgotten"), classify data.</li>
+    <li><b>Audit logs</b> — append-only, immutable, structured. Money/regulated systems need this.</li>
+  </ul>
+
+  <div class="define"><b>JWT (JSON Web Token)</b> = a base64-encoded, signed JSON blob that carries identity claims. <em>Stateless — server doesn't need a session store. Watch out: revocation is hard; short TTLs + refresh tokens.</em></div>
+
+  <div class="define"><b>OAuth 2.0 / OIDC</b> = OAuth = delegated authorization (let app X access my data on Y). OIDC = authentication layer on top of OAuth (sign in with Google/Apple/etc). <em>"Login with X" buttons are OIDC.</em></div>
+</section>
+
+<!-- ====================== DELIVERY ====================== -->
+<section class="step" id="delivery">
+  <h2><span class="num">18</span>Deployment, Feature Flags &amp; A/B</h2>
+
+  <ul class="bullets">
+    <li><b>Blue/green</b> — deploy new version alongside old; switch LB pointer atomically. Easy rollback.</li>
+    <li><b>Canary</b> — 1% → 10% → 50% → 100%. Watch metrics at each step.</li>
+    <li><b>Rolling</b> — replace pods N at a time. Kubernetes default.</li>
+    <li><b>Feature flags</b> — code-deploy and feature-release decoupled. Toggle on/off without redeploying. Tools: LaunchDarkly, Statsig, Unleash, OpenFeature.</li>
+    <li><b>A/B tests</b> — feature flags + metrics. Randomly assign users to variants, measure a business metric, decide statistically.</li>
+    <li><b>Shadow / dark traffic</b> — send copies of prod traffic to the new version but discard responses. Validate behavior under real load.</li>
+    <li><b>Migrations</b> — expand → migrate → contract. Add new column, dual-write, backfill, switch reads, drop old. Never break-then-fix.</li>
+  </ul>
+</section>
+
+<!-- ====================== INTERVIEW ====================== -->
+<section class="step" id="interview">
+  <h2><span class="num">19</span>How to Use This in a 45-min Interview</h2>
+
+  <ol class="steps">
+    <li><b>Clarify (5 min).</b> Functional + non-functional requirements. Pin down: scale (DAU, QPS), consistency vs availability, latency SLO, data lifetime, read/write ratio.</li>
+    <li><b>Capacity math (5 min).</b> Use the cheat sheet in §1. Always carry units, always state <code>B</code> vs <code>b</code>, always sanity-check with the "1 day = 10⁵ s" trick.</li>
+    <li><b>API sketch (3 min).</b> 3–5 endpoints. <code>POST /things</code>, <code>GET /things/:id</code>, etc. Don't dwell.</li>
+    <li><b>High-level architecture (10 min).</b> Draw 5–8 boxes max. Separate read path from write path. Name every tech choice (Postgres, Redis, Kafka, S3 — not "the database").</li>
+    <li><b>Data model + sharding (5 min).</b> Pick a shard key; justify it; mention hot-shard mitigation.</li>
+    <li><b>Deep dive on 1–2 hard parts (10 min).</b> The interviewer will steer here. Pick the most interesting bottleneck and walk through trade-offs (saga vs 2PC, batch vs stream, etc).</li>
+    <li><b>Failure modes + reliability (5 min).</b> Pick the top 3 things that will go wrong; name the mitigation (RF=3, circuit breaker, retries with idempotency).</li>
+    <li><b>Wrap with a 30-second pitch.</b> Recap the architecture in one paragraph. Mention 2–3 things you'd revisit "with more time."</li>
+  </ol>
+
+  <div class="callout"><b>Things that separate senior from staff.</b>
+    <ul class="bullets">
+      <li>Name <b>specific technologies</b>, not categories ("Postgres with a logical replica" not "a database").</li>
+      <li>Always state the <b>consistency trade-off</b> you're making, with a why.</li>
+      <li>Bring up <b>operational concerns</b> unprompted: deploys, observability, on-call.</li>
+      <li>Quote real numbers: "Redis does ~150k ops/s per instance, so..."</li>
+      <li>Know when <b>not</b> to use the fancy thing. "We don't need Kafka here, an SQS DLQ is enough."</li>
+      <li>Talk about <b>migration</b> and <b>rollback</b>, not just the green-field design.</li>
+    </ul>
+  </div>
+</section>
+
+</div>
+
+<a href="#" class="top" id="top">↑</a>
+
+<footer>
+  <b>BuildLikeASenior</b> · Think · Design · Grow Like a Senior Engineer<br>
+  <small>System Design · Toolkit reference</small>
+</footer>
+
+<script>
+  const top = document.getElementById('top');
+  window.addEventListener('scroll', () => { top.classList.toggle('show', window.scrollY > 400); });
+</script>
+
+</body>
+</html>

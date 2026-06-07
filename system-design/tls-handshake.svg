@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 834 644" width="834" height="644" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="834" height="644" fill="#ffffff"/>
+<g transform="translate(-50.400000000000006,18)">
+<rect x="90" y="45" width="180" height="50" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="660" y="45" width="200" height="50" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="180,110 180,600" fill="none" stroke="#868e96" stroke-width="1"/>
+<polyline points="760,110 760,600" fill="none" stroke="#868e96" stroke-width="1"/>
+<polyline points="180,420 760,420" fill="none" stroke="#2f9e44" stroke-width="2"/>
+<polyline points="180,150 760,150" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="760,215 180,215" fill="none" stroke="#5b8dee" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="180,470 760,470" fill="none" stroke="#2f9e44" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="20" fill="#1e1e1e" text-anchor="start"><tspan x="170" y="26">TLS 1.3 Handshake — Establishing the Session Key</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="180" y="65.36">Client</tspan><tspan x="180" y="85.83999999999999">(Ankit's phone)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="760" y="65.36">Gateway</tspan><tspan x="760" y="85.83999999999999">(cert + private key)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="186" y="140">1. ClientHello: TLS 1.3, ciphers, my key-share (ephemeral pub)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="186" y="205">2. ServerHello: chosen cipher, my key-share + CERTIFICATE</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#7048e8" text-anchor="start"><tspan x="190" y="262">3. Client verifies cert: CA-signed? right host? not expired?</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#7048e8" text-anchor="start"><tspan x="190" y="312">4. ECDHE: combine (my priv + your pub) → SAME shared secret</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#7048e8" text-anchor="start"><tspan x="190" y="342">   (the secret itself never travels on the wire)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#7048e8" text-anchor="start"><tspan x="190" y="392">5. Both derive symmetric SESSION KEY from the shared secret</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#2f9e44" text-anchor="start"><tspan x="300" y="410">===== encrypted channel (AES-GCM) =====</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="186" y="460">6. GET /messages  (encrypted with session key)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#2f9e44" text-anchor="start"><tspan x="440" y="517">Gateway decrypts with session key → reads plain HTTP</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#ff6b9d" text-anchor="start"><tspan x="190" y="572">Forward secrecy: session key is ephemeral, discarded after use →</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#ff6b9d" text-anchor="start"><tspan x="190" y="597">leaking the private key later can't decrypt old recorded traffic</tspan></text>
+</g>
+</svg>
