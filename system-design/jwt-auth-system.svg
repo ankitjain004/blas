@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1553 765" width="1553" height="765" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="1553" height="765" fill="#ffffff"/>
+<g transform="translate(132,18)">
+<rect x="60" y="60" width="240" height="75" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<ellipse cx="145" cy="237.5" rx="85" ry="37.5" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="410" y="60" width="220" height="75" rx="10" fill="#ffec99" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="40" y="360" width="140" height="60" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<polygon points="300,350 345,390 300,430 255,390" fill="#ffc9c9" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="430" y="290" width="230" height="80" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="430" y="410" width="230" height="80" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="770" y="250" width="150" height="45" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="770" y="310" width="150" height="45" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="770" y="370" width="150" height="50" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="540" y="560" width="330" height="80" rx="10" fill="#ffec99" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="1175" y="55" width="175" height="48" rx="10" fill="#ffc9c9" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="1175" y="113" width="175" height="48" rx="10" fill="#ffc9c9" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="1175" y="171" width="175" height="48" rx="10" fill="#ffc9c9" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="985" y="90" width="165" height="80" rx="10" fill="#ffa8a8" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="985" y="210" width="200" height="55" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="985" y="305" width="200" height="80" rx="10" fill="#ffc9c9" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="110,135 110,190" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="305,95 405,95" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="130,360 170,210" fill="none" stroke="#868e96" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="185,390 245,390" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="350,390 420,330" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="350,390 420,460" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="540,290 540,135" fill="none" stroke="#868e96" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="660,320 770,280" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="545,490 565,550" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="770,395 740,395 740,560 50,560 50,105" fill="none" stroke="#ff6b9d" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="1175,79 1135,114" fill="none" stroke="#e03131" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="1175,137 1135,142" fill="none" stroke="#e03131" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="1175,195 1135,170" fill="none" stroke="#e03131" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="300,122 300,165 985,165 985,130" fill="none" stroke="#ff6b9d" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="1067,170 1067,210" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="1085,265 1085,305" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="985,360 625,575" fill="none" stroke="#e03131" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="985,330 665,440" fill="none" stroke="#e03131" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="20" fill="#1e1e1e" text-anchor="start"><tspan x="360" y="26">JWT Auth for Microservices — Hybrid Validation + Revocation</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="180" y="82.61999999999999">Auth Service</tspan><tspan x="180" y="103.1">signs JWT (private key)</tspan><tspan x="180" y="123.57999999999998">issues access + refresh</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="145" y="233.44">Refresh Token DB</tspan><tspan x="145" y="251.35999999999999">(hashed, revocable)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="310" y="82">publish</tspan><tspan x="310" y="97.36">pub keys</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="520" y="82.61999999999999">JWKS endpoint</tspan><tspan x="520" y="103.1">/.well-known/jwks.json</tspan><tspan x="520" y="123.57999999999998">(public keys by kid)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="110" y="385.36">Client</tspan><tspan x="110" y="405.84000000000003">(web / mobile)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="60" y="312">login (once)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="180" y="357">HTTPS</tspan><tspan x="180" y="372.36">+ JWT</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="300" y="394.9">L4 LB</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="545" y="315.12">API Gateway 1</tspan><tspan x="545" y="335.6">verify sig (kid→JWKS)</tspan><tspan x="545" y="356.08">+ Bloom filter (in-mem)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="545" y="435.12">API Gateway 2</tspan><tspan x="545" y="455.6">verify sig + Bloom</tspan><tspan x="545" y="476.08">(replicated)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="545" y="212">cache</tspan><tspan x="545" y="227.36">pub key</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="665" y="262">X-User-Id</tspan><tspan x="665" y="277.36">(trusted hdr)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="845" y="278.1">User Svc</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="845" y="338.1">Order Svc</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="845" y="390.36">Payment Svc</tspan><tspan x="845" y="410.84000000000003">(high-value)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="420" y="532">only on</tspan><tspan x="420" y="547.36">Bloom 'maybe'</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="705" y="585.12">Redis Denylist (HA cluster)</tspan><tspan x="705" y="605.6">revoked:{jti}=1  TTL=remaining</tspan><tspan x="705" y="626.08">user:{id}:min_iat (revoke-all)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#ff6b9d" text-anchor="start"><tspan x="40" y="557">high-value path → POST /introspect (authoritative check at Auth Svc)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="13" fill="#e03131" text-anchor="start"><tspan x="1170" y="41">DETECTION SOURCES (producers)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="1262.5" y="74.36">Fraud / Anomaly Svc</tspan><tspan x="1262.5" y="94.84">(impossible travel, rate)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="1262.5" y="132.36">SIEM / Threat Intel</tspan><tspan x="1262.5" y="152.84">(leaked creds, alerts)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="1262.5" y="190.35999999999999">Admin / SOC</tspan><tspan x="1262.5" y="210.83999999999997">(manual ban)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#ff6b9d" text-anchor="start"><tspan x="430" y="159">Auth Svc is also a producer: RT-reuse / logout / pwd change</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="1067.5" y="115.11999999999999">Revocation Service</tspan><tspan x="1067.5" y="135.6">owns /revoke API</tspan><tspan x="1067.5" y="156.07999999999998">+ policy + AUDIT</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#e03131" text-anchor="start"><tspan x="1075" y="186">publish</tspan><tspan x="1075" y="200.08">{jti, reason}</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="1085" y="233.44">Revocation Queue</tspan><tspan x="1085" y="251.35999999999999">(Kafka / pub-sub)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="1085" y="330.12">Revocation Workers</tspan><tspan x="1085" y="350.6">(CONSUMERS)</tspan><tspan x="1085" y="371.08">write Redis + push Bloom</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#e03131" text-anchor="start"><tspan x="985" y="403">CONSUMER updates denylist</tspan><tspan x="985" y="417.08">+ each gateway's Bloom filter</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#2f9e44" text-anchor="start"><tspan x="40" y="672">Detection (fraud/SIEM/admin/Auth-Svc) is SEPARATE from revocation: detectors only report; the Revocation Service owns the denylist + audit.</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#2f9e44" text-anchor="start"><tspan x="40" y="695">Happy path (99.9%): verify signature + Bloom 'not revoked' → ALLOW (no Redis).  Bloom 'maybe' → confirm in Redis.  Short TTL bounds worst case.</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#2f9e44" text-anchor="start"><tspan x="40" y="718">Expiry (exp claim) is stateless &amp; self-evicting — denylist only holds tokens killed EARLY, with TTL = remaining life.</tspan></text>
+</g>
+</svg>

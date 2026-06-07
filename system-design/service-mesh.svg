@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 908 412" width="908" height="412" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="908" height="412" fill="#ffffff"/>
+<g transform="translate(-16,18)">
+<rect x="40" y="70" width="320" height="130" rx="10" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="60" y="110" width="120" height="60" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="220" y="110" width="120" height="60" rx="10" fill="#ff6b9d" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="580" y="70" width="320" height="130" rx="10" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="600" y="110" width="120" height="60" rx="10" fill="#ff6b9d" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="760" y="110" width="120" height="60" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="310" y="300" width="340" height="70" rx="10" fill="#dee2e6" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="180,140 220,140" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="720,140 760,140" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="340,140 600,140" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="280,175 420,295" fill="none" stroke="#868e96" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="660,175 520,295" fill="none" stroke="#868e96" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="20" fill="#1e1e1e" text-anchor="start"><tspan x="220" y="26">Service Mesh — Sidecar Proxies for East-West Traffic</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="200" y="140.6"> </tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="55" y="90">POD A</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="120" y="145.6">Service A</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="280" y="135.35999999999999">Envoy</tspan><tspan x="280" y="155.83999999999997">sidecar</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="740" y="140.6"> </tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="595" y="90">POD B</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="660" y="135.35999999999999">Envoy</tspan><tspan x="660" y="155.83999999999997">sidecar</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="820" y="145.6">Service B</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="380" y="117">mTLS · retries · timeout</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="480" y="330.36">Control Plane  (Istio / Linkerd)</tspan><tspan x="480" y="350.84000000000003">mTLS cert rotation · traffic policy · metrics &amp; traces</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#7048e8" text-anchor="start"><tspan x="40" y="252">Gateway = NORTH-SOUTH (client → cluster).  Mesh = EAST-WEST (service ↔ service).</tspan></text>
+</g>
+</svg>

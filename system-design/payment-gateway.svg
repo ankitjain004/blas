@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1131 877" width="1131" height="877" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="1131" height="877" fill="#ffffff"/>
+<g transform="translate(0.7999999999999972,18)">
+<rect x="40" y="120" width="120" height="60" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="230" y="110" width="130" height="80" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="440" y="110" width="170" height="80" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="420" y="250" width="320" height="95" rx="10" fill="#bac8ff" stroke="#1e1e1e" stroke-width="2"/>
+<ellipse cx="400" cy="455" rx="100" ry="45" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="470" y="410" width="220" height="90" rx="10" fill="#ffd8a8" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="830" y="250" width="180" height="90" rx="10" fill="#ffc9c9" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="890" y="110" width="210" height="90" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="430" y="560" width="320" height="56" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="440" y="675" width="300" height="70" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="165,150 225,150" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="365,150 435,150" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="525,190 525,240" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="470,345 380,400" fill="none" stroke="#2f9e44" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="580,345 580,400" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="700,290 820,290" fill="none" stroke="#ff6b9d" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="740,280 890,190" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="580,500 580,550" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="590,616 590,661" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="420,295 235,155" fill="none" stroke="#00d4aa" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="20" fill="#1e1e1e" text-anchor="start"><tspan x="300" y="26">Design Razorpay — Payment Gateway (Auth → Capture → Settle)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="100" y="145.35999999999999">Buyer</tspan><tspan x="100" y="165.83999999999997">(checkout)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="295" y="145.35999999999999">Merchant</tspan><tspan x="295" y="165.83999999999997">Backend</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="370" y="106">POST /orders</tspan><tspan x="370" y="120.08">(idempotency-key)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="525" y="135.12">API Gateway</tspan><tspan x="525" y="155.6">authN · rate-limit</tspan><tspan x="525" y="176.08">idempotency</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="580" y="282.62">Payment Service</tspan><tspan x="580" y="303.1">(orchestrator / state machine)</tspan><tspan x="580" y="323.58">created→authorized→captured→settled</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="400" y="441.97999999999996">Ledger DB</tspan><tspan x="400" y="459.9">double-entry</tspan><tspan x="400" y="477.81999999999994">(ACID, sharded)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="580" y="440.12">Token Vault</tspan><tspan x="580" y="460.6">(PCI-DSS, HSM)</tspan><tspan x="580" y="481.08">card → token</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="920" y="290.36">Risk / Fraud</tspan><tspan x="920" y="310.84000000000003">rules + ML score</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="760" y="211">authorize / capture</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="995" y="140.12">Bank / Network</tspan><tspan x="995" y="160.6">Connectors</tspan><tspan x="995" y="181.08">Visa·MC·UPI·Netbank</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="590" y="583.9399999999999">Settlement Queue (Kafka)</tspan><tspan x="590" y="601.8599999999999">async payout to merchant</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="590" y="705.36">Settlement / Payout Worker</tspan><tspan x="590" y="725.84">T+2 reconcile → merchant bank</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#00d4aa" text-anchor="start"><tspan x="150" y="261">webhook:</tspan><tspan x="150" y="275.08">payment.captured</tspan><tspan x="150" y="289.16">(signed, retried)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#7048e8" text-anchor="start"><tspan x="40" y="782">Idempotency-key dedupes retried charge requests → never double-charge. Orchestrator is a state machine; every transition is journaled in the ledger.</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#7048e8" text-anchor="start"><tspan x="40" y="806">Raw PAN never touches app DBs — it is tokenized in a PCI-DSS vault. Auth is sync; capture+settlement are async (Kafka) and reconciled T+1/T+2.</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#7048e8" text-anchor="start"><tspan x="40" y="830">Webhooks are signed + retried with backoff; merchants verify the signature and treat delivery as at-least-once (idempotent handlers).</tspan></text>
+</g>
+</svg>

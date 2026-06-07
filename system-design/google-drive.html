@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Design Google Drive · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{--bg:#060d1a;--bg2:#0d1b35;--card:#0f1f3d;--card2:#142a52;--teal:#00d4aa;--blue:#5b8dee;--gold:#f5c842;--rose:#ff6b9d;--text:#e6edf7;--muted:#8aa0c4;--line:rgba(255,255,255,.08)}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  code{background:rgba(91,141,238,.12);padding:1px 6px;border-radius:5px;font-size:.92em;color:#cdd9ee}
+  a{color:var(--teal);text-decoration:none} a:hover{text-decoration:underline}
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+  .meta{margin-top:14px;color:var(--muted);font-size:13px;font-family:'JetBrains Mono',monospace}
+  .meta b{color:var(--gold)}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .warn{background:rgba(255,107,157,.06);border-left:3px solid var(--rose);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  .label{display:block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:700;margin:14px 0 6px}
+  .label.gold{color:var(--gold)}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto}
+  pre.code{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.55;color:#cdd9ee;overflow-x:auto}
+  pre.code .k{color:var(--blue)} pre.code .s{color:var(--teal)} pre.code .c{color:var(--muted)} pre.code .n{color:var(--gold)}
+  ul.bullets{padding-left:22px} ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px} ol.steps li{margin:8px 0}
+  .calc{background:rgba(245,200,66,.05);border:1px solid rgba(245,200,66,.25);border-radius:10px;padding:14px 18px;margin:12px 0;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7;color:#e9d9a3}
+  .calc b{color:var(--gold)}
+  .glossary{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:14px}
+  .gloss-card{background:rgba(91,141,238,.05);border:1px solid rgba(91,141,238,.2);border-radius:10px;padding:14px 16px}
+  .gloss-card h4{margin:0 0 6px;color:var(--blue);font-size:13.5px}
+  .gloss-card p{margin:0;font-size:13px;color:#cdd9ee}
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="crumb"><a href="index.html">System Design</a> · 14</div>
+  <span class="badge">File Storage &amp; Sync</span>
+  <h1 class="title">Design <span>Google Drive</span></h1>
+  <p class="sub">Store, sync, and share files across devices with block-level dedup, delta sync, strong durability, and real-time change propagation at cloud scale.</p>
+  <div class="meta">50M users · 10M DAU · 10 GB free/user · chunked upload + delta sync</div>
+</header>
+<div class="wrap">
+<nav class="toc"><h3>Walkthrough</h3><ol>
+<li><a href="#req">Problem &amp; Requirements</a></li>
+<li><a href="#math">Back-of-Envelope Estimation</a></li>
+<li><a href="#api">API Design</a></li>
+<li><a href="#hld">High-Level Architecture</a></li>
+<li><a href="#chunk">Chunking, Dedup &amp; Delta Sync</a></li>
+<li><a href="#meta">Metadata &amp; Storage Model</a></li>
+<li><a href="#sync">Sync &amp; Notification Service</a></li>
+<li><a href="#consistency">Consistency &amp; Conflicts</a></li>
+<li><a href="#reliability">Durability &amp; Reliability</a></li>
+<li><a href="#trade">Tradeoffs</a></li>
+<li><a href="#pitch">30-Second Pitch</a></li>
+<li><a href="#gloss">Glossary</a></li>
+</ol></nav>
+
+<section class="step" id="req"><h2><span class="num">01</span>Problem &amp; Requirements</h2>
+<div class="callout"><b>Goal.</b> Let users store files in the cloud and keep them in sync across all their devices, with sharing, versioning, and offline support — durably and efficiently.</div>
+<p class="label">Functional</p>
+<ul class="bullets">
+<li>Upload / download files; create folders.</li>
+<li>Automatically <b>sync</b> changes across a user's devices.</li>
+<li>Share files/folders with other users (permissions).</li>
+<li>File <b>versioning</b> and restore.</li>
+<li>Offline edits that reconcile when back online.</li>
+</ul>
+<p class="label">Non-Functional</p>
+<table><thead><tr><th>Property</th><th>Target</th></tr></thead><tbody>
+<tr><td>Durability</td><td>11 nines (no data loss) on object storage</td></tr>
+<tr><td>Availability</td><td>99.99%</td></tr>
+<tr><td>Sync latency</td><td>Changes visible on other devices in seconds</td></tr>
+<tr><td>Bandwidth efficiency</td><td>Upload only changed blocks (delta sync)</td></tr>
+</tbody></table>
+</section>
+
+<section class="step" id="math"><h2><span class="num">02</span>Back-of-Envelope Estimation</h2>
+<div class="callout"><b>Given assumptions.</b> 50M signed-up users · 10M DAU · 10 GB free space/user · 2 file uploads/user/day · avg file size 500 KB · 1:1 read:write ratio.</div>
+
+<p class="label gold">Write (upload) QPS</p>
+<div class="calc">
+uploads/day = <b>10M DAU</b> × <b>2 files</b> = <b>20M uploads/day</b><br>
+seconds/day ≈ 86,400 ≈ <b>1e5</b><br>
+write QPS = 20,000,000 / 86,400 ≈ <b>~230 writes/sec</b><br>
+peak (×5 for bursts) ≈ <b>~1,150 writes/sec</b>
+</div>
+
+<p class="label gold">Read (download) QPS</p>
+<div class="calc">
+1:1 read:write ⇒ read QPS ≈ write QPS ≈ <b>~230 reads/sec</b><br>
+peak ≈ <b>~1,150 reads/sec</b><br>
+total ≈ <b>~460 QPS</b> average, <b>~2,300 QPS</b> peak
+</div>
+
+<p class="label gold">Ingest bandwidth</p>
+<div class="calc">
+data/day = 20M files × 500 KB = <b>10,000,000,000 KB/day</b> = <b>10 TB/day</b> uploaded<br>
+upload bandwidth = 10 TB / 86,400 s ≈ 116 MB/s ≈ <b>~0.93 Gbps</b><br>
+with 1:1 read ⇒ download ≈ another <b>~0.93 Gbps</b> → <b>~1.9 Gbps</b> total
+</div>
+
+<p class="label gold">Storage growth</p>
+<div class="calc">
+new data/day = <b>10 TB/day</b><br>
+per year = 10 TB × 365 ≈ <b>~3.65 PB/year</b> (raw)<br>
+× 3 replicas (durability) ≈ <b>~11 PB/year</b> stored<br>
+dedup typically saves <b>30–50%</b> → effective <b>~5–7 PB/year</b>
+</div>
+
+<p class="label gold">Allocated vs. used capacity</p>
+<div class="calc">
+allocated = 50M users × 10 GB = <b>500 PB</b> (free-tier ceiling)<br>
+<b>but</b> actual usage is a small fraction — provision for <i>real</i> data (PB/year growth), not the 500 PB ceiling
+</div>
+<div class="warn"><b>Key insight.</b> The 500 PB "allocated" number is a red herring — almost no one fills 10 GB. Plan storage around <b>actual ingest (~10 TB/day)</b> and let quota be a logical limit, not pre-allocated disk.</div>
+</section>
+
+<section class="step" id="api"><h2><span class="num">03</span>API Design</h2>
+<p>Uploads are <b>chunked</b> and go through a metadata handshake so only missing blocks are sent.</p>
+<pre class="code"><span class="c">// 1. Begin an upload \u2014 client sends file metadata + block hashes</span>
+<span class="k">POST</span> /files/upload/start
+{ <span class="s">"path"</span>: <span class="s">"/docs/report.pdf"</span>, <span class="s">"size"</span>: <span class="n">524288</span>,
+  <span class="s">"blocks"</span>: [<span class="s">"sha256:ab1.."</span>, <span class="s">"sha256:cd2.."</span>] }
+<span class="c">// server replies with only the blocks it does NOT already have</span>
+&rarr; { <span class="s">"uploadId"</span>: <span class="s">"u-123"</span>, <span class="s">"missingBlocks"</span>: [<span class="s">"sha256:cd2.."</span>] }
+
+<span class="c">// 2. Upload each missing block (often a presigned URL straight to blob store)</span>
+<span class="k">PUT</span> /blocks/{hash}        (binary body)
+
+<span class="c">// 3. Commit \u2014 finalize the file version from the block list</span>
+<span class="k">POST</span> /files/upload/commit { <span class="s">"uploadId"</span>: <span class="s">"u-123"</span> }
+
+<span class="c">// Download / list / share</span>
+<span class="k">GET</span>  /files/{id}            <span class="c">// returns block list + presigned GET URLs</span>
+<span class="k">GET</span>  /files?path=/docs       <span class="c">// list a folder</span>
+<span class="k">POST</span> /files/{id}/share      { <span class="s">"user"</span>: <span class="s">"bob"</span>, <span class="s">"role"</span>: <span class="s">"editor"</span> }</pre>
+<ul class="bullets">
+<li><b>Hash-first handshake</b> means unchanged blocks are never re-uploaded (delta sync).</li>
+<li><b>Presigned URLs</b> let clients transfer bytes <b>directly to/from blob storage</b>, bypassing app servers.</li>
+<li><b>Commit</b> creates an immutable new version pointing at a block list.</li>
+</ul>
+</section>
+
+<section class="step" id="hld"><h2><span class="num">04</span>High-Level Architecture</h2>
+<img src="google-drive.svg" alt="Google Drive Architecture Diagram" style="width:100%;max-width:960px;border-radius:12px;margin-top:16px;border:1px solid var(--line);background:#fff" />
+<p style="margin-top:12px"><a href="google-drive.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+<pre class="ascii">
+  Client (desktop/mobile/web)
+     |  watcher detects local change -> chunk + hash
+     v
+  API Gateway / LB
+     |
+     +--> Metadata Service ---- Metadata DB (files, versions, blocks, ACL)
+     |
+     +--> Block Service  ------ Block Store (content-addressed by hash)
+     |                              |
+     |                              v
+     |                        Object Storage (S3/GCS, 3x replicated) + CDN
+     |
+     +--> Sync/Notification Service ---- pub/sub (Kafka) + long-poll/WebSocket
+                                              |
+                                              v
+                                    push "file changed" to other devices
+
+  Offline queue on each client reconciles on reconnect.
+</pre>
+<ul class="bullets">
+<li><b>Metadata Service</b> owns the namespace, versions, block manifests, and sharing/ACLs.</li>
+<li><b>Block Service</b> stores content-addressed chunks; identical chunks are stored once (dedup).</li>
+<li><b>Sync/Notification Service</b> tells a user's other devices that something changed.</li>
+<li><b>CDN</b> fronts downloads of hot/shared files.</li>
+</ul>
+</section>
+
+<section class="step" id="chunk"><h2><span class="num">05</span>Chunking, Dedup &amp; Delta Sync</h2>
+<div class="define"><b>Block-level sync.</b> Files are split into fixed (or content-defined) chunks (e.g. 4 MB). Each chunk is hashed; the hash is its identity. Only chunks whose hash the server hasn't seen get uploaded.</div>
+<ol class="steps">
+<li>Client splits the file into chunks and computes each chunk's <code>sha256</code>.</li>
+<li>Sends the hash list; server returns which hashes are <b>missing</b>.</li>
+<li>Client uploads only missing chunks → <b>delta sync</b> (edit 1 page of a doc, upload 1 block, not the whole file).</li>
+<li><b>Dedup:</b> a chunk shared by many users/files is stored <b>once</b>, referenced by many manifests.</li>
+</ol>
+<div class="callout"><b>Why it matters for our numbers.</b> Delta sync + dedup is what turns 11 PB/year of replicated raw into ~5–7 PB effective, and slashes the ~0.93 Gbps upload bandwidth for edits of existing files.</div>
+</section>
+
+<section class="step" id="meta"><h2><span class="num">06</span>Metadata &amp; Storage Model</h2>
+<p>Two very different stores: tiny structured <b>metadata</b> vs huge unstructured <b>blocks</b>.</p>
+<pre class="code"><span class="c">-- files: the namespace + current version pointer</span>
+files(id, owner_id, path, name, is_folder, current_version_id, updated_at)
+
+<span class="c">-- versions: immutable snapshots (enables history/restore)</span>
+versions(id, file_id, size, created_at, block_manifest_id)
+
+<span class="c">-- blocks: content-addressed chunks (dedup key = hash)</span>
+blocks(hash PRIMARY KEY, size, storage_url, refcount)
+
+<span class="c">-- manifest: ordered block list making up a version</span>
+manifest(version_id, seq, block_hash)
+
+<span class="c">-- sharing</span>
+acl(file_id, user_id, role)   -- viewer / editor / owner</pre>
+<table><thead><tr><th>Data</th><th>Store</th><th>Why</th></tr></thead><tbody>
+<tr><td>Metadata (files, versions, ACL)</td><td>Relational / sharded SQL (or Spanner)</td><td>Strong consistency, transactions, relationships</td></tr>
+<tr><td>Block content</td><td>Object storage (S3/GCS)</td><td>Cheap, 11-nines durable, infinitely scalable</td></tr>
+<tr><td>Hot block index</td><td>Redis / KV</td><td>Fast "do we have this hash?" lookups</td></tr>
+</tbody></table>
+</section>
+
+<section class="step" id="sync"><h2><span class="num">07</span>Sync &amp; Notification Service</h2>
+<ul class="bullets">
+<li>Each device holds a <b>long-poll / WebSocket</b> connection to the Notification Service.</li>
+<li>On commit, the Metadata Service publishes a <code>file-changed</code> event (Kafka) for the owner + shared users.</li>
+<li>Notification Service pushes "namespace changed since cursor X" to the relevant online devices.</li>
+<li>Devices then pull the new metadata and download only the <b>missing blocks</b>.</li>
+<li>Offline devices catch up on reconnect using a per-device <b>sync cursor</b> (last seen version).</li>
+</ul>
+<pre class="ascii">
+Device A commit -> Metadata Svc -> Kafka(file-changed) -> Notification Svc
+                                                              |
+                                            push to Device B, C (online)
+                                                              |
+                                  B/C pull metadata diff -> fetch missing blocks
+</pre>
+</section>
+
+<section class="step" id="consistency"><h2><span class="num">08</span>Consistency &amp; Conflicts</h2>
+<ul class="bullets">
+<li><b>Metadata is strongly consistent</b> — a commit either fully applies or not (transaction). This avoids "phantom" files.</li>
+<li><b>Blocks are immutable</b> &amp; content-addressed, so they can be eventually consistent / cached freely.</li>
+<li><b>Conflict (two devices edit offline):</b> keep both as versions, or create a <code>"file (conflicted copy)"</code> — never silently overwrite.</li>
+<li><b>Versioning</b> makes restore trivial: point <code>current_version_id</code> back at an older snapshot.</li>
+</ul>
+<div class="warn"><b>Don't lose data.</b> When in doubt, branch into a conflicted copy. Drive's golden rule: a sync system must never destroy a user's edit.</div>
+</section>
+
+<section class="step" id="reliability"><h2><span class="num">09</span>Durability &amp; Reliability</h2>
+<ul class="bullets">
+<li><b>3x replication / erasure coding</b> in object storage → 11 nines durability.</li>
+<li><b>Multi-region</b> replication for disaster recovery.</li>
+<li><b>Tiered storage:</b> hot recent blocks on fast tiers, cold/old versions on cheap archival (Glacier-class).</li>
+<li><b>Refcount-based GC:</b> a block is deleted only when no manifest references it.</li>
+<li><b>Idempotent commits</b> keyed by <code>uploadId</code> so retries don't duplicate versions.</li>
+</ul>
+</section>
+
+<section class="step" id="trade"><h2><span class="num">10</span>Tradeoffs</h2>
+<table><thead><tr><th>Choice</th><th>Pro</th><th>Con</th></tr></thead><tbody>
+<tr><td>Fixed-size chunks</td><td>Simple, fast</td><td>Small insert shifts all blocks; content-defined chunking avoids it</td></tr>
+<tr><td>Block dedup</td><td>Huge storage/bandwidth savings</td><td>Refcount bookkeeping + GC complexity</td></tr>
+<tr><td>Strong metadata consistency</td><td>No phantom/lost files</td><td>Harder to scale writes; needs sharding/Spanner</td></tr>
+<tr><td>Presigned direct-to-blob</td><td>App servers don't move bytes</td><td>More complex auth/expiry handling</td></tr>
+<tr><td>Conflicted copies</td><td>Never lose edits</td><td>User must manually merge</td></tr>
+</tbody></table>
+</section>
+
+<section class="step" id="pitch"><h2><span class="num">11</span>30-Second Pitch</h2>
+<div class="callout">Google Drive splits every file into content-addressed <b>chunks</b>; clients hash blocks and upload only the ones the server is missing, so edits cost a few KB, not the whole file. A strongly-consistent <b>Metadata Service</b> owns the namespace, immutable versions, block manifests, and ACLs, while huge <b>object storage</b> holds the dedup'd blocks at 11-nines durability behind a CDN. A <b>Notification Service</b> over Kafka + WebSockets pushes change events so a user's other devices pull the metadata diff and fetch missing blocks within seconds; offline devices reconcile via a sync cursor, and conflicts become versioned copies so no edit is ever lost. For 10M DAU at 2 uploads/day that's ~230 writes/sec and ~10 TB/day ingest — modest QPS, storage-and-sync-heavy, which is why dedup and delta sync are the core levers.</div>
+</section>
+
+<section class="step" id="gloss"><h2><span class="num">12</span>Glossary</h2>
+<div class="glossary">
+  <div class="gloss-card"><h4>Delta sync</h4><p>Upload/download only the chunks that changed, not the whole file.</p></div>
+  <div class="gloss-card"><h4>Content-addressed</h4><p>A block's identity is its hash, so identical content is stored once.</p></div>
+  <div class="gloss-card"><h4>Dedup</h4><p>Storing one physical copy of a block referenced by many files/users.</p></div>
+  <div class="gloss-card"><h4>Manifest</h4><p>Ordered list of block hashes that reconstruct a file version.</p></div>
+  <div class="gloss-card"><h4>Sync cursor</h4><p>Per-device marker of the last version seen, used to catch up.</p></div>
+  <div class="gloss-card"><h4>Presigned URL</h4><p>Time-limited URL letting a client read/write blob storage directly.</p></div>
+  <div class="gloss-card"><h4>Refcount GC</h4><p>Delete a block only when no manifest references it anymore.</p></div>
+  <div class="gloss-card"><h4>Conflicted copy</h4><p>A second version kept when two offline edits collide, so nothing is lost.</p></div>
+</div>
+</section>
+
+</div>
+<a href="#" class="top" id="top">↑</a>
+<footer><b>BuildLikeASenior</b> · Think · Design · Grow Like a Senior Engineer<br><small>System Design · 14 · File Storage &amp; Sync</small></footer>
+<script>const top=document.getElementById('top');window.addEventListener('scroll',()=>{top.classList.toggle('show',window.scrollY>400);});</script>
+</body>
+</html>

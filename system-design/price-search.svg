@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1048 689" width="1048" height="689" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="1048" height="689" fill="#ffffff"/>
+<g transform="translate(-16,18)">
+<rect x="40" y="120" width="130" height="60" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="250" y="110" width="150" height="80" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="480" y="110" width="160" height="80" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="480" y="255" width="200" height="80" rx="10" fill="#ffec99" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="800" y="270" width="220" height="60" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="790" y="390" width="250" height="100" rx="10" fill="#ffc9c9" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="560" y="400" width="120" height="42" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="560" y="450" width="120" height="42" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="560" y="500" width="160" height="42" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<ellipse cx="940" cy="600" rx="100" ry="40" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="175,150 245,150" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="405,150 475,150" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="560,195 560,250" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="640,150 760,150" fill="none" stroke="#2f9e44" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="640,175 790,265" fill="none" stroke="#ff6b9d" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="905,330 905,385" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="790,420 700,420" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="790,440 685,470" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="790,460 725,520" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="870,490 590,340" fill="none" stroke="#2f9e44" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="915,490 915,550" fill="none" stroke="#2f9e44" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="20" fill="#1e1e1e" text-anchor="start"><tspan x="280" y="26">Price Search Service — Cache-first Vendor Aggregator</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="105" y="155.6">UI / Client</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="180" y="106">GET</tspan><tspan x="180" y="120.08">/search/product/1</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="325" y="145.35999999999999">API Gateway</tspan><tspan x="325" y="165.83999999999997">Edge Cache</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="560" y="145.35999999999999">Search Service</tspan><tspan x="560" y="165.83999999999997">(read path)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="565" y="221">get price:1</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="580" y="280.12">Redis (hot)</tspan><tspan x="580" y="300.6">price:{id}:{vendor}</tspan><tspan x="580" y="321.08">TTL = 1 hour</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#2f9e44" text-anchor="start"><tspan x="770" y="131">hit (fresh):</tspan><tspan x="770" y="145.08">return instantly</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#ff6b9d" text-anchor="start"><tspan x="660" y="226">miss/stale:</tspan><tspan x="660" y="240.08">publish refresh</tspan><tspan x="660" y="254.16">(serve stale,</tspan><tspan x="660" y="268.24">no blocking)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="910" y="295.94">Refresh Queue</tspan><tspan x="910" y="313.86">(Kafka, per-vendor)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="915" y="414.88">Vendor Worker Pool</tspan><tspan x="915" y="435.36">bounded concurrency</tspan><tspan x="915" y="455.84">single-flight + breaker</tspan><tspan x="915" y="476.32">retry (backoff+jitter)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="620" y="426.6">Vendor A</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="620" y="476.6">Vendor B</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="640" y="526.6">Vendor C ... 100+</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#e03131" text-anchor="start"><tspan x="690" y="391">$ paid call</tspan><tspan x="690" y="405.08">(only on miss)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#2f9e44" text-anchor="start"><tspan x="600" y="331">write fresh → Redis(1h)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="940" y="586.98">Price DB</tspan><tspan x="940" y="604.9">results JSONB</tspan><tspan x="940" y="622.82">(durable)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#7048e8" text-anchor="start"><tspan x="40" y="612">Read path NEVER blocks on vendors. Fresh cache = 0 paid calls. Single-flight collapses a stampede into one refresh per vendor.</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#7048e8" text-anchor="start"><tspan x="40" y="636">On miss/stale: serve cached (flagged stale) + async fan-out. Per-vendor breaker + bulkhead isolate slow/failing vendors → partial results.</tspan></text>
+</g>
+</svg>

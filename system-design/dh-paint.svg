@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 992 703" width="992" height="703" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="992" height="703" fill="#ffffff"/>
+<g transform="translate(-16,18)">
+<rect x="60" y="44" width="180" height="40" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="670" y="44" width="180" height="40" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="390" y="110" width="120" height="38" rx="10" fill="#ffec99" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="80" y="200" width="150" height="48" rx="10" fill="#ffc9c9" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="680" y="200" width="160" height="48" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="75" y="300" width="160" height="48" rx="10" fill="#ffd8a8" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="680" y="300" width="160" height="48" rx="10" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="55" y="414" width="200" height="48" rx="10" fill="#bd8c61" stroke="#5c3a16" stroke-width="2"/>
+<rect x="655" y="414" width="210" height="48" rx="10" fill="#bd8c61" stroke="#5c3a16" stroke-width="2"/>
+<rect x="370" y="530" width="260" height="50" rx="10" fill="#69db7c" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="245,318 675,318" fill="none" stroke="#868e96" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="675,340 245,340" fill="none" stroke="#868e96" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="155,462 325,522" fill="none" stroke="#2f9e44" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="755,462 585,522" fill="none" stroke="#2f9e44" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="18" fill="#1e1e1e" text-anchor="start"><tspan x="120" y="24">Diffie-Hellman Key Exchange — The Paint-Mixing Analogy</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="150" y="69.6">CLIENT</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="760" y="69.6">SERVER</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#e03131" text-anchor="start"><tspan x="390" y="62">EAVESDROPPER</tspan><tspan x="390" y="77.36">sees everything</tspan><tspan x="390" y="92.72">in the middle</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="13" fill="#7048e8" text-anchor="start"><tspan x="40" y="133">1. Agree on a PUBLIC base color (everyone sees it):</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="450" y="134.6">YELLOW</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="13" fill="#7048e8" text-anchor="start"><tspan x="40" y="191">2. Each picks a SECRET color — never shared:</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="155" y="219.35999999999999">+ RED</tspan><tspan x="155" y="239.83999999999997">(secret a)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="760" y="219.35999999999999">+ BLUE</tspan><tspan x="760" y="239.83999999999997">(secret b)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="13" fill="#7048e8" text-anchor="start"><tspan x="40" y="291">3. Mix secret into yellow and SEND the mix across the wire:</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="155" y="319.36">yellow+red</tspan><tspan x="155" y="339.84000000000003">= ORANGE</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="760" y="319.36">yellow+blue</tspan><tspan x="760" y="339.84000000000003">= GREEN</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="300" y="337">ORANGE travels →</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="300" y="355">← GREEN travels</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="13" fill="#7048e8" text-anchor="start"><tspan x="40" y="405">4. Add your OWN secret to the color you RECEIVED:</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="155" y="433.36">GREEN + RED</tspan><tspan x="155" y="453.84000000000003">= BROWN</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="760" y="433.36">ORANGE + BLUE</tspan><tspan x="760" y="453.84000000000003">= BROWN</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="500" y="550.36">SHARED SECRET = BROWN</tspan><tspan x="500" y="570.84">(both sides, identical)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#e03131" text-anchor="start"><tspan x="40" y="612">The eavesdropper saw YELLOW, ORANGE, GREEN — but to get BROWN they'd have to UN-MIX a color back into red or blue.</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#e03131" text-anchor="start"><tspan x="40" y="634">Mixing paint is easy; separating it is practically impossible. In real DH that 'un-mixing' = the discrete-log problem (infeasible).</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#2f9e44" text-anchor="start"><tspan x="40" y="656">The secrets (RED / BLUE) never leave their machines — only the MIXES travel. Yet both independently arrive at the SAME key.</tspan></text>
+</g>
+</svg>

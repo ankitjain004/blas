@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>API Gateway, Proxies &amp; Authentication · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+    --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+    --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  header.hero .crumb a:hover{color:var(--teal)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .label{color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 8px;font-weight:700}
+  .label.gold{color:var(--gold)}
+
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  .define em{color:var(--muted);font-style:normal;display:block;font-size:13px;margin-top:4px}
+
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .callout b{color:var(--teal)}
+  .warn{background:rgba(239,68,68,.06);border-left:3px solid #ef4444;padding:14px 18px;border-radius:8px;margin:10px 0}
+  .warn b{color:#ef4444}
+
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  td code, th code{background:rgba(0,212,170,.10);padding:1px 6px;border-radius:4px;color:var(--teal);font-size:12px}
+
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto;font-family:'JetBrains Mono',monospace}
+
+  ul.bullets{padding-left:22px}
+  ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px}
+  ol.steps li{margin:8px 0}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .pillbox{background:rgba(91,141,238,.05);border:1px solid rgba(91,141,238,.2);border-radius:10px;padding:14px 16px}
+  .pillbox h4{margin:0 0 6px;font-size:14px;color:var(--blue)}
+  .pillbox p{margin:0;font-size:13.5px;color:#cdd9ee}
+
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="crumb"><a href="index.html">System Design</a> · API GATEWAY &amp; PROXIES</div>
+  <span class="badge">Deep Dive</span>
+  <h1 class="title">API Gateway, <span>Proxies &amp; Auth</span></h1>
+  <p class="sub">Forward proxy vs reverse proxy, API Gateway internals, authentication/authorization flows, LLD with sample code, and HLD patterns for production systems.</p>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#proxy">Forward Proxy vs Reverse Proxy</a></li>
+    <li><a href="#gateway">What Is an API Gateway?</a></li>
+    <li><a href="#responsibilities">Gateway Responsibilities</a></li>
+    <li><a href="#auth">Authentication &amp; Authorization</a></li>
+    <li><a href="#jwt">JWT Deep Dive (How Tokens Work)</a></li>
+    <li><a href="#oauth">OAuth 2.0 &amp; OpenID Connect</a></li>
+    <li><a href="#lld">LLD: API Gateway (Sample Code)</a></li>
+    <li><a href="#hld">HLD: Production API Gateway Architecture</a></li>
+    <li><a href="#ratelimit">Rate Limiting at the Gateway</a></li>
+    <li><a href="#comparison">Comparison: Kong vs Nginx vs AWS API GW vs Envoy</a></li>
+    <li><a href="#patterns">Advanced Patterns (BFF, Service Mesh)</a></li>
+    <li><a href="#interview">Top Interview Questions &amp; Answers</a></li>
+  </ol>
+</nav>
+
+<!-- ====================== PROXY ====================== -->
+<section class="step" id="proxy">
+  <h2><span class="num">01</span>Forward Proxy vs Reverse Proxy</h2>
+
+  <div class="define">
+    <b>What is a proxy?</b> A <b>proxy</b> is an <b>intermediary</b> that sits between a client and a server and forwards requests/responses on someone's behalf. Instead of the client talking to the server directly, it talks to the proxy &mdash; which can inspect, cache, filter, log, or reroute the traffic before passing it along.
+    <em>"Proxy" literally means "acting on behalf of another." The only question is <b>on whose behalf</b> &mdash; the client (forward proxy) or the server (reverse proxy).</em>
+  </div>
+
+  <p>Both types relay traffic through a middle box. The difference is <b>which side they represent</b> and <b>who they hide</b>:</p>
+
+  <pre class="ascii">
+FORWARD PROXY (client-side):
+  Client knows it's using a proxy. Proxy acts on behalf of CLIENT.
+
+  [Client] ──→ [Forward Proxy] ──→ [Internet] ──→ [Server]
+                     ↑
+              Hides client's IP
+              Caching, filtering, bypass geo-blocks
+
+  Examples: Squid, corporate proxies, VPN, browser proxy settings
+  Use cases: Content filtering, caching, anonymity
+
+
+REVERSE PROXY (server-side):
+  Client doesn't know there's a proxy. Proxy acts on behalf of SERVER.
+
+  [Client] ──→ [Internet] ──→ [Reverse Proxy] ──→ [Server A]
+                                      │         ──→ [Server B]
+                                      │         ──→ [Server C]
+                                      ↑
+                               Hides server topology
+                               Load balancing, SSL termination, caching
+
+  Examples: Nginx, HAProxy, Cloudflare, AWS ALB
+  Use cases: Load balancing, SSL termination, DDoS protection, caching
+  </pre>
+
+  <img src="proxy.svg" alt="Forward Proxy vs Reverse Proxy Diagram" style="width:100%;max-width:1100px;border-radius:12px;margin-top:16px;border:1px solid var(--line);background:#fff" />
+  <p style="margin-top:12px"><a href="proxy.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+
+  <table>
+    <tr><th>Aspect</th><th>Forward Proxy</th><th>Reverse Proxy</th></tr>
+    <tr><td>Sits in front of</td><td>Clients</td><td>Servers</td></tr>
+    <tr><td>Client aware?</td><td>Yes (configured in client)</td><td>No (transparent to client)</td></tr>
+    <tr><td>Hides</td><td>Client identity from server</td><td>Server topology from client</td></tr>
+    <tr><td>Who benefits?</td><td>Client (privacy, caching)</td><td>Server (security, scaling)</td></tr>
+    <tr><td>Example</td><td>Corporate proxy, VPN</td><td>Nginx, Cloudflare, ALB</td></tr>
+  </table>
+
+  <div class="callout">
+    <b>Key insight:</b> An API Gateway is essentially a <b>reverse proxy</b> with added intelligence (auth, rate limiting, request transformation, routing).
+  </div>
+</section>
+
+<!-- ====================== GATEWAY ====================== -->
+<section class="step" id="gateway">
+  <h2><span class="num">02</span>What Is an API Gateway?</h2>
+
+  <div class="define">
+    <b>API Gateway</b> = A reverse proxy that sits between clients and your microservices, handling cross-cutting concerns (auth, rate limiting, routing, transformation, observability) so individual services don't have to.
+    <em>Single entry point for all client requests. Like a hotel reception desk — all guests go through it, it routes them to the right room.</em>
+  </div>
+
+  <pre class="ascii">
+Without API Gateway:
+  Mobile App ──→ User Service    (auth check in each service)
+  Mobile App ──→ Order Service   (auth check in each service)
+  Mobile App ──→ Payment Service (auth check in each service)
+  Web App    ──→ User Service    (rate limit in each service)
+  Web App    ──→ Order Service   (rate limit in each service)
+  (Every service handles auth, rate limiting, logging independently)
+
+With API Gateway:
+  Mobile App ─┐
+  Web App    ─┼──→ [API Gateway] ──→ User Service
+  Partner API─┘     (auth, rate    ──→ Order Service
+                     limit, log)    ──→ Payment Service
+  (Cross-cutting concerns handled ONCE at the gateway)
+  </pre>
+
+  <img src="gateway-concept.svg" alt="API Gateway: With vs Without Diagram" style="width:100%;max-width:1100px;border-radius:12px;margin-top:16px;border:1px solid var(--line);background:#fff" />
+  <p style="margin-top:12px"><a href="gateway-concept.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+</section>
+
+<!-- ====================== RESPONSIBILITIES ====================== -->
+<section class="step" id="responsibilities">
+  <h2><span class="num">03</span>Gateway Responsibilities</h2>
+
+  <table>
+    <tr><th>Responsibility</th><th>What It Does</th><th>Why at Gateway</th></tr>
+    <tr><td><b>Routing</b></td><td><code>/api/users/*</code> → User Service, <code>/api/orders/*</code> → Order Service</td><td>Single DNS entry for clients</td></tr>
+    <tr><td><b>Authentication</b></td><td>Validate JWT/API key, reject unauthorized requests</td><td>Don't duplicate auth logic in every service</td></tr>
+    <tr><td><b>Authorization</b></td><td>Check permissions (RBAC/ABAC) for the endpoint</td><td>Centralized policy enforcement</td></tr>
+    <tr><td><b>Rate Limiting</b></td><td>Limit requests per user/IP/API key</td><td>Protect backend from abuse</td></tr>
+    <tr><td><b>SSL Termination</b></td><td>Handle HTTPS, decrypt → forward HTTP internally</td><td>Services don't manage certs</td></tr>
+    <tr><td><b>Request/Response Transform</b></td><td>Add headers, strip fields, version translation</td><td>Backward compatibility</td></tr>
+    <tr><td><b>Load Balancing</b></td><td>Distribute across service instances</td><td>Built into routing</td></tr>
+    <tr><td><b>Caching</b></td><td>Cache GET responses (CDN-like at gateway)</td><td>Reduce backend load</td></tr>
+    <tr><td><b>Circuit Breaking</b></td><td>Stop sending to a failing service</td><td>Prevent cascade failures</td></tr>
+    <tr><td><b>Observability</b></td><td>Access logs, metrics, distributed tracing (trace-id injection)</td><td>Centralized visibility</td></tr>
+    <tr><td><b>IP Whitelisting/WAF</b></td><td>Block malicious IPs, SQL injection, XSS</td><td>First line of defense</td></tr>
+  </table>
+
+  <div class="define">
+    <b>WAF (Web Application Firewall)</b> = inspects incoming HTTP requests and blocks <b>application-layer attacks</b> before they reach your app — SQL injection, XSS, path traversal, bad bots, known-malicious IPs. Unlike a network firewall (which only sees IPs/ports), a WAF reads the actual request content.
+    <em>Sits at the edge/gateway as the first line of defense. Examples: AWS WAF, Cloudflare WAF, ModSecurity. This is the "IP Check / WAF" stage early in the gateway pipeline.</em>
+  </div>
+</section>
+
+<!-- ====================== AUTH ====================== -->
+<section class="step" id="auth">
+  <h2><span class="num">04</span>Authentication &amp; Authorization</h2>
+
+  <div class="grid2">
+    <div class="pillbox">
+      <h4>Authentication (AuthN)</h4>
+      <p><b>"Who are you?"</b><br>
+        Verify identity. Input: credentials (password, token, certificate). Output: verified identity (user_id).</p>
+    </div>
+    <div class="pillbox">
+      <h4>Authorization (AuthZ)</h4>
+      <p><b>"What can you do?"</b><br>
+        Check permissions. Input: identity + requested action. Output: allow/deny.</p>
+    </div>
+  </div>
+
+  <p class="label gold">Common Authentication Methods</p>
+  <table>
+    <tr><th>Method</th><th>How</th><th>Pros</th><th>Cons</th></tr>
+    <tr><td><b>API Key</b></td><td>Static key in header: <code>X-API-Key: abc123</code></td><td>Simple, good for service-to-service</td><td>No expiry, no user context, easily leaked</td></tr>
+    <tr><td><b>Basic Auth</b></td><td><code>Authorization: Basic base64(user:pass)</code></td><td>Simple</td><td>Credentials sent every request, no session</td></tr>
+    <tr><td><b>JWT (Bearer Token)</b></td><td><code>Authorization: Bearer eyJhbG...</code></td><td>Stateless, contains claims, scalable</td><td>Can't revoke until expiry (without blocklist)</td></tr>
+    <tr><td><b>OAuth 2.0</b></td><td>Delegation framework (access token + refresh token)</td><td>Delegated access, standard, third-party auth</td><td>Complex flow, multiple round-trips</td></tr>
+    <tr><td><b>mTLS</b></td><td>Both client and server present certificates</td><td>Strongest (cryptographic identity)</td><td>Certificate management is hard</td></tr>
+    <tr><td><b>Session Cookie</b></td><td>Server stores session, client holds cookie</td><td>Simple for web apps</td><td>Stateful (server stores sessions), CSRF risk</td></tr>
+  </table>
+
+  <p class="label gold">Authorization Models</p>
+  <table>
+    <tr><th>Model</th><th>How</th><th>Example</th></tr>
+    <tr><td><b>RBAC</b> (Role-Based)</td><td>User has roles, roles have permissions</td><td>admin can DELETE, viewer can only GET</td></tr>
+    <tr><td><b>ABAC</b> (Attribute-Based)</td><td>Rules based on user/resource/env attributes</td><td>"Allow if user.department == resource.department AND time < 6pm"</td></tr>
+    <tr><td><b>ACL</b> (Access Control List)</td><td>Per-resource list of who can do what</td><td>File permissions: user1: read, user2: read+write</td></tr>
+    <tr><td><b>Policy-based</b> (OPA/Cedar)</td><td>Externalized policy engine evaluates rules</td><td>OPA Rego policies, AWS Cedar</td></tr>
+  </table>
+</section>
+
+<!-- ====================== JWT ====================== -->
+<section class="step" id="jwt">
+  <h2><span class="num">05</span>JWT Deep Dive</h2>
+
+  <pre class="ascii">
+JWT Structure (3 parts, base64url encoded, dot-separated):
+
+  eyJhbGciOiJSUzI1NiJ9.eyJ1c2VyX2lkIjoiMTIzIn0.signature
+  ├─── Header ────┤├──── Payload (Claims) ────┤├─ Signature ─┤
+
+Header (algorithm + type):
+{
+  "alg": "RS256",      ← signing algorithm
+  "typ": "JWT"
+}
+
+Payload (claims):
+{
+  "sub": "user-123",        ← subject (user ID)
+  "iss": "auth.myapp.com",  ← issuer
+  "aud": "api.myapp.com",   ← audience
+  "exp": 1717000000,        ← expiry (Unix timestamp)
+  "iat": 1716996400,        ← issued at
+  "roles": ["buyer"],       ← custom claim
+  "email": "ankit@ms.com"   ← custom claim
+}
+
+Signature:
+  RS256( base64(header) + "." + base64(payload), PRIVATE_KEY )
+  </pre>
+
+  <p class="label gold">How Gateway Validates JWT</p>
+  <pre class="ascii">
+Request arrives: Authorization: Bearer eyJ...
+
+Gateway steps:
+  1. Split token into header.payload.signature
+  2. Decode header → get algorithm (RS256)
+  3. Fetch public key from JWKS endpoint (cached):
+     GET https://auth.myapp.com/.well-known/jwks.json
+  4. Verify signature using public key
+     → If invalid → 401 Unauthorized
+  5. Check claims:
+     ─ exp > now()? (not expired)
+     ─ iss == expected issuer?
+     ─ aud includes this API?
+     → If any fail → 401
+  6. Extract user_id, roles from payload
+  7. Forward to backend with headers:
+     X-User-Id: user-123
+     X-User-Roles: buyer
+
+NO DATABASE LOOKUP NEEDED — fully stateless verification.
+  </pre>
+
+  <img src="tls-handshake.svg" alt="TLS 1.3 Handshake Sequence Diagram" style="width:100%;max-width:1100px;border-radius:12px;margin-top:16px;border:1px solid var(--line);background:#fff" />
+  <p style="margin-top:12px"><a href="tls-handshake.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+
+  <div class="callout">
+    <b>How decryption works:</b> TLS uses two crypto types. <b>Asymmetric</b> (slow, public/private keys) runs only during the handshake to safely agree on a shared <b>session key</b> &mdash; via ECDHE the secret is never sent on the wire. <b>Symmetric</b> (fast, AES-GCM) with that session key then encrypts all the actual data. The gateway holds the <b>private key</b>, completes the key exchange, derives the session key, and decrypts every byte into readable HTTP. Ephemeral session keys give <b>forward secrecy</b>.
+  </div>
+
+  <p class="label gold">Access Token vs Refresh Token</p>
+  <pre class="ascii">
+┌──────────────────────────────────────────────────────────────┐
+│ Access Token (JWT)          │ Refresh Token                   │
+├─────────────────────────────┼─────────────────────────────────┤
+│ Short-lived (15 min)        │ Long-lived (7-30 days)          │
+│ Sent with every API request │ Sent only to /token/refresh     │
+│ Stateless (no DB lookup)    │ Stored in DB (revocable)        │
+│ Contains user claims        │ Just an opaque ID               │
+│ If stolen → 15 min damage   │ If stolen → revoke in DB        │
+└─────────────────────────────┴─────────────────────────────────┘
+
+Flow:
+  1. User logs in → gets access_token (15min) + refresh_token (30d)
+  2. API calls use access_token
+  3. After 15 min → access_token expires → 401
+  4. Client calls POST /token/refresh with refresh_token
+  5. Server validates refresh_token in DB → issues new access_token
+  6. If refresh_token is revoked/expired → user must log in again
+  </pre>
+
+  <div class="define">
+    <b>What is a refresh token?</b> A long-lived (days–weeks), <b>opaque</b> token stored server-side in a DB, sent <b>only</b> to <code>/token/refresh</code>. Its sole job is to mint fresh short-lived access tokens without making the user log in again.
+    <em>The access token is stateless and used on every request → keep it short (15 min) so a leak is low-damage, but it can't be revoked early. The refresh token is rarely sent, DB-backed, and <b>revocable</b> — logging out = deleting it from the DB. Short token for speed/scale, long token for convenience + revocation.</em>
+  </div>
+</section>
+
+<!-- ====================== OAUTH ====================== -->
+<section class="step" id="oauth">
+  <h2><span class="num">06</span>OAuth 2.0 &amp; OpenID Connect</h2>
+
+  <pre class="ascii">
+OAuth 2.0 Authorization Code Flow (most common for web apps):
+
+  ┌────────┐                      ┌──────────────┐              ┌─────────────┐
+  │  User  │                      │  Your App    │              │ Auth Server │
+  │(Browser│                      │  (Client)    │              │ (Google/    │
+  │        │                      │              │              │  Okta/Auth0)│
+  └───┬────┘                      └──────┬───────┘              └──────┬──────┘
+      │                                   │                             │
+      │ 1. Click "Login with Google"      │                             │
+      │──────────────────────────────────→│                             │
+      │                                   │                             │
+      │                                   │ 2. Redirect to auth server  │
+      │←─────────────────────────────────────────────────────────────→│
+      │   302 → https://auth.google.com/authorize?                     │
+      │         client_id=xxx&redirect_uri=xxx&scope=openid+email      │
+      │                                   │                             │
+      │ 3. User logs in + consents        │                             │
+      │──────────────────────────────────────────────────────────────→│
+      │                                   │                             │
+      │ 4. Redirect back with auth code   │                             │
+      │←──────────────────────────────────│←────────────────────────────│
+      │   302 → https://yourapp.com/callback?code=AUTH_CODE            │
+      │                                   │                             │
+      │                                   │ 5. Exchange code for tokens │
+      │                                   │──────────────────────────→│
+      │                                   │ POST /token                 │
+      │                                   │ { code, client_secret }    │
+      │                                   │                             │
+      │                                   │←──────────────────────────│
+      │                                   │ { access_token, id_token,  │
+      │                                   │   refresh_token }          │
+      │                                   │                             │
+      │ 6. Set session / return JWT       │                             │
+      │←──────────────────────────────────│                             │
+  </pre>
+
+  <img src="oauth-flow.svg" alt="OAuth 2.0 Authorization Code Flow Diagram" style="width:100%;max-width:1100px;border-radius:12px;margin-top:16px;border:1px solid var(--line);background:#fff" />
+  <p style="margin-top:12px"><a href="oauth-flow.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+
+  <div class="callout">
+    <b>OpenID Connect (OIDC)</b> = OAuth 2.0 + identity layer. OAuth gives you an <b>access_token</b> (for API access). OIDC adds an <b>id_token</b> (JWT with user info: name, email, picture). Use OAuth for authorization, OIDC for authentication.
+  </div>
+</section>
+
+<!-- ====================== LLD ====================== -->
+<section class="step" id="lld">
+  <h2><span class="num">07</span>LLD: API Gateway (Sample Code)</h2>
+
+  <p class="label gold">Simplified API Gateway in Node.js (Express)</p>
+  <pre class="ascii">
+const express = require('express');
+const jwt = require('jsonwebtoken');
+const httpProxy = require('http-proxy-middleware');
+const rateLimit = require('express-rate-limit');
+
+const app = express();
+const PUBLIC_KEY = fs.readFileSync('public.pem'); // RSA public key
+
+// ═══════════════════════════════════════════════════
+// MIDDLEWARE 1: Rate Limiting (per IP)
+// ═══════════════════════════════════════════════════
+const limiter = rateLimit({
+  windowMs: 60 * 1000,  // 1 minute window
+  max: 100,             // 100 requests per minute per IP
+  message: { error: 'Rate limit exceeded', retryAfter: '60s' },
+  keyGenerator: (req) => req.headers['x-api-key'] || req.ip,
+});
+app.use(limiter);
+
+// ═══════════════════════════════════════════════════
+// MIDDLEWARE 2: Authentication (JWT validation)
+// ═══════════════════════════════════════════════════
+function authenticate(req, res, next) {
+  // Skip auth for public endpoints
+  if (req.path.startsWith('/public/')) return next();
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Missing token' });
+  }
+
+  const token = authHeader.slice(7);
+  try {
+    const decoded = jwt.verify(token, PUBLIC_KEY, {
+      algorithms: ['RS256'],
+      issuer: 'auth.myapp.com',
+      audience: 'api.myapp.com',
+    });
+    req.user = decoded;  // { sub, roles, email, exp, ... }
+    req.headers['x-user-id'] = decoded.sub;
+    req.headers['x-user-roles'] = decoded.roles.join(',');
+    next();
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired' });
+    }
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+}
+app.use(authenticate);
+
+// ═══════════════════════════════════════════════════
+// MIDDLEWARE 3: Authorization (RBAC check)
+// ═══════════════════════════════════════════════════
+function authorize(...allowedRoles) {
+  return (req, res, next) => {
+    const userRoles = req.user.roles || [];
+    const hasRole = allowedRoles.some(r => userRoles.includes(r));
+    if (!hasRole) {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+    next();
+  };
+}
+
+// ═══════════════════════════════════════════════════
+// ROUTING: Path-based routing to microservices
+// ═══════════════════════════════════════════════════
+const ROUTES = {
+  '/api/users':    'http://user-service:3001',
+  '/api/orders':   'http://order-service:3002',
+  '/api/payments': 'http://payment-service:3003',
+};
+
+Object.entries(ROUTES).forEach(([path, target]) => {
+  app.use(path, httpProxy.createProxyMiddleware({
+    target,
+    changeOrigin: true,
+    pathRewrite: { [`^${path}`]: '' },
+    onProxyReq: (proxyReq, req) => {
+      // Forward user context to downstream service
+      proxyReq.setHeader('X-User-Id', req.user?.sub || '');
+      proxyReq.setHeader('X-User-Roles', req.user?.roles?.join(',') || '');
+      proxyReq.setHeader('X-Request-Id', req.headers['x-request-id'] || uuid());
+    },
+  }));
+});
+
+// Admin-only route example
+app.delete('/api/users/:id', authorize('admin'), (req, res, next) => next());
+
+app.listen(8080, () => console.log('API Gateway on :8080'));
+  </pre>
+
+  <p class="label gold">Class Diagram (LLD)</p>
+  <pre class="ascii">
+┌─────────────────────────────────────────────────────────────────┐
+│                        APIGateway                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ - routeTable: Map&lt;PathPattern, ServiceURL&gt;                      │
+│ - rateLimiter: RateLimiter                                       │
+│ - authenticator: TokenValidator                                  │
+│ - authorizer: RBACChecker                                        │
+│ - circuitBreakers: Map&lt;ServiceName, CircuitBreaker&gt;             │
+│ - loadBalancer: LoadBalancer                                      │
+├─────────────────────────────────────────────────────────────────┤
+│ + handleRequest(req): Response                                    │
+│ + route(req): ServiceURL                                         │
+└─────────────────────────────────────────────────────────────────┘
+         │          │            │              │
+         ▼          ▼            ▼              ▼
+┌─────────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐
+│ RateLimiter │ │TokenValid.│ │RBACChecker│ │CircuitBreaker│
+├─────────────┤ ├──────────┤ ├──────────┤ ├──────────────┤
+│-store: Redis│ │-publicKey │ │-policies │ │-state: ENUM  │
+│-window: int │ │-jwksUrl   │ │-rolePerms│ │-failCount    │
+│-maxReqs: int│ │           │ │          │ │-threshold    │
+├─────────────┤ ├──────────┤ ├──────────┤ ├──────────────┤
+│+isAllowed() │ │+validate()│ │+check()  │ │+canExecute() │
+│+increment() │ │+decode()  │ │+enforce()│ │+recordFail() │
+└─────────────┘ └──────────┘ └──────────┘ └──────────────┘
+  </pre>
+</section>
+
+<!-- ====================== HLD ====================== -->
+<section class="step" id="hld">
+  <h2><span class="num">08</span>HLD: Production API Gateway Architecture</h2>
+
+  <pre class="ascii">
+                         ┌──────────────────┐
+                         │   Cloudflare /   │
+                         │   AWS CloudFront │  ← CDN + DDoS protection
+                         │   (Edge Layer)   │
+                         └────────┬─────────┘
+                                  │
+                         ┌────────▼─────────┐
+                         │  Global Load     │
+                         │  Balancer (L4)   │  ← AWS NLB / GCP LB
+                         │  (TCP/IP level)  │
+                         └────────┬─────────┘
+                                  │
+              ┌───────────────────┼───────────────────┐
+              ▼                   ▼                   ▼
+     ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+     │  API Gateway    │ │  API Gateway    │ │  API Gateway    │
+     │  Instance 1     │ │  Instance 2     │ │  Instance 3     │
+     │  (Kong/Envoy)   │ │  (Kong/Envoy)   │ │  (Kong/Envoy)   │
+     │                 │ │                 │ │                 │
+     │ ┌─────────────┐│ │ ┌─────────────┐│ │ ┌─────────────┐│
+     │ │ Auth Plugin  ││ │ │ Auth Plugin  ││ │ │ Auth Plugin  ││
+     │ │ Rate Limit   ││ │ │ Rate Limit   ││ │ │ Rate Limit   ││
+     │ │ Routing      ││ │ │ Routing      ││ │ │ Routing      ││
+     │ │ Logging      ││ │ │ Logging      ││ │ │ Logging      ││
+     │ └─────────────┘│ │ └─────────────┘│ │ └─────────────┘│
+     └───────┬─────────┘ └───────┬─────────┘ └───────┬─────────┘
+             │                   │                   │
+             └───────────────────┼───────────────────┘
+                                 │
+            ┌────────────────────┼────────────────────┐
+            ▼                    ▼                    ▼
+   ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+   │  User Service   │  │  Order Service  │  │ Payment Service │
+   │  (K8s pods)     │  │  (K8s pods)     │  │  (K8s pods)     │
+   └─────────────────┘  └─────────────────┘  └─────────────────┘
+
+Shared Infrastructure:
+  ┌──────────────────────────────────────────────────────────────┐
+  │ Redis (rate limit counters, token blocklist, session cache)   │
+  │ PostgreSQL (API key store, route config, audit logs)          │
+  │ JWKS endpoint (public keys for JWT verification, cached)     │
+  │ Prometheus + Grafana (metrics: latency, error rate, RPS)     │
+  │ ELK / Datadog (access logs, distributed tracing)             │
+  └──────────────────────────────────────────────────────────────┘
+  </pre>
+
+  <img src="api-gateway.svg" alt="API Gateway Production Architecture Diagram" style="width:100%;max-width:1100px;border-radius:12px;margin-top:16px;border:1px solid var(--line);background:#fff" />
+  <p style="margin-top:12px"><a href="api-gateway.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+
+  <p class="label gold">Request Flow Through Production Gateway</p>
+  <pre class="ascii">
+Incoming HTTPS request:
+  │
+  ▼
+1. TLS Termination (decrypt HTTPS → HTTP)
+  │
+  ▼
+2. IP Check (WAF rules, geo-blocking, IP blocklist)
+  │  → Block → 403
+  │
+  ▼
+3. Rate Limiting
+  │  → Check Redis: INCR rate:{api_key}:{window}
+  │  → If > limit → 429 Too Many Requests
+  │
+  ▼
+4. Authentication
+  │  → Extract Bearer token from Authorization header
+  │  → Verify JWT signature (cached public key)
+  │  → Check expiry, issuer, audience
+  │  → If invalid → 401 Unauthorized
+  │
+  ▼
+5. Authorization
+  │  → Extract roles/scopes from JWT claims
+  │  → Match against route's required permissions
+  │  → If forbidden → 403 Forbidden
+  │
+  ▼
+6. Request Transformation
+  │  → Add X-User-Id, X-Request-Id headers
+  │  → Strip sensitive headers (Authorization)
+  │  → API version translation if needed
+  │
+  ▼
+7. Route Resolution
+  │  → Match path to upstream service
+  │  → Select instance (round-robin / least-connections)
+  │
+  ▼
+8. Circuit Breaker Check
+  │  → If service is in OPEN state → 503 (fast fail)
+  │
+  ▼
+9. Proxy to Upstream Service
+  │  → Forward request, wait for response
+  │
+  ▼
+10. Response Transformation
+  │  → Add CORS headers, security headers
+  │  → Strip internal headers
+  │  → Cache response if cacheable
+  │
+  ▼
+11. Logging &amp; Metrics
+  │  → Log: method, path, status, latency, user_id
+  │  → Emit metric: gateway_request_duration_seconds
+  │  → Propagate trace-id for distributed tracing
+  │
+  ▼
+Return response to client
+  </pre>
+
+  <img src="jwt-flow.svg" alt="Request Flow with JWT Auth Pipeline Diagram" style="width:100%;max-width:1100px;border-radius:12px;margin-top:16px;border:1px solid var(--line);background:#fff" />
+  <p style="margin-top:12px"><a href="jwt-flow.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+</section>
+
+<!-- ====================== RATE LIMIT ====================== -->
+<section class="step" id="ratelimit">
+  <h2><span class="num">09</span>Rate Limiting at the Gateway</h2>
+
+  <pre class="ascii">
+Sliding Window Counter (most common at gateway level):
+
+  Key: rate_limit:{user_id}:{current_minute}
+  Key: rate_limit:{user_id}:{previous_minute}
+
+  Weighted count = prev_count * overlap% + curr_count
+  If weighted > limit → reject (429)
+
+Example (limit = 100 req/min):
+  Current time: 12:01:25 (25s into current window)
+  Previous window (12:00): 80 requests
+  Current window (12:01):  30 requests
+
+  Weighted = 80 * (35/60) + 30 = 46.7 + 30 = 76.7
+  76.7 < 100 → ALLOW
+
+Implementation in Redis:
+  MULTI
+    INCR rate:{user_id}:202605291201
+    EXPIRE rate:{user_id}:202605291201 120
+  EXEC
+  </pre>
+
+  <table>
+    <tr><th>Algorithm</th><th>Pros</th><th>Cons</th><th>Use At Gateway?</th></tr>
+    <tr><td>Fixed Window</td><td>Simple, O(1)</td><td>Boundary burst (2x at window edge)</td><td>Basic use</td></tr>
+    <tr><td>Sliding Window Log</td><td>Precise</td><td>Memory heavy (stores all timestamps)</td><td>Rarely</td></tr>
+    <tr><td>Sliding Window Counter</td><td>Accurate + memory efficient</td><td>Slight approximation</td><td><b>Most common</b></td></tr>
+    <tr><td>Token Bucket</td><td>Allows burst, smooth rate</td><td>Slightly complex</td><td>AWS, Stripe</td></tr>
+    <tr><td>Leaky Bucket</td><td>Smoothest output rate</td><td>No burst allowed</td><td>Network QoS</td></tr>
+  </table>
+</section>
+
+<!-- ====================== COMPARISON ====================== -->
+<section class="step" id="comparison">
+  <h2><span class="num">10</span>Comparison: Kong vs Nginx vs AWS API GW vs Envoy</h2>
+
+  <table>
+    <tr><th>Feature</th><th>Kong</th><th>Nginx</th><th>AWS API Gateway</th><th>Envoy</th></tr>
+    <tr><td>Type</td><td>Full API Gateway</td><td>Reverse proxy + basic gateway</td><td>Managed (serverless)</td><td>Service proxy (L7)</td></tr>
+    <tr><td>Plugin ecosystem</td><td>Rich (auth, rate limit, transform)</td><td>Limited (need Lua/modules)</td><td>Built-in + Lambda</td><td>Filters (C++/Wasm)</td></tr>
+    <tr><td>Performance</td><td>~30K RPS/instance</td><td>~100K RPS/instance</td><td>10K RPS (soft limit)</td><td>~50K RPS/instance</td></tr>
+    <tr><td>Config</td><td>Admin API + DB (Postgres)</td><td>Static config files</td><td>Console/CloudFormation</td><td>xDS API (dynamic)</td></tr>
+    <tr><td>Service mesh</td><td>Kong Mesh (optional)</td><td>No</td><td>No</td><td>Istio sidecar</td></tr>
+    <tr><td>Best for</td><td>API management at scale</td><td>Simple reverse proxy, static routing</td><td>Serverless, AWS-native</td><td>Service mesh, K8s, gRPC</td></tr>
+    <tr><td>Ops burden</td><td>Medium</td><td>Low</td><td>Zero (managed)</td><td>High (but powerful)</td></tr>
+  </table>
+
+  <div class="callout">
+    <b>Interview shortcut:</b> "Kong for full-featured API gateway, Nginx for simple reverse proxy, AWS API GW for serverless, Envoy for service mesh sidecar in K8s."
+  </div>
+</section>
+
+<!-- ====================== PATTERNS ====================== -->
+<section class="step" id="patterns">
+  <h2><span class="num">11</span>Advanced Patterns (BFF, Service Mesh)</h2>
+
+  <p class="label gold">Backend for Frontend (BFF)</p>
+  <pre class="ascii">
+Problem: Mobile app needs different data shape than web app.
+         Single API gateway returns too much/too little.
+
+Solution: One gateway per client type.
+
+  Mobile App ──→ [Mobile BFF Gateway] ──→ aggregates from services
+                  (returns minimal JSON,
+                   combines 3 APIs into 1 call)
+
+  Web App    ──→ [Web BFF Gateway]    ──→ aggregates from services
+                  (returns rich JSON,
+                   includes more fields)
+
+  Partner    ──→ [Partner Gateway]    ──→ different auth, rate limits
+  </pre>
+
+  <img src="bff.svg" alt="Backend for Frontend (BFF) Diagram" style="width:100%;max-width:1100px;border-radius:12px;margin-top:16px;border:1px solid var(--line);background:#fff" />
+  <p style="margin-top:12px"><a href="bff.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+
+  <p class="label gold">Service Mesh (Envoy Sidecar)</p>
+  <pre class="ascii">
+Without service mesh:
+  Service A ──(direct HTTP)──→ Service B
+  (each service handles: retries, circuit breaking, mTLS, tracing)
+
+With service mesh (Istio + Envoy):
+  ┌──────────────────────┐     ┌──────────────────────┐
+  │ Pod A                │     │ Pod B                │
+  │ ┌────────┐ ┌──────┐ │     │ ┌──────┐ ┌────────┐ │
+  │ │Service │→│Envoy │─┼─────┼→│Envoy │→│Service │ │
+  │ │   A    │ │proxy │ │     │ │proxy │ │   B    │ │
+  │ └────────┘ └──────┘ │     │ └──────┘ └────────┘ │
+  └──────────────────────┘     └──────────────────────┘
+              ↕                          ↕
+       ┌──────────────────────────────────────┐
+       │ Control Plane (Istio / Linkerd)      │
+       │ ─ mTLS certificate management        │
+       │ ─ Traffic policies (retries, timeout)│
+       │ ─ Observability (metrics, traces)    │
+       └──────────────────────────────────────┘
+
+Gateway handles NORTH-SOUTH traffic (client → cluster)
+Service Mesh handles EAST-WEST traffic (service → service)
+  </pre>
+
+  <img src="service-mesh.svg" alt="Service Mesh Sidecar Diagram" style="width:100%;max-width:1100px;border-radius:12px;margin-top:16px;border:1px solid var(--line);background:#fff" />
+  <p style="margin-top:12px"><a href="service-mesh.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+
+  <p class="label gold">TLS Termination + Re-encryption (mTLS) in a Chat Service</p>
+  <div class="callout">
+    <b>Re-encryption:</b> "terminate then plain HTTP" assumes a trusted internal network. In <b>zero-trust</b> setups (private chat, healthcare, finance) the gateway terminates the public HTTPS, then opens a <b>new mTLS connection</b> to the backend and re-encrypts. <b>Mutual</b> TLS = both sides present certs, so a rogue pod can't impersonate the chat service. In a service mesh, Envoy sidecars do this automatically — your code still speaks plain HTTP to its local sidecar.
+  </div>
+  <img src="mtls-chat.svg" alt="mTLS Re-encryption in Chat Service Diagram" style="width:100%;max-width:1100px;border-radius:12px;margin-top:16px;border:1px solid var(--line);background:#fff" />
+  <p style="margin-top:12px"><a href="mtls-chat.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+</section>
+
+<!-- ====================== INTERVIEW ====================== -->
+<section class="step" id="interview">
+  <h2><span class="num">12</span>Top Interview Questions &amp; Answers</h2>
+
+  <div class="define">
+    <b>Q1: What's the difference between a reverse proxy and an API gateway?</b>
+    <em>A reverse proxy routes traffic and load-balances. An API gateway does that PLUS authentication, authorization, rate limiting, request transformation, analytics, and developer portal. API gateway = reverse proxy + business logic for APIs.</em>
+  </div>
+
+  <div class="define">
+    <b>Q2: Where does authentication happen — gateway or individual services?</b>
+    <em>Token validation (JWT signature check) at the gateway. Fine-grained authorization (e.g., "can this user edit THIS specific document?") at the service (since it requires domain knowledge). Gateway handles "is this a valid user?" Service handles "can this user do X on resource Y?"</em>
+  </div>
+
+  <div class="define">
+    <b>Q3: How do you handle JWT revocation?</b>
+    <em>JWTs are stateless — can't be revoked until they expire. Solutions: (1) Short expiry (15 min) + refresh tokens. (2) Token blocklist in Redis (check on every request). (3) Token versioning (bump version on password change, reject old versions). Trade-off: blocklist adds a lookup but enables instant revocation.</em>
+  </div>
+
+  <div class="define">
+    <b>Q4: Single gateway vs multiple gateways?</b>
+    <em>Single: simpler ops, one place for policies. Multiple: BFF pattern (mobile vs web), team ownership per gateway, blast radius isolation. At scale, most companies use multiple domain-specific gateways behind a shared edge/CDN layer.</em>
+  </div>
+
+  <div class="define">
+    <b>Q5: How does rate limiting work across multiple gateway instances?</b>
+    <em>Centralized counter in Redis. All gateway instances INCR the same key. Alternatively, local rate limiting per instance (approximate but faster, no Redis dependency). Hybrid: local for rough limiting, Redis for exact per-user limits.</em>
+  </div>
+
+  <div class="define">
+    <b>Q6: What happens if the API gateway goes down?</b>
+    <em>Gateway is a single point of failure. Mitigations: (1) Multiple instances behind L4 load balancer. (2) Health checks + auto-restart. (3) Multi-AZ deployment. (4) Graceful degradation: if Redis (rate limit) is down, allow traffic through (fail-open vs fail-closed — depends on risk tolerance).</em>
+  </div>
+
+  <div class="define">
+    <b>Q7: Forward proxy vs reverse proxy vs API gateway?</b>
+    <em>Forward proxy: client-side, hides client (VPN, corporate proxy). Reverse proxy: server-side, hides backend (Nginx, HAProxy). API gateway: reverse proxy + auth, rate limiting, transformation, routing for APIs specifically. Each adds a layer of functionality on top of the previous.</em>
+  </div>
+
+  <div class="define">
+    <b>Q8: How do you secure service-to-service communication?</b>
+    <em>mTLS (mutual TLS): both sides present certificates. Managed by service mesh (Istio auto-rotates certs). Alternatively: internal JWTs signed by gateway, network policies (K8s), VPC peering. Defense in depth: even internal traffic should be authenticated.</em>
+  </div>
+
+  <div class="define">
+    <b>Q9: How would you design an API gateway from scratch?</b>
+    <em>Core: async event loop (Netty/Go/Rust) for high concurrency. Plugin pipeline: each request flows through ordered plugins (rate limit → auth → transform → route). Config store: PostgreSQL + in-memory cache. Hot reload: config changes without restart. Health check loop: monitor upstreams. Metrics: Prometheus histograms per route.</em>
+  </div>
+
+  <div class="define">
+    <b>Q10: OAuth vs API Key vs JWT — when to use which?</b>
+    <em>API Key: server-to-server, simple, no user context. JWT: user-facing APIs, stateless, contains claims. OAuth: delegated access (third-party apps accessing user data), standard for "Login with Google." Use API keys for partners, JWT for your own frontend, OAuth for third-party integrations.</em>
+  </div>
+
+  <div class="define">
+    <b>Q11: What is SSL/TLS termination and why do it at the gateway?</b>
+    <em>Decrypt HTTPS at the gateway, forward plain HTTP to internal services. Why: (1) Centralize cert management (one place to renew). (2) Reduce CPU load on services. (3) Simpler service code. (4) Internal network is trusted (within VPC). If compliance requires end-to-end encryption, re-encrypt (mTLS) after gateway.</em>
+  </div>
+
+  <div class="define">
+    <b>Q12: How do you handle API versioning at the gateway?</b>
+    <em>Options: (1) Path-based: /v1/users, /v2/users → route to different service versions. (2) Header-based: Accept: application/vnd.api.v2+json. (3) Query param: ?version=2. Gateway can transform requests between versions (translate v1 format → v2 format for backend). Most common: path-based for simplicity.</em>
+  </div>
+</section>
+
+</div><!-- .wrap -->
+
+<a href="#" class="top" id="topBtn">↑</a>
+
+<footer>
+  <b>BuildLikeASenior</b> · Think · Design · Grow Like a Senior Engineer
+</footer>
+
+<script>
+const btn=document.getElementById('topBtn');
+window.addEventListener('scroll',()=>{btn.classList.toggle('show',window.scrollY>300)});
+</script>
+</body>
+</html>

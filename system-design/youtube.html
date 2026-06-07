@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Design YouTube · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{--bg:#060d1a;--bg2:#0d1b35;--card:#0f1f3d;--card2:#142a52;--teal:#00d4aa;--blue:#5b8dee;--gold:#f5c842;--text:#e6edf7;--muted:#8aa0c4;--line:rgba(255,255,255,.08)}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  a{color:var(--teal);text-decoration:none} a:hover{text-decoration:underline}
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+  .meta{margin-top:14px;color:var(--muted);font-size:13px;font-family:'JetBrains Mono',monospace}
+  .meta b{color:var(--gold)}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto}
+  ul.bullets{padding-left:22px} ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px} ol.steps li{margin:8px 0}
+  .glossary{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:14px}
+  .gloss-card{background:rgba(91,141,238,.05);border:1px solid rgba(91,141,238,.2);border-radius:10px;padding:14px 16px}
+  .gloss-card h4{margin:0 0 6px;color:var(--blue);font-size:13.5px}
+  .gloss-card p{margin:0;font-size:13px;color:#cdd9ee}
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="crumb"><a href="index.html">System Design</a> · 06</div>
+  <span class="badge">Video Platform</span>
+  <h1 class="title">Design <span>YouTube</span></h1>
+  <p class="sub">Upload, process, store, discover, and stream videos globally with adaptive bitrate playback and CDN-first delivery at massive scale.</p>
+  <div class="meta">10M concurrent viewers · ABR streaming · CDN-heavy architecture</div>
+</header>
+<div class="wrap">
+<nav class="toc"><h3>Walkthrough</h3><ol>
+<li><a href="#req">Problem & Requirements</a></li>
+<li><a href="#math">Capacity Math</a></li>
+<li><a href="#hld">High-Level Architecture</a></li>
+<li><a href="#upload">Upload + Processing Pipeline</a></li>
+<li><a href="#playback">Playback Path & ABR</a></li>
+<li><a href="#meta">Metadata, Search, Recommendation</a></li>
+<li><a href="#reliability">Reliability and Cost Controls</a></li>
+<li><a href="#trade">Tradeoffs</a></li>
+<li><a href="#pitch">30-Second Pitch</a></li>
+<li><a href="#gloss">Glossary</a></li>
+</ol></nav>
+
+<section class="step" id="req"><h2><span class="num">01</span>Problem & Requirements</h2>
+<div class="callout"><b>Goal.</b> Let creators upload videos and let users watch smoothly on any device/network, with low startup delay and high availability.</div>
+<ul class="bullets">
+<li>Upload huge videos reliably (resumable, multi-part).</li>
+<li>Transcode into multiple resolutions/bitrates.</li>
+<li>Serve with adaptive bitrate (Auto quality mode).</li>
+<li>Search, recommendations, likes, comments, subscriptions.</li>
+<li>Moderation, copyright checks, abuse controls.</li>
+</ul>
+<table><thead><tr><th>Non-Functional</th><th>Target</th></tr></thead><tbody>
+<tr><td>Video startup latency</td><td>&lt; 2 s p95</td></tr>
+<tr><td>Rebuffer ratio</td><td>&lt; 1%</td></tr>
+<tr><td>Availability</td><td>99.99%</td></tr>
+<tr><td>Durability</td><td>11 nines on object storage</td></tr>
+</tbody></table>
+</section>
+
+<section class="step" id="math"><h2><span class="num">02</span>Capacity Math</h2>
+<div class="callout"><b>Notation.</b> <code>B</code>=byte, <code>b</code>=bit, <code>1 B = 8 b</code>.</div>
+<ol class="steps">
+<li>Uploads: 10M videos/day × 500 MB avg = 5,000,000,000 MB/day = <b>5 PB/day</b> raw ingest.</li>
+<li>With multi-resolution transcoding (avg 1.6x storage overhead) ≈ <b>8 PB/day</b> net written.</li>
+<li>Viewers: 10M concurrent × 2 Mbps average stream = <b>20 Tbps</b> egress.</li>
+<li>If CDN hit ratio is 95%, origin egress drops to about <b>1 Tbps</b>.</li>
+<li>Segment size around 2-4 s chunks; billions of segment GETs/day.</li>
+</ol>
+</section>
+
+<section class="step" id="hld"><h2><span class="num">03</span>High-Level Architecture</h2>
+<pre class="ascii">
+Upload Client -> API Gateway -> Upload Service -> Object Storage (raw)
+                                    |
+                                    v
+                           Transcode Queue (Kafka/PubSub)
+                                    |
+                                    v
+                              Transcoder Fleet
+                                    |
+                                    v
+                         ABR renditions + manifests (HLS/DASH)
+                                    |
+                                    v
+                            Origin Storage + Multi-CDN
+                                    |
+Viewer Client -> Edge CDN -> Manifest + Segments (auto bitrate)
+
+Control Plane:
+Metadata Service, Search Index, Recommendation Service,
+Comments, Likes, Subscriptions, Notifications, Moderation
+</pre>
+<img src="youtube.png" alt="YouTube System Design Architecture Diagram" style="width:100%;max-width:900px;border-radius:12px;margin-top:16px;border:1px solid var(--line)" />
+<p style="margin-top:12px"><a href="youtube.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+</section>
+
+<section class="step" id="upload"><h2><span class="num">04</span>Upload + Processing Pipeline</h2>
+<ol class="steps">
+<li>Client requests upload session; receives pre-signed multipart URLs.</li>
+<li>Client uploads chunks directly to blob storage (bypasses app servers).</li>
+<li>Upload complete event enqueued for processing.</li>
+<li>Transcoder creates renditions: 144p, 240p, 360p, 480p, 720p, 1080p, optional 4K.</li>
+<li>Generate HLS/DASH manifests and thumbnails.</li>
+<li>Run moderation and copyright checks before publishing.</li>
+</ol>
+<div class="define"><b>ABR renditions</b> are multiple encodings of the same video with different bitrate/quality levels so the player can switch dynamically.</div>
+</section>
+
+<section class="step" id="playback"><h2><span class="num">05</span>Playback Path & ABR</h2>
+<ul class="bullets">
+<li>Player first fetches manifest, then downloads short segments (2-4 s).</li>
+<li>Auto quality estimates throughput from segment download rate and buffer health.</li>
+<li>If buffer high + throughput stable, step up bitrate; otherwise step down quickly.</li>
+<li>CDN serves most segment traffic; origin serves misses and long-tail content.</li>
+</ul>
+<table><thead><tr><th>ABR Input</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>Recent throughput</td><td>Upper bound on sustainable bitrate</td></tr>
+<tr><td>Buffer occupancy</td><td>Avoid rebuffering; aggressive downshift when low</td></tr>
+<tr><td>Device/codec limits</td><td>Prevent selecting unsupported/high CPU streams</td></tr>
+<tr><td>Network type hints</td><td>Conservative choices on cellular/unstable links</td></tr>
+</tbody></table>
+</section>
+
+<section class="step" id="meta"><h2><span class="num">06</span>Metadata, Search, Recommendation</h2>
+<ul class="bullets">
+<li>Metadata DB stores title, channel, tags, language, visibility.</li>
+<li>Search index (Elasticsearch/OpenSearch) handles text queries and filters.</li>
+<li>Recommendation service uses watch history, embeddings, popularity, freshness.</li>
+<li>Counter service for views/likes with stream aggregation and anti-fraud filters.</li>
+</ul>
+<div class="define"><b>Fanout-on-read</b> for home feed is common at YouTube scale because precomputing for every user can be expensive with volatile trends.</div>
+</section>
+
+<section class="step" id="reliability"><h2><span class="num">07</span>Reliability and Cost Controls</h2>
+<ul class="bullets">
+<li>Multi-region object storage replication for disaster recovery.</li>
+<li>Queue-based backpressure for transcoding bursts.</li>
+<li>Tiered storage: hot recent videos on faster tiers; cold on cheaper archival tiers.</li>
+<li>CDN cache key tuning and pre-warm for expected viral uploads.</li>
+<li>Graceful degradation: fallback to fewer bitrates if transcoder lag rises.</li>
+</ul>
+</section>
+
+<section class="step" id="trade"><h2><span class="num">08</span>Tradeoffs</h2>
+<table><thead><tr><th>Choice</th><th>Pro</th><th>Con</th></tr></thead><tbody>
+<tr><td>More renditions</td><td>Better quality adaptation</td><td>Higher transcoding/storage cost</td></tr>
+<tr><td>Aggressive CDN TTL</td><td>Lower origin load</td><td>Slower metadata/content updates</td></tr>
+<tr><td>Strict moderation pre-publish</td><td>Safety</td><td>Longer upload-to-live delay</td></tr>
+<tr><td>Loose moderation post-publish</td><td>Fast publishing</td><td>Higher harmful-content exposure risk</td></tr>
+</tbody></table>
+</section>
+
+<section class="step" id="pitch"><h2><span class="num">09</span>30-Second Pitch</h2>
+<div class="callout">YouTube is a CDN-first video platform. Creators upload directly to object storage via resumable multipart sessions. A queue-driven transcode pipeline creates ABR renditions and manifests for HLS/DASH playback. Viewers fetch manifests and short segments from edge caches, while ABR logic in the client adapts quality based on throughput and buffer to minimize stalls. Metadata/search/recommendation run as separate services over event streams. Reliability comes from multi-region replication, queue backpressure, and graceful degradation under spikes.</div>
+</section>
+
+<section class="step" id="gloss"><h2><span class="num">10</span>Glossary</h2>
+<div class="glossary">
+  <div class="gloss-card"><h4>ABR</h4><p>Adaptive Bitrate Streaming; player switches bitrate based on measured network + buffer.</p></div>
+  <div class="gloss-card"><h4>HLS/DASH</h4><p>Streaming formats with manifests pointing to small media segments.</p></div>
+  <div class="gloss-card"><h4>Manifest</h4><p>Playlist listing available renditions and segment URLs.</p></div>
+  <div class="gloss-card"><h4>Origin</h4><p>Primary backend storage/service behind the CDN on cache miss.</p></div>
+  <div class="gloss-card"><h4>Transcoding</h4><p>Re-encoding uploaded video into multiple codecs/resolutions/bitrates.</p></div>
+  <div class="gloss-card"><h4>Rebuffering</h4><p>Playback stall when buffer runs dry before next segment arrives.</p></div>
+</div>
+</section>
+
+</div>
+<a href="#" class="top" id="top">↑</a>
+<footer><b>BuildLikeASenior</b> · Think · Design · Grow Like a Senior Engineer<br><small>System Design · 06 · Video Platform</small></footer>
+<script>const top=document.getElementById('top');window.addEventListener('scroll',()=>{top.classList.toggle('show',window.scrollY>400);});</script>
+</body>
+</html>

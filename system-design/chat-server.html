@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Design a Chat System · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+    --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+    --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+  .meta{margin-top:14px;color:var(--muted);font-size:13px;font-family:'JetBrains Mono',monospace}
+  .meta b{color:var(--gold)}
+
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .label{color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 8px;font-weight:700}
+  .label.gold{color:var(--gold)}
+
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  .define em{color:var(--muted);font-style:normal;display:block;font-size:13px;margin-top:4px}
+
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .callout b{color:var(--teal)}
+  .warn{background:rgba(239,68,68,.06);border-left:3px solid #ef4444;padding:14px 18px;border-radius:8px;margin:10px 0}
+  .warn b{color:#ef4444}
+
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  td code,th code{background:rgba(0,212,170,.10);padding:1px 6px;border-radius:4px;color:var(--teal);font-size:12px}
+
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto}
+
+  ul.bullets{padding-left:22px}
+  ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px}
+  ol.steps li{margin:8px 0}
+
+  .glossary{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:14px}
+  .gloss-card{background:rgba(91,141,238,.05);border:1px solid rgba(91,141,238,.2);border-radius:10px;padding:14px 16px}
+  .gloss-card h4{margin:0 0 6px;color:var(--blue);font-size:13.5px}
+  .gloss-card p{margin:0;font-size:13px;color:#cdd9ee}
+
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="crumb"><a href="index.html">System Design</a> · 07</div>
+  <span class="badge">Real-Time Messaging</span>
+  <h1 class="title">Design a <span>Chat System</span></h1>
+  <p class="sub">50M DAU, 1:1 + group messaging (max 100), multi-device sync, online presence, push notifications — like Facebook Messenger at scale.</p>
+  <div class="meta">50M DAU · 5M concurrent · 70K msg/s peak · <b>Low latency delivery</b></div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <h3>Walkthrough</h3>
+  <ol>
+    <li><a href="#req">Problem &amp; Requirements</a></li>
+    <li><a href="#math">Capacity Math</a></li>
+    <li><a href="#protocol">Choosing the Protocol</a></li>
+    <li><a href="#hld">High-Level Architecture</a></li>
+    <li><a href="#flow-1on1">Message Flow — 1:1 Chat</a></li>
+    <li><a href="#flow-group">Message Flow — Group Chat</a></li>
+    <li><a href="#multi">Multi-Device Sync</a></li>
+    <li><a href="#presence">Online Presence</a></li>
+    <li><a href="#push">Push Notifications</a></li>
+    <li><a href="#storage">Storage &amp; Data Model</a></li>
+    <li><a href="#fail">Failure Handling</a></li>
+    <li><a href="#cap">Capacity Summary</a></li>
+    <li><a href="#talk">Interview Talking Points</a></li>
+    <li><a href="#pitch">30-Second Pitch</a></li>
+    <li><a href="#gloss">Glossary</a></li>
+  </ol>
+</nav>
+
+<!-- ============ REQ ============ -->
+<section class="step" id="req">
+  <h2><span class="num">01</span>Problem &amp; Requirements</h2>
+
+  <div class="callout"><b>The ask.</b> Design a chat system like Facebook Messenger — 1:1 and group messaging, low latency delivery, online presence indicators, multi-device support, and push notifications for offline users.</div>
+
+  <div class="label">Functional</div>
+  <ul class="bullets">
+    <li><b>1:1 chat</b> with low delivery latency (&lt; 500 ms for online recipients).</li>
+    <li><b>Group chat</b> with a maximum of 100 members.</li>
+    <li><b>Online presence</b> — see who is online / last seen.</li>
+    <li><b>Multi-device</b> — same account logged in on phone + laptop + tablet simultaneously.</li>
+    <li><b>Push notifications</b> — notify offline users.</li>
+    <li><b>Persistent history</b> — messages stored forever.</li>
+    <li><b>Max message size</b>: 100,000 characters.</li>
+  </ul>
+
+  <div class="label">Non-Functional</div>
+  <ul class="bullets">
+    <li><b>50M DAU</b>.</li>
+    <li><b>Latency</b>: delivery to online recipient p99 &lt; 500 ms.</li>
+    <li><b>Ordering</b>: messages within a conversation appear in send order.</li>
+    <li><b>Durability</b>: never lose a delivered message.</li>
+    <li><b>Availability &gt; Consistency</b>: it's better to deliver a message twice (dedup on client) than drop it.</li>
+  </ul>
+
+  <div class="label">Out of Scope (mention as extensions)</div>
+  <ul class="bullets">
+    <li>End-to-end encryption (E2EE) — server can't read content, loses search/moderation capability.</li>
+    <li>Media (images, video, voice) — separate upload path + CDN.</li>
+    <li>Read receipts / typing indicators — ephemeral signals, similar to presence.</li>
+  </ul>
+</section>
+
+<!-- ============ MATH ============ -->
+<section class="step" id="math">
+  <h2><span class="num">02</span>Capacity Math</h2>
+
+  <div class="callout"><b>Notation.</b> <code>1 char = 1 B</code> (UTF-8 ASCII). <code>1 KB = 10³ B</code>.</div>
+
+  <ol class="steps">
+    <li><b>Concurrent connections</b> = 50M DAU × 10% active × 1.5 devices = <b>~7.5M WebSocket connections</b>.</li>
+    <li><b>Messages/day</b> = 50M × 40 msg/user = <b>2B messages/day</b>.</li>
+    <li><b>Messages/sec</b> (avg) = 2B / 86,400 ≈ <b>23K msg/s</b>. Peak (3×) = <b>~70K msg/s</b>.</li>
+    <li><b>Average message size</b> ≈ 200 B (most messages are short; 100K is the cap).</li>
+    <li><b>Storage/day</b> = 2B × 200 B = <b>~400 GB/day</b>.</li>
+    <li><b>Storage/year</b> = 400 GB × 365 = <b>~146 TB/year</b> (before replication).</li>
+    <li><b>Fan-out (groups)</b>: avg group size ~10, peak group msg rate ~7K msg/s × 10 = <b>~70K deliveries/s</b> from groups alone.</li>
+    <li><b>Total delivery throughput</b>: ~23K (1:1) + ~70K (group fan-out) = <b>~100K deliveries/s peak</b>.</li>
+  </ol>
+</section>
+
+<!-- ============ PROTOCOL ============ -->
+<section class="step" id="protocol">
+  <h2><span class="num">03</span>Choosing the Protocol</h2>
+
+  <table>
+    <thead><tr><th>Option</th><th>How</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>HTTP Polling</b></td>
+        <td>Client asks "new messages?" every N seconds.</td>
+        <td>❌ Wasteful at scale (7.5M clients × every 3s = 2.5M QPS of mostly-empty responses). Latency = N/2 avg.</td>
+      </tr>
+      <tr>
+        <td><b>HTTP Long Polling</b></td>
+        <td>Client holds connection open until server has data or timeout.</td>
+        <td>⚠️ Better but still one-directional. Hard to push server-initiated events (presence, typing).</td>
+      </tr>
+      <tr>
+        <td><b>WebSocket</b></td>
+        <td>Persistent full-duplex TCP connection. Server pushes instantly.</td>
+        <td>✅ <b>Best fit.</b> Bidirectional, low latency (~RTT), efficient for presence + messages. 10 KB RAM per connection.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout"><b>Pick WebSocket</b> for the real-time message path. Use plain HTTP only for control-plane operations (login, fetch history, create group, upload profile).</div>
+
+  <div class="define"><b>WebSocket</b> = a protocol (RFC 6455) that upgrades an HTTP connection to full-duplex, persistent TCP. <em>One connection handles both sending and receiving — no polling overhead.</em></div>
+</section>
+
+<!-- ============ HLD ============ -->
+<section class="step" id="hld">
+  <h2><span class="num">04</span>High-Level Architecture</h2>
+
+  <pre class="ascii">
+═══════════════════ MESSAGE PATH (hot, p99 &lt; 500 ms) ═══════════════════
+
+  Phone A ──┐                                          ┌── Phone B
+  Laptop A ─┤  WebSocket (persistent, bidirectional)   ├── Tablet B
+            ▼                                          ▼
+       ┌──────────────────────────────────────────────────────┐
+       │  WebSocket Gateway (stateful)                         │
+       │  - Maintains user → {connection_id, device, pod} map  │
+       │  - Registers sessions in Redis on connect             │
+       │  - Heartbeat every 30s (presence)                     │
+       │  - TLS termination                                    │
+       └────────────┬─────────────────────────┬───────────────┘
+                    │                         │
+                    ▼                         ▼
+       ┌──────────────────┐          ┌────────────────────────┐
+       │  Chat Service    │          │  Redis                  │
+       │  (stateless)     │          │  - session registry     │
+       │  - validate msg  │          │    user:{id}:sessions   │
+       │  - generate ID   │◄────────►│  - presence (TTL 60s)  │
+       │  - persist       │          │  - unread counts        │
+       │  - enqueue       │          └────────────────────────┘
+       └───────┬──────────┘
+               │
+               ▼
+       ┌──────────────────┐
+       │  Kafka            │   topic: msg.delivery.{shard}
+       │  (durable queue)  │   partitioned by recipient_id
+       └───────┬──────────┘
+               │
+               ▼
+       ┌──────────────────────────────────────────────────────┐
+       │  Delivery Workers (consume Kafka)                     │
+       │  For each recipient:                                  │
+       │    1. Lookup sessions in Redis                        │
+       │    2. If ONLINE → push via Gateway WebSocket          │
+       │    3. If OFFLINE → enqueue to Push Notification Svc   │
+       │    4. Increment unread_count in Redis                 │
+       └──────────────────────────────────────────────────────┘
+
+═══════════════════ STORAGE LAYER ═══════════════════
+
+       ┌──────────────────┐   ┌──────────────────┐
+       │  Cassandra        │   │  MySQL / Spanner  │
+       │  (messages)       │   │  (users, groups,  │
+       │  partition =      │   │   contacts, ACL)  │
+       │  channel_id       │   │                   │
+       └──────────────────┘   └──────────────────┘
+
+═══════════════════ AUXILIARY ═══════════════════
+
+       ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐
+       │ Presence Service  │   │ Push Notification │   │ Snowflake ID Gen │
+       │ heartbeat + TTL   │   │ APNs / FCM        │   │ time-sortable    │
+       └──────────────────┘   └──────────────────┘   └──────────────────┘
+  </pre>
+
+  <img src="chat-server.svg" alt="Chat System Architecture Diagram" style="width:100%;max-width:1100px;border-radius:12px;margin-top:16px;border:1px solid var(--line);background:#fff" />
+  <p style="margin-top:12px"><a href="chat-server.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+
+  <div class="callout" style="margin-top:12px"><b>Two paths:</b> the <b style="color:var(--teal)">real-time path</b> (WebSocket → LB → WS Gateway → Chat Service) carries live messages; the <b style="color:var(--blue)">control path</b> (HTTP REST → API Gateway → User/Group/History services) handles login, group management, and history fetches.</div>
+
+  <div class="define"><b>WebSocket Gateway</b> = stateful tier that holds persistent TCP connections. Each pod handles ~50K connections. <em>On connect, registers (user_id, connection_id, pod) in Redis so other services know where to push.</em></div>
+
+  <div class="define"><b>API Gateway (L7)</b> = thin reverse-proxy tier (Nginx / Envoy / Kong) for the control path. It does cross-cutting concerns only — <b>routing</b> (path → backend), <b>authentication</b> (validate JWT), <b>rate limiting</b>, <b>TLS termination</b>. <em>No business logic runs inside it; it forwards to User/Group/History services. Real-time WebSocket traffic bypasses it and goes straight to the WS Gateway.</em></div>
+
+  <div class="define"><b>Service Discovery</b> = registry (Consul / etcd / Kubernetes DNS / Eureka) that maps a logical service name to live pod IPs. <em>Gateways and services query it (or use client-side LB) to find healthy instances as pods scale up/down — "how does the gateway find the Group Service?"</em></div>
+
+  <div class="define"><b>Chat Service</b> = stateless tier that validates, persists, and enqueues messages. <em>Horizontally scalable — any instance can handle any message. Does authorization (business rules), while the gateway did authentication.</em></div>
+
+  <div class="define"><b>Delivery Worker</b> = Kafka consumer that performs fan-out: looks up recipient sessions, decides push path (WebSocket or notification), and delivers. <em>Decouples send-ack from fan-out latency.</em></div>
+</section>
+
+<!-- ============ FLOW-1ON1 ============ -->
+<section class="step" id="flow-1on1">
+  <h2><span class="num">05</span>Message Flow — 1:1 Chat</h2>
+
+  <ol class="steps">
+    <li><b>Alice types "Hey Bob"</b> and sends over her WebSocket.</li>
+    <li><b>Gateway</b> receives the frame, routes to Chat Service.</li>
+    <li><b>Chat Service</b>:
+      <ul class="bullets">
+        <li>Validates (auth, rate-limit, msg size ≤ 100K).</li>
+        <li>Generates <code>msg_id</code> via Snowflake (time-sortable 64-bit ID).</li>
+        <li>Writes to <b>Cassandra</b> <code>messages</code> table (partition = <code>channel_id</code>).</li>
+        <li>Publishes to <b>Kafka</b> topic <code>msg.delivery.{hash(bob_id)}</code>.</li>
+        <li>Acks back to Alice via Gateway: ✓ (sent, msg_id).</li>
+      </ul>
+    </li>
+    <li><b>Delivery Worker</b> consumes the Kafka event:
+      <ul class="bullets">
+        <li>Looks up Bob's sessions in Redis: <code>user:bob:sessions</code>.</li>
+        <li><b>Bob ONLINE (2 devices)</b> → pushes message to both Gateway pods holding Bob's connections.</li>
+        <li><b>Bob OFFLINE</b> → enqueues to Push Notification Service.</li>
+        <li>Increments <code>unread_count</code> for Bob in Redis.</li>
+      </ul>
+    </li>
+    <li><b>Bob's devices</b> receive the message via WebSocket → render immediately.</li>
+  </ol>
+
+  <div class="callout"><b>End-to-end latency (Alice → Bob):</b> typically 100–300 ms. The ack to Alice is independent — she doesn't wait for Bob to receive.</div>
+</section>
+
+<!-- ============ FLOW-GROUP ============ -->
+<section class="step" id="flow-group">
+  <h2><span class="num">06</span>Message Flow — Group Chat</h2>
+
+  <ol class="steps">
+    <li><b>Alice sends to group "Engineering"</b> (45 members).</li>
+    <li><b>Chat Service</b>:
+      <ul class="bullets">
+        <li>Validates Alice is a member of the group.</li>
+        <li>Generates <code>msg_id</code>, persists once (partition = <code>group_channel_id</code>).</li>
+        <li>Looks up group membership: 45 user_ids.</li>
+        <li>Publishes 44 delivery events to Kafka (one per recipient, excludes sender).</li>
+        <li>Acks to Alice.</li>
+      </ul>
+    </li>
+    <li><b>Delivery Workers</b> (parallel consumers): for each of 44 recipients, same logic as 1:1 — lookup sessions, push if online, notify if offline.</li>
+  </ol>
+
+  <div class="callout"><b>Why fan-out on write (not read)?</b> Groups are small (≤100). Writing 100 delivery events is cheap. The alternative — "fan-out on read" — would mean every user polls and merges messages from all their groups, which is costlier at read time for a real-time system.</div>
+
+  <div class="warn"><b>Message stored once, delivered many.</b> The message body lives in one Cassandra row (keyed by group_channel_id). Delivery events in Kafka are lightweight pointers (msg_id + recipient_id). We do NOT duplicate the message body per recipient.</div>
+</section>
+
+<!-- ============ MULTI ============ -->
+<section class="step" id="multi">
+  <h2><span class="num">07</span>Multi-Device Sync</h2>
+
+  <p>Alice has 3 devices (phone, laptop, tablet). All connected via separate WebSockets to potentially different Gateway pods.</p>
+
+  <div class="label">Session Registry (Redis)</div>
+  <pre class="ascii">
+user:alice:sessions = {
+  "conn_abc": { device: "iphone",  gateway_pod: "gw-17", connected_at: 1717000000 },
+  "conn_def": { device: "laptop",  gateway_pod: "gw-42", connected_at: 1717000100 },
+  "conn_ghi": { device: "tablet",  gateway_pod: "gw-08", connected_at: 1717000200 }
+}
+  </pre>
+
+  <div class="label">Incoming message delivery</div>
+  <p>When a message arrives for Alice, the Delivery Worker pushes to <b>all 3 connections</b>. Each device renders it.</p>
+
+  <div class="label">Read sync (cross-device)</div>
+  <ol class="steps">
+    <li>Alice reads msg_42 on her phone.</li>
+    <li>Phone sends <code>{type:"read", channel_id, msg_id:42}</code> to Chat Service.</li>
+    <li>Chat Service updates <code>read_cursor(alice, channel_id) = 42</code>.</li>
+    <li>Chat Service pushes sync event to Alice's <b>other</b> devices (laptop, tablet).</li>
+    <li>Those devices update UI: mark messages up to 42 as "read".</li>
+  </ol>
+
+  <div class="label">Reconnection after offline</div>
+  <ul class="bullets">
+    <li>Each device tracks its <b>last_received_msg_id</b> per channel.</li>
+    <li>On reconnect, device sends sync request: "give me messages after X for each of my channels."</li>
+    <li>Chat Service fetches from Cassandra: <code>SELECT * FROM messages WHERE channel_id = ? AND msg_id > ? LIMIT 50</code>.</li>
+    <li>Paginates through any backlog.</li>
+  </ul>
+</section>
+
+<!-- ============ PRESENCE ============ -->
+<section class="step" id="presence">
+  <h2><span class="num">08</span>Online Presence</h2>
+
+  <pre class="ascii">
+┌──────────────────────────────────────────────────────────┐
+│                    PRESENCE MODEL                          │
+│                                                           │
+│  Storage: Redis key with TTL                              │
+│                                                           │
+│  Key:   presence:{user_id}                                │
+│  Value: { status: "online", last_seen: 1717000000 }       │
+│  TTL:   60 seconds                                        │
+│                                                           │
+│  ─────────────────────────────────────────────────────    │
+│                                                           │
+│  HEARTBEAT FLOW:                                          │
+│                                                           │
+│  Client → Gateway → Presence Service → Redis              │
+│           (every 30s)     reset TTL to 60s                │
+│                                                           │
+│  If no heartbeat for 60s → key expires → user "offline"   │
+│                                                           │
+│  ─────────────────────────────────────────────────────    │
+│                                                           │
+│  WHO GETS PRESENCE UPDATES?                               │
+│                                                           │
+│  NOT all 500 friends (thundering herd problem).           │
+│  Only users with an ACTIVE CHAT WINDOW open with you.     │
+│                                                           │
+│  Mechanism: Pub/Sub channel per user.                     │
+│  Subscribe:  presence:{user_id}                           │
+│  Only people currently chatting with you subscribe.       │
+│                                                           │
+│  Everyone else sees "last seen 5 min ago" on-demand       │
+│  (lazy read from Redis when they open the chat).          │
+└──────────────────────────────────────────────────────────┘
+  </pre>
+
+  <div class="define"><b>Heartbeat</b> = periodic "I'm alive" signal from client to server. <em>30s interval balances between accuracy and network cost. Missing 2 heartbeats (60s) = offline.</em></div>
+
+  <div class="warn"><b>User group presence fan-out.</b> In a group of 100, showing all 100 members' presence means 100 subscriptions per viewer. Optimization: only show presence for members who are in the visible scroll area, batch presence lookups.</div>
+</section>
+
+<!-- ============ PUSH ============ -->
+<section class="step" id="push">
+  <h2><span class="num">09</span>Push Notifications</h2>
+
+  <ol class="steps">
+    <li><b>Trigger:</b> Delivery Worker finds recipient has NO active WebSocket sessions in Redis.</li>
+    <li><b>Push Notification Service</b>:
+      <ul class="bullets">
+        <li>Looks up user's registered device tokens (APNs for iOS, FCM for Android).</li>
+        <li>Builds payload: <code>{ title: "Alice", body: "Hey Bob", badge: unread_count }</code>.</li>
+        <li>Sends to APNs/FCM.</li>
+      </ul>
+    </li>
+    <li><b>Rate-limiting / collapsing:</b> If 5 messages arrive in 10 seconds, collapse into one notification: "Alice sent 5 messages."</li>
+  </ol>
+
+  <div class="callout"><b>Race condition:</b> User comes online between message-persist and push-send. Mitigation: check presence one final time before sending push. Accept rare duplicates (client deduplicates by msg_id).</div>
+
+  <div class="label">Device Token Management</div>
+  <ul class="bullets">
+    <li>Stored in MySQL: <code>push_tokens(user_id, device_id, platform, token, updated_at)</code>.</li>
+    <li>Tokens refresh when app opens — update on every login.</li>
+    <li>Invalid tokens (APNs rejects) → mark disabled, stop sending.</li>
+  </ul>
+</section>
+
+<!-- ============ STORAGE ============ -->
+<section class="step" id="storage">
+  <h2><span class="num">10</span>Storage &amp; Data Model</h2>
+
+  <div class="label">Message Store (Cassandra)</div>
+  <table>
+    <thead><tr><th>Table</th><th>Partition Key</th><th>Clustering Key</th><th>Columns</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>messages</code></td><td><code>channel_id</code></td><td><code>msg_id DESC</code></td><td>sender_id, content, type, created_at</td><td>All messages in a conversation, time-sorted</td></tr>
+      <tr><td><code>user_channels</code></td><td><code>user_id</code></td><td><code>last_msg_id DESC</code></td><td>channel_id, unread_count, last_msg_preview</td><td>User's inbox — "recent chats" screen</td></tr>
+    </tbody>
+  </table>
+
+  <div class="label">Relational Store (MySQL / Spanner)</div>
+  <table>
+    <thead><tr><th>Table</th><th>Key</th><th>Columns</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>users</code></td><td><code>user_id</code></td><td>name, avatar, created_at</td><td>User profiles</td></tr>
+      <tr><td><code>groups</code></td><td><code>group_id</code></td><td>name, avatar, owner_id, created_at</td><td>Group metadata</td></tr>
+      <tr><td><code>group_members</code></td><td><code>(group_id, user_id)</code></td><td>role, joined_at</td><td>Membership lookup for fan-out</td></tr>
+      <tr><td><code>contacts</code></td><td><code>(user_id, contact_id)</code></td><td>nickname, blocked</td><td>Friend/contact list</td></tr>
+      <tr><td><code>push_tokens</code></td><td><code>(user_id, device_id)</code></td><td>platform, token, updated_at</td><td>APNs/FCM tokens</td></tr>
+    </tbody>
+  </table>
+
+  <div class="label">Why Cassandra for messages?</div>
+  <ul class="bullets">
+    <li><b>Write-heavy</b>: 23K writes/s → Cassandra excels at sequential writes (LSM tree).</li>
+    <li><b>Partition by channel_id</b>: all messages in one conversation on one node → fast range scans for "load history".</li>
+    <li><b>No cross-partition queries</b>: you always access messages within one channel.</li>
+    <li><b>Time-sorted by msg_id (Snowflake)</b>: natural chronological order without extra index.</li>
+  </ul>
+
+  <div class="label">Message ID: Snowflake</div>
+  <pre class="ascii">
+64-bit Snowflake ID:
+┌────────────────────┬──────────┬────────────┐
+│ 41 bits timestamp  │ 10 bits  │ 12 bits    │
+│ (ms since epoch)   │ machine  │ sequence   │
+│ ~69 years range    │ 1024     │ 4096/ms    │
+└────────────────────┴──────────┴────────────┘
+
+Properties:
+- Time-sortable (older messages have smaller IDs)
+- Globally unique (no collisions across machines)
+- 4M IDs/sec per machine → far exceeds 70K msg/s
+  </pre>
+
+  <div class="define"><b>channel_id</b> = unique identifier for a conversation. <em>For 1:1: deterministic hash of sorted(user_a, user_b). For groups: the group_id itself.</em></div>
+</section>
+
+<!-- ============ FAIL ============ -->
+<section class="step" id="fail">
+  <h2><span class="num">11</span>Failure Handling</h2>
+
+  <table>
+    <thead><tr><th>Failure</th><th>Impact</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>Gateway pod crash</td><td>~50K connections drop</td><td>Clients auto-reconnect (exponential backoff) to another pod. Fetch missed messages via sync cursor.</td></tr>
+      <tr><td>Chat Service crash</td><td>Inflight messages not acked</td><td>Client retries with idempotency key (msg_id generated client-side or dedup on server). Kafka already has the event if it was published.</td></tr>
+      <tr><td>Kafka broker down</td><td>Delivery fan-out stalls</td><td>Multi-broker replication (RF=3). Messages already persisted in Cassandra — delivery resumes when Kafka recovers.</td></tr>
+      <tr><td>Cassandra node down</td><td>Writes to that partition fail</td><td>RF=3 + quorum writes → 1 node down is tolerable. Gossip protocol reroutes.</td></tr>
+      <tr><td>Redis crash (presence)</td><td>All users appear offline briefly</td><td>Heartbeats rebuild state within 30s. Sessions re-register on next Gateway heartbeat.</td></tr>
+      <tr><td>Network partition (user offline)</td><td>Messages not delivered in real-time</td><td>Messages stored in Cassandra; delivered on reconnect via sync cursor. Push notification fires for offline path.</td></tr>
+      <tr><td>Duplicate delivery (Kafka at-least-once)</td><td>User sees message twice</td><td>Client deduplicates by msg_id before rendering. Idempotent.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ CAP ============ -->
+<section class="step" id="cap">
+  <h2><span class="num">12</span>Capacity Summary</h2>
+
+  <table>
+    <thead><tr><th>Layer</th><th>Instances</th><th>Per-instance</th><th>Total</th></tr></thead>
+    <tbody>
+      <tr><td>WebSocket Gateway</td><td>~150 pods</td><td>50K connections</td><td>7.5M concurrent connections</td></tr>
+      <tr><td>Chat Service</td><td>~30 pods</td><td>2.5K msg/s</td><td>70K msg/s</td></tr>
+      <tr><td>Kafka</td><td>~20 brokers</td><td>5K msg/s</td><td>100K deliveries/s</td></tr>
+      <tr><td>Delivery Workers</td><td>~50 pods</td><td>2K deliveries/s</td><td>100K deliveries/s</td></tr>
+      <tr><td>Cassandra (messages)</td><td>~60 nodes, RF=3</td><td>—</td><td>~150 TB/year</td></tr>
+      <tr><td>Redis (session + presence)</td><td>~10 shards × 2 replicas</td><td>—</td><td>7.5M session entries</td></tr>
+      <tr><td>Push Notification Service</td><td>~10 pods</td><td>—</td><td>handles offline spikes</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ TALK ============ -->
+<section class="step" id="talk">
+  <h2><span class="num">13</span>Interview Talking Points</h2>
+
+  <ol class="steps">
+    <li><b>WebSocket is the only sane choice</b> for real-time bidirectional messaging at this scale.</li>
+    <li><b>Gateway is stateful, Chat Service is stateless</b> — separation lets you scale independently.</li>
+    <li><b>Kafka decouples send from delivery</b> — sender gets instant ack; fan-out happens async. Critical for group messages.</li>
+    <li><b>Cassandra partitioned by channel_id</b> — write-heavy workload, sequential reads for chat history.</li>
+    <li><b>Snowflake IDs</b> — time-sortable, globally unique, no coordination needed.</li>
+    <li><b>Multi-device = multiple session entries</b> in Redis per user. Deliver to all; sync read state across.</li>
+    <li><b>Presence uses heartbeat + TTL</b> — not stored in DB. Redis key expiry = offline.</li>
+    <li><b>Push notifications only when offline</b> — check presence before sending to avoid duplicates.</li>
+    <li><b>Fan-out on write for groups</b> — groups are small (≤100), so write amplification is bounded.</li>
+    <li><b>Trade-offs:</b> at-least-once delivery (client dedup), eventual consistency on presence, storage growth for persistent history.</li>
+  </ol>
+</section>
+
+<!-- ============ PITCH ============ -->
+<section class="step" id="pitch">
+  <h2><span class="num">14</span>30-Second Pitch</h2>
+
+  <div class="callout">
+    A chat system at 50M DAU is fundamentally <b>WebSocket connections</b> for low-latency push + <b>Kafka</b> for async fan-out + <b>Cassandra</b> for durable message storage. Clients maintain persistent WebSocket connections to a <b>Gateway</b> layer; the Gateway registers sessions in <b>Redis</b> so the Chat Service knows where to route messages. 1:1 messages go directly; group messages fan out through Kafka delivery workers to all members' active sessions. <b>Multi-device</b> works by registering multiple connections per user and syncing read state across them. <b>Presence</b> uses Redis key TTL + heartbeats — no heartbeat for 60s = offline. <b>Push notifications</b> fire only when no active WebSocket exists. Everything is partitioned by <code>channel_id</code> so one conversation's messages live on one Cassandra partition for fast sequential reads.
+  </div>
+</section>
+
+<!-- ============ GLOSS ============ -->
+<section class="step" id="gloss">
+  <h2><span class="num">15</span>Glossary</h2>
+
+  <div class="glossary">
+    <div class="gloss-card"><h4>WebSocket</h4><p>Full-duplex TCP protocol (RFC 6455) for persistent bidirectional communication — server pushes instantly without polling.</p></div>
+    <div class="gloss-card"><h4>Snowflake ID</h4><p>64-bit time-sortable unique ID: 41 bits timestamp + 10 bits machine + 12 bits sequence. ~4M IDs/sec/machine.</p></div>
+    <div class="gloss-card"><h4>Fan-out on Write</h4><p>When a message is sent, immediately create delivery events for each recipient. Good for small groups; expensive for broadcast (1M followers → use fan-out on read).</p></div>
+    <div class="gloss-card"><h4>channel_id</h4><p>Unique identifier for a conversation. For 1:1: hash(sorted(userA, userB)). For groups: the group_id.</p></div>
+    <div class="gloss-card"><h4>Session Registry</h4><p>Redis hash mapping user_id → list of active WebSocket connections (device, gateway_pod, connected_at). Enables multi-device delivery.</p></div>
+    <div class="gloss-card"><h4>Heartbeat / TTL Presence</h4><p>Client pings every 30s; Redis key TTL is 60s. No ping for 60s → key expires → offline. No DB writes needed.</p></div>
+    <div class="gloss-card"><h4>Sync Cursor</h4><p>Per-device last_received_msg_id. On reconnect, fetch all messages after cursor to catch up.</p></div>
+    <div class="gloss-card"><h4>Idempotent Delivery</h4><p>Client deduplicates by msg_id. At-least-once from Kafka is safe because rendering the same message twice is prevented client-side.</p></div>
+    <div class="gloss-card"><h4>APNs / FCM</h4><p>Apple Push Notification Service / Firebase Cloud Messaging — platform-specific push notification gateways for iOS/Android.</p></div>
+    <div class="gloss-card"><h4>E2EE (Extension)</h4><p>End-to-end encryption where server relays only ciphertext. Loses server-side search and content moderation.</p></div>
+    <div class="gloss-card"><h4>Long Polling (alternative)</h4><p>Client holds HTTP connection open until data arrives. Simpler than WebSocket but unidirectional and less efficient for frequent updates.</p></div>
+    <div class="gloss-card"><h4>Cassandra Partition</h4><p>All rows with the same partition key live on the same node. Messages partitioned by channel_id → fast sequential reads for chat history.</p></div>
+  </div>
+</section>
+
+</div>
+
+<a href="#" class="top" id="top">↑</a>
+
+<footer>
+  <b>BuildLikeASenior</b> · Think · Design · Grow Like a Senior Engineer<br>
+  <small>System Design · 07 · Real-Time Messaging</small>
+</footer>
+
+<script>
+  const top = document.getElementById('top');
+  window.addEventListener('scroll', () => { top.classList.toggle('show', window.scrollY > 400); });
+</script>
+
+</body>
+</html>

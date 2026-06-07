@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>System Design · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+    --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+    --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.6;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:760px;margin:0 auto;font-size:15px}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:24px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px;margin:24px 0}
+  .card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:22px;transition:transform .2s,border-color .2s;text-decoration:none;color:var(--text);display:block}
+  .card:hover{transform:translateY(-3px);border-color:var(--teal);text-decoration:none}
+  .card .num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--blue);letter-spacing:.18em}
+  .card h3{margin:8px 0 10px;font-size:18px;font-weight:700}
+  .card .desc{color:var(--muted);font-size:14px;line-height:1.55}
+  .card .tags{margin-top:14px;display:flex;gap:6px;flex-wrap:wrap}
+  .card .tag{font-size:10px;padding:3px 8px;border-radius:999px;background:rgba(91,141,238,.12);color:var(--blue);border:1px solid rgba(91,141,238,.3);letter-spacing:.08em;text-transform:uppercase}
+
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="badge">System Design · BuildLikeASenior</span>
+  <h1 class="title">Ankit's <span>System Design</span> Notes</h1>
+  <p class="sub">Senior-engineer system design walkthroughs — clarifying questions, capacity math, components, failure modes, and the 30-second pitch.</p>
+</header>
+
+<div class="wrap">
+
+<div class="grid">
+
+  <a class="card" href="toolkit.html" style="grid-column:1/-1;background:linear-gradient(135deg,rgba(0,212,170,.12),rgba(245,200,66,.10));border-color:rgba(0,212,170,.35)">
+    <div class="num" style="color:var(--gold)">00 / REFERENCE · STAFF + SENIOR</div>
+    <h3>System Design Toolkit</h3>
+    <div class="desc">The components, patterns, and numbers a senior engineer is expected to know cold — load balancers, caches, databases, sharding, consensus, sagas, idempotency, observability, plus the numbers cheat-sheet and a 45-minute interview playbook.</div>
+    <div class="tags">
+      <span class="tag">Cheat Sheet</span>
+      <span class="tag">19 Sections</span>
+      <span class="tag">Interview Playbook</span>
+      <span class="tag">Senior / Staff</span>
+    </div>
+  </a>
+
+  <a class="card" href="how-information-travels.html">
+    <div class="num">01 / NETWORKING PHYSICS</div>
+    <h3>How Information Travels</h3>
+    <div class="desc">From a byte in your laptop to a server across the planet — encapsulation, modulation, undersea fiber cables, total internal reflection, and why the speed of light is a hard latency floor.</div>
+    <div class="tags">
+      <span class="tag">Optical Fiber</span>
+      <span class="tag">Undersea Cables</span>
+      <span class="tag">Latency</span>
+      <span class="tag">TIR</span>
+    </div>
+  </a>
+
+  <a class="card" href="tls-https.html">
+    <div class="num">02 / SECURITY FUNDAMENTALS</div>
+    <h3>TLS, HTTPS &amp; Certificates</h3>
+    <div class="desc">How the padlock works — symmetric vs asymmetric crypto, the TLS 1.3 handshake, Diffie-Hellman key exchange, and the certificate chain of trust from leaf to root CA.</div>
+    <div class="tags">
+      <span class="tag">TLS 1.3</span>
+      <span class="tag">Diffie-Hellman</span>
+      <span class="tag">PKI</span>
+      <span class="tag">Chain of Trust</span>
+    </div>
+  </a>
+
+  <a class="card" href="api-gateway.html">
+    <div class="num">03 / EDGE INFRASTRUCTURE</div>
+    <h3>API Gateway</h3>
+    <div class="desc">The single front door for microservices — routing, authentication, rate limiting, TLS termination, and observability. Kong/Envoy patterns, service discovery, production architecture.</div>
+    <div class="tags">
+      <span class="tag">Routing</span>
+      <span class="tag">Auth</span>
+      <span class="tag">Rate Limiting</span>
+      <span class="tag">Envoy/Kong</span>
+    </div>
+  </a>
+
+  <a class="card" href="message-queues.html">
+    <div class="num">04 / MESSAGING INFRASTRUCTURE</div>
+    <h3>Message Queues</h3>
+    <div class="desc">Point-to-point vs pub/sub, delivery semantics, dead-letter queues, acks and visibility timeouts — from RabbitMQ to Kafka to SQS, and when to use which. The concept; Kafka below is the deep dive.</div>
+    <div class="tags">
+      <span class="tag">Pub/Sub</span>
+      <span class="tag">DLQ</span>
+      <span class="tag">At-Least-Once</span>
+      <span class="tag">Backpressure</span>
+    </div>
+  </a>
+
+  <a class="card" href="kafka.html">
+    <div class="num">05 / STREAMING PLATFORM</div>
+    <h3>Apache Kafka Deep Dive</h3>
+    <div class="desc">A deep dive into one tool — the replayable commit log behind event-driven systems. Brokers, topics, partitions, offsets, consumer groups, replication/ISR, delivery semantics, retention, and tuning.</div>
+    <div class="tags">
+      <span class="tag">Partitions</span>
+      <span class="tag">Consumer Groups</span>
+      <span class="tag">Replication</span>
+      <span class="tag">Exactly-Once</span>
+    </div>
+  </a>
+
+  <a class="card" href="chat-server.html">
+    <div class="num">06 / REAL-TIME MESSAGING</div>
+    <h3>Design a Chat System</h3>
+    <div class="desc">50M DAU, 1:1 + group (max 100), multi-device sync, online presence, push notifications. WebSocket gateway, Kafka fan-out, Cassandra message store, Snowflake IDs.</div>
+    <div class="tags">
+      <span class="tag">WebSocket</span>
+      <span class="tag">Kafka</span>
+      <span class="tag">Presence</span>
+      <span class="tag">50M DAU</span>
+    </div>
+  </a>
+
+  <a class="card" href="google-docs.html">
+    <div class="num">07 / REAL-TIME COLLABORATION</div>
+    <h3>Design Google Docs</h3>
+    <div class="desc">1M concurrent editors, &lt;1 s peer visibility, offline support. CRDT over WebSockets, sticky doc-sharding, Kafka op log + S3 snapshots, AP over CP.</div>
+    <div class="tags">
+      <span class="tag">CRDT</span>
+      <span class="tag">WebSocket</span>
+      <span class="tag">Op Log</span>
+      <span class="tag">1M Concurrent</span>
+    </div>
+  </a>
+
+  <a class="card" href="youtube.html">
+    <div class="num">08 / VIDEO PLATFORM</div>
+    <h3>Design YouTube</h3>
+    <div class="desc">Global-scale video platform with resumable uploads, transcode pipeline, HLS/DASH adaptive streaming, CDN-first delivery, and recommendation/search systems.</div>
+    <div class="tags">
+      <span class="tag">ABR</span>
+      <span class="tag">CDN</span>
+      <span class="tag">Transcoding</span>
+      <span class="tag">5 PB/day</span>
+    </div>
+  </a>
+
+  <a class="card" href="typeahead-suggestions.html">
+    <div class="num">09 / SEARCH</div>
+    <h3>Typeahead Suggestions</h3>
+    <div class="desc">10k QPS, billions of searches/day. Trie with pre-computed Top-K per node, CDN-cached hot prefixes, lambda architecture for fresh + accurate updates.</div>
+    <div class="tags">
+      <span class="tag">Trie</span>
+      <span class="tag">Top-K</span>
+      <span class="tag">CDN</span>
+      <span class="tag">10k QPS</span>
+    </div>
+  </a>
+
+  <a class="card" href="people-you-may-know.html">
+    <div class="num">10 / SOCIAL GRAPH</div>
+    <h3>Design People You May Know</h3>
+    <div class="desc">Graph-based candidate generation and ML ranking under strict privacy constraints. Mutuals, overlap signals, policy filtering, and low-latency top-N serving.</div>
+    <div class="tags">
+      <span class="tag">Graph</span>
+      <span class="tag">Ranking</span>
+      <span class="tag">Privacy</span>
+      <span class="tag">Recommendations</span>
+    </div>
+  </a>
+
+  <a class="card" href="wise-share-purchase.html">
+    <div class="num">11 / FINTECH · CROWDFUNDING</div>
+    <h3>Wise Share Purchase</h3>
+    <div class="desc">Sell 10M shares at £10 to 5M concurrent users in 7 days without degrading the shared Balance Service. Sharded inventory, saga, bulkhead, idempotency.</div>
+    <div class="tags">
+      <span class="tag">Saga</span>
+      <span class="tag">Bulkhead</span>
+      <span class="tag">Sharded Counters</span>
+      <span class="tag">5M Concurrent</span>
+    </div>
+  </a>
+
+  <a class="card" href="log-messages-in-order.html">
+    <div class="num">12 / CENTRALIZED LOGGING</div>
+    <h3>Logs in Order at 1M msg/sec</h3>
+    <div class="desc">5,000 service pods × 200 msg/sec. Per-pod FIFO via Kafka partitioning + HLCs for causal order. Sidecar agents, tiered storage (hot/warm/cold), realistic SaaS scale.</div>
+    <div class="tags">
+      <span class="tag">Kafka</span>
+      <span class="tag">HLC</span>
+      <span class="tag">Sharding</span>
+      <span class="tag">1M msg/s</span>
+    </div>
+  </a>
+
+  <a class="card" href="price-search-service.html">
+    <div class="num">13 / AGGREGATION · CACHING</div>
+    <h3>Price Search Service</h3>
+    <div class="desc">Aggregate product prices from 100+ vendor APIs. Cache-first with 1h TTL, single-flight to kill stampedes, async fan-out with per-vendor circuit breakers, and graceful degradation to minimize expensive vendor calls.</div>
+    <div class="tags">
+      <span class="tag">Cache-aside</span>
+      <span class="tag">Single-flight</span>
+      <span class="tag">Circuit Breaker</span>
+      <span class="tag">100+ Vendors</span>
+    </div>
+  </a>
+
+  <a class="card" href="google-drive.html">
+    <div class="num">14 / FILE STORAGE · SYNC</div>
+    <h3>Design Google Drive</h3>
+    <div class="desc">50M users, 10M DAU, 10 GB free each. Block-level dedup + delta sync, content-addressed chunks, strongly-consistent metadata, object storage at 11-nines, and a Kafka + WebSocket notification service for cross-device sync.</div>
+    <div class="tags">
+      <span class="tag">Delta Sync</span>
+      <span class="tag">Dedup</span>
+      <span class="tag">Object Storage</span>
+      <span class="tag">10 TB/day</span>
+    </div>
+  </a>
+
+  <a class="card" href="payment-gateway.html">
+    <div class="num">15 / PAYMENTS · FINTECH</div>
+    <h3>Design Razorpay</h3>
+    <div class="desc">Payment gateway across buyers, merchants &amp; banks. Authorize → capture → settle as a state machine, idempotency keys for exactly-once charges, an append-only double-entry ledger, PCI-DSS tokenization vault, and async Kafka settlement with signed webhooks.</div>
+    <div class="tags">
+      <span class="tag">Idempotency</span>
+      <span class="tag">Double-Entry Ledger</span>
+      <span class="tag">PCI-DSS</span>
+      <span class="tag">Exactly-Once</span>
+    </div>
+  </a>
+
+</div>
+
+</div>
+
+<footer>
+  <b>BuildLikeASenior</b> · Think · Design · Grow Like a Senior Engineer
+</footer>
+
+</body>
+</html>

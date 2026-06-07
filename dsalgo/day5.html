@@ -62,8 +62,44 @@
   .complexity div{background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.2);border-radius:10px;padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:13px}
   .complexity b{color:var(--teal)}
   pre[class*="language-"]{border-radius:10px;font-size:13px;border:1px solid var(--line);background:#0a1428 !important;margin:8px 0}
-  .mermaid-wrap{background:#fff;border-radius:12px;padding:20px;margin:8px 0;overflow-x:auto;border:1px solid var(--line)}
+  .mermaid-wrap{
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(91,141,238,.10), transparent 60%),
+      radial-gradient(ellipse at 100% 100%, rgba(0,212,170,.08), transparent 55%),
+      linear-gradient(180deg, #0e1a33 0%, #0b1428 100%);
+    border-radius:14px;padding:22px;margin:10px 0;overflow-x:auto;
+    border:1px solid rgba(91,141,238,.18);
+    box-shadow: 0 2px 14px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  .mermaid-wrap .mermaid{display:flex;justify-content:center}
+  .mermaid-wrap svg{max-width:100%;height:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
+  .mermaid-wrap .node rect,
+  .mermaid-wrap .node polygon,
+  .mermaid-wrap .node circle,
+  .mermaid-wrap .node ellipse,
+  .mermaid-wrap .node path{
+    rx:10; ry:10;
+    stroke-width:1.4px !important;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,.35));
+  }
+  .mermaid-wrap .edgePath .path{stroke-width:1.6px !important; opacity:.85}
+  .mermaid-wrap .edgeLabel{background-color:transparent !important; color:#cfe0ff !important; font-size:12px !important}
+  .mermaid-wrap .edgeLabel rect{fill:#0e1a33 !important; opacity:.9}
+  .mermaid-wrap .cluster rect{fill:rgba(91,141,238,.06) !important; stroke:rgba(91,141,238,.25) !important; rx:14; ry:14}
   .mermaid{display:flex;justify-content:center}
+  .anim{background:linear-gradient(180deg,#0a1832,#08122a);border:1px solid rgba(91,141,238,.18);border-radius:16px;padding:18px 20px;margin:8px 0;box-shadow:0 12px 40px -22px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .anim-canvas{width:100%;background:radial-gradient(900px 400px at 50% -20%,rgba(91,141,238,.10),transparent 60%),#091530;border:1px solid rgba(255,255,255,.07);border-radius:12px;display:block;box-shadow:inset 0 2px 20px rgba(0,0,0,.45)}
+  .anim-controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:14px 0 4px}
+  .anim-btn{background:linear-gradient(135deg,var(--teal),#0aa37e);color:#04221a;border:none;border-radius:10px;padding:9px 17px;font-size:13px;font-weight:700;cursor:pointer;transition:transform .12s,box-shadow .2s;font-family:'Inter',sans-serif;box-shadow:0 5px 16px -4px rgba(0,212,170,.5)}
+  .anim-btn.sec{background:linear-gradient(135deg,var(--blue),#3a6fd0);color:#fff;box-shadow:0 5px 16px -4px rgba(91,141,238,.5)}
+  .anim-btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);box-shadow:none}
+  .anim-btn:hover{transform:translateY(-2px)}
+  .anim-btn:active{transform:translateY(0)}
+  .anim-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+  .anim-stats{display:flex;gap:18px;flex-wrap:wrap;margin:12px 0 2px;font-size:13px;color:var(--muted)}
+  .anim-stats b{color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:15px}
+  .anim-note{background:linear-gradient(90deg,rgba(91,141,238,.12),rgba(91,141,238,.04));border-left:3px solid var(--blue);padding:11px 15px;border-radius:8px;margin-top:12px;font-size:13.5px;color:#dbe6f7;min-height:20px;transition:all .2s}
+  .anim-note b{color:var(--teal)}
   .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99}
   .top.show{opacity:1}
   footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
@@ -71,6 +107,47 @@
 </style>
 </head>
 <body>
+<script>
+/* ===== Shared animation helpers (retina + polished primitives) ===== */
+const AnimKit = {
+  setup(cv){
+    const ctx=cv.getContext('2d');
+    const dpr=window.devicePixelRatio||1;
+    const cssW=cv.width, cssH=cv.height;
+    if(!cv.dataset.hi){
+      cv.dataset.hi='1'; cv.dataset.w=cssW; cv.dataset.h=cssH;
+      cv.width=cssW*dpr; cv.height=cssH*dpr;
+      cv.style.width=cssW+'px'; cv.style.height=cssH+'px';
+      ctx.scale(dpr,dpr);
+    }
+    return {ctx,W:+cv.dataset.w,H:+cv.dataset.h};
+  },
+  roundRect(ctx,x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  },
+  cell(ctx,x,y,w,h,{fill,grad,glow,border}={}){
+    ctx.save();
+    if(glow){ ctx.shadowColor=glow; ctx.shadowBlur=18; }
+    this.roundRect(ctx,x,y,w,h,9);
+    if(grad){ const g=ctx.createLinearGradient(x,y,x,y+h); g.addColorStop(0,grad[0]); g.addColorStop(1,grad[1]); ctx.fillStyle=g; }
+    else ctx.fillStyle=fill||'#13264b';
+    ctx.fill();
+    ctx.restore();
+    this.roundRect(ctx,x,y,w,h,9);
+    ctx.strokeStyle=border||'rgba(255,255,255,.10)'; ctx.lineWidth=1.2; ctx.stroke();
+  },
+  text(ctx,t,x,y,{color='#e6edf7',font='bold 20px JetBrains Mono',align='center'}={}){
+    ctx.fillStyle=color; ctx.font=font; ctx.textAlign=align; ctx.textBaseline='middle';
+    ctx.fillText(t,x,y);
+  }
+};
+</script>
 
 <header class="hero">
   <span class="badge">Day 5 · BuildLikeASenior</span>
@@ -168,29 +245,89 @@ flowchart TD
   H --> L
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-1" class="anim-canvas" width="720" height="230"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM1.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM1.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM1.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">low <b id="a1lo">0</b> · mid <b id="a1mi">0</b> · high <b id="a1hi">5</b></div>
+    <div class="anim-note" id="anim-note-1">[2,0,2,1,1,0]. Walk mid; route 0/1/2 to maintain Dutch-flag zones.</div>
+  </div>
+  <script>
+  const ANIM1 = (function(){
+    const cv=document.getElementById('animc-1');
+    const note=document.getElementById('anim-note-1');
+    function build(){
+      const a=[2,0,2,1,1,0]; let lo=0,mi=0,hi=a.length-1; const f=[];
+      f.push({a:[...a],lo,mi,hi,msg:'init lo=mi=0, hi=5.'});
+      while(mi<=hi){
+        if(a[mi]===0){ [a[lo],a[mi]]=[a[mi],a[lo]]; const oldLo=lo,oldMi=mi; lo++;mi++; f.push({a:[...a],lo,mi,hi,swap:[oldLo,oldMi],msg:`a[mi]=0 → swap(lo=${oldLo},mi=${oldMi}); lo++, mi++.`}); }
+        else if(a[mi]===1){ const oldMi=mi; mi++; f.push({a:[...a],lo,mi,hi,touch:oldMi,msg:`a[mi]=1 → mi++.`}); }
+        else { [a[mi],a[hi]]=[a[hi],a[mi]]; const oldMi=mi,oldHi=hi; hi--; f.push({a:[...a],lo,mi,hi,swap:[oldMi,oldHi],msg:`a[mi]=2 → swap(mi=${oldMi},hi=${oldHi}); hi--.`}); }
+      }
+      f.push({a:[...a],lo,mi,hi,done:true,msg:`Done ✓ sorted.`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); update(); note.innerHTML='[2,0,2,1,1,0]. Walk mid; route 0/1/2 to maintain Dutch-flag zones.'; draw(); }
+    function update(){ const fr=frames[idx]; document.getElementById('a1lo').textContent=fr.lo; document.getElementById('a1mi').textContent=fr.mi; document.getElementById('a1hi').textContent=fr.hi; }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx], n=fr.a.length, cw=88, ox=W/2-n*cw/2, y=70;
+      for(let i=0;i<n;i++){ const x=ox+i*cw, val=fr.a[i];
+        const isSwap=fr.swap&&(fr.swap[0]===i||fr.swap[1]===i), isTouch=fr.touch===i;
+        let opt,dark=false;
+        if(fr.done){ opt={grad:['#1ad9b0','#0aa37e'],border:'rgba(0,212,170,.85)'}; dark=true; }
+        else if(isSwap){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.55)',border:'rgba(245,200,66,.9)'}; dark=true; }
+        else if(isTouch){ opt={grad:['#5b8dee','#3a6fd0'],border:'rgba(91,141,238,.85)'}; dark=true; }
+        else if(i<fr.lo) opt={grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.5)'};
+        else if(i>fr.hi) opt={grad:['#3d2055','#291638'],border:'rgba(167,139,250,.5)'};
+        else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
+        AnimKit.cell(ctx,x,y,cw-6,56,opt);
+        AnimKit.text(ctx,val,x+(cw-6)/2,y+28,{color:dark?'#0a1428':'#cfe0ff',font:'bold 22px JetBrains Mono'});
+        AnimKit.text(ctx,i,x+(cw-6)/2,y+72,{color:'#5a6e92',font:'10px JetBrains Mono'});
+      }
+      // pointer arrows
+      function ptr(label,k,col){ if(k>=n) return; const x=ox+k*cw+(cw-6)/2;
+        ctx.fillStyle=col; ctx.font='bold 11px Inter'; ctx.textAlign='center'; ctx.fillText(label,x,y-12);
+        ctx.beginPath(); ctx.moveTo(x,y-6); ctx.lineTo(x-4,y); ctx.lineTo(x+4,y); ctx.closePath(); ctx.fill();
+      }
+      ptr('lo',fr.lo,'#00d4aa'); ptr('mi',fr.mi,'#f5c842'); ptr('hi',fr.hi,'#a78bfa');
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; update(); note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },700); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Dutch National Flag — sort {0,1,2} in one pass, O(1) extra space.
  * Trick: three pointers carve the array into 4 regions [0s | 1s | unknown | 2s].
  * Each comparison shrinks the "unknown" middle by one slot.
  */
-void sortColors(int[] numbers){
-  int lowBoundary = 0;                      // next slot expecting a 0
-  int midScanner  = 0;                      // current unknown
-  int highBoundary = numbers.length - 1;    // next slot expecting a 2
+void sortColors(int[] nums){
+  int lo = 0;                      // next slot expecting a 0
+  int mid = 0;                     // current unknown
+  int hi = nums.length - 1;        // next slot expecting a 2
 
-  while(midScanner &lt;= highBoundary){
-    switch(numbers[midScanner]){
+  while(mid &lt;= hi){
+    switch(nums[mid]){
       case 0:
-        swap(numbers, lowBoundary, midScanner);
-        lowBoundary++; midScanner++;        // settled 0 region grows
+        swap(nums, lo, mid);
+        lo++; mid++;               // settled 0 region grows
         break;
       case 1:
-        midScanner++;                       // already in correct middle band
+        mid++;                     // already in correct middle band
         break;
       default: // case 2
-        swap(numbers, midScanner, highBoundary);
-        highBoundary--;                     // do NOT advance mid: swapped-in value unknown
+        swap(nums, mid, hi);
+        hi--;                      // do NOT advance mid: swapped-in value unknown
     }
   }
 }</code></pre>
@@ -249,32 +386,131 @@ flowchart TD
   R --> S["scan once → label which is which"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-2" class="anim-canvas" width="720" height="260"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM2.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM2.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM2.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">xorAll <b id="a2x">0</b> · bit <b id="a2b">–</b> · group<sub>1</sub> <b id="a2g1">0</b> · group<sub>0</sub> <b id="a2g0">0</b></div>
+    <div class="anim-note" id="anim-note-2">arr=[1,2,3,3,5], n=5. Find missing & repeated using XOR partition.</div>
+  </div>
+  <script>
+  const ANIM2 = (function(){
+    const cv=document.getElementById('animc-2');
+    const note=document.getElementById('anim-note-2');
+    const arr=[1,2,3,3,5], n=5;
+    function build(){
+      const f=[]; let x=0; const xs=[];
+      for(const v of arr){ x^=v; xs.push({v,after:x,src:'arr'}); }
+      for(let i=1;i<=n;i++){ x^=i; xs.push({v:i,after:x,src:'1..n'}); }
+      f.push({stage:1,xs,xor:0,msg:'XOR all of arr and 1..n.'});
+      let cur=0;
+      for(let k=0;k<xs.length;k++){ cur=xs[k].after;
+        f.push({stage:1,xs,xor:cur,k,msg:`xor ^= ${xs[k].v} (${xs[k].src}) → xor=${cur}.`});
+      }
+      const xorAll=cur;
+      const bit = xorAll & -xorAll; const bitIdx = Math.log2(bit);
+      f.push({stage:2,xor:xorAll,bit,bitIdx,msg:`xorAll=${xorAll} (binary ${xorAll.toString(2)}). pick rightmost set bit → bit ${bitIdx}.`});
+      let g1=0,g0=0;
+      const items=[...arr.map(v=>({v,src:'arr'})),...Array.from({length:n},(_,i)=>({v:i+1,src:'1..n'}))];
+      for(let i=0;i<items.length;i++){ const v=items[i].v; if(v&bit) g1^=v; else g0^=v;
+        f.push({stage:3,xor:xorAll,bit,bitIdx,g1,g0,it:i,items,msg:`${items[i].src} ${v} → ${(v&bit)?'group1 (bit set)':'group0'} → g1=${g1}, g0=${g0}.`});
+      }
+      // label
+      const inArr1=arr.includes(g1), inArr0=arr.includes(g0);
+      const counts1=arr.filter(v=>v===g1).length, counts0=arr.filter(v=>v===g0).length;
+      const repeated = counts1===2? g1 : g0;
+      const missing = counts1===2? g0 : g1;
+      f.push({stage:4,xor:xorAll,bit,bitIdx,g1,g0,repeated,missing,done:true,msg:`scan arr to label → repeated=${repeated}, missing=${missing} ✓`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); update(); note.innerHTML='arr=[1,2,3,3,5], n=5. Find missing & repeated using XOR partition.'; draw(); }
+    function update(){ const fr=frames[idx];
+      document.getElementById('a2x').textContent=fr.xor||0;
+      document.getElementById('a2b').textContent=fr.bitIdx!==undefined?'#'+fr.bitIdx:'–';
+      document.getElementById('a2g1').textContent=fr.g1||0;
+      document.getElementById('a2g0').textContent=fr.g0||0;
+    }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      AnimKit.text(ctx,'stage '+fr.stage+(fr.done?' → done':''),W/2,22,{color:'#f5c842',font:'bold 12px Inter'});
+      if(fr.stage===1){
+        const cw=58, total=fr.xs.length, ox=W/2-total*cw/2, y=70;
+        AnimKit.text(ctx,'arr',ox-10,y+28,{color:'#5b8dee',font:'bold 11px Inter',align:'right'});
+        for(let i=0;i<total;i++){ const x=ox+i*cw, item=fr.xs[i], isCur=fr.k===i, was=fr.k!==undefined&&i<fr.k;
+          let opt,dark=false;
+          if(isCur){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.55)',border:'rgba(245,200,66,.9)'}; dark=true; }
+          else if(was) opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.5)'};
+          else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
+          AnimKit.cell(ctx,x,y,cw-6,46,opt);
+          AnimKit.text(ctx,item.v,x+(cw-6)/2,y+24,{color:dark?'#0a1428':'#cfe0ff',font:'bold 16px JetBrains Mono'});
+          AnimKit.text(ctx,item.src,x+(cw-6)/2,y+58,{color:'#5a6e92',font:'9px Inter'});
+        }
+        AnimKit.text(ctx,'running xor = '+(fr.xor||0),W/2,y+150,{color:'#00d4aa',font:'bold 18px JetBrains Mono'});
+      } else if(fr.stage===2){
+        AnimKit.text(ctx,'xorAll = '+fr.xor,W/2,80,{color:'#cfe0ff',font:'bold 22px JetBrains Mono'});
+        AnimKit.text(ctx,'binary: '+fr.xor.toString(2).padStart(8,'0'),W/2,120,{color:'#f5c842',font:'bold 20px JetBrains Mono'});
+        AnimKit.text(ctx,'rightmost set bit: #'+fr.bitIdx,W/2,160,{color:'#00d4aa',font:'bold 14px Inter'});
+      } else { // 3,4
+        const items=fr.items||[];
+        const cw=58, ox=W/2-items.length*cw/2, y=60;
+        for(let i=0;i<items.length;i++){ const x=ox+i*cw, v=items[i].v, isCur=fr.it===i, on=(v&fr.bit)!==0;
+          let opt,dark=false;
+          if(isCur){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.55)',border:'rgba(245,200,66,.9)'}; dark=true; }
+          else if(fr.it!==undefined&&i<fr.it) { opt = on? {grad:['#1ad9b0','#0aa37e'],border:'rgba(0,212,170,.7)'} : {grad:['#5b8dee','#3a6fd0'],border:'rgba(91,141,238,.7)'}; dark=true; }
+          else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
+          AnimKit.cell(ctx,x,y,cw-6,46,opt);
+          AnimKit.text(ctx,v,x+(cw-6)/2,y+24,{color:dark?'#0a1428':'#cfe0ff',font:'bold 16px JetBrains Mono'});
+          AnimKit.text(ctx,items[i].src,x+(cw-6)/2,y+58,{color:'#5a6e92',font:'9px Inter'});
+        }
+        AnimKit.cell(ctx,W/2-220,160,200,52,{grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.5)'});
+        AnimKit.text(ctx,'group1 (bit set)',W/2-120,176,{color:'#00d4aa',font:'bold 11px Inter'});
+        AnimKit.text(ctx,fr.g1||0,W/2-120,198,{color:'#cfe0ff',font:'bold 22px JetBrains Mono'});
+        AnimKit.cell(ctx,W/2+20,160,200,52,{grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.5)'});
+        AnimKit.text(ctx,'group0 (bit clear)',W/2+120,176,{color:'#5b8dee',font:'bold 11px Inter'});
+        AnimKit.text(ctx,fr.g0||0,W/2+120,198,{color:'#cfe0ff',font:'bold 22px JetBrains Mono'});
+        if(fr.done){ AnimKit.text(ctx,`repeated=${fr.repeated} · missing=${fr.missing}`,W/2,235,{color:'#f5c842',font:'bold 14px JetBrains Mono'}); }
+      }
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; update(); note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },650); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Returns {repeated, missing} in O(n) time, O(1) space using XOR partitioning.
  * Trick: x XOR x = 0 cancels every value present in both array and 1..n. What remains
  * is (repeated XOR missing). A single set bit of that XOR distinguishes them.
  */
-int[] findRepeatedAndMissing(int[] numbers){
-  int xorOfRepeatedAndMissing = 0;
-  for(int value : numbers) xorOfRepeatedAndMissing ^= value;
-  for(int i = 1; i &lt;= numbers.length; i++) xorOfRepeatedAndMissing ^= i;
+int[] findRepeatedAndMissing(int[] nums){
+  int xor = 0;
+  for(int x : nums) xor ^= x;
+  for(int i = 1; i &lt;= nums.length; i++) xor ^= i;
 
-  int distinguishingBit = xorOfRepeatedAndMissing &amp; -xorOfRepeatedAndMissing;  // lowest set bit
-  int bucketA = 0, bucketB = 0;
-  for(int value : numbers){
-    if((value &amp; distinguishingBit) == 0) bucketA ^= value;
-    else                                  bucketB ^= value;
+  int bit = xor &amp; -xor;  // lowest set bit
+  int a = 0, b = 0;
+  for(int x : nums){
+    if((x &amp; bit) == 0) a ^= x;
+    else               b ^= x;
   }
-  for(int i = 1; i &lt;= numbers.length; i++){
-    if((i &amp; distinguishingBit) == 0) bucketA ^= i;
-    else                              bucketB ^= i;
+  for(int i = 1; i &lt;= nums.length; i++){
+    if((i &amp; bit) == 0) a ^= i;
+    else               b ^= i;
   }
   // figure out which is repeated vs missing
-  for(int value : numbers){
-    if(value == bucketA) return new int[]{bucketA, bucketB};   // bucketA appears → repeated
+  for(int x : nums){
+    if(x == a) return new int[]{a, b};   // a appears → repeated
   }
-  return new int[]{bucketB, bucketA};
+  return new int[]{b, a};
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
 </article>
@@ -326,22 +562,98 @@ flowchart LR
   C --> R["answer = C(m+n-2, m-1)"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-3" class="anim-canvas" width="720" height="300"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM3.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM3.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM3.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">step <b id="a3k">0</b>/r · ans <b id="a3v">1</b></div>
+    <div class="anim-note" id="anim-note-3">m=3, n=4. ans = C(5, 2) computed iteratively as (5·4)/(1·2) = 10.</div>
+  </div>
+  <script>
+  const ANIM3 = (function(){
+    const cv=document.getElementById('animc-3');
+    const note=document.getElementById('anim-note-3');
+    const m=3,n=4, N=m+n-2, r=Math.min(m-1,n-1);
+    function build(){
+      const f=[]; let ans=1;
+      f.push({k:0,ans,msg:`m=${m}, n=${n}. N = m+n-2 = ${N}, r = min(m-1,n-1) = ${r}.`});
+      for(let k=1;k<=r;k++){
+        const num=N-r+k, den=k;
+        ans = ans*num/den;
+        f.push({k,ans,num,den,msg:`step ${k}: ans = ans × ${num} / ${den} = ${ans}.`});
+      }
+      f.push({k:r,ans,done:true,msg:`Done ✓ unique paths = ${ans}.`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); update(); note.innerHTML=`m=${m}, n=${n}. ans = C(${N}, ${r}) computed iteratively.`; draw(); }
+    function update(){ const fr=frames[idx]; document.getElementById('a3k').textContent=fr.k+'/'+r; document.getElementById('a3v').textContent=fr.ans; }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      // grid showing m x n
+      const cs=40, gx=40, gy=30;
+      for(let i=0;i<m;i++) for(let j=0;j<n;j++){ const x=gx+j*cs,y=gy+i*cs;
+        const goal=i===m-1&&j===n-1, start=i===0&&j===0;
+        let opt;
+        if(goal) opt={grad:['#1ad9b0','#0aa37e'],border:'rgba(0,212,170,.85)'};
+        else if(start) opt={grad:['#f6d04a','#e0a91e'],border:'rgba(245,200,66,.85)'};
+        else opt={grad:['#13213d','#0e1a30'],border:'rgba(91,141,238,.25)'};
+        AnimKit.cell(ctx,x,y,cs-4,cs-4,opt);
+      }
+      AnimKit.text(ctx,'start',gx+cs/2-2,gy+cs+10,{color:'#f5c842',font:'9px Inter'});
+      AnimKit.text(ctx,'goal',gx+(n-1)*cs+cs/2-2,gy+m*cs+10,{color:'#00d4aa',font:'9px Inter'});
+      // formula
+      const fx=260, fy=70;
+      AnimKit.text(ctx,'C(N, r) =',fx,fy,{color:'#8aa0c4',font:'bold 13px Inter',align:'left'});
+      AnimKit.text(ctx,`(N · (N-1) · ... · (N-r+1)) / r!`,fx,fy+20,{color:'#cfe0ff',font:'12px JetBrains Mono',align:'left'});
+      // numerator/denominator cells
+      const py=160, pw=78;
+      for(let k=1;k<=r;k++){
+        const x=fx+(k-1)*(pw+8);
+        const num=N-r+k, den=k;
+        const isCur=fr.k===k, isDone=fr.k>k;
+        let optN,optD,dark=false;
+        if(isCur){ optN={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.55)',border:'rgba(245,200,66,.9)'}; optD={grad:['#5b8dee','#3a6fd0'],border:'rgba(91,141,238,.85)'}; dark=true; }
+        else if(isDone){ optN={grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.55)'}; optD={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.55)'}; }
+        else { optN={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'}; optD={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'}; }
+        AnimKit.cell(ctx,x,py,pw,42,optN);
+        AnimKit.text(ctx,num,x+pw/2,py+22,{color:dark?'#0a1428':'#cfe0ff',font:'bold 18px JetBrains Mono'});
+        ctx.strokeStyle='rgba(255,255,255,.3)'; ctx.beginPath(); ctx.moveTo(x,py+50); ctx.lineTo(x+pw,py+50); ctx.stroke();
+        AnimKit.cell(ctx,x,py+58,pw,42,optD);
+        AnimKit.text(ctx,den,x+pw/2,py+80,{color:dark?'#0a1428':'#cfe0ff',font:'bold 18px JetBrains Mono'});
+      }
+      AnimKit.cell(ctx,W/2-90,260,180,32,{grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.5)'});
+      AnimKit.text(ctx,'ans = '+fr.ans,W/2,277,{color:'#00d4aa',font:'bold 16px JetBrains Mono'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; update(); note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },800); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Unique Paths in an m×n grid — pure combinatorics, O(min(m,n)) time, O(1) space.
  * Trick: every path has the same length m+n-2 with exactly m-1 downs. Counting the
  * orderings is C(m+n-2, m-1).
  */
-int uniquePaths(int rowCount, int columnCount){
-  int totalMoves = rowCount + columnCount - 2;
-  int smallerHalf = Math.min(rowCount - 1, columnCount - 1);   // pick smaller for fewer multiplications
+int uniquePaths(int m, int n){
+  int total = m + n - 2;
+  int r = Math.min(m - 1, n - 1);   // pick smaller for fewer multiplications
 
-  long result = 1L;
-  // result = totalMoves * (totalMoves-1) * ... / 1 * 2 * ... * smallerHalf
-  for(int step = 1; step &lt;= smallerHalf; step++){
-    result = result * (totalMoves - smallerHalf + step) / step;
+  long ans = 1L;
+  // ans = total * (total-1) * ... / 1 * 2 * ... * r
+  for(int i = 1; i &lt;= r; i++){
+    ans = ans * (total - r + i) / i;
   }
-  return (int) result;
+  return (int) ans;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(min(m,n))</b></div><div>Space <b>O(1)</b></div></div>
 </article>
@@ -397,25 +709,103 @@ flowchart TD
   M --> L
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-4" class="anim-canvas" width="720" height="320"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM4.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM4.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM4.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">xor <b id="a4x">0</b> · need <b id="a4n">–</b> · ans <b id="a4a">0</b></div>
+    <div class="anim-note" id="anim-note-4">arr=[4,2,2,6,4], k=6. count subarrays whose XOR = k.</div>
+  </div>
+  <script>
+  const ANIM4 = (function(){
+    const cv=document.getElementById('animc-4');
+    const note=document.getElementById('anim-note-4');
+    const arr=[4,2,2,6,4], k=6;
+    function build(){
+      const f=[]; const map=new Map([[0,1]]); let xor=0,ans=0;
+      f.push({i:-1,xor,ans,map:new Map(map),msg:'init map={0:1}, xor=0, ans=0.'});
+      for(let i=0;i<arr.length;i++){
+        xor^=arr[i];
+        const need=xor^k, got=map.get(need)||0;
+        ans+=got;
+        f.push({i,xor,need,got,ans,map:new Map(map),pre:true,msg:`xor ^= ${arr[i]} → ${xor}. need = xor^k = ${need}. map has ${got} → ans=${ans}.`});
+        map.set(xor,(map.get(xor)||0)+1);
+        f.push({i,xor,ans,map:new Map(map),msg:`map[${xor}]++ → ${map.get(xor)}.`});
+      }
+      f.push({i:arr.length-1,xor,ans,map:new Map(map),done:true,msg:`Done ✓ count = ${ans}.`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); update(); note.innerHTML='arr=[4,2,2,6,4], k=6. count subarrays whose XOR = k.'; draw(); }
+    function update(){ const fr=frames[idx];
+      document.getElementById('a4x').textContent=fr.xor;
+      document.getElementById('a4n').textContent=fr.need!==undefined?fr.need:'–';
+      document.getElementById('a4a').textContent=fr.ans;
+    }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx], n=arr.length, cw=82, ox=40, y=40;
+      AnimKit.text(ctx,'arr',ox-12,y+28,{color:'#5b8dee',font:'bold 11px Inter',align:'right'});
+      for(let i=0;i<n;i++){ const x=ox+i*cw, val=arr[i];
+        const isCur=fr.i===i;
+        let opt,dark=false;
+        if(isCur){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.55)',border:'rgba(245,200,66,.9)'}; dark=true; }
+        else if(i<fr.i) opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.5)'};
+        else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
+        AnimKit.cell(ctx,x,y,cw-6,52,opt);
+        AnimKit.text(ctx,val,x+(cw-6)/2,y+28,{color:dark?'#0a1428':'#cfe0ff',font:'bold 20px JetBrains Mono'});
+      }
+      // map
+      const my=140;
+      AnimKit.text(ctx,'map (prefixXor → count):',W/2,my-12,{color:'#00d4aa',font:'bold 12px Inter'});
+      const entries=[...fr.map.entries()];
+      const ew=80, ox2=W/2-entries.length*ew/2;
+      entries.forEach(([key,cnt],i)=>{ const x=ox2+i*ew;
+        const need=fr.need, got=fr.got, isMatch=fr.pre&&key===need&&got>0;
+        const isLatest=key===fr.xor && fr.pre;
+        let opt,dark=false;
+        if(isMatch){ opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.55)',border:'rgba(0,212,170,.85)'}; dark=true; }
+        else if(isLatest){ opt={grad:['#5b8dee','#3a6fd0'],border:'rgba(91,141,238,.85)'}; dark=true; }
+        else opt={grad:['#15294e','#0f1f3d'],border:'rgba(91,141,238,.3)'};
+        AnimKit.cell(ctx,x,my,ew-6,46,opt);
+        AnimKit.text(ctx,key,x+(ew-6)/2,my+18,{color:dark?'#0a1428':'#cfe0ff',font:'bold 14px JetBrains Mono'});
+        AnimKit.text(ctx,'×'+cnt,x+(ew-6)/2,my+36,{color:dark?'#0a1428':'#8aa0c4',font:'11px JetBrains Mono'});
+      });
+      AnimKit.text(ctx,`current xor = ${fr.xor}`,W/2,230,{color:'#cfe0ff',font:'bold 14px JetBrains Mono'});
+      if(fr.need!==undefined) AnimKit.text(ctx,`need = xor ^ k = ${fr.need} → found ${fr.got||0}`,W/2,252,{color:'#f5c842',font:'bold 13px JetBrains Mono'});
+      AnimKit.text(ctx,'ans = '+fr.ans,W/2,280,{color:'#00d4aa',font:'bold 18px JetBrains Mono'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; update(); note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },650); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Count subarrays whose XOR equals targetXor — prefix-XOR + HashMap.
  * Trick: if prefixXor up to j is P and we want subarray ending at j to XOR to k, we
  * need an earlier prefix-XOR equal to P XOR k. Counting frequencies makes this O(n).
  */
-int countSubarraysWithXorEqualsK(int[] numbers, int targetXor){
-  Map&lt;Integer, Integer&gt; prefixXorFrequency = new HashMap&lt;&gt;();
-  prefixXorFrequency.put(0, 1);                       // empty prefix
+int countSubarraysWithXorEqualsK(int[] nums, int k){
+  Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();
+  freq.put(0, 1);                       // empty prefix
 
-  int runningXor = 0;
-  int totalSubarrays = 0;
-  for(int value : numbers){
-    runningXor ^= value;
-    int desiredEarlierPrefix = runningXor ^ targetXor;
-    totalSubarrays += prefixXorFrequency.getOrDefault(desiredEarlierPrefix, 0);
-    prefixXorFrequency.merge(runningXor, 1, Integer::sum);
+  int xor = 0;
+  int ans = 0;
+  for(int x : nums){
+    xor ^= x;
+    int need = xor ^ k;
+    ans += freq.getOrDefault(need, 0);
+    freq.merge(xor, 1, Integer::sum);
   }
-  return totalSubarrays;
+  return ans;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(n)</b></div></div>
 </article>
@@ -467,6 +857,79 @@ flowchart LR
   S --> R["result: 7 → 0 → 8  (342 + 465 = 807)"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-5" class="anim-canvas" width="720" height="260"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM5.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM5.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM5.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">carry <b id="a5c">0</b> · sum <b id="a5s">–</b></div>
+    <div class="anim-note" id="anim-note-5">a = 2→4→3 (342); b = 5→6→4 (465); expected 807 → 7→0→8.</div>
+  </div>
+  <script>
+  const ANIM5 = (function(){
+    const cv=document.getElementById('animc-5');
+    const note=document.getElementById('anim-note-5');
+    const A=[2,4,3], B=[5,6,4];
+    function build(){
+      const f=[]; const R=[]; let i=0,j=0,c=0;
+      f.push({A,B,R:[],i,j,c,msg:'dummy=tail; carry=0.'});
+      while(i<A.length||j<B.length||c){
+        const av=i<A.length?A[i]:0, bv=j<B.length?B[j]:0;
+        const sum=av+bv+c;
+        f.push({A,B,R:[...R],i,j,c,sum,av,bv,probe:true,msg:`sum = ${av} + ${bv} + ${c} = ${sum}.`});
+        R.push(sum%10); c=Math.floor(sum/10);
+        f.push({A,B,R:[...R],i,j,c,sum,placed:R.length-1,msg:`append ${sum%10} → carry = ${c}.`});
+        if(i<A.length) i++; if(j<B.length) j++;
+      }
+      f.push({A,B,R:[...R],i,j,c,done:true,msg:`Done ✓ result list = [${R.join(',')}] (= ${[...R].reverse().join('')}).`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); update(); note.innerHTML='a = 2→4→3 (342); b = 5→6→4 (465); expected 807 → 7→0→8.'; draw(); }
+    function update(){ const fr=frames[idx]; document.getElementById('a5c').textContent=fr.c||0; document.getElementById('a5s').textContent=fr.sum!==undefined?fr.sum:'–'; }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      function row(label,arr,ptr,y,col){
+        const cw=72, ox=120;
+        AnimKit.text(ctx,label,ox-14,y+24,{color:col,font:'bold 13px Inter',align:'right'});
+        for(let i=0;i<arr.length;i++){ const x=ox+i*cw, isP=ptr===i;
+          let opt,dark=false;
+          if(isP){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.55)',border:'rgba(245,200,66,.9)'}; dark=true; }
+          else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
+          AnimKit.cell(ctx,x,y,cw-8,46,opt);
+          AnimKit.text(ctx,arr[i],x+(cw-8)/2,y+24,{color:dark?'#0a1428':'#cfe0ff',font:'bold 20px JetBrains Mono'});
+          if(i<arr.length-1){ ctx.fillStyle='#5b8dee'; ctx.font='bold 14px Inter'; ctx.textAlign='center'; ctx.fillText('→',x+cw-12,y+27); }
+        }
+      }
+      row('a',fr.A,fr.i<fr.A.length?fr.i:-1,30,'#5b8dee');
+      row('b',fr.B,fr.j<fr.B.length?fr.j:-1,90,'#a78bfa');
+      // result
+      const cw=72, ox=120, y=160;
+      AnimKit.text(ctx,'result',ox-14,y+24,{color:'#00d4aa',font:'bold 13px Inter',align:'right'});
+      const maxSlots=Math.max(fr.A.length,fr.B.length)+1;
+      for(let i=0;i<maxSlots;i++){ const x=ox+i*cw, val=fr.R[i], isNew=fr.placed===i;
+        let opt,dark=false;
+        if(isNew){ opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.55)',border:'rgba(0,212,170,.85)'}; dark=true; }
+        else if(val!==undefined) opt={grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.5)'};
+        else opt={grad:['#0e1729','#0b1320'],border:'rgba(255,255,255,.05)'};
+        AnimKit.cell(ctx,x,y,cw-8,46,opt);
+        AnimKit.text(ctx,val!==undefined?val:'·',x+(cw-8)/2,y+24,{color:val!==undefined?(dark?'#0a1428':'#cfe0ff'):'#3a4a68',font:'bold 20px JetBrains Mono'});
+        if(val!==undefined && i<maxSlots-1 && fr.R[i+1]!==undefined){ ctx.fillStyle='#00d4aa'; ctx.font='bold 14px Inter'; ctx.textAlign='center'; ctx.fillText('→',x+cw-12,y+27); }
+      }
+      AnimKit.text(ctx,'carry = '+(fr.c||0),W-90,225,{color:'#f5c842',font:'bold 13px JetBrains Mono'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; update(); note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },700); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Add two numbers stored as reverse-order linked lists.
@@ -474,23 +937,23 @@ flowchart LR
  * three sources (l1, l2, carry) still has something to contribute.
  */
 ListNode addTwoNumbers(ListNode l1, ListNode l2){
-  ListNode dummyHead = new ListNode(0);
-  ListNode tail = dummyHead;
+  ListNode dummy = new ListNode(0);
+  ListNode tail = dummy;
   int carry = 0;
 
   while(l1 != null || l2 != null || carry != 0){
-    int digitA = (l1 != null) ? l1.val : 0;
-    int digitB = (l2 != null) ? l2.val : 0;
-    int columnSum = digitA + digitB + carry;
+    int a = (l1 != null) ? l1.val : 0;
+    int b = (l2 != null) ? l2.val : 0;
+    int sum = a + b + carry;
 
-    carry = columnSum / 10;
-    tail.next = new ListNode(columnSum % 10);
+    carry = sum / 10;
+    tail.next = new ListNode(sum % 10);
     tail = tail.next;
 
     if(l1 != null) l1 = l1.next;
     if(l2 != null) l2 = l2.next;
   }
-  return dummyHead.next;
+  return dummy.next;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(max(n,m))</b></div><div>Space <b>O(max(n,m))</b></div></div>
 </article>
@@ -543,6 +1006,81 @@ flowchart TD
   M --> O["return head"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-6" class="anim-canvas" width="720" height="320"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM6.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM6.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM6.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-6">Two columns: head 5→7→20, child chains attached. Recurse right → merge bottom-lists.</div>
+  </div>
+  <script>
+  const ANIM6 = (function(){
+    const cv=document.getElementById('animc-6');
+    const note=document.getElementById('anim-note-6');
+    const cols=[ [5,7,8,30], [10,20], [19,22,50] ];
+    function build(){
+      const f=[]; 
+      f.push({phase:0,merged:[],col:-1,msg:'Initial multi-level list. Recurse to the rightmost column first.'});
+      // recurse to deepest
+      f.push({phase:'r',col:2,msg:'flatten(col 2) → already a single sorted bottom list.'});
+      f.push({phase:'m',col:1, merged:[10,19,20,22,50], absorbed:[1,2], msg:'merge col 1 [10,20] with col 2 result → [10,19,20,22,50].'});
+      f.push({phase:'m',col:0, merged:[5,7,8,10,19,20,22,30,50], absorbed:[0,1,2], msg:'merge col 0 [5,7,8,30] with previous → [5,7,8,10,19,20,22,30,50].'});
+      f.push({phase:'done',merged:[5,7,8,10,19,20,22,30,50], absorbed:[0,1,2], done:true, msg:'Done ✓ single sorted bottom list.'});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); note.innerHTML='Two columns: head 5→7→20, child chains attached. Recurse right → merge bottom-lists.'; draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      // draw original columns top portion
+      const cw=80, ch=40;
+      cols.forEach((col,ci)=>{
+        const ox=70+ci*150;
+        const absorbed = fr.absorbed && fr.absorbed.includes(ci);
+        const isActive = fr.col===ci;
+        col.forEach((v,ri)=>{ const y=20+ri*48;
+          let opt,dark=false;
+          if(absorbed) opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.4)'};
+          else if(isActive){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.85)'}; dark=true; }
+          else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
+          AnimKit.cell(ctx,ox,y,cw,ch,opt);
+          AnimKit.text(ctx,v,ox+cw/2,y+ch/2,{color:dark?'#0a1428':absorbed?'#7d92b8':'#cfe0ff',font:'bold 16px JetBrains Mono'});
+          if(ri<col.length-1){ ctx.strokeStyle=absorbed?'rgba(91,141,238,.3)':'rgba(91,141,238,.7)'; ctx.lineWidth=1.6;
+            ctx.beginPath(); ctx.moveTo(ox+cw/2,y+ch); ctx.lineTo(ox+cw/2,y+ch+8); ctx.stroke();
+            ctx.fillStyle=absorbed?'rgba(91,141,238,.3)':'rgba(91,141,238,.7)';
+            ctx.beginPath(); ctx.moveTo(ox+cw/2-4,y+ch+4); ctx.lineTo(ox+cw/2+4,y+ch+4); ctx.lineTo(ox+cw/2,y+ch+10); ctx.closePath(); ctx.fill();
+          }
+        });
+        // top connector → next col
+        if(ci<cols.length-1){ const y=20+ch/2;
+          ctx.strokeStyle=absorbed?'rgba(91,141,238,.3)':'rgba(122,166,255,.7)';
+          ctx.beginPath(); ctx.moveTo(ox+cw,y); ctx.lineTo(ox+cw+70,y); ctx.stroke();
+        }
+      });
+      // merged result row
+      const my=240;
+      AnimKit.text(ctx,'merged →',46,my+22,{color:'#00d4aa',font:'bold 12px Inter',align:'right'});
+      const merged=fr.merged||[];
+      const mw=64;
+      merged.forEach((v,k)=>{ const x=60+k*mw;
+        const opt = fr.done? {grad:['#1ad9b0','#0aa37e'],border:'rgba(0,212,170,.85)'} : {grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.55)'};
+        AnimKit.cell(ctx,x,my,mw-6,40,opt);
+        AnimKit.text(ctx,v,x+(mw-6)/2,my+20,{color:fr.done?'#0a1428':'#cfe0ff',font:'bold 15px JetBrains Mono'});
+        if(k<merged.length-1){ ctx.fillStyle=fr.done?'#0a1428':'#00d4aa'; ctx.font='bold 13px Inter'; ctx.textAlign='center'; ctx.fillText('→',x+mw-9,my+22); }
+      });
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },1000); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Flatten a multi-level sorted linked list into one sorted bottom-list.
@@ -552,13 +1090,13 @@ flowchart TD
 Node flatten(Node head){
   if(head == null || head.next == null) return head;
 
-  Node flattenedRight = flatten(head.next);
-  return mergeTwoSortedBottomLists(head, flattenedRight);
+  Node right = flatten(head.next);
+  return merge(head, right);
 }
 
-private Node mergeTwoSortedBottomLists(Node a, Node b){
-  Node dummyHead = new Node(0);
-  Node tail = dummyHead;
+private Node merge(Node a, Node b){
+  Node dummy = new Node(0);
+  Node tail = dummy;
 
   while(a != null &amp;&amp; b != null){
     if(a.val &lt;= b.val){ tail.bottom = a; a = a.bottom; }
@@ -566,8 +1104,8 @@ private Node mergeTwoSortedBottomLists(Node a, Node b){
     tail = tail.bottom;
   }
   tail.bottom = (a != null) ? a : b;
-  dummyHead.next = null;                       // flattened result uses bottom-pointers only
-  return dummyHead.bottom;
+  dummy.next = null;                       // flattened result uses bottom-pointers only
+  return dummy.bottom;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(N)</b> total nodes</div><div>Space <b>O(depth)</b> recursion</div></div>
 </article>
@@ -624,22 +1162,80 @@ flowchart LR
   L --> O["return write"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-7" class="anim-canvas" width="720" height="230"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM7.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM7.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM7.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">read <b id="a7r">1</b> · write <b id="a7w">1</b></div>
+    <div class="anim-note" id="anim-note-7">[1,1,2,2,3,4,4]. Compress to unique prefix in place.</div>
+  </div>
+  <script>
+  const ANIM7 = (function(){
+    const cv=document.getElementById('animc-7');
+    const note=document.getElementById('anim-note-7');
+    const orig=[1,1,2,2,3,4,4];
+    function build(){
+      const a=[...orig], n=a.length, f=[]; let w=1;
+      f.push({a:[...a],r:0,w,msg:'init write=1.'});
+      for(let r=1;r<n;r++){
+        if(a[r]!==a[w-1]){ a[w]=a[r]; f.push({a:[...a],r,w,copy:w,msg:`a[${r}]=${a[r]} ≠ a[${w-1}]=${a[w-1]} → a[${w}] = ${a[r]}.`}); w++; }
+        else f.push({a:[...a],r,w,skip:true,msg:`a[${r}]=${a[r]} == a[${w-1}] → skip.`});
+      }
+      f.push({a:[...a],r:n,w,done:true,msg:`Done ✓ unique length = ${w}.`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); update(); note.innerHTML='[1,1,2,2,3,4,4]. Compress to unique prefix in place.'; draw(); }
+    function update(){ const fr=frames[idx]; document.getElementById('a7r').textContent=fr.r; document.getElementById('a7w').textContent=fr.w; }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx], n=fr.a.length, cw=88, ox=W/2-n*cw/2, y=70;
+      for(let i=0;i<n;i++){ const x=ox+i*cw, val=fr.a[i];
+        const isR=fr.r===i, isW=fr.w===i, isCopy=fr.copy===i;
+        let opt,dark=false;
+        if(isCopy){ opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.55)',border:'rgba(0,212,170,.85)'}; dark=true; }
+        else if(isR){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.85)'}; dark=true; }
+        else if(isW){ opt={grad:['#5b8dee','#3a6fd0'],border:'rgba(91,141,238,.85)'}; dark=true; }
+        else if(i<fr.w) opt={grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.4)'};
+        else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
+        AnimKit.cell(ctx,x,y,cw-6,52,opt);
+        AnimKit.text(ctx,val,x+(cw-6)/2,y+26,{color:dark?'#0a1428':'#cfe0ff',font:'bold 22px JetBrains Mono'});
+        AnimKit.text(ctx,i,x+(cw-6)/2,y+72,{color:'#5a6e92',font:'10px JetBrains Mono'});
+      }
+      function ptr(label,k,col){ if(k>=n||k<0) return; const x=ox+k*cw+(cw-6)/2;
+        ctx.fillStyle=col; ctx.font='bold 11px Inter'; ctx.textAlign='center'; ctx.fillText(label,x,y-12);
+        ctx.beginPath(); ctx.moveTo(x,y-6); ctx.lineTo(x-4,y); ctx.lineTo(x+4,y); ctx.closePath(); ctx.fill();
+      }
+      ptr('write',fr.w,'#5b8dee'); ptr('read',fr.r,'#f5c842');
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; update(); note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },650); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * In-place remove duplicates from a sorted array; returns the new length.
  * Trick: maintain a write pointer such that a[0..write-1] holds the unique prefix; the
  * read pointer scans the rest, copying only values different from the last unique one.
  */
-int removeDuplicatesFromSortedArray(int[] numbers){
-  if(numbers.length == 0) return 0;
+int removeDuplicatesFromSortedArray(int[] nums){
+  if(nums.length == 0) return 0;
 
-  int writeIdx = 1;                                      // first slot is always unique
-  for(int readIdx = 1; readIdx &lt; numbers.length; readIdx++){
-    if(numbers[readIdx] != numbers[writeIdx - 1]){
-      numbers[writeIdx++] = numbers[readIdx];            // commit new unique value
+  int w = 1;                                  // first slot is always unique
+  for(int r = 1; r &lt; nums.length; r++){
+    if(nums[r] != nums[w - 1]){
+      nums[w++] = nums[r];                    // commit new unique value
     }
   }
-  return writeIdx;
+  return w;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
 </article>
@@ -690,6 +1286,70 @@ flowchart LR
   D2 --> O["answer = 2"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-8" class="anim-canvas" width="720" height="260"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM8.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM8.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM8.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">amount <b id="a8a">93</b> · count <b id="a8c">0</b></div>
+    <div class="anim-note" id="anim-note-8">amount=93. Greedy with denominations [1,2,5,10,20,50,100,200,500,1000].</div>
+  </div>
+  <script>
+  const ANIM8 = (function(){
+    const cv=document.getElementById('animc-8');
+    const note=document.getElementById('anim-note-8');
+    const denoms=[1000,500,200,100,50,20,10,5,2,1];
+    const start=93;
+    function build(){
+      const f=[]; let amt=start, cnt=0; const taken=[];
+      f.push({amt,cnt,taken:[],probe:-1,msg:`amount=${start}, count=0.`});
+      for(let i=0;i<denoms.length;i++){ const d=denoms[i];
+        if(d>amt){ f.push({amt,cnt,taken:[...taken],probe:i,skip:true,msg:`${d} > ${amt} → skip.`}); continue; }
+        while(d<=amt){ amt-=d; cnt++; taken.push(d);
+          f.push({amt,cnt,taken:[...taken],probe:i,take:d,msg:`take ${d} → amount=${amt}, count=${cnt}.`});
+        }
+      }
+      f.push({amt,cnt,taken:[...taken],done:true,msg:`Done ✓ minimum coins = ${cnt}.`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); update(); note.innerHTML='amount=93. Greedy with denominations [1,2,5,10,20,50,100,200,500,1000].'; draw(); }
+    function update(){ const fr=frames[idx]; document.getElementById('a8a').textContent=fr.amt; document.getElementById('a8c').textContent=fr.cnt; }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      const cw=66, ox=W/2-denoms.length*cw/2, y=30;
+      AnimKit.text(ctx,'denoms (desc)',W/2,y-12,{color:'#8aa0c4',font:'bold 11px Inter'});
+      for(let i=0;i<denoms.length;i++){ const x=ox+i*cw, d=denoms[i];
+        const isP=fr.probe===i, isTaken=fr.take===d;
+        let opt,dark=false;
+        if(isTaken){ opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.55)',border:'rgba(0,212,170,.85)'}; dark=true; }
+        else if(isP){ opt={grad:['#f6d04a','#e0a91e'],border:'rgba(245,200,66,.85)'}; dark=true; }
+        else if(d>fr.amt) opt={grad:['#1f1530','#150e22'],border:'rgba(167,139,250,.25)'};
+        else opt={grad:['#13213d','#0e1a30'],border:'rgba(91,141,238,.4)'};
+        AnimKit.cell(ctx,x,y,cw-6,42,opt);
+        AnimKit.text(ctx,d,x+(cw-6)/2,y+22,{color:dark?'#0a1428':'#cfe0ff',font:'bold 14px JetBrains Mono'});
+      }
+      // amount panel
+      AnimKit.cell(ctx,W/2-130,110,260,64,{grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.55)'});
+      AnimKit.text(ctx,'remaining amount',W/2,128,{color:'#8aa0c4',font:'bold 11px Inter'});
+      AnimKit.text(ctx,fr.amt,W/2,158,{color:'#1ad9b0',font:'bold 28px JetBrains Mono'});
+      // taken list
+      const ty=200;
+      AnimKit.text(ctx,'taken: '+(fr.taken.length?fr.taken.join(' + '):'–'),W/2,ty,{color:'#f5c842',font:'bold 14px JetBrains Mono'});
+      AnimKit.text(ctx,'count = '+fr.cnt,W/2,ty+24,{color:'#cfe0ff',font:'bold 16px JetBrains Mono'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; update(); note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },550); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Greedy minimum coin/note count for a canonical denomination set.
@@ -697,17 +1357,17 @@ flowchart LR
  * always taking the largest that fits is globally optimal — no need for DP.
  */
 int minimumCoinsCanonical(int amount){
-  int[] denominations = {1000, 500, 200, 100, 50, 20, 10, 5, 2, 1};
+  int[] denoms = {1000, 500, 200, 100, 50, 20, 10, 5, 2, 1};
 
-  int remainingAmount = amount;
-  int coinsUsed = 0;
-  for(int denomination : denominations){
-    while(remainingAmount &gt;= denomination){
-      remainingAmount -= denomination;
-      coinsUsed++;
+  int rem = amount;
+  int cnt = 0;
+  for(int d : denoms){
+    while(rem &gt;= d){
+      rem -= d;
+      cnt++;
     }
   }
-  return coinsUsed;
+  return cnt;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(amount)</b> worst</div><div>Space <b>O(1)</b></div></div>
 </article>
@@ -741,7 +1401,7 @@ int minimumCoinsCanonical(int amount){
 
   <div class="section-title">Other Approaches</div>
   <div class="alts">
-    <div class="alt"><b>Palindrome-table precompute</b> Each <code>isPalindromeRange</code> call is <code>O(n)</code>; precompute a 2D boolean table in <code>O(n²)</code> so every palindrome check becomes <code>O(1)</code>. Build bottom-up by length: <code>pal[i][j] = (s[i]==s[j]) &amp;&amp; (j - i &lt; 2 || pal[i+1][j-1])</code>.
+    <div class="alt"><b>Palindrome-table precompute</b> Each <code>isPal</code> call is <code>O(n)</code>; precompute a 2D boolean table in <code>O(n²)</code> so every palindrome check becomes <code>O(1)</code>. Build bottom-up by length: <code>pal[i][j] = (s[i]==s[j]) &amp;&amp; (j - i &lt; 2 || pal[i+1][j-1])</code>.
 <pre><code class="language-java">boolean[][] pal = new boolean[n][n];
 for(int len = 1; len &lt;= n; len++){
   for(int i = 0; i + len - 1 &lt; n; i++){
@@ -772,35 +1432,106 @@ flowchart TD
   P -- no --> L
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-9" class="anim-canvas" width="720" height="320"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM9.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM9.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM9.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-9">s = "aab". Try every prefix; recurse only when palindrome.</div>
+  </div>
+  <script>
+  const ANIM9 = (function(){
+    const cv=document.getElementById('animc-9');
+    const note=document.getElementById('anim-note-9');
+    const s='aab';
+    function isPal(t){return t===[...t].reverse().join('');}
+    function build(){
+      const f=[], results=[], stack=[];
+      function rec(start){
+        if(start===s.length){ results.push([...stack]); f.push({start,stack:[...stack],save:true,results:results.map(r=>[...r]),msg:`reached end → save partition [${stack.join(', ')}].`}); return; }
+        for(let end=start;end<s.length;end++){
+          const piece=s.slice(start,end+1);
+          const ok=isPal(piece);
+          f.push({start,end,piece,ok,stack:[...stack],results:results.map(r=>[...r]),probe:true,msg:`try "${piece}" → ${ok?'palindrome ✓':'not palindrome ×'}.`});
+          if(ok){ stack.push(piece);
+            f.push({start,end,piece,push:true,stack:[...stack],results:results.map(r=>[...r]),msg:`push "${piece}" → recurse(${end+1}).`});
+            rec(end+1);
+            stack.pop();
+            f.push({start,end,piece,pop:true,stack:[...stack],results:results.map(r=>[...r]),msg:`backtrack → pop "${piece}".`});
+          }
+        }
+      }
+      f.push({start:0,stack:[],results:[],msg:`init: s = "${s}".`});
+      rec(0);
+      f.push({stack:[],results:results.map(r=>[...r]),done:true,msg:`Done ✓ ${results.length} partitions.`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); note.innerHTML='s = "aab". Try every prefix; recurse only when palindrome.'; draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      // string with start/end highlighting
+      const cw=70, ox=W/2-s.length*cw/2, y=30;
+      for(let i=0;i<s.length;i++){ const x=ox+i*cw;
+        const inWin = fr.start!==undefined && fr.end!==undefined && i>=fr.start && i<=fr.end;
+        const isStart = fr.start===i;
+        let opt,dark=false;
+        if(inWin){ opt={grad: fr.ok===false?['#ff7b7b','#d44545']:['#f6d04a','#e0a91e'], glow: fr.ok===false?'rgba(255,107,107,.45)':'rgba(245,200,66,.55)', border:'rgba(255,255,255,.85)'}; dark=true; }
+        else if(fr.start!==undefined && i<fr.start) opt={grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.5)'};
+        else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
+        AnimKit.cell(ctx,x,y,cw-6,52,opt);
+        AnimKit.text(ctx,s[i],x+(cw-6)/2,y+27,{color:dark?'#0a1428':'#cfe0ff',font:'bold 24px JetBrains Mono'});
+        AnimKit.text(ctx,i,x+(cw-6)/2,y+72,{color:'#5a6e92',font:'10px JetBrains Mono'});
+      }
+      // current partition stack
+      AnimKit.text(ctx,'current: ['+fr.stack.map(p=>'"'+p+'"').join(', ')+']',W/2,140,{color:'#5b8dee',font:'bold 13px JetBrains Mono'});
+      // results
+      AnimKit.text(ctx,'results so far:',W/2,170,{color:'#8aa0c4',font:'bold 11px Inter'});
+      (fr.results||[]).forEach((r,k)=>{
+        AnimKit.text(ctx,(k+1)+'. ['+r.map(p=>'"'+p+'"').join(', ')+']',W/2,194+k*22,{color:'#1ad9b0',font:'bold 13px JetBrains Mono'});
+      });
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },650); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * All palindromic partitions of s via backtracking on the first cut.
  * Trick: at each level we try every possible prefix as the next piece; only palindromic
  * prefixes are taken, pruning entire subtrees of bad cuts.
  */
-List&lt;List&lt;String&gt;&gt; palindromePartitioning(String text){
-  List&lt;List&lt;String&gt;&gt; allPartitions = new ArrayList&lt;&gt;();
-  backtrack(text, 0, new ArrayDeque&lt;&gt;(), allPartitions);
-  return allPartitions;
+List&lt;List&lt;String&gt;&gt; palindromePartitioning(String s){
+  List&lt;List&lt;String&gt;&gt; res = new ArrayList&lt;&gt;();
+  backtrack(s, 0, new ArrayDeque&lt;&gt;(), res);
+  return res;
 }
 
-private void backtrack(String text, int startIdx, Deque&lt;String&gt; currentPartition,
-                       List&lt;List&lt;String&gt;&gt; allPartitions){
-  if(startIdx == text.length()){
-    allPartitions.add(new ArrayList&lt;&gt;(currentPartition));
+private void backtrack(String s, int i, Deque&lt;String&gt; path,
+                       List&lt;List&lt;String&gt;&gt; res){
+  if(i == s.length()){
+    res.add(new ArrayList&lt;&gt;(path));
     return;
   }
-  for(int endIdx = startIdx; endIdx &lt; text.length(); endIdx++){
-    if(!isPalindromeRange(text, startIdx, endIdx)) continue;       // prune non-palindrome
+  for(int j = i; j &lt; s.length(); j++){
+    if(!isPal(s, i, j)) continue;       // prune non-palindrome
 
-    currentPartition.addLast(text.substring(startIdx, endIdx + 1));
-    backtrack(text, endIdx + 1, currentPartition, allPartitions);
-    currentPartition.removeLast();
+    path.addLast(s.substring(i, j + 1));
+    backtrack(s, j + 1, path, res);
+    path.removeLast();
   }
 }
 
-private boolean isPalindromeRange(String text, int lo, int hi){
-  while(lo &lt; hi) if(text.charAt(lo++) != text.charAt(hi--)) return false;
+private boolean isPal(String s, int lo, int hi){
+  while(lo &lt; hi) if(s.charAt(lo++) != s.charAt(hi--)) return false;
   return true;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(2ⁿ·n)</b></div><div>Space <b>O(n)</b> depth</div></div>
@@ -857,41 +1588,118 @@ flowchart TD
   R --> U["unmark on return"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-10" class="anim-canvas" width="720" height="360"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM10.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM10.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM10.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-10">3×3 maze (1 = open). Try moves in D,L,R,U order.</div>
+  </div>
+  <script>
+  const ANIM10 = (function(){
+    const cv=document.getElementById('animc-10');
+    const note=document.getElementById('anim-note-10');
+    const G=[[1,0,1],[1,1,1],[0,1,1]];
+    const N=3;
+    const dirs=[['D',1,0],['L',0,-1],['R',0,1],['U',-1,0]];
+    function build(){
+      const f=[], paths=[];
+      const vis=Array.from({length:N},()=>Array(N).fill(false));
+      const path=[];
+      function dfs(r,c){
+        if(G[r][c]===0||vis[r][c]) return;
+        vis[r][c]=true; path.push([r,c]);
+        f.push({r,c,vis:vis.map(r=>[...r]),path:[...path],paths:paths.map(p=>p.slice()),mark:true,msg:`enter (${r},${c}); mark visited.`});
+        if(r===N-1&&c===N-1){ paths.push(path.map(p=>p.join(',')).join(' → '));
+          f.push({r,c,vis:vis.map(r=>[...r]),path:[...path],paths:paths.map(p=>p.slice()),save:true,msg:`reached goal! save path.`});
+        } else {
+          for(const [d,dr,dc] of dirs){
+            const nr=r+dr,nc=c+dc;
+            if(nr<0||nr>=N||nc<0||nc>=N) continue;
+            f.push({r,c,vis:vis.map(r=>[...r]),path:[...path],paths:paths.map(p=>p.slice()),probe:[nr,nc],dir:d,msg:`try ${d} → (${nr},${nc}).`});
+            dfs(nr,nc);
+          }
+        }
+        vis[r][c]=false; path.pop();
+        f.push({r,c,vis:vis.map(r=>[...r]),path:[...path],paths:paths.map(p=>p.slice()),back:true,msg:`backtrack from (${r},${c}); unmark.`});
+      }
+      f.push({vis:vis.map(r=>[...r]),path:[],paths:[],msg:'start at (0,0).'});
+      dfs(0,0);
+      f.push({vis:vis.map(r=>[...r]),path:[],paths:paths.map(p=>p.slice()),done:true,msg:`Done ✓ ${paths.length} path(s).`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); note.innerHTML='3×3 maze (1 = open). Try moves in D,L,R,U order.'; draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      const cs=64, gx=W/2-N*cs/2, gy=20;
+      const onPath = new Set((fr.path||[]).map(([r,c])=>r+','+c));
+      for(let i=0;i<N;i++) for(let j=0;j<N;j++){
+        const x=gx+j*cs, y=gy+i*cs;
+        const closed=G[i][j]===0;
+        const isCur=fr.r===i&&fr.c===j;
+        const onP=onPath.has(i+','+j);
+        const isProbe=fr.probe&&fr.probe[0]===i&&fr.probe[1]===j;
+        let opt,dark=false;
+        if(closed) opt={grad:['#1f1530','#150e22'],border:'rgba(167,139,250,.25)'};
+        else if(isCur){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.55)',border:'rgba(245,200,66,.9)'}; dark=true; }
+        else if(isProbe){ opt={grad:['#5b8dee','#3a6fd0'],border:'rgba(91,141,238,.85)'}; dark=true; }
+        else if(onP) opt={grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.6)'};
+        else opt={grad:['#13213d','#0e1a30'],border:'rgba(91,141,238,.3)'};
+        AnimKit.cell(ctx,x,y,cs-4,cs-4,opt);
+        AnimKit.text(ctx,closed?'█':(i===N-1&&j===N-1?'G':onP?'•':''),x+(cs-4)/2,y+(cs-4)/2,{color:closed?'#3d2055':dark?'#0a1428':'#1ad9b0',font:'bold 22px JetBrains Mono'});
+        AnimKit.text(ctx,'('+i+','+j+')',x+(cs-4)/2,y+cs-12,{color:'#5a6e92',font:'9px JetBrains Mono'});
+      }
+      AnimKit.text(ctx,'paths found:',W/2,gy+N*cs+16,{color:'#8aa0c4',font:'bold 11px Inter'});
+      (fr.paths||[]).forEach((p,k)=>{ AnimKit.text(ctx,(k+1)+'. '+p,W/2,gy+N*cs+38+k*20,{color:'#1ad9b0',font:'bold 12px JetBrains Mono'}); });
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },550); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Enumerate all paths from (0,0) to (n-1,n-1) in lexicographic move order.
  * Trick: visiting directions in alphabetical order (D, L, R, U) makes the output list
  * naturally sorted without a final sort step.
  */
-List&lt;String&gt; ratInAMaze(int[][] mazeGrid, int gridSize){
-  List&lt;String&gt; allPaths = new ArrayList&lt;&gt;();
-  if(mazeGrid[0][0] == 0) return allPaths;
-  boolean[][] visited = new boolean[gridSize][gridSize];
-  dfsExplore(0, 0, mazeGrid, gridSize, visited, new StringBuilder(), allPaths);
-  return allPaths;
+List&lt;String&gt; ratInAMaze(int[][] grid, int n){
+  List&lt;String&gt; res = new ArrayList&lt;&gt;();
+  if(grid[0][0] == 0) return res;
+  boolean[][] visited = new boolean[n][n];
+  dfs(0, 0, grid, n, visited, new StringBuilder(), res);
+  return res;
 }
 
-private static final int[] ROW_DELTA = { 1, 0, 0, -1};      // D, L, R, U
-private static final int[] COL_DELTA = { 0,-1, 1,  0};
-private static final char[] MOVE_LET = {'D','L','R','U'};
+private static final int[] DR = { 1, 0, 0, -1};      // D, L, R, U
+private static final int[] DC = { 0,-1, 1,  0};
+private static final char[] MOVES = {'D','L','R','U'};
 
-private void dfsExplore(int row, int col, int[][] mazeGrid, int gridSize,
-                        boolean[][] visited, StringBuilder pathSoFar, List&lt;String&gt; allPaths){
-  if(row == gridSize - 1 &amp;&amp; col == gridSize - 1){
-    allPaths.add(pathSoFar.toString());
+private void dfs(int r, int c, int[][] grid, int n,
+                 boolean[][] visited, StringBuilder path, List&lt;String&gt; res){
+  if(r == n - 1 &amp;&amp; c == n - 1){
+    res.add(path.toString());
     return;
   }
-  visited[row][col] = true;
+  visited[r][c] = true;
   for(int dir = 0; dir &lt; 4; dir++){
-    int nextRow = row + ROW_DELTA[dir], nextCol = col + COL_DELTA[dir];
-    if(nextRow &gt;= 0 &amp;&amp; nextRow &lt; gridSize &amp;&amp; nextCol &gt;= 0 &amp;&amp; nextCol &lt; gridSize
-       &amp;&amp; !visited[nextRow][nextCol] &amp;&amp; mazeGrid[nextRow][nextCol] == 1){
-      pathSoFar.append(MOVE_LET[dir]);
-      dfsExplore(nextRow, nextCol, mazeGrid, gridSize, visited, pathSoFar, allPaths);
-      pathSoFar.deleteCharAt(pathSoFar.length() - 1);
+    int nr = r + DR[dir], nc = c + DC[dir];
+    if(nr &gt;= 0 &amp;&amp; nr &lt; n &amp;&amp; nc &gt;= 0 &amp;&amp; nc &lt; n
+       &amp;&amp; !visited[nr][nc] &amp;&amp; grid[nr][nc] == 1){
+      path.append(MOVES[dir]);
+      dfs(nr, nc, grid, n, visited, path, res);
+      path.deleteCharAt(path.length() - 1);
     }
   }
-  visited[row][col] = false;
+  visited[r][c] = false;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(4^(n²))</b> worst</div><div>Space <b>O(n²)</b></div></div>
 </article>
@@ -949,6 +1757,84 @@ flowchart TD
   V -- "leftB &gt; rightA" --> R["grow cutA right"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-11" class="anim-canvas" width="720" height="320"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM11.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM11.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM11.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">cutA <b id="a11ca">–</b> · cutB <b id="a11cb">–</b></div>
+    <div class="anim-note" id="anim-note-11">A=[1,3], B=[2,4,5]. Binary search the cut in A.</div>
+  </div>
+  <script>
+  const ANIM11 = (function(){
+    const cv=document.getElementById('animc-11');
+    const note=document.getElementById('anim-note-11');
+    const A=[1,3], B=[2,4,5];
+    function build(){
+      const f=[]; const m=A.length,n=B.length, half=Math.floor((m+n+1)/2);
+      let lo=0,hi=m;
+      f.push({lo,hi,msg:`init lo=0, hi=${m}, half=${half}.`});
+      while(lo<=hi){
+        const cutA=(lo+hi)>>1, cutB=half-cutA;
+        const leftA=cutA===0?-Infinity:A[cutA-1], rightA=cutA===m?Infinity:A[cutA];
+        const leftB=cutB===0?-Infinity:B[cutB-1], rightB=cutB===n?Infinity:B[cutB];
+        f.push({lo,hi,cutA,cutB,leftA,rightA,leftB,rightB,probe:true,msg:`cutA=${cutA}, cutB=${cutB}. leftA=${leftA}, rightA=${rightA}, leftB=${leftB}, rightB=${rightB}.`});
+        if(leftA<=rightB && leftB<=rightA){
+          const odd=((m+n)&1)===1;
+          const median = odd? Math.max(leftA,leftB) : (Math.max(leftA,leftB)+Math.min(rightA,rightB))/2;
+          f.push({lo,hi,cutA,cutB,leftA,rightA,leftB,rightB,done:true,median,msg:`valid → median = ${median}.`});
+          break;
+        } else if(leftA>rightB){ hi=cutA-1; f.push({lo,hi,cutA,cutB,shrink:'hi',msg:`leftA &gt; rightB → hi = ${hi}.`}); }
+        else { lo=cutA+1; f.push({lo,hi,cutA,cutB,shrink:'lo',msg:`leftB &gt; rightA → lo = ${lo}.`}); }
+      }
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); update(); note.innerHTML='A=[1,3], B=[2,4,5]. Binary search the cut in A.'; draw(); }
+    function update(){ const fr=frames[idx]; document.getElementById('a11ca').textContent=fr.cutA!==undefined?fr.cutA:'–'; document.getElementById('a11cb').textContent=fr.cutB!==undefined?fr.cutB:'–'; }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      function row(label,arr,cut,y,col){
+        const cw=72, ox=120;
+        AnimKit.text(ctx,label,ox-14,y+24,{color:col,font:'bold 13px Inter',align:'right'});
+        for(let i=0;i<arr.length;i++){ const x=ox+i*cw;
+          const isLeft = cut!==undefined && i===cut-1;
+          const isRight = cut!==undefined && i===cut;
+          let opt,dark=false;
+          if(isLeft){ opt={grad:['#5b8dee','#3a6fd0'],border:'rgba(91,141,238,.85)'}; dark=true; }
+          else if(isRight){ opt={grad:['#a78bfa','#7c5edb'],border:'rgba(167,139,250,.85)'}; dark=true; }
+          else if(cut!==undefined && i<cut) opt={grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.4)'};
+          else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
+          AnimKit.cell(ctx,x,y,cw-8,46,opt);
+          AnimKit.text(ctx,arr[i],x+(cw-8)/2,y+24,{color:dark?'#0a1428':'#cfe0ff',font:'bold 18px JetBrains Mono'});
+        }
+        // cut line
+        if(cut!==undefined){ const cx=ox+cut*cw-4;
+          ctx.strokeStyle='#f5c842'; ctx.lineWidth=2; ctx.setLineDash([4,3]);
+          ctx.beginPath(); ctx.moveTo(cx,y-8); ctx.lineTo(cx,y+54); ctx.stroke(); ctx.setLineDash([]);
+        }
+      }
+      row('A',A,fr.cutA,30,'#5b8dee');
+      row('B',B,fr.cutB,90,'#00d4aa');
+      // status
+      AnimKit.cell(ctx,40,170,W-80,80,{grad:['#0f1f3d','#0a1428'],border:'rgba(91,141,238,.3)'});
+      AnimKit.text(ctx,`leftA=${fr.leftA===-Infinity?'-∞':fr.leftA===undefined?'–':fr.leftA}  rightA=${fr.rightA===Infinity?'+∞':fr.rightA===undefined?'–':fr.rightA}`,W/2,192,{color:'#5b8dee',font:'bold 14px JetBrains Mono'});
+      AnimKit.text(ctx,`leftB=${fr.leftB===-Infinity?'-∞':fr.leftB===undefined?'–':fr.leftB}  rightB=${fr.rightB===Infinity?'+∞':fr.rightB===undefined?'–':fr.rightB}`,W/2,214,{color:'#00d4aa',font:'bold 14px JetBrains Mono'});
+      if(fr.done) AnimKit.text(ctx,`median = ${fr.median}`,W/2,238,{color:'#f5c842',font:'bold 16px JetBrains Mono'});
+      else AnimKit.text(ctx,`lo=${fr.lo}, hi=${fr.hi}`,W/2,238,{color:'#cfe0ff',font:'bold 13px JetBrains Mono'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; update(); note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },900); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Example</div>
   <div class="approach">
     <p><b>Input:</b> <code>A = [1,3], B = [2,4,5]</code> (m=2, n=3, half=3) &nbsp;·&nbsp; <b>Output:</b> <code>3.0</code></p>
@@ -966,24 +1852,24 @@ flowchart TD
  * arrays into a left-half and right-half where every value on the left is ≤ every value
  * on the right. The median is then determined by four border values.
  */
-double findMedianSortedArrays(int[] arrayA, int[] arrayB){
-  if(arrayA.length &gt; arrayB.length) return findMedianSortedArrays(arrayB, arrayA);
+double findMedianSortedArrays(int[] a, int[] b){
+  if(a.length &gt; b.length) return findMedianSortedArrays(b, a);
 
-  int sizeA = arrayA.length, sizeB = arrayB.length;
-  int half = (sizeA + sizeB + 1) / 2;       // target size of combined left side
-  int lo = 0, hi = sizeA;
+  int m = a.length, n = b.length;
+  int half = (m + n + 1) / 2;       // target size of combined left side
+  int lo = 0, hi = m;
 
   while(lo &lt;= hi){
     int cutA = (lo + hi) / 2;
     int cutB = half - cutA;
 
-    int leftA  = (cutA == 0)      ? Integer.MIN_VALUE : arrayA[cutA - 1];
-    int rightA = (cutA == sizeA)  ? Integer.MAX_VALUE : arrayA[cutA];
-    int leftB  = (cutB == 0)      ? Integer.MIN_VALUE : arrayB[cutB - 1];
-    int rightB = (cutB == sizeB)  ? Integer.MAX_VALUE : arrayB[cutB];
+    int leftA  = (cutA == 0)  ? Integer.MIN_VALUE : a[cutA - 1];
+    int rightA = (cutA == m)  ? Integer.MAX_VALUE : a[cutA];
+    int leftB  = (cutB == 0)  ? Integer.MIN_VALUE : b[cutB - 1];
+    int rightB = (cutB == n)  ? Integer.MAX_VALUE : b[cutB];
 
     if(leftA &lt;= rightB &amp;&amp; leftB &lt;= rightA){
-      if(((sizeA + sizeB) &amp; 1) == 1) return Math.max(leftA, leftB);
+      if(((m + n) &amp; 1) == 1) return Math.max(leftA, leftB);
       return (Math.max(leftA, leftB) + Math.min(rightA, rightB)) / 2.0;
     } else if(leftA &gt; rightB){
       hi = cutA - 1;                         // need fewer from A
@@ -1044,33 +1930,113 @@ flowchart TD
   B --> W["walk freq high → low, collect until k"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-12" class="anim-canvas" width="720" height="300"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM12.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM12.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM12.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-12">nums=[1,1,1,2,2,3], k=2. Bucket sort by frequency.</div>
+  </div>
+  <script>
+  const ANIM12 = (function(){
+    const cv=document.getElementById('animc-12');
+    const note=document.getElementById('anim-note-12');
+    const nums=[1,1,1,2,2,3], k=2;
+    function build(){
+      const f=[], freq={}, n=nums.length;
+      f.push({phase:1,freq:{...freq},msg:'phase 1: count frequencies.'});
+      for(let i=0;i<n;i++){ freq[nums[i]]=(freq[nums[i]]||0)+1;
+        f.push({phase:1,freq:{...freq},i,msg:`see ${nums[i]} → freq[${nums[i]}] = ${freq[nums[i]]}.`});
+      }
+      const buckets=Array.from({length:n+1},()=>[]);
+      Object.entries(freq).forEach(([v,c])=>buckets[c].push(+v));
+      f.push({phase:2,freq:{...freq},buckets:buckets.map(b=>[...b]),msg:'phase 2: bucket by frequency.'});
+      const out=[];
+      for(let cFreq=n;cFreq>=1 && out.length<k;cFreq--){
+        if(!buckets[cFreq].length){ f.push({phase:3,freq:{...freq},buckets:buckets.map(b=>[...b]),probe:cFreq,out:[...out],msg:`bucket[${cFreq}] empty.`}); continue; }
+        for(const v of buckets[cFreq]){ if(out.length<k){ out.push(v);
+          f.push({phase:3,freq:{...freq},buckets:buckets.map(b=>[...b]),probe:cFreq,take:v,out:[...out],msg:`take ${v} from bucket[${cFreq}] → out=[${out.join(', ')}].`});
+        } }
+      }
+      f.push({phase:'done',freq:{...freq},buckets:buckets.map(b=>[...b]),out:[...out],done:true,msg:`Done ✓ top-${k} = [${out.join(', ')}].`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); note.innerHTML='nums=[1,1,1,2,2,3], k=2. Bucket sort by frequency.'; draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      // nums row
+      const cw=58, ox=W/2-nums.length*cw/2, y=20;
+      AnimKit.text(ctx,'nums',ox-12,y+22,{color:'#5b8dee',font:'bold 11px Inter',align:'right'});
+      for(let i=0;i<nums.length;i++){ const x=ox+i*cw, isCur=fr.i===i;
+        let opt,dark=false;
+        if(isCur){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.85)'}; dark=true; }
+        else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
+        AnimKit.cell(ctx,x,y,cw-6,40,opt);
+        AnimKit.text(ctx,nums[i],x+(cw-6)/2,y+20,{color:dark?'#0a1428':'#cfe0ff',font:'bold 16px JetBrains Mono'});
+      }
+      // freq map
+      AnimKit.text(ctx,'freq',60,90,{color:'#00d4aa',font:'bold 11px Inter',align:'left'});
+      const fEntries=Object.entries(fr.freq||{});
+      fEntries.forEach(([key,v],i)=>{ const x=110+i*82;
+        AnimKit.cell(ctx,x,80,72,42,{grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.5)'});
+        AnimKit.text(ctx,key+'→'+v,x+36,101,{color:'#cfe0ff',font:'bold 14px JetBrains Mono'});
+      });
+      // buckets
+      const buckets=fr.buckets||[];
+      const by=160, bw=64;
+      AnimKit.text(ctx,'buckets',60,by+22,{color:'#f5c842',font:'bold 11px Inter',align:'left'});
+      for(let cFreq=1;cFreq<buckets.length;cFreq++){ const x=140+(cFreq-1)*bw;
+        const isProbe=fr.probe===cFreq;
+        let opt,dark=false;
+        if(isProbe){ opt={grad:['#f6d04a','#e0a91e'],border:'rgba(245,200,66,.85)'}; dark=true; }
+        else opt={grad:['#13213d','#0e1a30'],border:'rgba(91,141,238,.3)'};
+        AnimKit.cell(ctx,x,by,bw-6,52,opt);
+        AnimKit.text(ctx,'#'+cFreq,x+(bw-6)/2,by+14,{color:dark?'#0a1428':'#8aa0c4',font:'bold 10px Inter'});
+        AnimKit.text(ctx,(buckets[cFreq]||[]).join(','),x+(bw-6)/2,by+34,{color:dark?'#0a1428':'#cfe0ff',font:'bold 14px JetBrains Mono'});
+      }
+      // out
+      AnimKit.text(ctx,'out = ['+(fr.out||[]).join(', ')+']',W/2,250,{color:'#1ad9b0',font:'bold 18px JetBrains Mono'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },650); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Top-k frequent elements in O(n) average via bucket sort by frequency.
  * Trick: frequencies are bounded by n, so a length-(n+1) array of buckets indexed by
  * frequency lets us "sort by frequency" in O(n) — no heap, no real sort.
  */
-int[] topKFrequent(int[] numbers, int k){
-  Map&lt;Integer, Integer&gt; frequencyByValue = new HashMap&lt;&gt;();
-  for(int value : numbers) frequencyByValue.merge(value, 1, Integer::sum);
+int[] topKFrequent(int[] nums, int k){
+  Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();
+  for(int x : nums) freq.merge(x, 1, Integer::sum);
 
-  List&lt;Integer&gt;[] valuesAtFrequency = new List[numbers.length + 1];
-  for(Map.Entry&lt;Integer, Integer&gt; entry : frequencyByValue.entrySet()){
-    int freq = entry.getValue();
-    if(valuesAtFrequency[freq] == null) valuesAtFrequency[freq] = new ArrayList&lt;&gt;();
-    valuesAtFrequency[freq].add(entry.getKey());
+  List&lt;Integer&gt;[] buckets = new List[nums.length + 1];
+  for(Map.Entry&lt;Integer, Integer&gt; e : freq.entrySet()){
+    int f = e.getValue();
+    if(buckets[f] == null) buckets[f] = new ArrayList&lt;&gt;();
+    buckets[f].add(e.getKey());
   }
 
-  int[] topK = new int[k];
-  int writeIdx = 0;
-  for(int freq = valuesAtFrequency.length - 1; freq &gt;= 1 &amp;&amp; writeIdx &lt; k; freq--){
-    if(valuesAtFrequency[freq] == null) continue;
-    for(int value : valuesAtFrequency[freq]){
-      topK[writeIdx++] = value;
-      if(writeIdx == k) break;
+  int[] ans = new int[k];
+  int j = 0;
+  for(int f = buckets.length - 1; f &gt;= 1 &amp;&amp; j &lt; k; f--){
+    if(buckets[f] == null) continue;
+    for(int x : buckets[f]){
+      ans[j++] = x;
+      if(j == k) break;
     }
   }
-  return topK;
+  return ans;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(n)</b></div></div>
 </article>
@@ -1123,28 +2089,90 @@ flowchart LR
   M -- no --> F["false"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-13" class="anim-canvas" width="720" height="230"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM13.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM13.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM13.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-13">s = "({[]})". Push openers, match closers.</div>
+  </div>
+  <script>
+  const ANIM13 = (function(){
+    const cv=document.getElementById('animc-13');
+    const note=document.getElementById('anim-note-13');
+    const s='({[]})';
+    const pair={')':'(',']':'[','}':'{'};
+    function build(){
+      const f=[], stack=[];
+      f.push({i:-1,stack:[],msg:'init empty stack.'});
+      for(let i=0;i<s.length;i++){ const ch=s[i];
+        if('([{'.includes(ch)){ stack.push(ch); f.push({i,stack:[...stack],push:ch,msg:`'${ch}' is opener → push.`}); }
+        else { const want=pair[ch], top=stack[stack.length-1];
+          if(top===want){ stack.pop(); f.push({i,stack:[...stack],pop:ch,match:true,msg:`'${ch}' matches top '${top}' → pop.`}); }
+          else { f.push({i,stack:[...stack],fail:true,msg:`'${ch}' wants '${want}', top is '${top||'∅'}' → invalid.`}); return f; }
+        }
+      }
+      f.push({i:s.length,stack:[...stack],done:true,ok:stack.length===0,msg: stack.length===0? 'Done ✓ stack empty → valid.' : `stack non-empty → invalid.`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); note.innerHTML='s = "({[]})". Push openers, match closers.'; draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      const cw=70, ox=W/2-s.length*cw/2, y=30;
+      for(let i=0;i<s.length;i++){ const x=ox+i*cw, ch=s[i], isCur=fr.i===i;
+        let opt,dark=false;
+        if(isCur && fr.fail){ opt={grad:['#ff7b7b','#d44545'],glow:'rgba(255,107,107,.45)',border:'rgba(255,107,107,.9)'}; dark=true; }
+        else if(isCur && fr.match){ opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.55)',border:'rgba(0,212,170,.85)'}; dark=true; }
+        else if(isCur){ opt={grad:['#f6d04a','#e0a91e'],border:'rgba(245,200,66,.85)'}; dark=true; }
+        else if(i<fr.i) opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.4)'};
+        else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
+        AnimKit.cell(ctx,x,y,cw-6,52,opt);
+        AnimKit.text(ctx,ch,x+(cw-6)/2,y+27,{color:dark?'#0a1428':'#cfe0ff',font:'bold 22px JetBrains Mono'});
+      }
+      // stack
+      AnimKit.text(ctx,'stack (top → right):',60,140,{color:'#8aa0c4',font:'bold 11px Inter',align:'left'});
+      const sw=46;
+      fr.stack.forEach((ch,k)=>{ const x=60+k*sw, sy=152;
+        AnimKit.cell(ctx,x,sy,sw-4,40,{grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.65)'});
+        AnimKit.text(ctx,ch,x+(sw-4)/2,sy+20,{color:'#cfe0ff',font:'bold 18px JetBrains Mono'});
+      });
+      if(fr.done) AnimKit.text(ctx,fr.ok?'✓ valid':'✗ invalid',W-90,170,{color:fr.ok?'#1ad9b0':'#ff7b7b',font:'bold 16px Inter'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },650); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Validate bracket nesting using a stack of unmatched openers.
  * Trick: every closer must match the MOST RECENT unmatched opener (LIFO) — exactly
  * what a stack provides.
  */
-boolean isValidParentheses(String text){
-  Deque&lt;Character&gt; unmatchedOpenerStack = new ArrayDeque&lt;&gt;();
+boolean isValidParentheses(String s){
+  Deque&lt;Character&gt; st = new ArrayDeque&lt;&gt;();
 
-  for(int i = 0; i &lt; text.length(); i++){
-    char ch = text.charAt(i);
-    if(ch == '(' || ch == '[' || ch == '{'){
-      unmatchedOpenerStack.push(ch);
+  for(int i = 0; i &lt; s.length(); i++){
+    char c = s.charAt(i);
+    if(c == '(' || c == '[' || c == '{'){
+      st.push(c);
     } else {
-      if(unmatchedOpenerStack.isEmpty()) return false;
-      char top = unmatchedOpenerStack.pop();
-      if((ch == ')' &amp;&amp; top != '(') ||
-         (ch == ']' &amp;&amp; top != '[') ||
-         (ch == '}' &amp;&amp; top != '{')) return false;
+      if(st.isEmpty()) return false;
+      char top = st.pop();
+      if((c == ')' &amp;&amp; top != '(') ||
+         (c == ']' &amp;&amp; top != '[') ||
+         (c == '}' &amp;&amp; top != '{')) return false;
     }
   }
-  return unmatchedOpenerStack.isEmpty();
+  return st.isEmpty();
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(n)</b></div></div>
 </article>
@@ -1200,6 +2228,79 @@ flowchart TD
   P --> W
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-14" class="anim-canvas" width="720" height="320"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM14.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM14.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM14.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">i <b id="a14i">–</b> · best <b id="a14b">0</b></div>
+    <div class="anim-note" id="anim-note-14">heights = [2,1,5,6,2,3]. Monotonic stack of bar indices.</div>
+  </div>
+  <script>
+  const ANIM14 = (function(){
+    const cv=document.getElementById('animc-14');
+    const note=document.getElementById('anim-note-14');
+    const H=[2,1,5,6,2,3];
+    function build(){
+      const f=[]; const stack=[]; let best=0; const ext=[...H,0];
+      f.push({i:-1,stack:[],best,msg:'append sentinel 0; init empty stack.'});
+      for(let i=0;i<ext.length;i++){
+        f.push({i,stack:[...stack],best,probe:true,msg:`i=${i}, h=${ext[i]}.`});
+        while(stack.length && ext[stack[stack.length-1]]>ext[i]){
+          const top=stack.pop(); const h=ext[top];
+          const newTop = stack.length? stack[stack.length-1] : -1;
+          const w = i - newTop - 1; const area = h*w;
+          best = Math.max(best,area);
+          f.push({i,stack:[...stack],best,pop:top,h,w,area,msg:`pop ${top} (h=${h}); width = ${i} - ${newTop} - 1 = ${w}; area = ${area}; best = ${best}.`});
+        }
+        stack.push(i);
+        f.push({i,stack:[...stack],best,push:i,msg:`push ${i}.`});
+      }
+      f.push({stack:[...stack],best,done:true,msg:`Done ✓ max area = ${best}.`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); update(); note.innerHTML='heights = [2,1,5,6,2,3]. Monotonic stack of bar indices.'; draw(); }
+    function update(){ const fr=frames[idx]; document.getElementById('a14i').textContent=fr.i!==undefined&&fr.i!==-1?fr.i:'–'; document.getElementById('a14b').textContent=fr.best; }
+    function draw(){
+      const {ctx,W,H2}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H2||cv.dataset.h);
+      const fr=frames[idx];
+      const ext=[...H,0];
+      const cw=78, ox=W/2-ext.length*cw/2, baseY=180, maxH=H.reduce((a,b)=>Math.max(a,b),0);
+      // bars
+      for(let i=0;i<ext.length;i++){
+        const x=ox+i*cw, h=(ext[i]/maxH)*120; const y=baseY-h;
+        const onStack=fr.stack && fr.stack.includes(i);
+        const isCur=fr.i===i;
+        const isPop=fr.pop===i;
+        let opt,dark=false;
+        if(isPop){ opt={grad:['#ff7b7b','#d44545'],glow:'rgba(255,107,107,.5)',border:'rgba(255,107,107,.85)'}; dark=true; }
+        else if(isCur){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.85)'}; dark=true; }
+        else if(onStack){ opt={grad:['#5b8dee','#3a6fd0'],border:'rgba(91,141,238,.85)'}; dark=true; }
+        else if(i===ext.length-1) opt={grad:['#1f1530','#150e22'],border:'rgba(167,139,250,.4)'};
+        else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
+        AnimKit.cell(ctx,x+8,y,cw-22,h||4,opt);
+        AnimKit.text(ctx,ext[i],x+(cw-6)/2-3,baseY+16,{color:dark?'#cfe0ff':'#8aa0c4',font:'bold 13px JetBrains Mono'});
+        AnimKit.text(ctx,i,x+(cw-6)/2-3,baseY+34,{color:'#5a6e92',font:'10px JetBrains Mono'});
+      }
+      // baseline
+      ctx.strokeStyle='rgba(91,141,238,.3)'; ctx.beginPath(); ctx.moveTo(ox,baseY); ctx.lineTo(ox+ext.length*cw,baseY); ctx.stroke();
+      // stack
+      AnimKit.text(ctx,'stack (bottom→top): ['+fr.stack.join(', ')+']',W/2,238,{color:'#5b8dee',font:'bold 13px JetBrains Mono'});
+      if(fr.area!==undefined) AnimKit.text(ctx,`area = h·w = ${fr.h}·${fr.w} = ${fr.area}`,W/2,260,{color:'#f5c842',font:'bold 13px JetBrains Mono'});
+      AnimKit.text(ctx,'best = '+fr.best,W/2,284,{color:'#1ad9b0',font:'bold 18px JetBrains Mono'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; update(); note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },650); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Largest rectangle in a histogram in O(n) using a single monotonic-increasing stack.
@@ -1207,25 +2308,24 @@ flowchart TD
  * stack (or beyond the right index i) are by definition shorter than h — they bound
  * the maximum rectangle that uses h as its limiting height.
  */
-int largestRectangleArea(int[] barHeights){
-  int barCount = barHeights.length;
-  Deque&lt;Integer&gt; increasingIdxStack = new ArrayDeque&lt;&gt;();
-  int bestArea = 0;
+int largestRectangleArea(int[] heights){
+  int n = heights.length;
+  Deque&lt;Integer&gt; st = new ArrayDeque&lt;&gt;();
+  int best = 0;
 
-  for(int i = 0; i &lt;= barCount; i++){
-    int currentBarHeight = (i == barCount) ? 0 : barHeights[i];      // sentinel flushes stack
+  for(int i = 0; i &lt;= n; i++){
+    int h = (i == n) ? 0 : heights[i];      // sentinel flushes stack
 
-    while(!increasingIdxStack.isEmpty()
-          &amp;&amp; barHeights[increasingIdxStack.peek()] &gt; currentBarHeight){
-      int poppedIdx     = increasingIdxStack.pop();
-      int poppedHeight  = barHeights[poppedIdx];
-      int leftBoundIdx  = increasingIdxStack.isEmpty() ? -1 : increasingIdxStack.peek();
-      int widthForPopped = i - leftBoundIdx - 1;
-      bestArea = Math.max(bestArea, poppedHeight * widthForPopped);
+    while(!st.isEmpty() &amp;&amp; heights[st.peek()] &gt; h){
+      int top   = st.pop();
+      int ph    = heights[top];
+      int left  = st.isEmpty() ? -1 : st.peek();
+      int width = i - left - 1;
+      best = Math.max(best, ph * width);
     }
-    increasingIdxStack.push(i);
+    st.push(i);
   }
-  return bestArea;
+  return best;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(n)</b></div></div>
 </article>
@@ -1278,37 +2378,107 @@ flowchart LR
   DG --> CL["clamp to INT_MIN / INT_MAX on overflow"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-15" class="anim-canvas" width="720" height="260"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM15.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM15.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM15.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">sign <b id="a15s">+1</b> · result <b id="a15r">0</b></div>
+    <div class="anim-note" id="anim-note-15">s = "   -42abc". Skip ws → sign → digits → clamp.</div>
+  </div>
+  <script>
+  const ANIM15 = (function(){
+    const cv=document.getElementById('animc-15');
+    const note=document.getElementById('anim-note-15');
+    const s='   -42abc';
+    const INTMAX=2147483647, INTMIN=-2147483648;
+    function build(){
+      const f=[]; let i=0,sign=1,res=0,phase='ws';
+      f.push({i,sign,res,phase,msg:`init: phase=skip whitespace.`});
+      while(i<s.length && s[i]===' '){ f.push({i,sign,res,phase,msg:`skip ws @${i}.`}); i++; }
+      phase='sign';
+      if(i<s.length && (s[i]==='+'||s[i]==='-')){ sign = s[i]==='-'?-1:1; f.push({i,sign,res,phase,read:true,msg:`read sign '${s[i]}' → sign=${sign}.`}); i++; }
+      else f.push({i,sign,res,phase,msg:`no explicit sign → +1.`});
+      phase='digits';
+      while(i<s.length && s[i]>='0' && s[i]<='9'){
+        const d=+s[i];
+        // overflow guard
+        if(res > Math.floor((INTMAX-d)/10)){ res = sign===1? INTMAX:INTMIN; f.push({i,sign,res,phase,clamp:true,msg:`overflow → clamp to ${res}.`}); i=s.length; break; }
+        res = res*10 + d;
+        f.push({i,sign,res,phase,read:true,msg:`digit '${d}' → res = res*10 + ${d} = ${res}.`});
+        i++;
+      }
+      phase='done';
+      const final = res*sign;
+      f.push({i,sign,res:final,phase,done:true,msg:`Done ✓ final = sign * res = ${final}.`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); update(); note.innerHTML=`s = "${s.replace(/ /g,'␣')}". Skip ws → sign → digits → clamp.`; draw(); }
+    function update(){ const fr=frames[idx]; document.getElementById('a15s').textContent=(fr.sign>=0?'+':'')+fr.sign; document.getElementById('a15r').textContent=fr.res; }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      const cw=58, ox=W/2-s.length*cw/2, y=40;
+      for(let i=0;i<s.length;i++){ const x=ox+i*cw, ch=s[i], isCur=fr.i===i, was=i<fr.i;
+        let opt,dark=false;
+        if(isCur && fr.read){ opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.5)',border:'rgba(0,212,170,.85)'}; dark=true; }
+        else if(isCur){ opt={grad:['#f6d04a','#e0a91e'],border:'rgba(245,200,66,.85)'}; dark=true; }
+        else if(was) opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.4)'};
+        else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
+        AnimKit.cell(ctx,x,y,cw-6,52,opt);
+        AnimKit.text(ctx,ch===' '?'␣':ch,x+(cw-6)/2,y+27,{color:dark?'#0a1428':'#cfe0ff',font:'bold 22px JetBrains Mono'});
+        AnimKit.text(ctx,i,x+(cw-6)/2,y+72,{color:'#5a6e92',font:'10px JetBrains Mono'});
+      }
+      // phase pill
+      const phaseColors={ws:'#5b8dee',sign:'#a78bfa',digits:'#f5c842',done:'#1ad9b0'};
+      AnimKit.text(ctx,'phase: '+fr.phase,W/2,140,{color:phaseColors[fr.phase]||'#cfe0ff',font:'bold 14px Inter'});
+      AnimKit.cell(ctx,W/2-160,160,320,64,{grad:['#0f1f3d','#0a1428'],border:'rgba(91,141,238,.3)'});
+      AnimKit.text(ctx,'sign × result',W/2,180,{color:'#8aa0c4',font:'bold 11px Inter'});
+      AnimKit.text(ctx,(fr.sign>=0?'+':'')+fr.sign+'  ×  '+fr.res,W/2,208,{color:'#1ad9b0',font:'bold 22px JetBrains Mono'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; update(); note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },650); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Robust atoi with explicit overflow detection.
- * Trick: before doing accumulator = accumulator * 10 + digit, verify accumulator is
- * &lt;= (INT_MAX - digit) / 10. If not, clamp immediately — no 64-bit arithmetic needed.
+ * Trick: before doing res = res * 10 + d, verify res is
+ * &lt;= (INT_MAX - d) / 10. If not, clamp immediately — no 64-bit arithmetic needed.
  */
-int myAtoi(String text){
-  int length = text.length();
-  int cursor = 0;
+int myAtoi(String s){
+  int n = s.length();
+  int i = 0;
 
-  while(cursor &lt; length &amp;&amp; text.charAt(cursor) == ' ') cursor++;          // skip whitespace
-  if(cursor == length) return 0;
+  while(i &lt; n &amp;&amp; s.charAt(i) == ' ') i++;          // skip whitespace
+  if(i == n) return 0;
 
-  int signMultiplier = 1;
-  if(text.charAt(cursor) == '+' || text.charAt(cursor) == '-'){
-    signMultiplier = (text.charAt(cursor) == '-') ? -1 : 1;
-    cursor++;
+  int sign = 1;
+  if(s.charAt(i) == '+' || s.charAt(i) == '-'){
+    sign = (s.charAt(i) == '-') ? -1 : 1;
+    i++;
   }
 
-  int accumulator = 0;
-  while(cursor &lt; length &amp;&amp; Character.isDigit(text.charAt(cursor))){
-    int digit = text.charAt(cursor) - '0';
+  int res = 0;
+  while(i &lt; n &amp;&amp; Character.isDigit(s.charAt(i))){
+    int d = s.charAt(i) - '0';
 
     // overflow guard BEFORE multiplying
-    if(accumulator &gt; (Integer.MAX_VALUE - digit) / 10){
-      return (signMultiplier == 1) ? Integer.MAX_VALUE : Integer.MIN_VALUE;
+    if(res &gt; (Integer.MAX_VALUE - d) / 10){
+      return (sign == 1) ? Integer.MAX_VALUE : Integer.MIN_VALUE;
     }
-    accumulator = accumulator * 10 + digit;
-    cursor++;
+    res = res * 10 + d;
+    i++;
   }
-  return accumulator * signMultiplier;
+  return res * sign;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
 </article>
@@ -1360,6 +2530,71 @@ flowchart LR
   D --> E["111221"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-16" class="anim-canvas" width="720" height="260"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM16.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM16.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM16.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-16">n = 5. Build each generation by run-length describing the previous.</div>
+  </div>
+  <script>
+  const ANIM16 = (function(){
+    const cv=document.getElementById('animc-16');
+    const note=document.getElementById('anim-note-16');
+    const N=5;
+    function build(){
+      const f=[]; let cur='1'; const history=[cur];
+      f.push({gen:1,cur,history:[...history],msg:`generation 1: "${cur}".`});
+      for(let g=2;g<=N;g++){
+        let next=''; let i=0;
+        while(i<cur.length){
+          let j=i; while(j<cur.length && cur[j]===cur[i]) j++;
+          const cnt=j-i, ch=cur[i];
+          next += cnt+ch;
+          f.push({gen:g,cur,next,runStart:i,runEnd:j-1,history:[...history],msg:`run "${ch}".repeat(${cnt}) → append "${cnt}${ch}".`});
+          i=j;
+        }
+        cur=next; history.push(cur);
+        f.push({gen:g,cur,history:[...history],msg:`generation ${g}: "${cur}".`});
+      }
+      f.push({gen:N,cur,history:[...history],done:true,msg:`Done ✓ term[${N}] = "${cur}".`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); note.innerHTML=`n = ${N}. Build each generation by run-length describing the previous.`; draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      // history list
+      AnimKit.text(ctx,'history',W/2,16,{color:'#8aa0c4',font:'bold 11px Inter'});
+      (fr.history||[]).forEach((s,k)=>{
+        AnimKit.text(ctx,`gen ${k+1}: "${s}"`,W/2,38+k*20,{color:k===fr.history.length-1?'#1ad9b0':'#cfe0ff',font:'bold 14px JetBrains Mono'});
+      });
+      // current run highlighting
+      if(fr.cur && fr.runStart!==undefined){
+        const cw=44, ox=W/2-fr.cur.length*cw/2, y=160;
+        for(let i=0;i<fr.cur.length;i++){ const x=ox+i*cw, ch=fr.cur[i];
+          const inRun = i>=fr.runStart && i<=fr.runEnd;
+          let opt,dark=false;
+          if(inRun){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.85)'}; dark=true; }
+          else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
+          AnimKit.cell(ctx,x,y,cw-4,40,opt);
+          AnimKit.text(ctx,ch,x+(cw-4)/2,y+20,{color:dark?'#0a1428':'#cfe0ff',font:'bold 18px JetBrains Mono'});
+        }
+        AnimKit.text(ctx,'→ next so far: "'+(fr.next||'')+'"',W/2,222,{color:'#1ad9b0',font:'bold 14px JetBrains Mono'});
+      }
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },700); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * n-th term of the Count-and-Say sequence built by iterative run-length describe.
@@ -1367,22 +2602,22 @@ flowchart LR
  * consecutive characters into "count + char".
  */
 String countAndSay(int n){
-  String currentTerm = "1";
-  for(int generation = 2; generation &lt;= n; generation++){
-    StringBuilder nextTerm = new StringBuilder();
+  String cur = "1";
+  for(int g = 2; g &lt;= n; g++){
+    StringBuilder next = new StringBuilder();
 
-    int runStart = 0;
-    while(runStart &lt; currentTerm.length()){
-      int runEnd = runStart;
-      while(runEnd &lt; currentTerm.length() &amp;&amp; currentTerm.charAt(runEnd) == currentTerm.charAt(runStart)){
-        runEnd++;
+    int i = 0;
+    while(i &lt; cur.length()){
+      int j = i;
+      while(j &lt; cur.length() &amp;&amp; cur.charAt(j) == cur.charAt(i)){
+        j++;
       }
-      nextTerm.append(runEnd - runStart).append(currentTerm.charAt(runStart));
-      runStart = runEnd;
+      next.append(j - i).append(cur.charAt(i));
+      i = j;
     }
-    currentTerm = nextTerm.toString();
+    cur = next.toString();
   }
-  return currentTerm;
+  return cur;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n · |term|)</b></div><div>Space <b>O(|term|)</b></div></div>
 </article>
@@ -1438,6 +2673,74 @@ flowchart TD
   S --> L
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-17" class="anim-canvas" width="720" height="320"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM17.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM17.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM17.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-17">Tree: 1[2[4,5],3[null,7]]. Preorder DFS picks first node at each new depth.</div>
+  </div>
+  <script>
+  const ANIM17 = (function(){
+    const cv=document.getElementById('animc-17');
+    const note=document.getElementById('anim-note-17');
+    // tree: 1 / 2,3 / 4,5,_,7
+    const T={v:1,l:{v:2,l:{v:4},r:{v:5}},r:{v:3,r:{v:7}}};
+    const POS={1:{x:360,y:50},2:{x:200,y:130},3:{x:520,y:130},4:{x:120,y:210},5:{x:280,y:210},7:{x:600,y:210}};
+    function build(){
+      const f=[], result=[];
+      function dfs(n,d){
+        if(!n){ f.push({cur:null,d,result:[...result],msg:`null → return.`}); return; }
+        f.push({cur:n.v,d,result:[...result],probe:true,msg:`visit ${n.v} at depth ${d}.`});
+        if(d===result.length){ result.push(n.v); f.push({cur:n.v,d,result:[...result],pick:true,msg:`first at depth ${d} → add ${n.v}.`}); }
+        else f.push({cur:n.v,d,result:[...result],msg:`already have a node at depth ${d} → skip.`});
+        if(n.l) dfs(n.l,d+1);
+        if(n.r) dfs(n.r,d+1);
+      }
+      f.push({result:[],msg:'init.'});
+      dfs(T,0);
+      f.push({result:[...result],done:true,msg:`Done ✓ left view = [${result.join(', ')}].`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); note.innerHTML='Tree: 1[2[4,5],3[null,7]]. Preorder DFS picks first node at each new depth.'; draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      const edges=[[1,2],[1,3],[2,4],[2,5],[3,7]];
+      edges.forEach(([a,b])=>{ const pa=POS[a], pb=POS[b];
+        ctx.strokeStyle='rgba(91,141,238,.3)'; ctx.lineWidth=1.4;
+        ctx.beginPath(); ctx.moveTo(pa.x,pa.y); ctx.lineTo(pb.x,pb.y); ctx.stroke();
+      });
+      Object.entries(POS).forEach(([id,p])=>{ const v=+id;
+        const isCur=fr.cur===v, isPick=fr.pick&&fr.cur===v, inResult=fr.result&&fr.result.includes(v);
+        ctx.save();
+        if(isPick){ ctx.shadowColor='rgba(0,212,170,.55)'; ctx.shadowBlur=14; }
+        else if(isCur){ ctx.shadowColor='rgba(245,200,66,.55)'; ctx.shadowBlur=14; }
+        const g=ctx.createLinearGradient(p.x,p.y-22,p.x,p.y+22);
+        if(isPick){ g.addColorStop(0,'#1ad9b0'); g.addColorStop(1,'#0aa37e'); }
+        else if(isCur){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+        else if(inResult){ g.addColorStop(0,'#0f3a33'); g.addColorStop(1,'#0c2b27'); }
+        else { g.addColorStop(0,'#15294e'); g.addColorStop(1,'#0f1f3d'); }
+        ctx.beginPath(); ctx.arc(p.x,p.y,21,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(p.x,p.y,21,0,Math.PI*2);
+        ctx.strokeStyle=(isPick||isCur)?'rgba(255,255,255,.6)':inResult?'rgba(0,212,170,.7)':'rgba(255,255,255,.12)'; ctx.lineWidth=1.4; ctx.stroke();
+        AnimKit.text(ctx,v,p.x,p.y,{color:(isPick||isCur)?'#0a1428':'#e6edf7',font:'bold 14px JetBrains Mono'});
+      });
+      AnimKit.text(ctx,'left view = ['+(fr.result||[]).join(', ')+']',W/2,290,{color:'#1ad9b0',font:'bold 16px JetBrains Mono'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },650); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Left view via preorder DFS tracking depth.
@@ -1445,16 +2748,16 @@ flowchart TD
  * each new depth is the leftmost at that depth — exactly the left view.
  */
 List&lt;Integer&gt; leftViewOfBinaryTree(TreeNode root){
-  List&lt;Integer&gt; leftViewValues = new ArrayList&lt;&gt;();
-  dfsCollectFirstAtDepth(root, 0, leftViewValues);
-  return leftViewValues;
+  List&lt;Integer&gt; res = new ArrayList&lt;&gt;();
+  dfs(root, 0, res);
+  return res;
 }
 
-private void dfsCollectFirstAtDepth(TreeNode node, int depth, List&lt;Integer&gt; leftViewValues){
+private void dfs(TreeNode node, int d, List&lt;Integer&gt; res){
   if(node == null) return;
-  if(depth == leftViewValues.size()) leftViewValues.add(node.val);   // first hit at this depth
-  dfsCollectFirstAtDepth(node.left,  depth + 1, leftViewValues);
-  dfsCollectFirstAtDepth(node.right, depth + 1, leftViewValues);
+  if(d == res.size()) res.add(node.val);   // first hit at this depth
+  dfs(node.left,  d + 1, res);
+  dfs(node.right, d + 1, res);
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b></div></div>
 </article>
@@ -1506,6 +2809,82 @@ flowchart TD
   L1 --> L2 --> L3
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-18" class="anim-canvas" width="720" height="340"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM18.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM18.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM18.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-note" id="anim-note-18">Tree 3[9,20[15,7]]. BFS with direction toggle.</div>
+  </div>
+  <script>
+  const ANIM18 = (function(){
+    const cv=document.getElementById('animc-18');
+    const note=document.getElementById('anim-note-18');
+    const T={v:3,l:{v:9},r:{v:20,l:{v:15},r:{v:7}}};
+    const POS={3:{x:360,y:40},9:{x:220,y:120},20:{x:500,y:120},15:{x:430,y:200},7:{x:570,y:200}};
+    function build(){
+      const f=[], levels=[];
+      let q=[T], dir=true;
+      f.push({q:q.map(n=>n.v),dir,levels:[],msg:'init queue=[3], direction L→R.'});
+      while(q.length){
+        const sz=q.length, lvl=[];
+        for(let i=0;i<sz;i++){
+          const n=q.shift();
+          if(dir) lvl.push(n.v); else lvl.unshift(n.v);
+          f.push({q:q.map(x=>x.v),dir,cur:n.v,levels:[...levels.map(x=>[...x]),[...lvl]],msg:`poll ${n.v}; ${dir?'addLast':'addFirst'} → lvl=[${lvl.join(', ')}].`});
+          if(n.l) q.push(n.l);
+          if(n.r) q.push(n.r);
+        }
+        levels.push(lvl);
+        f.push({q:q.map(x=>x.v),dir,levels:levels.map(x=>[...x]),done_level:true,msg:`level done → [${lvl.join(', ')}]; toggle direction.`});
+        dir=!dir;
+      }
+      f.push({levels:levels.map(x=>[...x]),done:true,msg:`Done ✓ zigzag = ${JSON.stringify(levels)}.`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); note.innerHTML='Tree 3[9,20[15,7]]. BFS with direction toggle.'; draw(); }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      const edges=[[3,9],[3,20],[20,15],[20,7]];
+      edges.forEach(([a,b])=>{ const pa=POS[a], pb=POS[b];
+        ctx.strokeStyle='rgba(91,141,238,.3)'; ctx.lineWidth=1.4;
+        ctx.beginPath(); ctx.moveTo(pa.x,pa.y); ctx.lineTo(pb.x,pb.y); ctx.stroke();
+      });
+      Object.entries(POS).forEach(([id,p])=>{ const v=+id;
+        const isCur=fr.cur===v, inQ=fr.q&&fr.q.includes(v);
+        ctx.save();
+        if(isCur){ ctx.shadowColor='rgba(245,200,66,.55)'; ctx.shadowBlur=14; }
+        const g=ctx.createLinearGradient(p.x,p.y-21,p.x,p.y+21);
+        if(isCur){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+        else if(inQ){ g.addColorStop(0,'#1f3b6e'); g.addColorStop(1,'#16294e'); }
+        else { g.addColorStop(0,'#15294e'); g.addColorStop(1,'#0f1f3d'); }
+        ctx.beginPath(); ctx.arc(p.x,p.y,20,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(p.x,p.y,20,0,Math.PI*2);
+        ctx.strokeStyle=isCur?'rgba(255,255,255,.6)':inQ?'rgba(91,141,238,.7)':'rgba(255,255,255,.12)'; ctx.lineWidth=1.4; ctx.stroke();
+        AnimKit.text(ctx,v,p.x,p.y,{color:isCur?'#0a1428':'#e6edf7',font:'bold 14px JetBrains Mono'});
+      });
+      // direction badge
+      AnimKit.text(ctx,'direction: '+(fr.dir?'L→R':'R→L'),W-90,30,{color:fr.dir?'#5b8dee':'#a78bfa',font:'bold 13px Inter'});
+      // levels output
+      AnimKit.text(ctx,'result:',60,260,{color:'#8aa0c4',font:'bold 12px Inter',align:'left'});
+      (fr.levels||[]).forEach((lvl,k)=>{
+        AnimKit.text(ctx,`[${lvl.join(', ')}]`,60,282+k*22,{color:'#1ad9b0',font:'bold 14px JetBrains Mono',align:'left'});
+      });
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },700); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Zig-zag level order traversal via BFS + a per-level Deque.
@@ -1513,29 +2892,29 @@ flowchart TD
  * direction flag between levels avoids an explicit reverse step.
  */
 List&lt;List&lt;Integer&gt;&gt; zigzagLevelOrder(TreeNode root){
-  List&lt;List&lt;Integer&gt;&gt; allLevels = new ArrayList&lt;&gt;();
-  if(root == null) return allLevels;
+  List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();
+  if(root == null) return res;
 
-  Deque&lt;TreeNode&gt; bfsQueue = new ArrayDeque&lt;&gt;();
-  bfsQueue.offer(root);
-  boolean leftToRight = true;
+  Deque&lt;TreeNode&gt; q = new ArrayDeque&lt;&gt;();
+  q.offer(root);
+  boolean ltr = true;
 
-  while(!bfsQueue.isEmpty()){
-    int levelSize = bfsQueue.size();
-    Deque&lt;Integer&gt; levelDeque = new ArrayDeque&lt;&gt;();
+  while(!q.isEmpty()){
+    int sz = q.size();
+    Deque&lt;Integer&gt; dq = new ArrayDeque&lt;&gt;();
 
-    for(int i = 0; i &lt; levelSize; i++){
-      TreeNode current = bfsQueue.poll();
-      if(leftToRight) levelDeque.addLast(current.val);
-      else            levelDeque.addFirst(current.val);
+    for(int i = 0; i &lt; sz; i++){
+      TreeNode cur = q.poll();
+      if(ltr) dq.addLast(cur.val);
+      else    dq.addFirst(cur.val);
 
-      if(current.left  != null) bfsQueue.offer(current.left);
-      if(current.right != null) bfsQueue.offer(current.right);
+      if(cur.left  != null) q.offer(cur.left);
+      if(cur.right != null) q.offer(cur.right);
     }
-    allLevels.add(new ArrayList&lt;&gt;(levelDeque));
-    leftToRight = !leftToRight;
+    res.add(new ArrayList&lt;&gt;(dq));
+    ltr = !ltr;
   }
-  return allLevels;
+  return res;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(n)</b></div></div>
 </article>
@@ -1588,6 +2967,90 @@ flowchart TD
   S --> A["re-anchor positions per level (avoid overflow)"]
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-19" class="anim-canvas" width="720" height="320"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM19.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM19.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM19.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">level <b id="a19l">0</b> · width <b id="a19w">1</b> · best <b id="a19b">1</b></div>
+    <div class="anim-note" id="anim-note-19">Tree: 1[3[5,3],2[null,9]]. Width per level = lastPos − firstPos + 1.</div>
+  </div>
+  <script>
+  const ANIM19 = (function(){
+    const cv=document.getElementById('animc-19');
+    const note=document.getElementById('anim-note-19');
+    // tree positions (heap-style):  1@0 / 3@0 2@1 / 5@0 3@1 _@2 9@3
+    const NODES = [
+      {v:1,p:0,lvl:0,par:null},
+      {v:3,p:0,lvl:1,par:1}, {v:2,p:1,lvl:1,par:1},
+      {v:5,p:0,lvl:2,par:3}, {v:3,p:1,lvl:2,par:3}, {v:9,p:3,lvl:2,par:2}
+    ];
+    function build(){
+      const f=[]; let best=1;
+      const byLvl={};
+      NODES.forEach(n=>{ if(!byLvl[n.lvl]) byLvl[n.lvl]=[]; byLvl[n.lvl].push(n); });
+      f.push({lvl:-1,best,msg:'init.'});
+      Object.keys(byLvl).map(Number).sort().forEach(lvl=>{
+        const lst=byLvl[lvl];
+        const first=lst[0].p, last=lst[lst.length-1].p;
+        const w = last-first+1;
+        best = Math.max(best,w);
+        f.push({lvl,first,last,width:w,best,nodes:lst,msg:`level ${lvl}: positions ${lst.map(n=>n.p).join(',')} → width = ${last} − ${first} + 1 = ${w}; best = ${best}.`});
+      });
+      f.push({best,done:true,msg:`Done ✓ max width = ${best}.`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); update(); note.innerHTML='Tree: 1[3[5,3],2[null,9]]. Width per level = lastPos − firstPos + 1.'; draw(); }
+    function update(){ const fr=frames[idx]; document.getElementById('a19l').textContent=fr.lvl!==undefined&&fr.lvl!==-1?fr.lvl:'–'; document.getElementById('a19w').textContent=fr.width||'–'; document.getElementById('a19b').textContent=fr.best; }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      // draw tree
+      const baseY=40, dy=70;
+      function drawTree(){
+        // edges
+        NODES.forEach(n=>{ if(n.par===null) return;
+          const par=NODES.find(p=>p.v===n.par && p.lvl===n.lvl-1); if(!par) return;
+          const px=posX(par,baseY+par.lvl*dy), nx=posX(n,baseY+n.lvl*dy);
+          ctx.strokeStyle='rgba(91,141,238,.3)'; ctx.lineWidth=1.4;
+          ctx.beginPath(); ctx.moveTo(px.x,px.y); ctx.lineTo(nx.x,nx.y); ctx.stroke();
+        });
+        NODES.forEach(n=>{ const pos=posX(n,baseY+n.lvl*dy);
+          const isLevel = fr.lvl===n.lvl;
+          ctx.save();
+          if(isLevel){ ctx.shadowColor='rgba(245,200,66,.5)'; ctx.shadowBlur=12; }
+          const g=ctx.createLinearGradient(pos.x,pos.y-18,pos.x,pos.y+18);
+          if(isLevel){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+          else { g.addColorStop(0,'#15294e'); g.addColorStop(1,'#0f1f3d'); }
+          ctx.beginPath(); ctx.arc(pos.x,pos.y,17,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+          ctx.restore();
+          ctx.beginPath(); ctx.arc(pos.x,pos.y,17,0,Math.PI*2);
+          ctx.strokeStyle=isLevel?'rgba(255,255,255,.6)':'rgba(255,255,255,.12)'; ctx.stroke();
+          AnimKit.text(ctx,n.v,pos.x,pos.y,{color:isLevel?'#0a1428':'#e6edf7',font:'bold 12px JetBrains Mono'});
+          AnimKit.text(ctx,'p='+n.p,pos.x,pos.y+25,{color:'#5a6e92',font:'9px JetBrains Mono'});
+        });
+      }
+      function posX(n,y){
+        const slots = Math.pow(2,n.lvl);
+        const x = 80 + (W-160)*((n.p+0.5)/slots);
+        return {x,y};
+      }
+      drawTree();
+      // result
+      AnimKit.text(ctx,fr.done?`max width = ${fr.best}`:`level ${fr.lvl===-1?'–':fr.lvl}: width = ${fr.width||'–'}; best = ${fr.best}`,W/2,290,{color:'#1ad9b0',font:'bold 15px JetBrains Mono'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; update(); note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },800); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Maximum width of a binary tree using BFS + heap-style position indices.
@@ -1599,30 +3062,76 @@ static final class Frame { final TreeNode node; final int pos; Frame(TreeNode n,
 int widthOfBinaryTree(TreeNode root){
   if(root == null) return 0;
 
-  Deque&lt;Frame&gt; bfsQueue = new ArrayDeque&lt;&gt;();
-  bfsQueue.offer(new Frame(root, 0));
-  int maxWidth = 0;
+  Deque&lt;Frame&gt; q = new ArrayDeque&lt;&gt;();
+  q.offer(new Frame(root, 0));
+  int best = 0;
 
-  while(!bfsQueue.isEmpty()){
-    int levelSize = bfsQueue.size();
-    int firstPositionThisLevel = bfsQueue.peek().pos;
-    int lastPositionThisLevel  = firstPositionThisLevel;
+  while(!q.isEmpty()){
+    int sz = q.size();
+    int first = q.peek().pos;
+    int last  = first;
 
-    for(int i = 0; i &lt; levelSize; i++){
-      Frame f = bfsQueue.poll();
-      TreeNode currentNode = f.node;
-      int normalisedPos    = f.pos - firstPositionThisLevel;     // re-anchor
+    for(int i = 0; i &lt; sz; i++){
+      Frame f = q.poll();
+      TreeNode node = f.node;
+      int p         = f.pos - first;     // re-anchor
 
-      lastPositionThisLevel = f.pos;
+      last = f.pos;
 
-      if(currentNode.left  != null) bfsQueue.offer(new Frame(currentNode.left,  2 * normalisedPos));
-      if(currentNode.right != null) bfsQueue.offer(new Frame(currentNode.right, 2 * normalisedPos + 1));
+      if(node.left  != null) q.offer(new Frame(node.left,  2 * p));
+      if(node.right != null) q.offer(new Frame(node.right, 2 * p + 1));
     }
-    maxWidth = Math.max(maxWidth, lastPositionThisLevel - firstPositionThisLevel + 1);
+    best = Math.max(best, last - first + 1);
   }
-  return maxWidth;
+  return best;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(n)</b></div></div>
+
+  <div class="section-title">Detailed Walkthrough</div>
+  <div class="mental">
+    <p><b>Core idea.</b> Imagine the tree laid out like a <i>complete</i> binary tree (with all the missing nodes as invisible placeholders). The "width" of a level is the distance between the leftmost real node and the rightmost real node — <b>including the gaps</b>.</p>
+
+<pre><code>            1                ← pos 0
+          /   \
+         2     3              ← pos 0, 1
+        / \     \
+       4   .     5            ← pos 0, _, _, 3   (positions 0..3 → width 4)</code></pre>
+
+    <p><b>Why positions <code>2·p</code> and <code>2·p+1</code>?</b> Standard heap indexing. If a node sits at position <code>p</code>, in a hypothetical complete tree its left child sits at <code>2·p</code> and right child at <code>2·p+1</code>. So <code>width = rightmostPos − leftmostPos + 1</code>.</p>
+
+    <p><b>Why re-anchor (normalise) per level?</b> A height-60 tree would push positions past <code>2^60</code> and overflow <code>long</code>. Subtract the level's first position as an offset before computing children — widths are <i>differences</i>, so subtracting the same value from both endpoints leaves the difference unchanged:</p>
+<pre><code>(rightmost − offset) − (leftmost − offset) = rightmost − leftmost</code></pre>
+    <p>The numbers stay bounded (root of each level becomes 0 again), the widths stay correct.</p>
+
+    <p><b>Two BFS invariants the code relies on:</b></p>
+    <ol>
+      <li>BFS preserves left-to-right order within a level → first frame polled is leftmost, last frame polled is rightmost. That's why <code>lastPositionThisLevel = f.pos</code> inside the loop simply ends up holding the rightmost real node's position when the loop finishes.</li>
+      <li>Children are pushed with <code>2·normalisedPos</code> (NOT <code>2·f.pos</code>) — that's how the offset stays small across levels.</li>
+    </ol>
+
+    <p><b>Trace on the tree above:</b></p>
+<pre><code>Level 0: queue=[(1,0)], first=0
+  poll(1,0) normalised=0, last=0
+  push left(2, 0), right(3, 1)
+  width = 0 − 0 + 1 = 1  →  maxWidth = 1
+
+Level 1: queue=[(2,0),(3,1)], first=0
+  poll(2,0) normalised=0, last=0 → push left(4, 0)
+  poll(3,1) normalised=1, last=1 → push right(5, 2·1+1 = 3)
+  width = 1 − 0 + 1 = 2  →  maxWidth = 2
+
+Level 2: queue=[(4,0),(5,3)], first=0
+  poll(4,0) normalised=0, last=0 → no children
+  poll(5,3) normalised=3, last=3 → no children
+  width = 3 − 0 + 1 = 4  →  maxWidth = 4   ✓</code></pre>
+
+    <p><b>Common "wait, why?" questions</b></p>
+    <ul>
+      <li><b>Does pushing <code>2·normalisedPos</code> still give correct widths?</b> Yes — within a single level every node was offset by the same amount on the previous level, so children's positions are all shifted by the same factor. The <i>difference</i> <code>last − first</code> is unaffected.</li>
+      <li><b>Could I push raw <code>f.pos</code> instead?</b> Works on small trees, but on skewed/deep inputs the values double every level and overflow <code>long</code>. Normalisation keeps the math bounded.</li>
+      <li><b>Why is <code>Frame</code> <code>static final</code>?</b> <code>static</code> so it carries no hidden reference to the enclosing class; <code>final</code> so it can't be subclassed. Cleaner and typed compared to <code>Object[]{node, (Integer)pos}</code>.</li>
+    </ul>
+  </div>
 </article>
 
 <!-- ================= Q20 ================= -->
@@ -1676,6 +3185,74 @@ flowchart TD
   B --> L
   </pre></div>
 
+  <div class="section-title">Animation</div>
+  <div class="anim">
+    <canvas id="animc-20" class="anim-canvas" width="720" height="320"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn" onclick="ANIM20.reset()">⟲ Reset</button>
+      <button class="anim-btn sec" onclick="ANIM20.step()">▶ Step</button>
+      <button class="anim-btn sec" onclick="ANIM20.auto()">⏩ Auto</button>
+    </div>
+    <div class="anim-stats">cur <b id="a20c">–</b> · succ <b id="a20s">null</b></div>
+    <div class="anim-note" id="anim-note-20">BST: 20[10[5,15],30[25,40]]. p = 15. Find smallest key &gt; 15.</div>
+  </div>
+  <script>
+  const ANIM20 = (function(){
+    const cv=document.getElementById('animc-20');
+    const note=document.getElementById('anim-note-20');
+    const T={v:20,l:{v:10,l:{v:5},r:{v:15}},r:{v:30,l:{v:25},r:{v:40}}};
+    const POS={20:{x:360,y:50},10:{x:220,y:130},30:{x:500,y:130},5:{x:140,y:210},15:{x:300,y:210},25:{x:430,y:210},40:{x:580,y:210}};
+    const target=15;
+    function build(){
+      const f=[]; let cur=T, succ=null;
+      f.push({cur:cur.v,succ:null,msg:`init: cur=root=${cur.v}, succ=null. p=${target}.`});
+      while(cur){
+        if(cur.v>target){ succ=cur; f.push({cur:cur.v,succ:succ.v,go:'left',msg:`${cur.v} &gt; ${target} → succ = ${cur.v}; go left.`}); cur=cur.l; }
+        else { f.push({cur:cur.v,succ:succ?succ.v:null,go:'right',msg:`${cur.v} ≤ ${target} → go right.`}); cur=cur.r; }
+        if(cur) f.push({cur:cur.v,succ:succ?succ.v:null,arrived:true,msg:`now at ${cur.v}.`});
+        else f.push({cur:null,succ:succ?succ.v:null,msg:`null → stop.`});
+      }
+      f.push({cur:null,succ:succ?succ.v:null,done:true,msg:`Done ✓ successor = ${succ?succ.v:'null'}.`});
+      return f;
+    }
+    let frames,idx,timer;
+    function reset(){ frames=build(); idx=0; stop(); update(); note.innerHTML=`BST: 20[10[5,15],30[25,40]]. p = ${target}. Find smallest key &gt; ${target}.`; draw(); }
+    function update(){ const fr=frames[idx]; document.getElementById('a20c').textContent=fr.cur===null?'null':fr.cur||'–'; document.getElementById('a20s').textContent=fr.succ||'null'; }
+    function draw(){
+      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
+      const fr=frames[idx];
+      const edges=[[20,10],[20,30],[10,5],[10,15],[30,25],[30,40]];
+      edges.forEach(([a,b])=>{ const pa=POS[a], pb=POS[b];
+        ctx.strokeStyle='rgba(91,141,238,.3)'; ctx.lineWidth=1.4;
+        ctx.beginPath(); ctx.moveTo(pa.x,pa.y); ctx.lineTo(pb.x,pb.y); ctx.stroke();
+      });
+      Object.entries(POS).forEach(([id,p])=>{ const v=+id;
+        const isCur=fr.cur===v, isSucc=fr.succ===v;
+        ctx.save();
+        if(isCur){ ctx.shadowColor='rgba(245,200,66,.55)'; ctx.shadowBlur=14; }
+        else if(isSucc){ ctx.shadowColor='rgba(0,212,170,.55)'; ctx.shadowBlur=12; }
+        const g=ctx.createLinearGradient(p.x,p.y-21,p.x,p.y+21);
+        if(isCur){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
+        else if(isSucc){ g.addColorStop(0,'#1ad9b0'); g.addColorStop(1,'#0aa37e'); }
+        else if(v===target){ g.addColorStop(0,'#5b8dee'); g.addColorStop(1,'#3a6fd0'); }
+        else { g.addColorStop(0,'#15294e'); g.addColorStop(1,'#0f1f3d'); }
+        ctx.beginPath(); ctx.arc(p.x,p.y,21,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(p.x,p.y,21,0,Math.PI*2);
+        ctx.strokeStyle=(isCur||isSucc||v===target)?'rgba(255,255,255,.6)':'rgba(255,255,255,.12)'; ctx.lineWidth=1.4; ctx.stroke();
+        AnimKit.text(ctx,v,p.x,p.y,{color:(isCur||isSucc||v===target)?'#0a1428':'#e6edf7',font:'bold 14px JetBrains Mono'});
+      });
+      AnimKit.text(ctx,'p (target) shown in blue · cur = gold · succ = teal',W/2,260,{color:'#5a6e92',font:'11px Inter'});
+      AnimKit.text(ctx,fr.done?`successor = ${fr.succ||'null'}`:'',W/2,288,{color:'#1ad9b0',font:'bold 16px JetBrains Mono'});
+    }
+    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; update(); note.innerHTML=frames[idx].msg; draw(); }
+    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },700); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} }
+    reset();
+    return {reset,step,auto};
+  })();
+  </script>
+
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Inorder successor in BST in O(h) time, O(1) space.
@@ -1683,18 +3260,18 @@ flowchart TD
  * it as best-so-far and go left to look for something smaller; otherwise go right.
  */
 TreeNode inorderSuccessorBST(TreeNode root, TreeNode p){
-  TreeNode bestCandidate = null;
-  TreeNode currentNode = root;
+  TreeNode succ = null;
+  TreeNode cur = root;
 
-  while(currentNode != null){
-    if(currentNode.val &gt; p.val){
-      bestCandidate = currentNode;       // could be the answer; look for smaller-still
-      currentNode = currentNode.left;
+  while(cur != null){
+    if(cur.val &gt; p.val){
+      succ = cur;       // could be the answer; look for smaller-still
+      cur = cur.left;
     } else {
-      currentNode = currentNode.right;   // need a larger value
+      cur = cur.right;   // need a larger value
     }
   }
-  return bestCandidate;
+  return succ;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(h)</b></div><div>Space <b>O(1)</b></div></div>
 </article>
@@ -1753,33 +3330,33 @@ flowchart TD
  * right to look for an even-larger-but-still-≤x. Symmetric for ceil.
  */
 int floorInBST(TreeNode root, int target){
-  int bestFloor = -1;
-  TreeNode currentNode = root;
-  while(currentNode != null){
-    if(currentNode.val == target) return target;
-    if(currentNode.val &lt; target){
-      bestFloor = currentNode.val;
-      currentNode = currentNode.right;        // look for larger but still &lt;= target
+  int ans = -1;
+  TreeNode cur = root;
+  while(cur != null){
+    if(cur.val == target) return target;
+    if(cur.val &lt; target){
+      ans = cur.val;
+      cur = cur.right;        // look for larger but still &lt;= target
     } else {
-      currentNode = currentNode.left;
+      cur = cur.left;
     }
   }
-  return bestFloor;
+  return ans;
 }
 
 int ceilInBST(TreeNode root, int target){
-  int bestCeil = -1;
-  TreeNode currentNode = root;
-  while(currentNode != null){
-    if(currentNode.val == target) return target;
-    if(currentNode.val &gt; target){
-      bestCeil = currentNode.val;
-      currentNode = currentNode.left;         // look for smaller but still &gt;= target
+  int ans = -1;
+  TreeNode cur = root;
+  while(cur != null){
+    if(cur.val == target) return target;
+    if(cur.val &gt; target){
+      ans = cur.val;
+      cur = cur.left;         // look for smaller but still &gt;= target
     } else {
-      currentNode = currentNode.right;
+      cur = cur.right;
     }
   }
-  return bestCeil;
+  return ans;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(h)</b></div><div>Space <b>O(1)</b></div></div>
 </article>
@@ -1839,21 +3416,21 @@ flowchart LR
  * entire traversal.
  */
 class BSTIterator {
-  private final Deque&lt;TreeNode&gt; pendingSpine = new ArrayDeque&lt;&gt;();
+  private final Deque&lt;TreeNode&gt; st = new ArrayDeque&lt;&gt;();
 
-  BSTIterator(TreeNode root){ pushLeftSpine(root); }
+  BSTIterator(TreeNode root){ pushLeft(root); }
 
   int next(){
-    TreeNode topNode = pendingSpine.pop();
-    pushLeftSpine(topNode.right);
-    return topNode.val;
+    TreeNode top = st.pop();
+    pushLeft(top.right);
+    return top.val;
   }
 
-  boolean hasNext(){ return !pendingSpine.isEmpty(); }
+  boolean hasNext(){ return !st.isEmpty(); }
 
-  private void pushLeftSpine(TreeNode node){
+  private void pushLeft(TreeNode node){
     while(node != null){
-      pendingSpine.push(node);
+      st.push(node);
       node = node.left;
     }
   }
@@ -1914,27 +3491,27 @@ flowchart TD
  * Trick: push each vertex onto the stack ONLY AFTER all its reachable children have
  * been processed. The reverse of post-order finish times is a valid topological order.
  */
-int[] topologicalSortDFS(int vertexCount, List&lt;List&lt;Integer&gt;&gt; adjacencyList){
-  boolean[] visited = new boolean[vertexCount];
-  Deque&lt;Integer&gt; finishOrderStack = new ArrayDeque&lt;&gt;();
+int[] topologicalSortDFS(int n, List&lt;List&lt;Integer&gt;&gt; adj){
+  boolean[] visited = new boolean[n];
+  Deque&lt;Integer&gt; st = new ArrayDeque&lt;&gt;();
 
-  for(int startVertex = 0; startVertex &lt; vertexCount; startVertex++){
-    if(!visited[startVertex]) dfsPostOrder(startVertex, adjacencyList, visited, finishOrderStack);
+  for(int i = 0; i &lt; n; i++){
+    if(!visited[i]) dfs(i, adj, visited, st);
   }
 
-  int[] topoOrder = new int[vertexCount];
-  int writeIdx = 0;
-  while(!finishOrderStack.isEmpty()) topoOrder[writeIdx++] = finishOrderStack.pop();
-  return topoOrder;
+  int[] order = new int[n];
+  int idx = 0;
+  while(!st.isEmpty()) order[idx++] = st.pop();
+  return order;
 }
 
-private void dfsPostOrder(int currentVertex, List&lt;List&lt;Integer&gt;&gt; adjacencyList,
-                          boolean[] visited, Deque&lt;Integer&gt; finishOrderStack){
-  visited[currentVertex] = true;
-  for(int neighbour : adjacencyList.get(currentVertex)){
-    if(!visited[neighbour]) dfsPostOrder(neighbour, adjacencyList, visited, finishOrderStack);
+private void dfs(int u, List&lt;List&lt;Integer&gt;&gt; adj,
+                 boolean[] visited, Deque&lt;Integer&gt; st){
+  visited[u] = true;
+  for(int v : adj.get(u)){
+    if(!visited[v]) dfs(v, adj, visited, st);
   }
-  finishOrderStack.push(currentVertex);                  // push AFTER all descendants
+  st.push(u);                  // push AFTER all descendants
 }</code></pre>
   <div class="complexity"><div>Time <b>O(V + E)</b></div><div>Space <b>O(V)</b></div></div>
 </article>
@@ -1995,28 +3572,28 @@ flowchart TD
  * Trick: heap entries can become stale (a vertex may be reached cheaper later), so we
  * lazily skip popped entries for vertices already in the MST instead of decrease-key.
  */
-int primMSTWeight(int vertexCount, List&lt;int[]&gt;[] adjacencyListWeighted){
-  PriorityQueue&lt;int[]&gt; frontierHeap = new PriorityQueue&lt;&gt;((a, b) -&gt; Integer.compare(a[0], b[0])); // {weight, vertex}
-  boolean[] includedInMST = new boolean[vertexCount];
+int primMSTWeight(int n, List&lt;int[]&gt;[] adj){
+  PriorityQueue&lt;int[]&gt; pq = new PriorityQueue&lt;&gt;((a, b) -&gt; Integer.compare(a[0], b[0])); // {weight, vertex}
+  boolean[] inMst = new boolean[n];
 
-  frontierHeap.offer(new int[]{0, 0});
-  int totalMSTWeight = 0;
+  pq.offer(new int[]{0, 0});
+  int total = 0;
 
-  while(!frontierHeap.isEmpty()){
-    int[] cheapestEdge = frontierHeap.poll();
-    int edgeWeight  = cheapestEdge[0];
-    int currentVertex = cheapestEdge[1];
-    if(includedInMST[currentVertex]) continue;            // stale entry — skip
+  while(!pq.isEmpty()){
+    int[] cur = pq.poll();
+    int w = cur[0];
+    int u = cur[1];
+    if(inMst[u]) continue;            // stale entry — skip
 
-    includedInMST[currentVertex] = true;
-    totalMSTWeight += edgeWeight;
+    inMst[u] = true;
+    total += w;
 
-    for(int[] neighbourEdge : adjacencyListWeighted[currentVertex]){
-      int neighbour = neighbourEdge[0], weightToNeighbour = neighbourEdge[1];
-      if(!includedInMST[neighbour]) frontierHeap.offer(new int[]{weightToNeighbour, neighbour});
+    for(int[] e : adj[u]){
+      int v = e[0], wv = e[1];
+      if(!inMst[v]) pq.offer(new int[]{wv, v});
     }
   }
-  return totalMSTWeight;
+  return total;
 }</code></pre>
   <div class="complexity"><div>Time <b>O((V+E) log V)</b></div><div>Space <b>O(V + E)</b></div></div>
 </article>
@@ -2079,16 +3656,16 @@ flowchart TD
  * Trick: walk capacity HIGH → LOW so that dp[s - x] still represents the "without this
  * item" state — preventing the same item from being used twice.
  */
-boolean canPartitionToSum(int[] numbers, int targetSum){
-  boolean[] reachable = new boolean[targetSum + 1];
-  reachable[0] = true;
+boolean canPartitionToSum(int[] nums, int target){
+  boolean[] dp = new boolean[target + 1];
+  dp[0] = true;
 
-  for(int value : numbers){
-    for(int s = targetSum; s &gt;= value; s--){
-      if(reachable[s - value]) reachable[s] = true;
+  for(int x : nums){
+    for(int s = target; s &gt;= x; s--){
+      if(dp[s - x]) dp[s] = true;
     }
   }
-  return reachable[targetSum];
+  return dp[target];
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n·k)</b></div><div>Space <b>O(k)</b></div></div>
 </article>
@@ -2151,18 +3728,18 @@ flowchart TD
  * Trick: walking capacity LEFT → RIGHT lets dp[w - weight] already include this item,
  * so the same item can be picked multiple times.
  */
-int unboundedKnapsack(int[] itemWeights, int[] itemValues, int capacity){
-  int[] bestValueAtCapacity = new int[capacity + 1];
+int unboundedKnapsack(int[] wt, int[] val, int W){
+  int[] dp = new int[W + 1];
 
-  for(int itemIdx = 0; itemIdx &lt; itemWeights.length; itemIdx++){
-    int weight = itemWeights[itemIdx];
-    int value  = itemValues[itemIdx];
-    for(int currentCapacity = weight; currentCapacity &lt;= capacity; currentCapacity++){
-      int valueIfPick = bestValueAtCapacity[currentCapacity - weight] + value;
-      bestValueAtCapacity[currentCapacity] = Math.max(bestValueAtCapacity[currentCapacity], valueIfPick);
+  for(int i = 0; i &lt; wt.length; i++){
+    int w = wt[i];
+    int v = val[i];
+    for(int c = w; c &lt;= W; c++){
+      int take = dp[c - w] + v;
+      dp[c] = Math.max(dp[c], take);
     }
   }
-  return bestValueAtCapacity[capacity];
+  return dp[W];
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n·W)</b></div><div>Space <b>O(W)</b></div></div>
 </article>
@@ -2223,45 +3800,45 @@ flowchart TD
  * (1 - b) in some prior number produces a 1 in the XOR result — descend that branch
  * whenever it exists.
  */
-int findMaximumXOR(int[] numbers){
-  BitTrieNode root = new BitTrieNode();
-  for(int value : numbers) insertBits(root, value);
+int findMaximumXOR(int[] nums){
+  Node root = new Node();
+  for(int x : nums) insert(root, x);
 
-  int bestXOR = 0;
-  for(int value : numbers){
-    bestXOR = Math.max(bestXOR, maxXorFor(root, value));
+  int best = 0;
+  for(int x : nums){
+    best = Math.max(best, query(root, x));
   }
-  return bestXOR;
+  return best;
 }
 
-private static final int HIGHEST_BIT = 30;             // values fit in 31 bits (non-negative)
+private static final int HIGH_BIT = 30;             // values fit in 31 bits (non-negative)
 
-private void insertBits(BitTrieNode root, int value){
-  BitTrieNode current = root;
-  for(int bit = HIGHEST_BIT; bit &gt;= 0; bit--){
-    int bitValue = (value &gt;&gt; bit) &amp; 1;
-    if(current.children[bitValue] == null) current.children[bitValue] = new BitTrieNode();
-    current = current.children[bitValue];
+private void insert(Node root, int x){
+  Node cur = root;
+  for(int bit = HIGH_BIT; bit &gt;= 0; bit--){
+    int b = (x &gt;&gt; bit) &amp; 1;
+    if(cur.children[b] == null) cur.children[b] = new Node();
+    cur = cur.children[b];
   }
 }
 
-private int maxXorFor(BitTrieNode root, int value){
-  BitTrieNode current = root;
-  int xorAccumulator = 0;
-  for(int bit = HIGHEST_BIT; bit &gt;= 0; bit--){
-    int bitValue = (value &gt;&gt; bit) &amp; 1;
-    int oppositeBit = 1 - bitValue;
-    if(current.children[oppositeBit] != null){
-      xorAccumulator |= (1 &lt;&lt; bit);                    // we can flip this bit → contributes 1
-      current = current.children[oppositeBit];
+private int query(Node root, int x){
+  Node cur = root;
+  int res = 0;
+  for(int bit = HIGH_BIT; bit &gt;= 0; bit--){
+    int b = (x &gt;&gt; bit) &amp; 1;
+    int opp = 1 - b;
+    if(cur.children[opp] != null){
+      res |= (1 &lt;&lt; bit);                    // we can flip this bit → contributes 1
+      cur = cur.children[opp];
     } else {
-      current = current.children[bitValue];
+      cur = cur.children[b];
     }
   }
-  return xorAccumulator;
+  return res;
 }
 
-private static class BitTrieNode { BitTrieNode[] children = new BitTrieNode[2]; }</code></pre>
+private static class Node { Node[] children = new Node[2]; }</code></pre>
   <div class="complexity"><div>Time <b>O(n · 32)</b></div><div>Space <b>O(n · 32)</b></div></div>
 </article>
 
@@ -2282,15 +3859,30 @@ private static class BitTrieNode { BitTrieNode[] children = new BitTrieNode[2]; 
     startOnLoad: true,
     theme: 'base',
     themeVariables: {
-      primaryColor: '#0f1f3d',
-      primaryTextColor: '#ffffff',
-      primaryBorderColor: '#00d4aa',
-      lineColor: '#5b8dee',
-      secondaryColor: '#142a52',
-      tertiaryColor: '#1a3060',
-      fontFamily: 'Inter, sans-serif'
+      background: 'transparent',
+      primaryColor: '#16294e',
+      primaryTextColor: '#e6edf7',
+      primaryBorderColor: '#5b8dee',
+      secondaryColor: '#0f3a33',
+      secondaryTextColor: '#e6edf7',
+      secondaryBorderColor: '#00d4aa',
+      tertiaryColor: '#1f3b6e',
+      tertiaryTextColor: '#e6edf7',
+      tertiaryBorderColor: '#7aa6ff',
+      lineColor: '#7aa6ff',
+      textColor: '#cfe0ff',
+      mainBkg: '#16294e',
+      nodeBorder: '#5b8dee',
+      clusterBkg: 'rgba(91,141,238,.06)',
+      clusterBorder: 'rgba(91,141,238,.25)',
+      defaultLinkColor: '#7aa6ff',
+      titleColor: '#f5c842',
+      edgeLabelBackground: '#0e1a33',
+      nodeTextColor: '#e6edf7',
+      fontFamily: 'Inter, sans-serif',
+      fontSize: '14px'
     },
-    flowchart:{ htmlLabels:true, curve:'basis' }
+    flowchart:{ htmlLabels:true, curve:'basis', padding:14, nodeSpacing:42, rankSpacing:48 }
   });
 </script>
 <script>

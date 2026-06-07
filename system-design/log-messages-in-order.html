@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Order Log Messages at Scale · System Design · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" />
+<style>
+  :root{
+    --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+    --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+    --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+    --easy:#22c55e; --med:#f59e0b; --hard:#ef4444;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  header.hero .crumb a:hover{color:var(--teal)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:760px;margin:0 auto;font-size:15px}
+  .meta{display:flex;gap:18px;justify-content:center;margin-top:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+  .meta b{color:var(--text)}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:24px}
+
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .label{color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 8px;font-weight:700}
+  .label.gold{color:var(--gold)}
+
+  /* Term definition — appears inline */
+  .term{color:var(--gold);font-weight:600;border-bottom:1px dotted rgba(245,200,66,.5);cursor:help}
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  .define em{color:var(--muted);font-style:normal;display:block;font-size:13px;margin-top:4px}
+
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .callout b{color:var(--teal)}
+  .warn{background:rgba(239,68,68,.06);border-left:3px solid var(--hard);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .warn b{color:var(--hard)}
+
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  td code, th code{background:rgba(0,212,170,.10);padding:1px 6px;border-radius:4px;color:var(--teal);font-size:12px}
+
+  pre[class*="language-"]{border-radius:10px;font-size:13px;border:1px solid var(--line);background:#0a1428 !important;margin:8px 0}
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto;font-family:'JetBrains Mono',monospace}
+
+  ul.bullets{padding-left:22px}
+  ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px}
+  ol.steps li{margin:8px 0}
+
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+
+  /* Glossary at bottom */
+  .glossary{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  .gloss-card{background:rgba(91,141,238,.06);border:1px solid rgba(91,141,238,.25);border-radius:10px;padding:14px 16px}
+  .gloss-card h4{margin:0 0 6px;font-size:14px;color:var(--blue);letter-spacing:.05em}
+  .gloss-card p{margin:0;font-size:13.5px;color:#cdd9ee;line-height:1.55}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="crumb"><a href="index.html">System Design</a> · 01</div>
+  <span class="badge">1M Messages / Second</span>
+  <h1 class="title">Centralized Logging at <span>Realistic Scale</span></h1>
+  <p class="sub">A growing SaaS company runs ~5,000 backend service instances. Each emits ~200 log lines per second. Design a system that ingests them all, preserves order, and lets engineers tail / search / audit them.</p>
+  <div class="meta"><span><b>1M</b> msg/sec</span><span><b>500 MB/sec</b> ingest</span><span><b>40 TB/day</b></span></div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <h3>Walkthrough</h3>
+  <ol>
+    <li><a href="#problem">Problem & Scale Check</a></li>
+    <li><a href="#step1">Clarify "in order"</a></li>
+    <li><a href="#step2">High-level Architecture</a></li>
+    <li><a href="#step3">Component Sizing</a></li>
+    <li><a href="#step4">How Ordering Actually Works</a></li>
+    <li><a href="#step5">Handling Failures</a></li>
+    <li><a href="#step6">Reading the Data Back</a></li>
+    <li><a href="#step7">Where Redis Fits (and doesn't)</a></li>
+    <li><a href="#step8">Capacity Summary</a></li>
+    <li><a href="#step9">Interview Talking Points</a></li>
+    <li><a href="#tldr">30-Second Pitch</a></li>
+    <li><a href="#glossary">Glossary</a></li>
+  </ol>
+</nav>
+
+<!-- ====================== PROBLEM ====================== -->
+<section class="step" id="problem">
+  <h2><span class="num">00</span>Problem & Scale Check</h2>
+
+  <div class="label">The setup (realistic mid-to-large SaaS company)</div>
+  <ul class="bullets">
+    <li><b>~5,000</b> backend service instances (pods/VMs running across Kubernetes clusters in 3 regions). Comparable to Stripe / Wise / Shopify in 2024–26.</li>
+    <li>Each instance emits <b>~200 log messages every second</b> on average — mostly small structured JSON lines like <code>{ts, level, service, traceId, msg, ...}</code>.</li>
+    <li>Average message size <b>≈ 500 B</b> after JSON serialization, before compression.</li>
+    <li>Goal: collect <i>all</i> of them and let engineers/tools <b>read them back in order</b> for debugging, audits, dashboards, alerting.</li>
+  </ul>
+
+  <div class="label">Do the math first</div>
+  <pre class="ascii">5,000 instances  ×  200 messages/sec  =  1,000,000 messages/sec   (1 M/sec)
+
+Message size                  ≈ 500 B  (uncompressed JSON, 1 char = 1 B in ASCII)
+Ingestion bandwidth (raw)      = 10⁶ × 500 B          = 5 × 10⁸ B/s = 500 MB/s
+With ~5× compression on wire   = 500 MB/s / 5         = 100 MB/s on wire
+
+Per day (uncompressed at rest):
+  500 MB/s × 86,400 s          = 4.3 × 10¹³ B ≈ 43 TB/day
+  After columnar compression
+  in cold tier (≈ 8×)          ≈ 5–6 TB/day on S3
+
+Peak factor (incident spikes,  ~3–5× base)            → size to ~3M msg/sec headroom</pre>
+
+  <div class="callout"><b>Why this scale matters for the interview.</b> 1M msg/s is the sweet spot: <i>too big</i> for a single Kafka broker, a single ES cluster, or a single Postgres table — so you have to partition, tier, and bulkhead. But it's <i>not</i> Google-scale fantasy — every senior engineer at a real product company will hit numbers like this once their product grows. The same architecture also scales <b>up</b> by 100× just by adding partitions and brokers, which is why interviewers like the problem.</div>
+
+  <div class="define"><b>What is a "log message"?</b> A short text record a service writes whenever something happens — for example <code>2026-05-25 10:14:03 INFO svc=auth user=42 traceId=abc action=login latency_ms=87</code>. Engineers read these later to figure out what went wrong (debugging) or to answer "what did the system do?" for an audit.</div>
+
+  <div class="define"><b>Notation we'll use</b> = <code>b</code> = bit (lowercase), <code>B</code> = byte (uppercase); <code>1 B = 8 b</code>. <code>1 KB = 10³ B</code>, <code>1 MB = 10⁶ B</code>, <code>1 GB = 10⁹ B</code>, <code>1 TB = 10¹² B</code> (decimal/SI). <em>Storage and ingest are always in bytes. Network NIC speeds (1 Gbps, 10 Gbps) are in bits — divide by 8 before comparing.</em></div>
+</section>
+
+<!-- ====================== STEP 1 ====================== -->
+<section class="step" id="step1">
+  <h2><span class="num">01</span>Clarify "in order"</h2>
+
+  <p>Before designing anything, pin down what <i>"in order"</i> means. The cost differs by 1000×.</p>
+
+  <table>
+    <thead><tr><th>Ordering scope</th><th>What it means</th><th>Cost</th><th>Realistic?</th></tr></thead>
+    <tbody>
+      <tr><td><b>Global total order</b></td><td>Every message worldwide gets a single rank: 1st, 2nd, 3rd...</td><td>Astronomical — every server would have to agree on every message before storing it</td><td>❌ No</td></tr>
+      <tr><td><b>Per-server FIFO</b></td><td>Messages from server S are read in the order S sent them. Server A and Server B aren't compared.</td><td>Cheap — just partition by server-id</td><td>✅ Strong default</td></tr>
+      <tr><td><b>Causal / per-trace order</b></td><td>If event A caused event B (across servers), A is shown before B</td><td>Medium — needs logical clocks</td><td>✅ When tracing requests</td></tr>
+      <tr><td><b>Approximate time order</b></td><td>Within a few seconds of each other</td><td>Easy — sort by timestamp with a tolerance</td><td>✅ Common compromise</td></tr>
+    </tbody>
+  </table>
+
+  <div class="define"><b>FIFO</b> = "First In, First Out". <em>Messages come out in the same order they went in — like a queue at a coffee shop.</em></div>
+
+  <div class="define"><b>Partition</b> = a split / chunk. <em>If 100M messages/sec land in ONE big bucket, the bucket overflows. If we split them into 5,000 smaller buckets, each bucket only sees ~20k/sec — manageable. "Partition" is just a fancy word for "one of those smaller buckets."</em></div>
+
+  <div class="callout"><b>Recommended answer:</b> Guarantee <b>per-server FIFO</b> (cheap, free with Kafka partitioning) + attach a <b>Hybrid Logical Clock</b> on each message for causal cross-server reading when needed.</div>
+</section>
+
+<!-- ====================== STEP 2 ====================== -->
+<section class="step" id="step2">
+  <h2><span class="num">02</span>High-level Architecture</h2>
+
+<pre class="ascii">
+                       ┌──────────────────────────┐
+   5,000 pods ────────►│  Edge Ingest Tier         │
+   (each 200 msg/sec)  │  ~50 stateless pods       │
+                       │  authenticate + route     │
+                       └────────────┬─────────────┘
+                                    │  routes by hash(serverId)
+                                    ▼
+                       ┌──────────────────────────┐
+                       │  Kafka cluster            │
+                       │  ~20 brokers              │
+                       │  ~500 partitions          │
+                       │  partition = hash(srv)    │
+                       └────────────┬─────────────┘
+                                    │  consumers read in order
+            ┌───────────────────────┼───────────────────────┐
+            ▼                       ▼                       ▼
+    ┌───────────────┐       ┌───────────────┐      ┌───────────────┐
+    │  Hot store    │       │ Search index  │      │ Cold archive  │
+    │ NVMe, 24-48 h │       │ Elastic /     │      │ S3 Parquet    │
+    │ live tail     │       │ ClickHouse    │      │ years         │
+    └───────────────┘       └───────────────┘      └───────────────┘
+</pre>
+<img src="log-messages-in-order.png" alt="Log Messages in Order System Design Architecture Diagram" style="width:100%;max-width:900px;border-radius:12px;margin-top:16px;border:1px solid var(--line)" />
+<p style="margin-top:12px"><a href="log-messages-in-order.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+
+  <div class="define"><b>Ingest tier</b> = the "front door". <em>A pool of small machines that receive incoming messages. Their only job is: authenticate the sender, batch a few messages together, and forward them to the next layer. They keep zero state — easy to add/remove.</em></div>
+
+  <div class="define"><b>Kafka</b> = a giant, durable, append-only logbook. <em>You write messages to the end; consumers read them in the same order. It's split into "partitions" (those buckets again) so it can handle huge volume. Used by LinkedIn, Uber, Netflix.</em></div>
+
+  <div class="define"><b>Broker</b> = one machine in the Kafka cluster. <em>~200 brokers means 200 physical/virtual servers that together form the Kafka system. Each broker holds a slice of the data.</em></div>
+
+  <div class="define"><b>Consumer</b> = anyone reading from Kafka. <em>For us, consumers are the components that pull messages out and put them into the storage tiers (hot/search/cold).</em></div>
+
+  <div class="define"><b>NVMe SSD</b> = the fastest type of disk in 2026. <em>Think of it as ~10× faster than a regular SSD. Used for the "hot" tier where humans tail logs in real time.</em></div>
+
+  <div class="define"><b>S3 Parquet</b> = cheap, durable object storage (S3 = Amazon's storage service) holding data in <i>Parquet</i> format. <em>Parquet is a compressed columnar file — like a super-efficient CSV. Used for long-term archive and analytics.</em></div>
+</section>
+
+<!-- ====================== STEP 3 ====================== -->
+<section class="step" id="step3">
+  <h2><span class="num">03</span>Component Sizing</h2>
+
+  <div class="label">3a · Sidecar agent (the source)</div>
+  <p>Every service instance runs a small sidecar called an <span class="term">agent</span> (Fluent Bit, Vector, or in-house). Its job:</p>
+  <ul class="bullets">
+    <li><b>Batch</b> ~100 messages together (every 10–100 ms) instead of sending one-by-one — saves network calls.</li>
+    <li><b>Stamp</b> each message with: <code>serviceId</code>, <code>podId</code>, a local sequence number that goes up by 1 every msg, wall clock, and an HLC (Hybrid Logical Clock).</li>
+    <li><b>Write to local disk first</b> in a small ring buffer (≈ 100 MB) — if the network dies for 30 seconds, nothing is lost.</li>
+    <li><b>Compress</b> using Zstd — shrinks JSON ~5×.</li>
+    <li>Send to the nearest ingest pod ("sticky" — always the same one, for ordering).</li>
+  </ul>
+  <p>Per-instance outbound bandwidth: <code>200 msg × 500 B / 5 (compression) = 20 KB/sec</code>. Trivial.</p>
+
+  <div class="define"><b>Agent</b> = a small daemon (a background program) running on each server. <em>It's the courier that hands off messages from the app to the central system.</em></div>
+
+  <div class="define"><b>Ring buffer</b> = a fixed-size circular file or memory area. <em>When it fills up, the oldest entries get overwritten by new ones. Useful as a tiny safety net during network outages.</em></div>
+
+  <div class="define"><b>Compression</b> = squeezing the data smaller. <em>500-byte messages often have a lot of repeated structure (timestamps, levels, similar fields). Snappy and Zstd are two popular fast compressors — they shrink data so we transmit less.</em></div>
+
+  <div class="label">3b · Edge ingest tier</div>
+  <p>Each ingest pod can sustain ~25,000 msg/sec → we need <b>~50 ingest pods</b> (with 50–70% headroom for incident spikes). They:</p>
+  <ul class="bullets">
+    <li>Authenticate the sending agent via mTLS so random clients can't inject fake logs.</li>
+    <li>Route to a stable Kafka partition using <code>hash(serviceId + podId) % numPartitions</code> — same source always lands on same partition → preserves order.</li>
+    <li>Apply <b>back-pressure</b>: if Kafka is slow, hold the message briefly rather than dropping it.</li>
+  </ul>
+
+  <div class="define"><b>Hash</b> = a function that turns any input into a fixed-size number. <em><code>hash("auth-svc:pod-42") = 8137264291</code>. Used here to evenly spread sources across partitions deterministically.</em></div>
+
+  <div class="define"><b>Back-pressure</b> = a signal that says "slow down, I'm full". <em>When the downstream (Kafka) is overloaded, the upstream (ingest) slows down so nothing crashes.</em></div>
+
+  <div class="define"><b>mTLS (mutual TLS)</b> = a TLS handshake where <i>both</i> sides present certificates, not just the server. <em>Standard way services authenticate each other inside a private network without sharing API keys.</em></div>
+
+  <div class="label">3c · Kafka cluster — the ordered logbook</div>
+  <p>This is the heart of the design. Sizing math:</p>
+  <ul class="bullets">
+    <li>Each Kafka partition sustains ~50–100 MB/sec of writes.</li>
+    <li>Total write volume (uncompressed): 500 MB/sec ÷ 50 MB/sec ≈ <b>10 partitions minimum</b>. We pick <b>500</b> partitions for parallelism, future growth, and one-partition-per-consumer-thread sizing.</li>
+    <li>RF=3 for durability → disk I/O is 1.5 GB/sec aggregate.</li>
+    <li>A typical Kafka broker handles ~100–150 MB/sec sustained → <b>~20 brokers</b> with headroom.</li>
+    <li><b>Partition key = <code>serviceId + podId</code></b> — all messages from one pod land on the same partition, preserving per-pod FIFO.</li>
+    <li><b>Retention</b>: 72 hours hot in Kafka. After that, consumers should have shipped data to cheaper tiers.</li>
+  </ul>
+
+  <div class="define"><b>Replication factor (RF) 3</b> = each message is stored on 3 different brokers. <em>If one broker dies, two copies still exist. Cost: 3× disk usage, but you can lose 2 machines before losing data.</em></div>
+
+  <div class="label gold">Kafka Mental Model — Broker, Partition, Consumer, RF</div>
+  <p>These four concepts connect tightly. Here's how they fit together:</p>
+<pre class="ascii">
+KAFKA CLUSTER (20 brokers)
+├── Broker 1 (one physical server)
+│   ├── Partition 0  [LEADER]     ← appends messages, serves reads
+│   ├── Partition 3  [REPLICA]    ← passive copy, takes over if leader dies
+│   └── Partition 5  [REPLICA]
+├── Broker 2
+│   ├── Partition 1  [LEADER]
+│   ├── Partition 0  [REPLICA]    ← same partition, different broker (RF=3)
+│   └── Partition 4  [LEADER]
+├── Broker 3
+│   ├── Partition 2  [LEADER]
+│   ├── Partition 0  [REPLICA]    ← 3rd copy of Partition 0
+│   └── ...
+└── ... (20 brokers total, 500 partitions spread across them)
+
+WRITES:
+  Ingest pod → hash("srv-42") → Partition 42 LEADER (on Broker 7)
+                                      │  RF=3: replicate to
+                                      ├─► Broker 12 (replica)
+                                      └─► Broker 3  (replica)
+
+READS:
+  Consumer (hot-store writer) ←── reads Partition 42 in order from Leader
+</pre>
+
+  <div class="define"><b>Broker</b> = one physical/virtual server in the Kafka cluster. <em>It has CPU, RAM, and disks. It stores a subset of all partitions. Each broker handles ~100–150 MB/s of sustained writes. Our cluster has ~20 brokers, which together handle the full 500 MB/s (× RF=3 = 1.5 GB/s total I/O).</em></div>
+
+  <div class="define"><b>Partition</b> = one ordered, append-only log file. <em>Messages go in at the end; consumers read from beginning to end, always in order. The partition is the unit of parallelism — more partitions = more consumers can work in parallel. Each partition has ONE leader broker (handles reads/writes) and RF−1 replica brokers (passive copies). We have 500 partitions → 500 consumers can read in parallel.</em></div>
+
+  <div class="define"><b>Consumer</b> = any program that reads messages from Kafka partitions. <em>It "subscribes" to one or more partitions and reads them sequentially. In our system, the consumers are the background processes that write data into the Hot store, Search index, and Cold archive. Each consumer processes messages in the exact order they were written — that's how we preserve per-server FIFO.</em></div>
+
+  <div class="define"><b>RF (Replication Factor)</b> = how many total copies of each partition exist across different brokers. <em>RF=3 means 1 leader + 2 replicas = 3 copies on 3 separate machines. If the leader dies, one replica is promoted to leader in &lt;1 second (ISR election). You can lose 2 brokers and still have the data. Trade-off: 3× disk usage and 3× network replication traffic. For a logging system where data loss = lost debugging ability, RF=3 is the standard choice.</em></div>
+
+  <div class="label">3d · Storage tiers</div>
+  <table>
+    <thead><tr><th>Tier</th><th>Holds</th><th>Hardware</th><th>Used for</th></tr></thead>
+    <tbody>
+      <tr><td><b>Hot</b></td><td>Last 24–72 hours</td><td>NVMe SSD, replicated, ~50 TB total</td><td>Live tail, debugging, alerts</td></tr>
+      <tr><td><b>Warm</b></td><td>7–30 days, indexed</td><td>ClickHouse / OpenSearch cluster (~20 nodes)</td><td>Text search, dashboards</td></tr>
+      <tr><td><b>Cold</b></td><td>1–7 years</td><td>S3 + Parquet (~2 PB after compression over 1 yr)</td><td>Compliance, batch analytics</td></tr>
+    </tbody>
+  </table>
+
+  <div class="define"><b>Tiered storage</b> = expensive fast disks for recent data, cheap slow disks for old data. <em>Like keeping yesterday's mail on your desk and a year-old tax form in the attic.</em></div>
+
+  <div class="define"><b>NVMe node</b> = a server equipped with NVMe SSDs (the fastest disk type, ~7 GB/s read, ~1M random IOPS via PCIe). <em>Used for the Hot tier because engineers need instant key-based lookups ("show me logs from srv-42 in the last 5 minutes"). NVMe is NOT good for text search — it's just raw fast storage with no indexing. For full-text queries like "find all logs containing OutOfMemory," you need the Search tier (ClickHouse/Elasticsearch) which maintains an inverted index.</em></div>
+
+  <table>
+    <thead><tr><th>Query type</th><th>Goes to</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Logs from srv-42, last 5 min</td><td><b>Hot store (NVMe)</b></td><td>Key lookup by serverId + time range — sequential read, NVMe perfect</td></tr>
+      <tr><td>All logs containing "OutOfMemory"</td><td><b>Search index (ClickHouse)</b></td><td>Needs inverted index across all servers — raw disk can't do this</td></tr>
+      <tr><td>Last year's audit trail</td><td><b>Cold (S3 Parquet)</b></td><td>Cheap bulk columnar scan, no latency requirement</td></tr>
+    </tbody>
+  </table>
+
+  <div class="define"><b>Elasticsearch / ClickHouse</b> = specialized databases for searching huge text logs (Elasticsearch) or running analytics queries (ClickHouse). <em>Both are popular open-source systems.</em></div>
+</section>
+
+<!-- ====================== STEP 4 ====================== -->
+<section class="step" id="step4">
+  <h2><span class="num">04</span>How Ordering Actually Works</h2>
+
+  <div class="label">Per-server FIFO — free, from Kafka</div>
+  <p>Each message carries:</p>
+<pre><code class="language-json">{
+  "serverId":   "srv-42",
+  "localSeq":   18394201,        // server's own counter; goes up by 1 each msg
+  "wallClock":  1716636843123,   // server's local time in milliseconds
+  "hlc":        [1716636843123, 7],  // Hybrid Logical Clock
+  "payload":    "user=42 action=login ..."
+}</code></pre>
+  <p>Because we partitioned by <code>serverId</code>, all messages from <code>srv-42</code> are stored in <i>one</i> Kafka partition in the order they arrived. Kafka guarantees a consumer reads them in the same order.</p>
+
+  <div class="label">Detect drops or duplicates</div>
+  <p>The consumer remembers <code>lastSeenSeq[serverId]</code>. If the next message has <code>localSeq ≠ lastSeen + 1</code>, we know we missed something → alert.</p>
+
+  <div class="label gold">Hybrid Logical Clock (HLC) — the clever bit</div>
+  <p>Different servers have slightly different clocks (a few milliseconds off). If two events happen on different servers, whose timestamp do we trust? An <b>HLC</b> is a pair of numbers that combines wall-clock time with a logical counter, so causality is preserved even when clocks drift.</p>
+
+  <div class="define"><b>Hybrid Logical Clock (HLC)</b> = <code>(physicalTime, logicalCounter)</code>. <em>The physical part is just the wall clock. The logical counter ticks up whenever two events happen in the same millisecond OR when a message arrives from a "future" server. Result: if event A really did happen before event B (because A's message was used to make B), then HLC(A) &lt; HLC(B). Always.</em></div>
+
+<pre><code class="language-text">When server emits an event:
+   hlc.physical = max(local clock, last hlc.physical)
+   hlc.logical  = (hlc.physical advanced?) ? 0 : hlc.logical + 1
+
+When a server receives a message:
+   hlc.physical = max(local clock, last hlc.physical, incoming hlc.physical)
+   hlc.logical  = (something else, but you get the idea)
+</code></pre>
+
+  <p>At read time, the reader pulls from N partitions and <b>merges by HLC</b>, with a small bounded delay (e.g., 5 seconds) to absorb skew. K-way merge is O(log N) per message — very fast.</p>
+
+  <div class="define"><b>Clock skew</b> = the small difference between any two computers' clocks. <em>Even with NTP (the standard time-sync protocol), two servers can be off by 1–50 milliseconds. HLC tolerates this gracefully.</em></div>
+
+  <div class="define"><b>K-way merge</b> = picking the smallest item from K sorted lists at each step. <em>Like merging K already-sorted decks of cards into one sorted deck. Uses a min-heap, takes O(log K) per pick.</em></div>
+</section>
+
+<!-- ====================== STEP 5 ====================== -->
+<section class="step" id="step5">
+  <h2><span class="num">05</span>Handling Failures</h2>
+
+  <table>
+    <thead><tr><th>Failure</th><th>What happens</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>Agent on a server crashes</td><td>Messages in memory are lost</td><td>Agent writes to local ring buffer FIRST — replays from there on restart</td></tr>
+      <tr><td>Edge ingest node dies</td><td>Servers can't deliver</td><td>Sticky routing fails over to peer; agents retry with backoff</td></tr>
+      <tr><td>Kafka broker dies</td><td>One copy of partition lost</td><td>RF=3 means 2 copies remain; ISR (in-sync replica) elects a new leader in &lt;1s</td></tr>
+      <tr><td>Whole Availability Zone (AZ) down</td><td>~⅓ of cluster gone</td><td>Cross-AZ replication, <code>min.insync.replicas=2</code></td></tr>
+      <tr><td>A consumer falls behind</td><td>Storage tier missing recent data</td><td>Buffer grows in Kafka; auto-alert when disk hits 80%</td></tr>
+      <tr><td>Clock skew on a server</td><td>Wrong timestamps</td><td>HLC tolerates it; cap forward drift to ±5s</td></tr>
+    </tbody>
+  </table>
+
+  <div class="define"><b>Availability Zone (AZ)</b> = one datacenter (or set of datacenters with shared power/network) within a cloud region. <em>"Cross-AZ replication" means data copies live in different datacenters — so a single fire/power-outage doesn't lose data.</em></div>
+
+  <div class="define"><b>ISR (In-Sync Replica)</b> = a Kafka broker that has all the latest data and is ready to take over if the leader dies. <em>Kafka leader election among ISRs happens in under a second.</em></div>
+
+  <div class="define"><b>Leader election</b> = the process of picking which broker is "in charge" of a partition. <em>If the current leader dies, the remaining ISRs vote and one becomes the new leader. Clients automatically reconnect.</em></div>
+</section>
+
+<!-- ====================== STEP 6 ====================== -->
+<section class="step" id="step6">
+  <h2><span class="num">06</span>Reading the Data Back</h2>
+
+  <div class="label">Live tail (most common)</div>
+  <p>"Show me logs from <code>srv-42</code> right now." → Consumer reads that one partition end-to-end, latency p99 &lt; 1 second.</p>
+
+  <div class="label">Search (by text or tag)</div>
+  <p>Background pipeline writes from Kafka → Elasticsearch/ClickHouse. Queries run there.</p>
+
+  <div class="label">Audit / compliance</div>
+  <p>Pull months-old data from S3 Parquet files, partitioned by <code>(serverId-prefix, hour)</code>.</p>
+
+  <div class="label">Trace reconstruction (cross-server)</div>
+  <p>Given a <code>traceId</code> (an ID stamped on every log message in one user request), fan out queries to every partition that touched that trace, then K-way merge by HLC.</p>
+
+  <div class="define"><b>p99 latency</b> = "99th percentile" latency. <em>If you do 1000 reads, p99 is how fast the 990th-slowest of them was. p99 &lt; 1s means almost everyone gets a fast response; only 1% wait longer.</em></div>
+
+  <div class="define"><b>Trace ID</b> = a unique identifier (like <code>abc-123-xyz</code>) attached to every log message produced while handling a single user request. <em>Even if 50 servers touched the request, you can grep all their logs by the trace ID to reconstruct the full story.</em></div>
+</section>
+
+<!-- ====================== STEP 7 ====================== -->
+<section class="step" id="step7">
+  <h2><span class="num">07</span>Where Redis Fits (and doesn't)</h2>
+
+  <p><b>Redis is NOT the primary store.</b> 1M msg/sec global counter is impossible on a single Redis (single-thread bottleneck → max ~150k INCR/sec on one instance). But Redis has narrow roles:</p>
+
+  <table>
+    <thead><tr><th>Role</th><th>Pattern</th><th>How to scale</th></tr></thead>
+    <tbody>
+      <tr><td>Per-server sequence counter (if agents are stateless)</td><td><code>INCR seq:{serverId}</code></td><td>Better: keep counter <b>inside the agent</b>. No Redis needed.</td></tr>
+      <tr><td>Rate-limiting noisy sources</td><td><code>INCR rl:{serverId}</code> + TTL</td><td>Shard by hash(serverId) across many Redis instances</td></tr>
+      <tr><td>Live dashboard counters</td><td>Sharded counter pattern</td><td>Many small counters → aggregate on read</td></tr>
+    </tbody>
+  </table>
+
+  <div class="define"><b>Redis INCR</b> = an atomic "add 1" command. <em>Atomic = even if 1000 clients ask at once, every increment is counted exactly once. Each Redis instance handles ~100,000–200,000 INCRs per second.</em></div>
+
+  <div class="define"><b>TTL (Time To Live)</b> = how long a key lives before Redis auto-deletes it. <em>For rate limiting, you set TTL=1 second so the counter resets every second.</em></div>
+
+  <div class="define"><b>Sharded counter</b> = splitting one logical counter into N physical ones to break the hot-key bottleneck. <em>Each client picks a random shard 0..N-1, increments only that. To read the total, sum all N counters. Trade-off: read isn't perfectly atomic, but write throughput scales linearly.</em></div>
+
+  <div class="callout"><b>Rule of thumb:</b> One Redis instance ≈ 100k–150k INCRs/sec. For a 1M ops/sec global counter you'd need ~10 shards (and you're usually better off without a global counter at all).</div>
+</section>
+
+<!-- ====================== STEP 8 ====================== -->
+<section class="step" id="step8">
+  <h2><span class="num">08</span>Capacity Summary</h2>
+
+  <table>
+    <thead><tr><th>Layer</th><th>Instances</th><th>Per-instance load</th><th>Total</th></tr></thead>
+    <tbody>
+      <tr><td>Sidecar agents</td><td>5,000 (one per pod)</td><td>200 msg/s, 20 KB/s compressed out</td><td>1M msg/s</td></tr>
+      <tr><td>Edge ingest</td><td>~50 pods</td><td>25k msg/s</td><td>1M msg/s</td></tr>
+      <tr><td>Kafka brokers</td><td>~20 (3 AZs)</td><td>100 MB/s in (RF=3 → 300 MB/s I/O)</td><td>1.5 GB/s aggregate I/O</td></tr>
+      <tr><td>Hot store (NVMe)</td><td>~10 nodes × 8 TB</td><td>Random read</td><td>~50 TB rolling 72h</td></tr>
+      <tr><td>Search index (ClickHouse)</td><td>~20 nodes</td><td>~50k docs/s indexing</td><td>filtered subset of stream</td></tr>
+      <tr><td>S3 cold (Parquet)</td><td>object storage (managed)</td><td>—</td><td>TB–PB scale, years</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ====================== STEP 9 ====================== -->
+<section class="step" id="step9">
+  <h2><span class="num">09</span>Interview Talking Points</h2>
+  <ol class="steps">
+    <li><b>Always clarify "in order" first.</b> Don't assume global total order — it's impossible at this scale.</li>
+    <li><b>Partition by <code>serverId</code></b> — gives free per-server FIFO via Kafka.</li>
+    <li><b>Hybrid Logical Clocks</b> for causal cross-server ordering without global consensus.</li>
+    <li><b>Batch at the source</b> (10–100 ms windows) — 10× reduction in connection overhead.</li>
+    <li><b>Tiered storage</b> — hot/warm/cold is mandatory at PB scale.</li>
+    <li><b>Numbers matter</b> — show you sized brokers, ingest nodes, and disk.</li>
+    <li><b>Redis is not the primary answer here</b> — but it has narrow uses (rate limiting per source).</li>
+    <li><b>Failure modes</b> — agent disk buffer, Kafka RF=3, cross-AZ replication.</li>
+  </ol>
+</section>
+
+<!-- ====================== TL;DR ====================== -->
+<section class="step" id="tldr">
+  <h2><span class="num">10</span>30-Second Pitch</h2>
+  <div class="callout"><b>The Pitch</b><br><br>
+    For a SaaS company at ~1M log msg/sec (5,000 service pods × ~200 msg/s), global ordering is unnecessary and unaffordable. I'd guarantee <b>per-pod FIFO</b> and use <b>HLCs</b> for cross-service causality.<br><br>
+    Each pod runs a sidecar <b>agent</b> (Fluent Bit / Vector) that batches, persists to a local ring buffer, compresses with Zstd, and ships to a sticky <b>edge-ingest tier</b> (~50 pods). Edge routes by <code>hash(serviceId+podId)</code> to a <b>Kafka</b> cluster with ~500 partitions on ~20 brokers (RF=3, min.ISR=2) — Kafka gives per-partition order natively.<br><br>
+    Consumers fan out to a <b>hot NVMe store</b> (72 h, ~50 TB), <b>ClickHouse</b> for text search and dashboards (7–30 days), and <b>S3 Parquet</b> for long-term archive. For causal queries across pods, readers k-way merge partitions by HLC with a small bounded delay.<br><br>
+    Critical detail: a single global counter is impossible — but per-pod sequence counters live <b>inside the agent</b>, costing zero coordination. Same architecture scales up 100× just by adding partitions and brokers.
+  </div>
+</section>
+
+<!-- ====================== GLOSSARY ====================== -->
+<section class="step" id="glossary">
+  <h2><span class="num">∞</span>Glossary — All Terms in One Place</h2>
+  <p>Every technical word from this doc, in plain English.</p>
+
+  <div class="glossary">
+    <div class="gloss-card"><h4>Agent</h4><p>A small background program running on each server. Collects local log messages and ships them to the central system.</p></div>
+    <div class="gloss-card"><h4>Atomic operation</h4><p>An operation that either fully completes or doesn't happen at all — no half-states. <code>INCR</code> in Redis is atomic.</p></div>
+    <div class="gloss-card"><h4>Availability Zone (AZ)</h4><p>One datacenter inside a cloud region. AZs share a region but have independent power/network so an outage in one doesn't kill another.</p></div>
+    <div class="gloss-card"><h4>Back-pressure</h4><p>A "slow down, I'm full" signal sent upstream. Prevents fast producers from crushing slow consumers.</p></div>
+    <div class="gloss-card"><h4>Batch</h4><p>Group many small messages together before sending — saves network round-trips. Like carpooling.</p></div>
+    <div class="gloss-card"><h4>Broker</h4><p>One machine in a Kafka cluster. Holds a slice of the partitions.</p></div>
+    <div class="gloss-card"><h4>Clock skew</h4><p>Two computers' clocks disagreeing by a few milliseconds. Inevitable in distributed systems.</p></div>
+    <div class="gloss-card"><h4>Compression</h4><p>Shrinking data so it takes less space/bandwidth. Snappy and Zstd are popular fast compressors.</p></div>
+    <div class="gloss-card"><h4>Consumer</h4><p>Code that reads messages from Kafka (the opposite of a producer, which writes).</p></div>
+    <div class="gloss-card"><h4>Edge ingest tier</h4><p>The "front door" of the system. A pool of small machines that accept incoming messages and forward them on.</p></div>
+    <div class="gloss-card"><h4>Elasticsearch</h4><p>An open-source search engine for text data. Used for log search.</p></div>
+    <div class="gloss-card"><h4>FIFO</h4><p>"First In, First Out" — items come out in the order they went in. Like a queue.</p></div>
+    <div class="gloss-card"><h4>Hash</h4><p>A function that turns any input into a fixed-size number. Used to spread data across partitions deterministically.</p></div>
+    <div class="gloss-card"><h4>HLC (Hybrid Logical Clock)</h4><p>A pair <code>(wallTime, counter)</code> that preserves cause-and-effect order across servers even when clocks drift.</p></div>
+    <div class="gloss-card"><h4>Hot / Warm / Cold tier</h4><p>Storage layers ranked by speed and cost. Hot = fastest + most expensive (recent data). Cold = slowest + cheapest (old archives).</p></div>
+    <div class="gloss-card"><h4>Ingest</h4><p>To accept incoming data into a system.</p></div>
+    <div class="gloss-card"><h4>ISR (In-Sync Replica)</h4><p>A Kafka broker that has all the latest data and can take over if the leader dies.</p></div>
+    <div class="gloss-card"><h4>Kafka</h4><p>An open-source append-only logbook built for huge volume. Partitioned for parallelism. Used by most large companies.</p></div>
+    <div class="gloss-card"><h4>K-way merge</h4><p>Merging K sorted lists into one sorted list using a min-heap. O(log K) per pick.</p></div>
+    <div class="gloss-card"><h4>Leader election</h4><p>The automatic process of choosing which broker "owns" a partition when the previous owner dies.</p></div>
+    <div class="gloss-card"><h4>Log message</h4><p>A short text record a server writes when something happens (login, error, click, etc.).</p></div>
+    <div class="gloss-card"><h4>NVMe SSD</h4><p>The fastest type of disk in 2026 — roughly 10× quicker than a normal SSD.</p></div>
+    <div class="gloss-card"><h4>p99 latency</h4><p>The 99th percentile response time. p99 &lt; 1s means 99% of requests are faster than 1 second.</p></div>
+    <div class="gloss-card"><h4>Parquet</h4><p>A compressed columnar file format — like a super-efficient CSV. Great for analytics.</p></div>
+    <div class="gloss-card"><h4>Partition</h4><p>One slice/bucket of a larger logical stream. Splits work across machines so no single node is overloaded.</p></div>
+    <div class="gloss-card"><h4>Pipelining</h4><p>Sending many commands without waiting for replies in between. Amortizes network cost.</p></div>
+    <div class="gloss-card"><h4>Redis</h4><p>An in-memory key-value store. Very fast (~100k–1M ops/sec). Used for caching, rate limiting, counters.</p></div>
+    <div class="gloss-card"><h4>Replication factor (RF)</h4><p>How many copies of each message Kafka keeps. RF=3 means 3 copies on 3 different brokers.</p></div>
+    <div class="gloss-card"><h4>Ring buffer</h4><p>A fixed-size circular buffer. New entries overwrite the oldest. Used as a small disk safety-net.</p></div>
+    <div class="gloss-card"><h4>S3</h4><p>Amazon's object storage service. Practically infinite, cheap, very durable. Used for long-term archive.</p></div>
+    <div class="gloss-card"><h4>Sharded counter</h4><p>One logical counter split into N physical counters to break the hot-key bottleneck.</p></div>
+    <div class="gloss-card"><h4>Sharding</h4><p>Splitting data/work across multiple machines so no one is overloaded.</p></div>
+    <div class="gloss-card"><h4>Sticky routing</h4><p>Always sending the same input to the same destination (e.g., same server-id always to same ingest node) to preserve order.</p></div>
+    <div class="gloss-card"><h4>Throughput</h4><p>How many operations per second the system handles.</p></div>
+    <div class="gloss-card"><h4>Trace ID</h4><p>A unique ID attached to every log line during one user request. Lets you reconstruct what happened across many servers.</p></div>
+    <div class="gloss-card"><h4>TTL (Time To Live)</h4><p>How long a key lives before being auto-deleted. Useful for ephemeral counters and caches.</p></div>
+    <div class="gloss-card"><h4>Wall clock</h4><p>The actual real-world time on a computer (vs. a logical counter). Subject to drift and NTP corrections.</p></div>
+  </div>
+</section>
+
+</div>
+
+<a href="#" class="top" id="top">↑</a>
+
+<footer>
+  <b>BuildLikeASenior</b> · Think · Design · Grow Like a Senior Engineer<br>
+  <small>System Design · 01 — Order Log Messages at Scale</small>
+</footer>
+
+<script>
+  // Back-to-top button
+  const top = document.getElementById('top');
+  window.addEventListener('scroll', () => {
+    top.classList.toggle('show', window.scrollY > 400);
+  });
+</script>
+
+</body>
+</html>

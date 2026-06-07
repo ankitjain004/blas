@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Design Typeahead Suggestions · System Design · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" />
+<style>
+  :root{
+    --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+    --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+    --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+    --easy:#22c55e; --med:#f59e0b; --hard:#ef4444;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  header.hero .crumb a:hover{color:var(--teal)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:760px;margin:0 auto;font-size:15px}
+  .meta{display:flex;gap:18px;justify-content:center;margin-top:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+  .meta b{color:var(--text)}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:24px}
+
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .label{color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 8px;font-weight:700}
+  .label.gold{color:var(--gold)}
+
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  .define em{color:var(--muted);font-style:normal;display:block;font-size:13px;margin-top:4px}
+
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .callout b{color:var(--teal)}
+  .warn{background:rgba(239,68,68,.06);border-left:3px solid var(--hard);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .warn b{color:var(--hard)}
+
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  td code, th code{background:rgba(0,212,170,.10);padding:1px 6px;border-radius:4px;color:var(--teal);font-size:12px}
+
+  pre[class*="language-"]{border-radius:10px;font-size:13px;border:1px solid var(--line);background:#0a1428 !important;margin:8px 0}
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto;font-family:'JetBrains Mono',monospace}
+
+  ul.bullets{padding-left:22px}
+  ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px}
+  ol.steps li{margin:8px 0}
+
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+
+  .glossary{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  .gloss-card{background:rgba(91,141,238,.06);border:1px solid rgba(91,141,238,.25);border-radius:10px;padding:14px 16px}
+  .gloss-card h4{margin:0 0 6px;font-size:14px;color:var(--blue);letter-spacing:.05em}
+  .gloss-card p{margin:0;font-size:13.5px;color:#cdd9ee;line-height:1.55}
+
+  .req-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:14px 0}
+  @media(max-width:760px){.req-grid{grid-template-columns:1fr}}
+  .req{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:14px 18px}
+  .req h4{margin:0 0 8px;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue)}
+  .req h4.gold{color:var(--gold)}
+  .req ol{margin:6px 0 0;padding-left:20px}
+  .req li{margin:4px 0;font-size:14px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="crumb"><a href="index.html">System Design</a> · 02</div>
+  <span class="badge">10K Queries / Second</span>
+  <h1 class="title">Design <span>Typeahead Suggestions</span></h1>
+  <p class="sub">As the user types, predict the next 5 most likely completions from global search history — in single-digit milliseconds.</p>
+  <div class="meta"><span><b>10⁹</b> searches/day</span><span><b>~10k</b> QPS</span><span><b>&lt;100 ms</b> p99</span><span><b>AP</b> over CP</span></div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <h3>Walkthrough</h3>
+  <ol>
+    <li><a href="#problem">Problem & Requirements</a></li>
+    <li><a href="#capacity">Capacity Math</a></li>
+    <li><a href="#trie">The Core Data Structure — Trie</a></li>
+    <li><a href="#topk">Pre-computed Top-K per Node</a></li>
+    <li><a href="#arch">High-level Architecture</a></li>
+    <li><a href="#sharding">Sharding the Trie</a></li>
+    <li><a href="#update">Update Pipeline (batch + stream)</a></li>
+    <li><a href="#read">Read Path & Caching</a></li>
+    <li><a href="#extras">Extras — Misspellings, Personalization</a></li>
+    <li><a href="#failure">Failure Handling</a></li>
+    <li><a href="#capacity-sum">Capacity Summary</a></li>
+    <li><a href="#faq">Common Questions &amp; Misconceptions</a></li>
+    <li><a href="#interview">Interview Talking Points</a></li>
+    <li><a href="#tldr">30-Second Pitch</a></li>
+    <li><a href="#glossary">Glossary</a></li>
+  </ol>
+</nav>
+
+<!-- ====================== PROBLEM ====================== -->
+<section class="step" id="problem">
+  <h2><span class="num">00</span>Problem & Requirements</h2>
+
+  <p>Build a "search-as-you-type" suggestion service: as the user types one keystroke at a time, return the top 5 most likely completions, drawn from global past searches.</p>
+
+  <div class="req-grid">
+    <div class="req">
+      <h4>Functional Requirements</h4>
+      <ol>
+        <li>Show <b>top 5 suggestions</b> while user is typing.</li>
+        <li>Suggestions are based on <b>global past searches</b> (what everyone has searched).</li>
+        <li>Collect each user's <b>completed search</b> back into the system to improve future suggestions.</li>
+      </ol>
+    </div>
+    <div class="req">
+      <h4 class="gold">Non-Functional Requirements</h4>
+      <ol>
+        <li><b>~10⁹</b> searches per day → ~10k QPS.</li>
+        <li>Each keystroke triggers a request → real traffic ≈ <b>100k QPS</b> (10× typed chars).</li>
+        <li><b>Low latency</b>: order of milliseconds (target p99 &lt; 100 ms).</li>
+        <li><b>Availability &gt; Consistency</b> — stale suggestions are fine for a few minutes.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="define"><b>Typeahead</b> = the dropdown that pops up as you type into a search box, suggesting possible completions. <em>Examples: Google search, Amazon product search, IDE autocomplete.</em></div>
+
+  <div class="define"><b>QPS</b> = "Queries Per Second" — how many requests the system handles each second. <em>10k QPS = ten thousand queries every second on average.</em></div>
+
+  <div class="define"><b>p99 latency</b> = the response time at the 99th percentile. <em>p99 &lt; 100 ms means 99% of requests come back in under 100 ms.</em></div>
+
+  <div class="define"><b>AP vs CP</b> = the two main flavors of distributed systems (from the CAP theorem). <em>AP = "Availability + Partition tolerance" — the system always responds, even if data is slightly stale. CP = "Consistency + Partition tolerance" — always correct, but may refuse requests during issues. For typeahead, slightly stale is fine; downtime is not. So we pick <b>AP</b>.</em></div>
+</section>
+
+<!-- ====================== CAPACITY ====================== -->
+<section class="step" id="capacity">
+  <h2><span class="num">01</span>Capacity Math</h2>
+
+  <div class="callout"><b>Notation we'll use everywhere</b><br>
+    <code>b</code> = bit (lowercase) · <code>B</code> = byte (uppercase) · <code>1 B = 8 b</code><br>
+    <code>1 KB = 1,000 B</code> · <code>1 MB = 10⁶ B</code> · <code>1 GB = 10⁹ B</code> · <code>1 TB = 10¹² B</code> (decimal / SI units, the standard in capacity math)<br>
+    <code>1 char = 1 B</code> for ASCII text (UTF-8 keeps Latin letters at 1 B; emoji/CJK would be 2–4 B — we ignore for this back-of-envelope).
+  </div>
+
+  <div class="label">Step 1 — Read QPS (queries per second)</div>
+  <pre class="ascii">Daily searches               = 10⁹ searches/day
+Seconds per day              = 24 × 3600   = 86,400 s/day ≈ 10⁵ s/day
+Average completed-search QPS = 10⁹ / 10⁵   = 10⁴       = 10,000 QPS
+
+But each KEYSTROKE fires a request (after 100 ms debounce):
+  Average query length       = 15 characters     (1 char = 1 B in UTF-8 ASCII)
+  Requests per finished query≈ 15 / debounce ≈ 10 network calls
+  Keystroke QPS              = 10,000 × 10  = 100,000 QPS  (call it ~10⁵)
+  Peak (2× headroom)         = 200,000 QPS ≈ 2 × 10⁵ QPS</pre>
+
+  <div class="label">Step 2 — Write QPS (learning from completed searches)</div>
+  <pre class="ascii">Only the FINAL submitted query is recorded (not every keystroke):
+  Write QPS                  = 10,000 events/sec  = 10⁴ events/s
+  Each event payload         ≈ 200 B  (query + userId + ts + metadata)
+  Kafka ingress              = 10⁴ × 200 B = 2 × 10⁶ B/s = 2 MB/s</pre>
+
+  <div class="label">Step 3 — Storage (the trie)</div>
+  <pre class="ascii">Distinct queries kept        = 5 × 10⁹    (5 billion unique phrases over 30 days)
+Avg phrase length            = 20 characters = 20 B
+Raw phrase text              = 5×10⁹ × 20 B = 10¹¹ B = 100 GB
+
+Trie overhead factor         ≈ 5×       (child pointers 8 B each + freq counter 8 B
+                                          + top-5 list ≈ 5 × 16 B = 80 B per node)
+Trie in RAM                  ≈ 100 GB × 5 = 500 GB total
+
+Per-shard RAM (50 shards)    = 500 GB / 50 = 10 GB / shard
+Plus 3 replicas for HA       = 150 trie-server processes in total</pre>
+
+  <div class="label">Step 4 — Network bandwidth</div>
+  <pre class="ascii">Suggestion response size:
+  5 suggestions × ~30 B each = 150 B
+  + JSON envelope, headers   ≈ 850 B
+  Total response             ≈ 1 KB = 10³ B
+
+Downstream bandwidth (to users), assuming CDN absorbs 90%:
+  Origin QPS  = 200,000 × 10% = 20,000 QPS
+  Origin BW   = 20,000 × 1 KB = 20 MB/s
+  Edge BW     = 200,000 × 1 KB = 200 MB/s (served by CDN, not us)</pre>
+
+  <div class="label">Step 5 — Summary in one row</div>
+  <pre class="ascii">Reads   : 200,000 QPS peak  · 1 KB/response  · &lt;30 ms p99
+Writes  :  10,000 evt/s     · 200 B each     · async
+Storage : 500 GB total      · 10 GB / shard  · in RAM
+Net out :  20 MB/s origin   · 200 MB/s edge</pre>
+
+  <div class="define"><b>Debounce</b> = wait until the user pauses typing (e.g., 100 ms) before sending a request. <em>Avoids firing one request per keystroke. The keyboard always fires per-key locally, but the network call only goes out after the pause — so we count ~10 calls per 15-char query, not 15.</em></div>
+  <div class="define"><b>Byte (B) vs bit (b)</b> = 1 byte = 8 bits. Always capital <code>B</code> for byte, lowercase <code>b</code> for bit. <em>Network speeds are often quoted in bits (Gbps = gigabits per second), storage in bytes (GB). Mixing them up gives 8× wrong answers in interviews.</em></div>
+</section>
+
+<!-- ====================== TRIE ====================== -->
+<section class="step" id="trie">
+  <h2><span class="num">02</span>The Core Data Structure — Trie</h2>
+
+  <p>A <b>trie</b> (pronounced "try") is a tree where each path from the root to a node spells out a prefix. Perfect for "find words starting with X" lookups.</p>
+
+  <pre class="ascii">Example trie holding: "cat", "car", "cap", "cab", "can"
+
+                    root
+                     │
+                     c
+                     │
+                     a
+                  ┌──┼──┬──┬──┐
+                  t  r  p  b  n
+                  ●  ●  ●  ●  ●   (● = end-of-word, holds frequency)
+
+Walking "ca" lands us at the node after 'a'. To suggest, we look at all words
+in the subtree below that node and pick the top 5 by frequency.</pre>
+
+  <div class="define"><b>Trie (Prefix Tree)</b> = a tree where each edge is one character; a path from root spells a prefix. <em>Lookup of "ca" is just 2 hops, regardless of how many million words are stored. That's why typeahead loves tries.</em></div>
+
+  <div class="label">The naive approach (and why it's too slow)</div>
+  <p>For every keystroke, we'd:</p>
+  <ol class="steps">
+    <li>Walk the trie to the node matching the typed prefix (O(prefix length), fast).</li>
+    <li>DFS the entire subtree to collect all words below.</li>
+    <li>Sort them by frequency, take top 5.</li>
+  </ol>
+  <p>Step 2 is the killer — a popular prefix like "a" could have <b>millions</b> of words underneath. At 150k QPS, this is impossible in milliseconds.</p>
+
+  <div class="define"><b>DFS (Depth-First Search)</b> = walk a tree by going as deep as possible before backtracking. <em>For a 5-billion-word trie, walking even part of it is way too slow per request.</em></div>
+</section>
+
+<!-- ====================== TOP-K ====================== -->
+<section class="step" id="topk">
+  <h2><span class="num">03</span>Pre-computed Top-K per Node</h2>
+
+  <p>The trick: <b>at every trie node, store the top 5 completions of words passing through that node, pre-computed offline.</b></p>
+
+  <pre class="ascii">                    root
+                     │
+                     c
+                     │
+                     a              top5 = ["car", "can", "cat", "cap", "cab"]
+                  ┌──┼──┬──┬──┐
+                  t  r  p  b  n
+                  ●  ●  ●  ●  ●</pre>
+
+  <p>Now, a query is just:</p>
+  <ol class="steps">
+    <li>Walk the trie to the prefix node (O(prefix length)).</li>
+    <li>Return the pre-computed top-5 list. <b>No subtree walk needed.</b></li>
+  </ol>
+
+  <div class="callout"><b>Trade-off:</b> Reads become O(prefix length) — typically &lt;1 ms. Writes are now expensive: when a word's frequency changes, we may have to update the top-5 at every ancestor node. So writes are batched offline (next section).</div>
+
+  <div class="define"><b>Top-K</b> = the K most popular / most relevant items. <em>For typeahead, K = 5. We pre-rank these so the read path is dead simple.</em></div>
+</section>
+
+<!-- ====================== ARCH ====================== -->
+<section class="step" id="arch">
+  <h2><span class="num">04</span>High-level Architecture</h2>
+
+  <p>Two completely separate paths, drawn one above the other. <b>Read path on top</b> (hot, in-memory, must answer in ms). <b>Write/learn path below</b> (batch, throughput-oriented, can be slow).</p>
+
+<pre class="ascii">
+══════════════════════════════════════ READ PATH (hot, &lt; 30 ms) ══════════════════════════════════════
+
+   ┌──────────┐    GET /suggest?q=cov     ┌────────────────┐
+   │ Browser  │ ─────────────────────────►│  CDN Edge Cache │
+   │ (debounce│                           │  TTL 30–60s     │
+   │  100 ms) │                           └───────┬────────┘
+   └─────▲────┘                                   │
+         │                              ┌─────────┴─────────┐
+         │                              │                    │
+         │                         HIT (90%)            MISS (10%)
+         │                              │                    │
+         │    top-5 JSON &lt;10ms          │                    ▼
+         │◄─────────────────────────────┘          ┌──────────────┐
+         │                                         │ API Gateway  │
+         │                                         │ (auth, rate  │
+         │                                         │  limit, LB)  │
+         │                                         └──────┬───────┘
+         │                                                │
+         │                                                ▼
+         │                                      ┌──────────────────┐
+         │                                      │ Typeahead Service │
+         │                                      │   (stateless)    │
+         │                                      └──┬────────────┬──┘
+         │                                         │            │
+         │                    ┌─────────────────────┘            └─────────────────────┐
+         │                    │ 4a. trie lookup                   │ 4b. trending lookup │
+         │                    ▼                                   ▼                     │
+         │       ┌────────────────────────┐          ┌────────────────────────┐        │
+         │       │   Trie Shard Cluster    │          │  Redis Per-Prefix Sets │        │
+         │       │  50 shards × 3 replicas │          │  ZREVRANGE trending:cov│        │
+         │       │  Lookup = O(prefix len) │          │  → top-5 trending NOW  │        │
+         │       │  pre-computed top-5     │          │  TTL 2h, real-time     │        │
+         │       └────────────┬───────────┘          └────────────┬───────────┘        │
+         │                    │                                   │                     │
+         │                    └──────────────┬────────────────────┘                     │
+         │                                   ▼                                          │
+         │                         ┌──────────────────┐                                │
+         │                         │  MERGE + RE-RANK │                                │
+         │                         │  score = 0.7×trie│                                │
+         │                         │       + 0.3×redis│                                │
+         │                         └────────┬─────────┘                                │
+         │                                  │                                          │
+         │◄─────────────────────────────────┘   top-5 JSON ~1 KB (via CDN, cached)     │
+         │                                                                              │
+   ┌─────┴────┐                                                                        │
+   │ Browser  │  renders dropdown                                                      │
+   └──────────┘                                                                        │
+                                                                                                ▲
+                                                                                                │ hot-swap new trie
+══════════════════════════════════════ WRITE / LEARN PATH (cold + streaming) ═════════════════════════════
+                                                                                                │
+   ┌──────────┐  finished      ┌──────────────┐      ┌──────────────────┐      ┌────────────────┴────────┐
+   │ Browser  │  search         │   Search    │      │ Kafka topic       │      │  Trie Builder           │
+   │  submit  │ ──────────────► │   Service   │ ───► │  queries.raw      │ ───► │  (Spark / Flink)        │
+   │ "cats"   │                 │  (logs the  │      │  10⁴ msg/s        │      │  hourly job:            │
+   └──────────┘                 │   query)    │      │  retention 30d    │      │   1) aggregate 30d      │
+                                 └──────────────┘      └────────┬─────────┘      │   2) apply decay        │
+                                                                │                │   3) rebuild trie       │
+                                                                ▼                │   4) compute top-5/node │
+                                                       ┌────────────────┐        │   5) ship to shards     │
+                                                       │ Stream Worker  │        └─────────────────────────┘
+                                                       │ (Flink, real-  │
+                                                       │  time consumer)│   writes per-prefix sorted sets
+                                                       │                │ ──────────►  ┌───────────────────────┐
+                                                       │ For "cats":    │              │ Redis trending:c      │
+                                                       │  ZINCRBY each  │              │ Redis trending:ca     │
+                                                       │  prefix of the │              │ Redis trending:cat    │
+                                                       │  query         │              │ Redis trending:cats   │
+                                                       └────────────────┘              │ (each = sorted set    │
+                                                                                       │  with TTL 2h)         │
+                                                                                       └───────────────────────┘
+</pre>
+<img src="typeahead-suggestions.png" alt="Typeahead Suggestions System Design Architecture Diagram" style="width:100%;max-width:900px;border-radius:12px;margin-top:16px;border:1px solid var(--line)" />
+<p style="margin-top:12px"><a href="typeahead-suggestions.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+
+  <div class="label gold">Happy-path flow for a single keystroke</div>
+  <ol class="steps">
+    <li>User types <code>c</code>, then <code>a</code> in the search box.</li>
+    <li>Browser <b>debounces</b> 100 ms (so we don't fire on every keystroke), then sends <code>GET /suggest?q=ca</code>.</li>
+    <li>Request hits the nearest <b>CDN edge</b> (e.g., Cloudflare PoP in the user's city).
+      <ul class="bullets">
+        <li><b>Cache hit</b> (≈ 90% of the time for short prefixes like "ca") → CDN returns the cached top-5 JSON in &lt; 10 ms. <b>Request never touches our servers.</b></li>
+        <li><b>Cache miss</b> → continue.</li>
+      </ul>
+    </li>
+    <li>CDN forwards to <b>API Gateway</b> (auth, per-IP rate limit, load balance) which picks one stateless Typeahead Service pod.</li>
+    <li>Typeahead Service hashes the prefix (<code>hash("ca") mod 50</code>) to choose a <b>shard</b>, then picks a healthy <b>replica</b> of that shard.</li>
+    <li>In parallel:
+      <ul class="bullets">
+        <li><b>Trie shard</b> does an in-memory walk: <code>root → 'c' → 'a'</code> (2 pointer hops) → returns pre-computed top-5. &lt; 1 ms.</li>
+        <li><b>Redis</b>: <code>ZREVRANGE trending:ca 0 4</code> → returns top-5 trending queries for this prefix (last 2h). ~0.5 ms.</li>
+      </ul>
+    </li>
+    <li>Typeahead Service <b>merges</b> both lists (deduplicates), re-ranks with <code>0.7 × trie_score + 0.3 × redis_score</code>, returns final top-5. This surfaces trending terms AND brand-new terms not yet in the trie.</li>
+    <li>Response (~1 KB JSON) flows back: Typeahead → Gateway → CDN. CDN <b>writes it into its edge cache</b> with a 30–60 s TTL.</li>
+    <li>Browser renders the dropdown. End-to-end latency typically 5–30 ms.</li>
+  </ol>
+
+  <div class="label gold">Why the edge cache exists (and why it's the most important box)</div>
+  <ul class="bullets">
+    <li><b>Closes the distance to the user.</b> A user in Mumbai hitting an origin in Virginia = ~250 ms RTT before we even compute anything. A Mumbai CDN PoP = 5–10 ms RTT. <b>Latency win without any work.</b></li>
+    <li><b>Absorbs the Zipf head.</b> 0.1% of prefixes ("a", "th", "fac", "yo") get ~90% of traffic. Caching just those few thousand entries deflects 90% of QPS — we only build origin capacity for the remaining 10%.</li>
+    <li><b>Cheap to serve.</b> CDN bandwidth is far cheaper than running 10× more trie servers.</li>
+    <li><b>Acts as a buffer during outages.</b> If our origin has a hiccup, CDN can keep serving stale-but-good responses (<code>stale-while-revalidate</code>).</li>
+    <li><b>What we cache:</b> the JSON response keyed by the prefix string + locale (e.g., <code>en-US:ca</code>). TTL 30–60 s is the sweet spot — short enough to pick up new trends, long enough for high hit rate.</li>
+  </ul>
+
+  <div class="define"><b>CDN (Content Delivery Network)</b> = a global network of edge servers (Cloudflare, Fastly, Akamai) physically close to users. <em>Turns a 250 ms cross-country round trip into a 5 ms one.</em></div>
+
+  <div class="define"><b>Edge cache</b> = the cache layer at each CDN PoP (Point of Presence). <em>Keyed by request URL + headers; honors <code>Cache-Control</code> headers from the origin. For "ca", we cache the top-5 response right at the edge and never hit our backend.</em></div>
+
+  <div class="define"><b>API Gateway</b> = the single entry point for clients. <em>Handles auth, rate limiting, request validation, and routing to the right backend service.</em></div>
+
+  <div class="define"><b>Trie Server</b> = a process that holds one shard of the trie entirely in RAM. <em>Lookups are pure pointer-chasing in memory — no disk, no network — so they finish in &lt; 1 ms.</em></div>
+
+  <div class="define"><b>Kafka</b> = the durable append-only queue we use to move events between services. <em>Each completed user search is published as one message on the <code>queries.raw</code> topic; Flink/Spark consume it.</em></div>
+</section>
+
+<!-- ====================== SHARDING ====================== -->
+<section class="step" id="sharding">
+  <h2><span class="num">05</span>Sharding the Trie</h2>
+
+  <p>500 GB of trie data won't fit in one server's RAM (a fat box has ~256 GB). We <b>shard</b> the trie across N servers.</p>
+
+  <div class="callout"><b>First, what "sharding" actually means.</b><br><br>
+    <b>Sharding is a concept, not a product.</b> It just means: <em>split one logical dataset into many physical pieces by some key, and route each request to the piece that owns its key.</em> The pieces can live in:
+    <ul class="bullets">
+      <li><b>Databases</b> — Postgres logical partitions, MongoDB shards, Cassandra rings, DynamoDB partition keys.</li>
+      <li><b>Caches</b> — Redis Cluster slots, Memcached consistent-hash rings.</li>
+      <li><b>Application servers holding in-memory state</b> — like our trie servers here, or game-server "rooms" sharded by room-id.</li>
+      <li><b>Message queues</b> — Kafka topic partitions (we already used this in the logging design).</li>
+    </ul>
+    Same idea in every layer: <b>function(key) → shard-id → physical node</b>. In our typeahead case, there is <b>no database</b> on the read path — the trie itself lives in RAM inside the application servers, and <i>those</i> are what's sharded. The "database" of completed searches lives separately in Kafka / a data warehouse and is only used by the offline builder.
+  </div>
+
+  <div class="label">Two sharding strategies</div>
+
+  <table>
+    <thead><tr><th>Strategy</th><th>How</th><th>Pros</th><th>Cons</th></tr></thead>
+    <tbody>
+      <tr><td><b>By first letter / prefix range</b></td><td>'a*' → shard 1, 'b*' → shard 2, …</td><td>Each request goes to exactly one shard; build can produce one trie per shard directly</td><td>Uneven load — "a", "s", "t" are hot; "z", "q" are cold</td></tr>
+      <tr><td><b>By hash(prefix)</b></td><td>For each typed prefix, compute its hash and mod by N</td><td>Even load across shards</td><td>Same word's prefixes scatter across many shards → harder to compute global Top-K during build</td></tr>
+    </tbody>
+  </table>
+
+  <p>In practice: <b>shard by first 2 characters</b> (~26² = 676 logical buckets), then <b>group buckets into ~50 physical shards</b> balancing by traffic (the hot "th*", "fa*", "yo*" buckets get their own shards; cold ones are merged). Each shard gets <b>3 replicas</b> for HA and read scaling.</p>
+
+  <div class="label">How a request finds its shard at runtime</div>
+  <ol class="steps">
+    <li>API Gateway / Typeahead Service has a <b>shard map</b> in memory: <code>bucket → shard-id → list of replica addresses</code>. Loaded from a config service (ZooKeeper / etcd / Consul) and watched for changes.</li>
+    <li>For prefix <code>"ca"</code>, compute <code>bucket = "ca"</code> → look up <code>shard-id = 7</code> → list of 3 replica addresses.</li>
+    <li>Pick a healthy replica (round-robin, or "nearest" based on latency).</li>
+    <li>Send the request. If it times out, retry on another replica.</li>
+  </ol>
+
+  <div class="define"><b>Shard</b> = one slice of a larger dataset living on a different machine. <em>Each shard owns a deterministic subset of keys. <b>Sharding ≠ replication.</b> Sharding splits the data; replication copies a shard for HA.</em></div>
+
+  <div class="define"><b>Replica</b> = a copy of a shard, for redundancy and read scaling. <em>3 replicas per shard = if one dies, the other two keep serving with no data loss.</em></div>
+
+  <div class="define"><b>Shard map / routing table</b> = the small piece of metadata that says "which shard owns which key". <em>Stored in a coordination service like ZooKeeper or etcd; every Typeahead Service pod keeps a cached copy.</em></div>
+</section>
+
+<!-- ====================== UPDATE ====================== -->
+<section class="step" id="update">
+  <h2><span class="num">06</span>Update Pipeline (batch + stream)</h2>
+
+  <p>How does new search data get into the trie? <b>Lambda architecture</b> — a slow batch path that rebuilds everything, and a fast stream path that patches recent changes.</p>
+
+  <div class="define"><b><code>queries.raw</code></b> = the name of one specific <b>Kafka topic</b> we created for this system. <em>A "topic" in Kafka is just a named, append-only log file (replicated across brokers). Every time a user submits a search like "cats videos", the Search Service appends one JSON record to this topic, e.g. <code>{"q":"cats videos","uid":123,"ts":1716...,"locale":"en-US"}</code>. The topic retains these records for 30 days, so any downstream consumer (batch job, stream worker, audit) can replay them.</em></div>
+
+  <div class="define"><b>Lambda architecture</b> = a pattern that splits data processing into <b>two parallel pipelines</b>: a <b>batch layer</b> (slow but accurate, recomputes everything from scratch on a schedule) and a <b>speed/stream layer</b> (fast but approximate, processes only recent events). Queries combine results from both. <em>Named after the Greek letter λ because the two paths branch from one input and meet at the output.</em></div>
+
+  <div class="callout"><b>Lambda architecture — concrete example (not just typeahead)</b><br><br>
+    Imagine a dashboard showing <b>"YouTube views per video over the last 30 days"</b>.
+    <ul class="bullets">
+      <li><b>Batch layer:</b> every night at 2 AM, a Spark job reads the last 30 days of view-events from S3, groups by video-id, sums them, writes the result to a table <code>views_30d</code>. Takes 2 hours. <b>Result is accurate but ~24 hours stale.</b></li>
+      <li><b>Speed layer:</b> a Flink job consumes the same view-events live from Kafka and keeps a running counter in Redis: <code>views_today[video-id]</code>. <b>Always within seconds of real-time but only covers "today".</b></li>
+      <li><b>Serving:</b> dashboard query = <code>views_30d[video] + views_today[video]</code>. You get the best of both — yesterday's accurate snapshot plus today's live delta.</li>
+    </ul>
+    For our typeahead, the batch layer = the hourly trie rebuild; the speed layer = the Redis recent-counter that trie servers blend in every 30 s.
+  </div>
+
+  <div class="define"><b>Slow batch (batch processing)</b> = collect lots of records, then process them all together at scheduled intervals (every hour / every night). <em>"Slow" not because each machine is slow, but because you wait for the next scheduled run before results appear. Trade-off: huge throughput and full accuracy, but freshness measured in hours. Opposite of stream processing, which handles each event the moment it arrives.</em></div>
+
+  <div class="define"><b>Spark</b> = a distributed batch-processing framework (originally from Berkeley AMPLab, now Apache). <em>You write code in Python/Scala/SQL like <code>df.groupBy("query").count()</code> and Spark splits it across hundreds of worker machines, each crunching a chunk of the input in parallel. Used for our hourly trie rebuild because it's great at "read a huge file, aggregate, write a result". Examples of users: Netflix, Uber, Airbnb.</em></div>
+
+  <div class="define"><b>Flink</b> = a distributed <b>stream</b>-processing framework (Apache, originated at TU Berlin). <em>Same idea as Spark but optimized for processing each event as it arrives (millisecond latency), with built-in windowing ("sum events in 5-minute tumbling windows") and exactly-once state. Used for our speed layer — the worker that updates the Redis recent-counter. Spark also has streaming, but Flink is generally considered stronger for true real-time.</em></div>
+
+  <div class="label">Where does the data actually live?</div>
+  <pre class="ascii">Stage                  Storage                   Format                Retention
+──────────────────────────────────────────────────────────────────────────────
+Raw search events      Kafka topic queries.raw   JSON / Avro per msg   30 days
+Long-term archive      S3 / HDFS (data lake)     Parquet, partitioned   2 years
+                       s3://typeahead/raw/dt=2026-05-25/hour=14/
+Aggregated counts      Hive / Iceberg table      Parquet columnar       90 days
+                       schema: (query, count_30d, last_seen)
+Built trie (serving)   In-memory inside each     custom binary format  current only
+                       trie-server process       (mmapped page-aligned) (atomically
+                                                                          swapped)
+Recent counters        Redis SORTED SET          key=trending:{prefix}   2 hour TTL
+                       per-prefix                → ZSET of (query,score)
+                       trending:ca, trending:co…</pre>
+
+  <p>So: Kafka is the <b>buffer / source of truth for events</b>, S3 is the <b>long-term archive</b>, the in-memory trie is the <b>serving copy</b>, and Redis is the <b>speed-layer patch</b>. Each storage is picked for what it's best at — Kafka for durable ordered ingest, S3 for cheap bulk reads, RAM for low-latency lookups, Redis for fast small writes.</p>
+
+  <div class="label">Batch path (every 1 hour)</div>
+  <ol class="steps">
+    <li>Kafka topic <code>queries.raw</code> contains every completed search of the day (or longer — depends on retention).</li>
+    <li>A Spark job reads the last 30 days of events from S3 (older data already off-Kafka).</li>
+    <li>Aggregates: <code>SELECT query, COUNT(*) FROM events WHERE ts &gt; NOW() - 30d GROUP BY query</code>.</li>
+    <li>Applies frequency decay so older searches matter less.</li>
+    <li>Builds a fresh trie offline; computes top-5 at every node bottom-up (a node's top-5 = merge of its children's top-5).</li>
+    <li>Ships the new trie file to each trie shard, which <b>hot-swaps</b> it in. Old trie keeps serving until the new one is ready.</li>
+  </ol>
+
+  <div class="define"><b>Frequency decay</b> = giving more weight to recent searches and less to old ones. <em>So that "covid" doesn't dominate suggestions forever. Common formula: <code>weight = 0.5 ^ (age_in_days / half_life_days)</code> with a 30-day half-life.</em></div>
+
+  <div class="define"><b>Hot-swap</b> = replace a live data structure with a new version atomically while serving continues. <em>Typical implementation: load the new trie into memory, build it fully, then flip a single atomic pointer from <code>currentTrie → newTrie</code>. Free the old one after in-flight requests drain. No downtime.</em></div>
+
+  <div class="label">Stream path (real-time, continuous)</div>
+  <ol class="steps">
+    <li>A Flink job reads <code>queries.raw</code> live from Kafka.</li>
+    <li>For each completed query (e.g., "coventry city"), writes to <b>one Redis sorted set per prefix</b>:
+      <code>ZINCRBY trending:c "coventry city" 1</code>, <code>ZINCRBY trending:co "coventry city" 1</code>, … for all prefixes. Each set has a 2h TTL.</li>
+    <li>Typeahead Service, when computing results for prefix "cov", queries <b>both</b>:
+      <ul class="bullets">
+        <li>Trie shard → pre-computed top-5 (historical, 30-day)</li>
+        <li><code>ZREVRANGE trending:cov 0 4</code> → top-5 trending NOW (real-time)</li>
+      </ul>
+    </li>
+    <li>Merges both lists, deduplicates, and re-ranks using a weighted blend: <code>0.7 × trie_score + 0.3 × redis_score</code>.</li>
+  </ol>
+
+  <p>Result: a brand-new trending query can appear as a suggestion <b>within seconds</b> — even if it never existed in the trie. Existing queries get boosted if they spike.</p>
+
+  <div class="define"><b>Stream processing</b> = handling events one-at-a-time as they arrive, with millisecond latency. <em>Kafka Streams, Flink, Spark Structured Streaming are the typical tools.</em></div>
+</section>
+
+<!-- ====================== READ ====================== -->
+<section class="step" id="read">
+  <h2><span class="num">07</span>Read Path & Caching</h2>
+
+  <p>Three layers of caching make this fast and cheap:</p>
+
+  <ol class="steps">
+    <li><b>Browser</b> — the client app caches the last few prefixes' responses for ~10s.</li>
+    <li><b>CDN / Edge</b> — Cloudflare/Fastly cache the top ~1M most popular prefixes for 30–60s. <b>90%+ hit rate</b> in practice — the top 0.1% of prefixes get 90% of traffic (Zipf distribution).</li>
+    <li><b>Trie service</b> — only cache misses make it here. In-memory trie lookup, &lt;1 ms.</li>
+  </ol>
+
+  <div class="define"><b>Zipf distribution</b> = a power-law where a few items get most of the popularity. <em>For searches: "weather", "facebook", "youtube" dominate; the long tail is huge but rarely queried. Makes caching very effective.</em></div>
+
+  <div class="callout"><b>Why it's fast:</b> 90% of requests never touch our servers (CDN). The remaining 10% hit a single memory lookup. Average end-to-end latency &lt; 30 ms.</div>
+</section>
+
+<!-- ====================== EXTRAS ====================== -->
+<section class="step" id="extras">
+  <h2><span class="num">08</span>Extras — Misspellings, Personalization, Trending</h2>
+
+  <div class="label">Misspellings ("hello wolrd" → "hello world")</div>
+  <p>Use a <b>BK-tree</b> (Burkhard-Keller tree) over the query corpus. For a prefix that doesn't match, search BK-tree for nearby strings within edit distance ≤ 2.</p>
+
+  <div class="define"><b>Edit distance</b> = number of single-character edits (insert, delete, replace) to turn one string into another. <em>"world" vs "wolrd" = 1 edit (swap).</em></div>
+
+  <div class="define"><b>BK-tree</b> = a tree designed for edit-distance lookups. <em>Lets you find all strings within distance K in O(log n) average. Used by spell-checkers.</em></div>
+
+  <div class="label">Personalization</div>
+  <p>Blend global top-5 with the user's own recent searches:</p>
+  <ul class="bullets">
+    <li>Per-user history stored in a key-value store: <code>user:123:history</code> → list of past queries.</li>
+    <li>At request time, fetch user's history (1 ms) and re-rank: <code>score = α · globalFreq + β · userFreq</code>.</li>
+    <li>Tune α/β online with A/B tests.</li>
+  </ul>
+
+  <div class="define"><b>A/B test (online experiment)</b> = a controlled experiment where you split <b>live users</b> randomly into two (or more) groups and serve each group a different version of the system, then measure a business metric to decide which version wins. <em>For our case: group A gets ranking weights <code>α=0.7, β=0.3</code>, group B gets <code>α=0.5, β=0.5</code>. We measure <b>click-through rate on suggestions</b> for each group over 1–2 weeks. If group B's CTR is statistically significantly higher (e.g., p &lt; 0.05), we roll those weights out to 100% of traffic. Avoids guessing — the users tell us what works. Common tooling: in-house feature flags, or platforms like Optimizely, LaunchDarkly, Statsig.</em></div>
+
+  <div class="label">Trending — Real-time via Redis per-prefix sorted sets</div>
+
+  <div class="callout"><b>The problem Redis solves:</b> The trie is rebuilt hourly. If "coventry city" starts trending at 8:15 AM and the next trie deploys at 9:40 AM, there's a <b>1.5-hour blind spot</b>. Worse: a <em>brand-new</em> term (never searched before) won't appear in the trie at all — it has no pre-computed top-5 entry. Redis fills both gaps with real-time data.</div>
+
+  <div class="label gold">Write path: how Redis gets populated (stream worker, per search)</div>
+  <p>When a user finishes searching "coventry city", the Flink stream worker writes to <b>one sorted set per prefix</b> of the query:</p>
+  <pre class="ascii">
+User searches "coventry city" → Stream Worker runs:
+
+  ZINCRBY trending:c              "coventry city" 1
+  ZINCRBY trending:co             "coventry city" 1
+  ZINCRBY trending:cov            "coventry city" 1
+  ZINCRBY trending:cove           "coventry city" 1
+  ZINCRBY trending:coven          "coventry city" 1
+  ZINCRBY trending:covent         "coventry city" 1
+  ...all prefixes...
+  ZINCRBY trending:coventry city  "coventry city" 1
+
+  EXPIRE trending:cov 7200   (reset TTL to 2 hours on each write)</pre>
+
+  <p>This is <b>write-amplified</b> — one search = N writes (N = query length). But each write is O(log K) where K = members in that prefix's set. Trade-off: expensive writes buy <b>instant prefix lookups at read time</b>.</p>
+
+  <div class="label gold">Read path: how Redis is queried (inside Typeahead Service)</div>
+  <pre class="ascii">
+User types "cov" → Typeahead Service does TWO lookups in parallel:
+
+  ┌─ Trie Shard #7: lookup("cov")
+  │    Returns pre-computed top-5 (30-day history):
+  │    ["covid"(95K), "covid vaccine"(42K), "cover letter"(8K),
+  │     "coventry city"(200), "covenant"(150)]
+  │
+  └─ Redis: ZREVRANGE trending:cov 0 4 WITHSCORES
+       Returns top-5 trending NOW (last 2h):
+       ["coventry city"(15000), "cover girl new album"(800),
+        "covid"(300), "cover letter"(50)]
+            ▲                        ▲
+            │ spiking               │ BRAND NEW — not in trie!
+
+  Merge + re-rank:
+    final_score = trie_score_normalized × 0.7 + redis_score_normalized × 0.3
+
+  Result:
+    1. "covid"               (0.706)  ← historical king
+    2. "coventry city"       (0.301)  ← BOOSTED from #4 by trending
+    3. "covid vaccine"       (0.308)
+    4. "cover letter"        (0.057)
+    5. "cover girl new album"(0.015)  ← NEW — surfaced by Redis alone!</pre>
+
+  <div class="label gold">What each sorted set looks like inside Redis</div>
+  <pre class="ascii">
+Key:  "trending:cov"  (one sorted set for the prefix "cov")
+Type: ZSET
+TTL:  2 hours (auto-deletes when nothing trends)
+
+┌─────────────────────────┬────────┐
+│ Member (full query)     │ Score  │
+├─────────────────────────┼────────┤
+│ "coventry city"         │ 15000  │  ← most searched in last 2h
+│ "cover girl new album"  │ 800    │
+│ "covid"                 │ 300    │
+│ "cover letter"          │ 50     │
+│ "covenant house"        │ 12     │
+└─────────────────────────┴────────┘
+
+Key name = the PREFIX users typed
+Members  = FULL QUERIES that start with that prefix
+</pre>
+
+  <div class="callout"><b>Key insight:</b> The per-prefix sorted set is conceptually a <b>mini-trie for the last 2 hours</b>. The full trie is the long-term memory (30 days of history, decayed). Redis is the short-term memory (real-time). Merge both = never miss a trend, new or existing.</div>
+
+  <div class="label gold">Timeline: who handles what</div>
+  <pre class="ascii">
+8:00 AM  — Trie build starts (reads data up to 8:00)
+8:40 AM  — New trie deployed to shards
+
+8:15 AM  — "coventry city" starts trending
+           Redis captures it immediately (stream worker, real-time)
+
+8:15–9:40 — BLIND SPOT for trie (stale data)
+            Redis BOOSTS "coventry city" at query time (0.3 weight)
+            Redis SURFACES new terms not in trie at all
+
+9:40 AM  — Next trie deployed (now has "coventry city" baked in as #2)
+           Redis no longer needed for this term
+           Redis continues tracking the NEXT hour's trends
+</pre>
+
+  <div class="define"><b>Redis sorted set (ZSET)</b> = a Redis data structure that stores members ordered by a numeric <i>score</i>. <em>Internally backed by a skip list + hash map, so insert and rank lookups are O(log n). Perfect for "top-K by score" queries.</em></div>
+
+  <div class="define"><b><code>ZINCRBY</code></b> = "increment the score of a member in a sorted set by a given amount; create the member with that score if it doesn't exist."
+    <em><code>ZINCRBY trending:cov 1 "coventry city"</code> means: in the sorted set named <code>trending:cov</code>, add <code>1</code> to the score of <code>"coventry city"</code>. If <code>"coventry city"</code> didn't exist, it's created with score 1.</em></div>
+
+  <div class="define"><b><code>ZREVRANGE</code></b> = "return members ranked from index X to Y in <b>REV</b>erse order (highest score first)."
+    <em><code>ZREVRANGE trending:cov 0 4</code> = return the top-5 members by score. The <code>Z</code> prefix marks all sorted-set commands. <code>REV</code> = highest-first. <code>RANGE 0 4</code> = positions #1 through #5.</em></div>
+
+  <div class="define"><b>Write amplification</b> = writing the same information to multiple locations to speed up reads. <em>Here: one search for "coventry city" writes to 13 sorted sets (one per prefix character). Expensive on writes, but reads become a single O(log n) lookup per prefix. Same principle as a database maintaining multiple indexes.</em></div>
+</section>
+
+<!-- ====================== FAILURE ====================== -->
+<section class="step" id="failure">
+  <h2><span class="num">09</span>Failure Handling</h2>
+
+  <table>
+    <thead><tr><th>Failure</th><th>Impact</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>One trie server dies</td><td>1/N of shards unavailable</td><td>3 replicas per shard; reads auto-fail-over within 1s</td></tr>
+      <tr><td>CDN edge node outage</td><td>Some users hit origin directly</td><td>Origin sized for ~3× normal load; auto-scale</td></tr>
+      <tr><td>Trie rebuild fails</td><td>Stale suggestions</td><td>Old trie keeps serving; alert ops; retry rebuild</td></tr>
+      <tr><td>Kafka backed up</td><td>New searches not learned</td><td>Acceptable — suggestions just freeze at last good version; alert</td></tr>
+      <tr><td>Hot prefix overwhelms a shard</td><td>Latency spike for that letter</td><td>Replicate hot shards more (10× replicas for "a*", "the*")</td></tr>
+      <tr><td>Bad word / abuse</td><td>Offensive suggestions</td><td>Static deny-list + ML toxicity filter applied during trie build</td></tr>
+    </tbody>
+  </table>
+
+  <div class="define"><b>Deny-list (blocklist)</b> = a curated list of forbidden words/phrases never to suggest. <em>For typeahead: profanity, hate terms, queries about self-harm, etc.</em></div>
+</section>
+
+<!-- ====================== CAPACITY SUM ====================== -->
+<section class="step" id="capacity-sum">
+  <h2><span class="num">10</span>Capacity Summary</h2>
+
+  <div class="callout"><b>How to read this table.</b> The "Instances" column is the literal count of <b>running processes / VMs / pods</b> behind a load balancer. So "API Gateway · ~50" means we run roughly <b>50 API-Gateway processes</b>, each handling ~3k QPS, summing to 150k QPS in aggregate. They sit behind a single virtual IP; the load balancer spreads traffic across them. Scale up = add more instances (horizontal scaling). The exact number is a planning estimate, not a fixed fleet — autoscaling adjusts it.</div>
+
+  <table>
+    <thead><tr><th>Layer</th><th>Instances</th><th>Per-instance</th><th>Total</th></tr></thead>
+    <tbody>
+      <tr><td>CDN edges</td><td>100s globally (managed by Cloudflare/Fastly)</td><td>Caches top prefixes</td><td>Absorbs ~90% of read traffic</td></tr>
+      <tr><td>API Gateway</td><td>~50 pods behind one LB</td><td>3k QPS, 4 vCPU, 8 GB RAM</td><td>150k QPS</td></tr>
+      <tr><td>Trie service</td><td>50 shards × 3 replicas = <b>150 pods</b></td><td>~1k QPS, 10 GB RAM trie partition</td><td>Holds full 500 GB trie</td></tr>
+      <tr><td>Kafka</td><td>~10 broker nodes (1 cluster)</td><td>2k msg/s ingress per broker</td><td>10k queries/s aggregate</td></tr>
+      <tr><td>Trie builder (Spark/Flink)</td><td>~100 worker nodes (ephemeral hourly job)</td><td>—</td><td>Rebuild in ~30 min</td></tr>
+      <tr><td>Redis (recent counts, personalization)</td><td>~10 shards × 2 replicas = 20 nodes</td><td>100k ops/s per primary</td><td>—</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ====================== FAQ ====================== -->
+<section class="step" id="faq">
+  <h2><span class="num">10½</span>Common Questions &amp; Misconceptions</h2>
+
+  <div class="label gold">Q1. "Read path vs write path separation" — does that mean two network requests per query?</div>
+  <p><b>No.</b> A user keystroke is <b>one</b> HTTP request — the read path. Submitting a finished search is a <b>separate</b> request the browser already sends to the search backend (independent of typeahead). The Search Service then asynchronously publishes that completed query to Kafka. So from the user's perspective: every keystroke = 1 read request; one final search submit = 1 write side-effect. The two "paths" describe how our <b>backend</b> processes the two kinds of events, not extra round-trips from the browser.</p>
+
+  <div class="label gold">Q2. If we query Redis sorted sets on every read, won't that increase latency?</div>
+  <p>Yes — it adds one network hop (~0.5 ms). We mitigate it three ways:</p>
+  <ul class="bullets">
+    <li><b>Parallel calls:</b> Trie shard lookup + Redis <code>ZREVRANGE</code> fire simultaneously. Total latency = max(trie, redis) ≈ 1 ms, not sum.</li>
+    <li><b>Redis is fast:</b> <code>ZREVRANGE</code> on a sorted set with ~1000 members returning 5 items = O(log N + 5) ≈ microseconds.</li>
+    <li><b>CDN absorbs 90%:</b> Only 10% of requests even reach the Typeahead Service (and Redis). The merged result gets cached at CDN for 30–60s.</li>
+    <li><b>Deny-list is applied at build time</b>, not query time. The static blocklist is baked into the trie when the hourly Spark job runs — offensive words simply don't exist in the served trie.</li>
+    <li><b>Personalization fetch (user history)</b> adds ~1 ms but runs in parallel with the trie+Redis lookups. If we exceed our 30 ms p99 budget, degrade gracefully (skip personalization).</li>
+  </ul>
+  <p>Rule of thumb in design: <b>parallelize, cache aggressively, and degrade gracefully.</b></p>
+
+  <div class="label gold">Q3. Can we just store the trie in the CDN?</div>
+  <p><b>No, but we store the <i>responses</i> in the CDN.</b> A CDN edge is a <b>key→value cache</b> for HTTP responses — it doesn't run trie-walk logic, it just returns whatever bytes we previously cached under a URL. So we cache the <i>output</i> of typeahead requests (e.g., <code>GET /suggest?q=ca</code> → top-5 JSON) at the edge for 30–60 s. The trie itself stays on origin servers because:</p>
+  <ul class="bullets">
+    <li>500 GB doesn't fit on edge nodes, which are tuned for many small objects.</li>
+    <li>CDNs are dumb byte caches — no custom code, no in-memory data structures.</li>
+    <li>You'd need to push trie updates to hundreds of edge PoPs hourly = expensive and complex.</li>
+  </ul>
+
+  <div class="label gold">Q4. Can we put the trie in Redis instead of in-process RAM?</div>
+  <p>Technically yes — Redis can hold key-value pairs like <code>prefix:"ca" → ["car","can",...]</code>. But it's a worse choice here:</p>
+  <table>
+    <thead><tr><th></th><th>In-process RAM (current)</th><th>Redis</th></tr></thead>
+    <tbody>
+      <tr><td>Lookup latency</td><td>&lt; 0.1 ms (pointer chase, same process)</td><td>0.5–1 ms (TCP round-trip per call)</td></tr>
+      <tr><td>Throughput per node</td><td>~50k QPS easy</td><td>~100k ops/s but you pay network</td></tr>
+      <tr><td>Memory efficiency</td><td>Trie shares prefixes — compact</td><td>Each prefix = separate key, lots of overhead</td></tr>
+      <tr><td>Update model</td><td>Atomic hot-swap of whole trie</td><td>Have to write per-key, partial updates visible</td></tr>
+    </tbody>
+  </table>
+  <p><b>When Redis IS a good fit:</b> the <i>speed layer</i> (the recent-counter HASH), per-user history, trending sorted set. Small hot data, frequent small writes — exactly Redis's sweet spot. The big trie stays in-process.</p>
+
+  <div class="label gold">Q5. What does "replicated for HA" actually mean?</div>
+  <p><b>HA</b> = High Availability. "Replicated for HA" means each shard's data exists on multiple machines so that if one dies, another keeps serving with no data loss and minimal downtime. For our trie cluster:</p>
+  <ul class="bullets">
+    <li>Each of the 50 shards is copied onto <b>3 separate trie servers</b> (typically in 3 different availability zones / racks).</li>
+    <li>One copy is the "primary"; the other two are "replicas" kept in sync. (For read-only data like the served trie, all 3 are equal — they all just hold the same trie file shipped by the builder.)</li>
+    <li>The load balancer health-checks each replica every few seconds. If one fails its health check, traffic <b>auto-fails-over</b> to a healthy replica within ~1 s.</li>
+    <li>Read scaling bonus: 3 replicas means 3× the read capacity of one shard for free.</li>
+  </ul>
+  <p>Without replication, losing one machine means losing 1/50th of the trie until a new one is rebuilt and reloaded — minutes of partial outage. With 3 replicas, two more would need to die simultaneously for any user impact.</p>
+
+  <div class="label gold">Q6. When does data actually get pushed into the cache?</div>
+  <p>There are two caching styles. We use the first:</p>
+  <ul class="bullets">
+    <li><b>Cache-aside (lazy / pull, what we use for the CDN edge):</b> the cache is empty initially. A request comes in → cache miss → request goes to origin → response flows back through the CDN, which <b>stores it on the way out</b> with the TTL from the <code>Cache-Control</code> header. The very next request for the same URL is a hit. Self-warming: only prefixes anyone actually asks for end up cached. Downside: the first request is always slow.</li>
+    <li><b>Write-through / push (what we use for the trie):</b> the Spark builder <b>pushes</b> the freshly built trie to all 150 trie pods at the end of each rebuild — they don't "fetch on demand". This is appropriate for the trie because it changes infrequently (hourly) and on a known schedule.</li>
+  </ul>
+  <p>Optional <b>cache warming</b>: at deploy time we can pre-load the CDN with the top 10k most popular prefixes by sending synthetic requests through it. Avoids a cold-start latency spike right after a flush.</p>
+  <div class="define"><b>Cache TTL (Time To Live)</b> = how long a cache entry stays valid before it's discarded or revalidated. <em>Set via the <code>Cache-Control: max-age=60</code> header from the origin response. After 60 s, the CDN treats the entry as expired and goes back to origin on the next request.</em></div>
+</section>
+
+<!-- ====================== INTERVIEW ====================== -->
+<section class="step" id="interview">
+  <h2><span class="num">11</span>Interview Talking Points</h2>
+  <ol class="steps">
+    <li><b>Lead with the trie + pre-computed top-K.</b> That's the heart of the answer.</li>
+    <li><b>Read path vs write path separation</b> — different SLAs, different tech.</li>
+    <li><b>Lambda architecture</b> — batch for accuracy, stream for freshness.</li>
+    <li><b>CDN absorbs 90% of traffic</b> — Zipf distribution makes caching incredibly effective.</li>
+    <li><b>Trie sharded by prefix</b>, replicated for HA. Hot prefixes get more replicas.</li>
+    <li><b>AP over CP</b> — stale by a few minutes is fine; downtime is not.</li>
+    <li><b>Trade-offs to mention</b>: build latency vs read latency, memory vs disk, freshness vs cost.</li>
+    <li><b>Extensions</b>: misspellings (BK-tree), personalization, trending, multi-language.</li>
+  </ol>
+</section>
+
+<!-- ====================== TLDR ====================== -->
+<section class="step" id="tldr">
+  <h2><span class="num">12</span>30-Second Pitch</h2>
+  <div class="callout"><b>The Pitch</b><br><br>
+    For ~10k QPS of typeahead, the read path is a <b>trie with pre-computed top-5 at every node</b>, sharded by first-2-letter prefix across ~50 shards with 3 replicas each, all in RAM. Each lookup is O(prefix length), &lt;1 ms.<br><br>
+    A <b>CDN edge cache</b> absorbs 90% of traffic — search prefixes follow a Zipf distribution, so a small set is overwhelmingly hot.<br><br>
+    The write path is completely separate. Completed searches flow into <b>Kafka</b>, and a <b>Spark/Flink batch job</b> rebuilds the trie every hour with frequency decay. A <b>stream layer</b> patches in last-hour data via Redis counters for freshness.<br><br>
+    Extras: BK-tree for misspellings, per-user history blending for personalization, deny-list for abuse. <b>AP over CP</b> — stale-by-minutes is fine; downtime isn't.
+  </div>
+</section>
+
+<!-- ====================== GLOSSARY ====================== -->
+<section class="step" id="glossary">
+  <h2><span class="num">∞</span>Glossary</h2>
+  <div class="glossary">
+    <div class="gloss-card"><h4>A/B test</h4><p>Show version A to half your users, B to the other half, measure which performs better. Used to tune ranking weights without guessing.</p></div>
+    <div class="gloss-card"><h4>AP vs CP (CAP theorem)</h4><p>AP = always responds even if data is slightly stale. CP = always correct but may refuse requests. Typeahead picks AP.</p></div>
+    <div class="gloss-card"><h4>API Gateway</h4><p>Single entry point for clients. Handles auth, rate-limit, routing.</p></div>
+    <div class="gloss-card"><h4>BK-tree</h4><p>A tree designed for finding strings within a certain edit distance. Used for spell-checking and misspellings.</p></div>
+    <div class="gloss-card"><h4>Batch processing</h4><p>Handle data in large groups on a schedule (e.g., once an hour). Accurate but slow.</p></div>
+    <div class="gloss-card"><h4>CDN</h4><p>Content Delivery Network — globally distributed cache servers close to users. Cloudflare, Fastly, Akamai.</p></div>
+    <div class="gloss-card"><h4>Debounce</h4><p>Wait for the user to pause typing before sending the network request. Reduces traffic.</p></div>
+    <div class="gloss-card"><h4>Deny-list</h4><p>Curated list of forbidden words/phrases never to suggest.</p></div>
+    <div class="gloss-card"><h4>DFS</h4><p>Depth-First Search — walk a tree by going deep before backtracking.</p></div>
+    <div class="gloss-card"><h4>Edge cache</h4><p>A cache at the CDN layer, close to users. Catches popular requests before they hit your backend.</p></div>
+    <div class="gloss-card"><h4>Edit distance</h4><p>Number of single-character changes to turn one string into another.</p></div>
+    <div class="gloss-card"><h4>Frequency decay</h4><p>Weight recent searches more than old ones, usually with exponential half-life.</p></div>
+    <div class="gloss-card"><h4>Hot-swap</h4><p>Replace a running data structure (like the trie) with a new version atomically, with no downtime.</p></div>
+    <div class="gloss-card"><h4>Kafka</h4><p>Distributed append-only queue. Used to move events between services durably.</p></div>
+    <div class="gloss-card"><h4>Lambda architecture</h4><p>Combining a slow accurate batch layer with a fast approximate stream layer.</p></div>
+    <div class="gloss-card"><h4>p99 latency</h4><p>The 99th percentile response time. p99 &lt; 100 ms = 99% of requests under 100 ms.</p></div>
+    <div class="gloss-card"><h4>QPS</h4><p>Queries Per Second.</p></div>
+    <div class="gloss-card"><h4>Redis sorted set</h4><p>A Redis data structure keeping members ordered by a numeric score. Great for rankings and trending lists.</p></div>
+    <div class="gloss-card"><h4>Replica</h4><p>A copy of a shard for redundancy and read scaling.</p></div>
+    <div class="gloss-card"><h4>Shard</h4><p>One slice of a larger dataset living on a different machine.</p></div>
+    <div class="gloss-card"><h4>Spark / Flink</h4><p>Distributed data-processing frameworks for huge batch or stream jobs.</p></div>
+    <div class="gloss-card"><h4>Stream processing</h4><p>Handle events one at a time as they arrive. Fast but approximate.</p></div>
+    <div class="gloss-card"><h4>Top-K</h4><p>The K most popular/relevant items. Pre-computed so reads are instant.</p></div>
+    <div class="gloss-card"><h4>Trie</h4><p>Tree where each path from root spells a prefix. Each edge is one character.</p></div>
+    <div class="gloss-card"><h4>TTL</h4><p>Time To Live — auto-expiry timer on a cache key.</p></div>
+    <div class="gloss-card"><h4>Typeahead</h4><p>The dropdown of suggested completions as you type into a search box.</p></div>
+    <div class="gloss-card"><h4>Zipf distribution</h4><p>A power-law where the k-th most popular item gets frequency ≈ 1/k of the most popular. Concretely: the #2 query gets ~half the traffic of #1, the #10 gets ~1/10, the #100 gets ~1/100. So the top 0.1% of prefixes can easily generate 90% of all requests — which is exactly why caching just a few thousand entries deflects almost all our traffic.</p></div>
+  </div>
+</section>
+
+</div>
+
+<a href="#" class="top" id="top">↑</a>
+
+<footer>
+  <b>BuildLikeASenior</b> · Think · Design · Grow Like a Senior Engineer<br>
+  <small>System Design · 02 — Typeahead Suggestions</small>
+</footer>
+
+<script>
+  const top = document.getElementById('top');
+  window.addEventListener('scroll', () => { top.classList.toggle('show', window.scrollY > 400); });
+</script>
+
+</body>
+</html>

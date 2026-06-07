@@ -62,7 +62,30 @@
   .complexity div{background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.2);border-radius:10px;padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:13px}
   .complexity b{color:var(--teal)}
   pre[class*="language-"]{border-radius:10px;font-size:13px;border:1px solid var(--line);background:#0a1428 !important;margin:8px 0}
-  .mermaid-wrap{background:#fff;border-radius:12px;padding:20px;margin:8px 0;overflow-x:auto;border:1px solid var(--line)}
+  .mermaid-wrap{
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(91,141,238,.10), transparent 60%),
+      radial-gradient(ellipse at 100% 100%, rgba(0,212,170,.08), transparent 55%),
+      linear-gradient(180deg, #0e1a33 0%, #0b1428 100%);
+    border-radius:14px;padding:22px;margin:10px 0;overflow-x:auto;
+    border:1px solid rgba(91,141,238,.18);
+    box-shadow: 0 2px 14px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  .mermaid-wrap .mermaid{display:flex;justify-content:center}
+  .mermaid-wrap svg{max-width:100%;height:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
+  .mermaid-wrap .node rect,
+  .mermaid-wrap .node polygon,
+  .mermaid-wrap .node circle,
+  .mermaid-wrap .node ellipse,
+  .mermaid-wrap .node path{
+    rx:10; ry:10;
+    stroke-width:1.4px !important;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,.35));
+  }
+  .mermaid-wrap .edgePath .path{stroke-width:1.6px !important; opacity:.85}
+  .mermaid-wrap .edgeLabel{background-color:transparent !important; color:#cfe0ff !important; font-size:12px !important}
+  .mermaid-wrap .edgeLabel rect{fill:#0e1a33 !important; opacity:.9}
+  .mermaid-wrap .cluster rect{fill:rgba(91,141,238,.06) !important; stroke:rgba(91,141,238,.25) !important; rx:14; ry:14}
   .mermaid{display:flex;justify-content:center}
   .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99}
   .top.show{opacity:1}
@@ -173,22 +196,22 @@ flowchart TD
  * Swap pivot with the smallest value greater than it in the suffix, then reverse the
  * suffix so it becomes the smallest possible tail (yielding the *next* perm).
  */
-void nextPermutation(int[] numbers){
-  int length = numbers.length;
+void nextPermutation(int[] nums){
+  int n = nums.length;
 
-  // 1) find the rightmost index 'pivotIdx' where numbers[pivotIdx] &lt; numbers[pivotIdx+1]
-  int pivotIdx = length - 2;
-  while(pivotIdx &gt;= 0 &amp;&amp; numbers[pivotIdx] &gt;= numbers[pivotIdx + 1]) pivotIdx--;
+  // 1) find the rightmost index 'i' where nums[i] &lt; nums[i+1]
+  int i = n - 2;
+  while(i &gt;= 0 &amp;&amp; nums[i] &gt;= nums[i + 1]) i--;
 
-  if(pivotIdx &gt;= 0){
-    // 2) find the rightmost value strictly greater than numbers[pivotIdx]
-    int successorIdx = length - 1;
-    while(numbers[successorIdx] &lt;= numbers[pivotIdx]) successorIdx--;
+  if(i &gt;= 0){
+    // 2) find the rightmost value strictly greater than nums[i]
+    int j = n - 1;
+    while(nums[j] &lt;= nums[i]) j--;
     // 3) swap them — now the suffix is still descending
-    swap(numbers, pivotIdx, successorIdx);
+    swap(nums, i, j);
   }
   // 4) reverse the suffix to make it ascending = smallest possible tail
-  reverseRange(numbers, pivotIdx + 1, length - 1);
+  reverseRange(nums, i + 1, n - 1);
 }
 
 private void swap(int[] a, int i, int j){ int t = a[i]; a[i] = a[j]; a[j] = t; }
@@ -261,29 +284,29 @@ flowchart TD
  * halving the gap each pass guarantees the combined array becomes sorted.
  * 'valueAt' / 'swapAt' route an index to whichever real array it falls in.
  */
-void mergeWithoutExtraSpace(int[] arrayA, int[] arrayB){
-  int sizeA = arrayA.length, sizeB = arrayB.length;
-  int combined = sizeA + sizeB;
+void mergeWithoutExtraSpace(int[] a, int[] b){
+  int n = a.length, m = b.length;
+  int total = n + m;
 
-  for(int gap = ceilDiv(combined, 2); gap &gt; 0; gap = (gap == 1 ? 0 : ceilDiv(gap, 2))){
-    for(int leftIdx = 0; leftIdx + gap &lt; combined; leftIdx++){
-      int rightIdx = leftIdx + gap;
-      if(valueAt(leftIdx, arrayA, arrayB, sizeA) &gt; valueAt(rightIdx, arrayA, arrayB, sizeA)){
-        swapAt(leftIdx, rightIdx, arrayA, arrayB, sizeA);
+  for(int gap = ceilDiv(total, 2); gap &gt; 0; gap = (gap == 1 ? 0 : ceilDiv(gap, 2))){
+    for(int i = 0; i + gap &lt; total; i++){
+      int j = i + gap;
+      if(valueAt(i, a, b, n) &gt; valueAt(j, a, b, n)){
+        swapAt(i, j, a, b, n);
       }
     }
   }
 }
 
 private int  ceilDiv(int x, int y){ return (x + y - 1) / y; }
-private int  valueAt(int idx, int[] a, int[] b, int sizeA){
-  return idx &lt; sizeA ? a[idx] : b[idx - sizeA];
+private int  valueAt(int idx, int[] a, int[] b, int n){
+  return idx &lt; n ? a[idx] : b[idx - n];
 }
-private void swapAt(int i, int j, int[] a, int[] b, int sizeA){
-  int vi = valueAt(i, a, b, sizeA);
-  int vj = valueAt(j, a, b, sizeA);
-  if(i &lt; sizeA) a[i] = vj; else b[i - sizeA] = vj;
-  if(j &lt; sizeA) a[j] = vi; else b[j - sizeA] = vi;
+private void swapAt(int i, int j, int[] a, int[] b, int n){
+  int vi = valueAt(i, a, b, n);
+  int vj = valueAt(j, a, b, n);
+  if(i &lt; n) a[i] = vj; else b[i - n] = vj;
+  if(j &lt; n) a[j] = vi; else b[j - n] = vi;
 }</code></pre>
   <div class="complexity"><div>Time <b>O((n+m) log(n+m))</b></div><div>Space <b>O(1)</b></div></div>
 </article>
@@ -348,19 +371,19 @@ flowchart TD
  * Trick: each non-majority element can "cancel" exactly one majority occurrence.
  * Since majority appears &gt;n/2 times, it survives all cancellations.
  */
-int majorityElement(int[] numbers){
-  int leadingCandidate = 0;
-  int voteBalance      = 0;
+int majorityElement(int[] nums){
+  int cand  = 0;
+  int count = 0;
 
-  for(int currentValue : numbers){
-    if(voteBalance == 0){
+  for(int x : nums){
+    if(count == 0){
       // no current candidate → adopt this value as our new candidate
-      leadingCandidate = currentValue;
+      cand = x;
     }
     // matching value supports the candidate; differing value cancels one vote
-    voteBalance += (currentValue == leadingCandidate) ? 1 : -1;
+    count += (x == cand) ? 1 : -1;
   }
-  return leadingCandidate;
+  return cand;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
 </article>
@@ -424,24 +447,24 @@ flowchart TD
  * Trick: only ATTEMPT to extend a streak from its smallest element. If x-1 is in the
  * set, x is not a start. This ensures each element is visited at most twice overall.
  */
-int longestConsecutive(int[] numbers){
-  Set&lt;Integer&gt; valueSet = new HashSet&lt;&gt;();
-  for(int value : numbers) valueSet.add(value);
+int longestConsecutive(int[] nums){
+  Set&lt;Integer&gt; set = new HashSet&lt;&gt;();
+  for(int x : nums) set.add(x);
 
-  int longestStreak = 0;
-  for(int candidateStart : valueSet){
+  int best = 0;
+  for(int x : set){
     // only attempt to grow a streak from its smallest element
-    if(valueSet.contains(candidateStart - 1)) continue;
+    if(set.contains(x - 1)) continue;
 
-    int currentValue  = candidateStart;
-    int currentLength = 0;
-    while(valueSet.contains(currentValue)){
-      currentValue++;
-      currentLength++;
+    int cur = x;
+    int len = 0;
+    while(set.contains(cur)){
+      cur++;
+      len++;
     }
-    longestStreak = Math.max(longestStreak, currentLength);
+    best = Math.max(best, len);
   }
-  return longestStreak;
+  return best;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(n)</b></div></div>
 </article>
@@ -501,26 +524,26 @@ flowchart LR
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
  * Merges two sorted linked lists into one sorted list (re-using nodes, in place).
- * Trick: a 'dummyHead' sentinel removes the special-case for "is this the first node?"
+ * Trick: a 'dummy' sentinel removes the special-case for "is this the first node?"
  * and a single tail pointer keeps the splice cost O(1) per step.
  */
-ListNode mergeTwoLists(ListNode headA, ListNode headB){
-  ListNode dummyHead = new ListNode(0);    // sentinel so we always have a previous node
-  ListNode tailNode  = dummyHead;
+ListNode mergeTwoLists(ListNode a, ListNode b){
+  ListNode dummy = new ListNode(0);        // sentinel so we always have a previous node
+  ListNode tail  = dummy;
 
-  while(headA != null &amp;&amp; headB != null){
-    if(headA.val &lt;= headB.val){
-      tailNode.next = headA;               // attach smaller, advance that list
-      headA = headA.next;
+  while(a != null &amp;&amp; b != null){
+    if(a.val &lt;= b.val){
+      tail.next = a;                       // attach smaller, advance that list
+      a = a.next;
     } else {
-      tailNode.next = headB;
-      headB = headB.next;
+      tail.next = b;
+      b = b.next;
     }
-    tailNode = tailNode.next;
+    tail = tail.next;
   }
-  // exactly one of headA/headB is null; the other is already sorted → splice it on
-  tailNode.next = (headA != null) ? headA : headB;
-  return dummyHead.next;
+  // exactly one of a/b is null; the other is already sorted → splice it on
+  tail.next = (a != null) ? a : b;
+  return dummy.next;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n+m)</b></div><div>Space <b>O(1)</b></div></div>
 </article>
@@ -580,20 +603,20 @@ flowchart LR
  * walkers moving at speed 1 (from head and from collision) meet exactly at the entry.
  */
 ListNode detectCycle(ListNode head){
-  ListNode slowWalker = head, fastWalker = head;
+  ListNode slow = head, fast = head;
 
   // ---- phase 1: detect any meeting inside the cycle ----
-  while(fastWalker != null &amp;&amp; fastWalker.next != null){
-    slowWalker = slowWalker.next;
-    fastWalker = fastWalker.next.next;
-    if(slowWalker == fastWalker){
+  while(fast != null &amp;&amp; fast.next != null){
+    slow = slow.next;
+    fast = fast.next.next;
+    if(slow == fast){
       // ---- phase 2: walk one from head, one from meeting; they meet at the entry ----
-      ListNode entryWalker = head;
-      while(entryWalker != slowWalker){
-        entryWalker = entryWalker.next;
-        slowWalker  = slowWalker.next;
+      ListNode p = head;
+      while(p != slow){
+        p    = p.next;
+        slow = slow.next;
       }
-      return entryWalker;
+      return p;
     }
   }
   return null;                              // fast fell off → no cycle
@@ -665,30 +688,30 @@ flowchart TD
  * Trick: sort, fix the smallest element, then converge with two pointers from both ends.
  * Skipping duplicates at each of the three levels eliminates repeated triplets.
  */
-List&lt;List&lt;Integer&gt;&gt; threeSum(int[] numbers){
-  Arrays.sort(numbers);
-  List&lt;List&lt;Integer&gt;&gt; triplets = new ArrayList&lt;&gt;();
-  int length = numbers.length;
+List&lt;List&lt;Integer&gt;&gt; threeSum(int[] nums){
+  Arrays.sort(nums);
+  List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();
+  int n = nums.length;
 
-  for(int firstIdx = 0; firstIdx &lt; length - 2; firstIdx++){
-    if(firstIdx &gt; 0 &amp;&amp; numbers[firstIdx] == numbers[firstIdx - 1]) continue;   // skip dup first
-    int leftPointer  = firstIdx + 1;
-    int rightPointer = length - 1;
-    while(leftPointer &lt; rightPointer){
-      int tripletSum = numbers[firstIdx] + numbers[leftPointer] + numbers[rightPointer];
-      if(tripletSum == 0){
-        triplets.add(Arrays.asList(numbers[firstIdx], numbers[leftPointer], numbers[rightPointer]));
-        leftPointer++; rightPointer--;
-        while(leftPointer &lt; rightPointer &amp;&amp; numbers[leftPointer]  == numbers[leftPointer - 1])  leftPointer++;
-        while(leftPointer &lt; rightPointer &amp;&amp; numbers[rightPointer] == numbers[rightPointer + 1]) rightPointer--;
-      } else if(tripletSum &lt; 0){
-        leftPointer++;
+  for(int i = 0; i &lt; n - 2; i++){
+    if(i &gt; 0 &amp;&amp; nums[i] == nums[i - 1]) continue;   // skip dup first
+    int l = i + 1;
+    int r = n - 1;
+    while(l &lt; r){
+      int sum = nums[i] + nums[l] + nums[r];
+      if(sum == 0){
+        res.add(Arrays.asList(nums[i], nums[l], nums[r]));
+        l++; r--;
+        while(l &lt; r &amp;&amp; nums[l]  == nums[l - 1])  l++;
+        while(l &lt; r &amp;&amp; nums[r] == nums[r + 1]) r--;
+      } else if(sum &lt; 0){
+        l++;
       } else {
-        rightPointer--;
+        r--;
       }
     }
   }
-  return triplets;
+  return res;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n²)</b></div><div>Space <b>O(1)</b> aux</div></div>
 </article>
@@ -759,27 +782,27 @@ int[] jobSequencing(int[][] jobs){      // jobs[i] = {jobId, deadline, profit}
   // sort by profit descending
   Arrays.sort(jobs, (a, b) -&gt; Integer.compare(b[2], a[2]));
 
-  int latestDeadline = 0;
-  for(int[] job : jobs) latestDeadline = Math.max(latestDeadline, job[1]);
+  int maxDeadline = 0;
+  for(int[] job : jobs) maxDeadline = Math.max(maxDeadline, job[1]);
 
-  boolean[] slotTaken = new boolean[latestDeadline + 1];   // slotTaken[1..latestDeadline]
-  int scheduledJobsCount = 0;
-  int accumulatedProfit  = 0;
+  boolean[] taken = new boolean[maxDeadline + 1];   // taken[1..maxDeadline]
+  int count = 0;
+  int totalProfit = 0;
 
   for(int[] job : jobs){
-    int deadline = job[1];
-    int profit   = job[2];
+    int d = job[1];
+    int p = job[2];
     // scan slots from the latest possible one down to 1 — first free slot wins
-    for(int slotIdx = Math.min(latestDeadline, deadline); slotIdx &gt;= 1; slotIdx--){
-      if(!slotTaken[slotIdx]){
-        slotTaken[slotIdx] = true;
-        scheduledJobsCount++;
-        accumulatedProfit += profit;
+    for(int s = Math.min(maxDeadline, d); s &gt;= 1; s--){
+      if(!taken[s]){
+        taken[s] = true;
+        count++;
+        totalProfit += p;
         break;
       }
     }
   }
-  return new int[]{scheduledJobsCount, accumulatedProfit};
+  return new int[]{count, totalProfit};
 }</code></pre>
   <div class="complexity"><div>Time <b>O(N · maxDeadline)</b></div><div>Space <b>O(maxDeadline)</b></div></div>
 </article>
@@ -844,31 +867,31 @@ flowchart TD
  * Trick: 'pick or move on' at each index, KEEPING the index when picking (allows reuse).
  * Moving on means we'll never revisit prior values → combinations stay unique.
  */
-List&lt;List&lt;Integer&gt;&gt; combinationSum(int[] candidates, int targetSum){
-  List&lt;List&lt;Integer&gt;&gt; allCombinations = new ArrayList&lt;&gt;();
-  exploreCombinations(0, targetSum, candidates, new ArrayList&lt;&gt;(), allCombinations);
-  return allCombinations;
+List&lt;List&lt;Integer&gt;&gt; combinationSum(int[] candidates, int target){
+  List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();
+  exploreCombinations(0, target, candidates, new ArrayList&lt;&gt;(), res);
+  return res;
 }
 
-private void exploreCombinations(int currentIdx, int remainingTarget,
-                                 int[] candidates, List&lt;Integer&gt; currentCombination,
-                                 List&lt;List&lt;Integer&gt;&gt; allCombinations){
-  if(remainingTarget == 0){
-    allCombinations.add(new ArrayList&lt;&gt;(currentCombination));     // snapshot the winning combo
+private void exploreCombinations(int i, int rem,
+                                 int[] candidates, List&lt;Integer&gt; cur,
+                                 List&lt;List&lt;Integer&gt;&gt; res){
+  if(rem == 0){
+    res.add(new ArrayList&lt;&gt;(cur));     // snapshot the winning combo
     return;
   }
-  if(currentIdx == candidates.length || remainingTarget &lt; 0) return;
+  if(i == candidates.length || rem &lt; 0) return;
 
-  // option A: pick candidates[currentIdx] (and stay at same index → allows reuse)
-  if(candidates[currentIdx] &lt;= remainingTarget){
-    currentCombination.add(candidates[currentIdx]);
-    exploreCombinations(currentIdx, remainingTarget - candidates[currentIdx],
-                        candidates, currentCombination, allCombinations);
-    currentCombination.remove(currentCombination.size() - 1);     // backtrack
+  // option A: pick candidates[i] (and stay at same index → allows reuse)
+  if(candidates[i] &lt;= rem){
+    cur.add(candidates[i]);
+    exploreCombinations(i, rem - candidates[i],
+                        candidates, cur, res);
+    cur.remove(cur.size() - 1);     // backtrack
   }
   // option B: skip this candidate entirely → advance index
-  exploreCombinations(currentIdx + 1, remainingTarget,
-                      candidates, currentCombination, allCombinations);
+  exploreCombinations(i + 1, rem,
+                      candidates, cur, res);
 }</code></pre>
   <div class="complexity"><div>Time <b>O(2^t)</b></div><div>Space <b>O(t)</b> recursion</div></div>
 </article>
@@ -941,9 +964,9 @@ boolean solveSudoku(char[][] board){
   for(int row = 0; row &lt; 9; row++){
     for(int col = 0; col &lt; 9; col++){
       if(board[row][col] != '.') continue;
-      for(char candidateDigit = '1'; candidateDigit &lt;= '9'; candidateDigit++){
-        if(!isPlacementValid(board, row, col, candidateDigit)) continue;
-        board[row][col] = candidateDigit;                     // try
+      for(char d = '1'; d &lt;= '9'; d++){
+        if(!isPlacementValid(board, row, col, d)) continue;
+        board[row][col] = d;                                  // try
         if(solveSudoku(board)) return true;                   // succeed → propagate up
         board[row][col] = '.';                                // backtrack
       }
@@ -953,13 +976,13 @@ boolean solveSudoku(char[][] board){
   return true;                                                // no empty cells → solved
 }
 
-private boolean isPlacementValid(char[][] board, int row, int col, char digit){
-  int boxRowStart = (row / 3) * 3;
-  int boxColStart = (col / 3) * 3;
+private boolean isPlacementValid(char[][] board, int row, int col, char d){
+  int boxRow = (row / 3) * 3;
+  int boxCol = (col / 3) * 3;
   for(int i = 0; i &lt; 9; i++){
-    if(board[row][i] == digit) return false;                  // row conflict
-    if(board[i][col] == digit) return false;                  // col conflict
-    if(board[boxRowStart + i / 3][boxColStart + i % 3] == digit) return false;   // box conflict
+    if(board[row][i] == d) return false;                      // row conflict
+    if(board[i][col] == d) return false;                      // col conflict
+    if(board[boxRow + i / 3][boxCol + i % 3] == d) return false;   // box conflict
   }
   return true;
 }</code></pre>
@@ -1043,15 +1066,15 @@ flowchart TD
  * Trick: before the lone element, pairs sit at (even, odd) indices; after it they
  * shift to (odd, even). Use a closed-interval binary search on this parity invariant.
  */
-int singleNonDuplicate(int[] sortedNumbers){
-  int n  = sortedNumbers.length;
+int singleNonDuplicate(int[] nums){
+  int n  = nums.length;
   int lo = 0, hi = n - 1;
   while(lo &lt;= hi){
     int mid = (lo + hi) / 2;
 
-    boolean leftSame  = mid &gt; 0     &amp;&amp; sortedNumbers[mid] == sortedNumbers[mid - 1];
-    boolean rightSame = mid &lt; n - 1 &amp;&amp; sortedNumbers[mid] == sortedNumbers[mid + 1];
-    if(!leftSame &amp;&amp; !rightSame) return sortedNumbers[mid];      // mid IS the unique element
+    boolean leftSame  = mid &gt; 0     &amp;&amp; nums[mid] == nums[mid - 1];
+    boolean rightSame = mid &lt; n - 1 &amp;&amp; nums[mid] == nums[mid + 1];
+    if(!leftSame &amp;&amp; !rightSame) return nums[mid];      // mid IS the unique element
 
     // index where the pair containing mid begins
     int pairStart = leftSame ? mid - 1 : mid;
@@ -1128,22 +1151,22 @@ flowchart TD
  * Trick: a min-heap of (value, frequency) of size at most k always exposes the
  * smallest-frequency kept candidate at its root — easy to evict for newcomers.
  */
-int[] topKFrequent(int[] numbers, int k){
+int[] topKFrequent(int[] nums, int k){
   // 1) count frequencies
-  Map&lt;Integer, Integer&gt; frequencyByValue = new HashMap&lt;&gt;();
-  for(int value : numbers) frequencyByValue.merge(value, 1, Integer::sum);
+  Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();
+  for(int x : nums) freq.merge(x, 1, Integer::sum);
 
   // 2) min-heap of (value, frequency) ordered by frequency ascending
-  PriorityQueue&lt;int[]&gt; topKMinHeap = new PriorityQueue&lt;&gt;((a, b) -&gt; Integer.compare(a[1], b[1]));
-  for(Map.Entry&lt;Integer,Integer&gt; entry : frequencyByValue.entrySet()){
-    topKMinHeap.offer(new int[]{entry.getKey(), entry.getValue()});
-    if(topKMinHeap.size() &gt; k) topKMinHeap.poll();         // keep only top-k by frequency
+  PriorityQueue&lt;int[]&gt; pq = new PriorityQueue&lt;&gt;((a, b) -&gt; Integer.compare(a[1], b[1]));
+  for(Map.Entry&lt;Integer,Integer&gt; e : freq.entrySet()){
+    pq.offer(new int[]{e.getKey(), e.getValue()});
+    if(pq.size() &gt; k) pq.poll();         // keep only top-k by frequency
   }
 
   // 3) drain heap into output (order doesn't matter)
-  int[] topKValues = new int[k];
-  for(int i = 0; i &lt; k; i++) topKValues[i] = topKMinHeap.poll()[0];
-  return topKValues;
+  int[] res = new int[k];
+  for(int i = 0; i &lt; k; i++) res[i] = pq.poll()[0];
+  return res;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n log k)</b></div><div>Space <b>O(n)</b></div></div>
 </article>
@@ -1206,10 +1229,10 @@ flowchart LR
 class StackUsingQueue {
   private final Deque&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();
 
-  void push(int value){
-    queue.addLast(value);                          // append at the back
+  void push(int x){
+    queue.addLast(x);                              // append at the back
     // rotate (size-1) elements from front to back → newest element ends up at front
-    for(int rotations = queue.size() - 1; rotations &gt; 0; rotations--){
+    for(int i = queue.size() - 1; i &gt; 0; i--){
       queue.addLast(queue.pollFirst());
     }
   }
@@ -1286,30 +1309,30 @@ flowchart TD
  * indices can NEVER be the max while this larger element is still in the window,
  * so we discard them as soon as we see the new larger value.
  */
-int[] maxSlidingWindow(int[] numbers, int windowSize){
-  int length = numbers.length;
-  int[] windowMaxes = new int[length - windowSize + 1];
-  Deque&lt;Integer&gt; monotonicIndexDeque = new ArrayDeque&lt;&gt;();   // stores INDICES, values strictly decreasing
+int[] maxSlidingWindow(int[] nums, int k){
+  int n = nums.length;
+  int[] res = new int[n - k + 1];
+  Deque&lt;Integer&gt; dq = new ArrayDeque&lt;&gt;();   // stores INDICES, values strictly decreasing
 
-  for(int currentIdx = 0; currentIdx &lt; length; currentIdx++){
+  for(int i = 0; i &lt; n; i++){
     // 1) evict smaller-or-equal trailing values — they can't be the max while current is around
-    while(!monotonicIndexDeque.isEmpty()
-          &amp;&amp; numbers[monotonicIndexDeque.peekLast()] &lt;= numbers[currentIdx]){
-      monotonicIndexDeque.pollLast();
+    while(!dq.isEmpty()
+          &amp;&amp; nums[dq.peekLast()] &lt;= nums[i]){
+      dq.pollLast();
     }
-    monotonicIndexDeque.addLast(currentIdx);
+    dq.addLast(i);
 
     // 2) evict front if it has slid out of the window
-    if(monotonicIndexDeque.peekFirst() &lt;= currentIdx - windowSize){
-      monotonicIndexDeque.pollFirst();
+    if(dq.peekFirst() &lt;= i - k){
+      dq.pollFirst();
     }
 
     // 3) once we have a full window, front is always its max
-    if(currentIdx &gt;= windowSize - 1){
-      windowMaxes[currentIdx - windowSize + 1] = numbers[monotonicIndexDeque.peekFirst()];
+    if(i &gt;= k - 1){
+      res[i - k + 1] = nums[dq.peekFirst()];
     }
   }
-  return windowMaxes;
+  return res;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(k)</b></div></div>
 </article>
@@ -1376,22 +1399,22 @@ flowchart TD
  * Trick: keep a HashMap of char → last seen index. When the new char's last position
  * is inside the current window, jump the left edge to right after that position.
  */
-int lengthOfLongestSubstring(String text){
-  Map&lt;Character, Integer&gt; lastSeenIndexOf = new HashMap&lt;&gt;();
-  int windowLeftIdx = 0;
-  int longestLength = 0;
+int lengthOfLongestSubstring(String s){
+  Map&lt;Character, Integer&gt; last = new HashMap&lt;&gt;();
+  int l = 0;
+  int best = 0;
 
-  for(int windowRightIdx = 0; windowRightIdx &lt; text.length(); windowRightIdx++){
-    char currentChar = text.charAt(windowRightIdx);
-    if(lastSeenIndexOf.containsKey(currentChar)
-       &amp;&amp; lastSeenIndexOf.get(currentChar) &gt;= windowLeftIdx){
+  for(int r = 0; r &lt; s.length(); r++){
+    char c = s.charAt(r);
+    if(last.containsKey(c)
+       &amp;&amp; last.get(c) &gt;= l){
       // duplicate sits inside the current window → jump left past it
-      windowLeftIdx = lastSeenIndexOf.get(currentChar) + 1;
+      l = last.get(c) + 1;
     }
-    lastSeenIndexOf.put(currentChar, windowRightIdx);
-    longestLength = Math.max(longestLength, windowRightIdx - windowLeftIdx + 1);
+    last.put(c, r);
+    best = Math.max(best, r - l + 1);
   }
-  return longestLength;
+  return best;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(min(n, Σ))</b></div></div>
 </article>
@@ -1451,23 +1474,23 @@ flowchart TD
  * Trick: the longest palindromic PREFIX of s equals the longest prefix of s that is
  * also a suffix of reverse(s). KMP's LPS on (s + '#' + reverse(s)) gives that length.
  */
-int minCharsToAddFront(String text){
-  String separatorBlocked = text + "#" + new StringBuilder(text).reverse();
-  int[] longestPrefixSuffix = buildLps(separatorBlocked);
-  int longestPalindromicPrefixLen = longestPrefixSuffix[longestPrefixSuffix.length - 1];
+int minCharsToAddFront(String s){
+  String combined = s + "#" + new StringBuilder(s).reverse();
+  int[] lps = buildLps(combined);
+  int lpsLen = lps[lps.length - 1];
   // n - longestPalindromicPrefix = how much non-palindromic suffix needs mirroring up front
-  return text.length() - longestPalindromicPrefixLen;
+  return s.length() - lpsLen;
 }
 
-private int[] buildLps(String pattern){
-  int[] lps = new int[pattern.length()];
-  int currentPrefixLen = 0, i = 1;
-  while(i &lt; pattern.length()){
-    if(pattern.charAt(i) == pattern.charAt(currentPrefixLen)){
-      currentPrefixLen++;
-      lps[i++] = currentPrefixLen;
-    } else if(currentPrefixLen &gt; 0){
-      currentPrefixLen = lps[currentPrefixLen - 1];
+private int[] buildLps(String p){
+  int[] lps = new int[p.length()];
+  int len = 0, i = 1;
+  while(i &lt; p.length()){
+    if(p.charAt(i) == p.charAt(len)){
+      len++;
+      lps[i++] = len;
+    } else if(len &gt; 0){
+      len = lps[len - 1];
     } else {
       lps[i++] = 0;
     }
@@ -1511,21 +1534,21 @@ private int[] buildLps(String pattern){
     <div class="alt"><b>Recursion</b> Trivial 3 lines but uses implicit stack. — <code>O(h)</code>.</div>
     <div class="alt"><b>Two-stack variant</b> Same insight, made explicit — do a mirrored preorder (Node → Right → Left) into a second stack, then drain. Reversing that sequence yields Left → Right → Node = postorder.
 <pre><code class="language-java">List&lt;Integer&gt; postorderTwoStacks(TreeNode root){
-  List&lt;Integer&gt; postorderOutput = new ArrayList&lt;&gt;();
-  if(root == null) return postorderOutput;
+  List&lt;Integer&gt; res = new ArrayList&lt;&gt;();
+  if(root == null) return res;
 
-  Deque&lt;TreeNode&gt; workStack   = new ArrayDeque&lt;&gt;();
-  Deque&lt;TreeNode&gt; outputStack = new ArrayDeque&lt;&gt;();
-  workStack.push(root);
+  Deque&lt;TreeNode&gt; st  = new ArrayDeque&lt;&gt;();
+  Deque&lt;TreeNode&gt; out = new ArrayDeque&lt;&gt;();
+  st.push(root);
 
-  while(!workStack.isEmpty()){
-    TreeNode node = workStack.pop();
-    outputStack.push(node);                                  // collect in REVERSE postorder
-    if(node.left  != null) workStack.push(node.left);        // mirrored preorder: push left first
-    if(node.right != null) workStack.push(node.right);       // … so right is processed first
+  while(!st.isEmpty()){
+    TreeNode node = st.pop();
+    out.push(node);                                         // collect in REVERSE postorder
+    if(node.left  != null) st.push(node.left);              // mirrored preorder: push left first
+    if(node.right != null) st.push(node.right);             // … so right is processed first
   }
-  while(!outputStack.isEmpty()) postorderOutput.add(outputStack.pop().val);  // drain → true postorder
-  return postorderOutput;
+  while(!out.isEmpty()) res.add(out.pop().val);             // drain → true postorder
+  return res;
 }</code></pre>
     </div>
   </div>
@@ -1555,18 +1578,18 @@ flowchart TD
  * pops next). Reverse the result list and you have left→right→root = postorder.
  */
 List&lt;Integer&gt; postorderTraversal(TreeNode root){
-  LinkedList&lt;Integer&gt; reversedPostorder = new LinkedList&lt;&gt;();
-  if(root == null) return reversedPostorder;
+  LinkedList&lt;Integer&gt; res = new LinkedList&lt;&gt;();
+  if(root == null) return res;
 
-  Deque&lt;TreeNode&gt; traversalStack = new ArrayDeque&lt;&gt;();
-  traversalStack.push(root);
-  while(!traversalStack.isEmpty()){
-    TreeNode currentNode = traversalStack.pop();
-    reversedPostorder.addFirst(currentNode.val);   // prepend → final list is left-right-root
-    if(currentNode.left  != null) traversalStack.push(currentNode.left);   // push LEFT first → right pops next
-    if(currentNode.right != null) traversalStack.push(currentNode.right);
+  Deque&lt;TreeNode&gt; st = new ArrayDeque&lt;&gt;();
+  st.push(root);
+  while(!st.isEmpty()){
+    TreeNode cur = st.pop();
+    res.addFirst(cur.val);   // prepend → final list is left-right-root
+    if(cur.left  != null) st.push(cur.left);   // push LEFT first → right pops next
+    if(cur.right != null) st.push(cur.right);
   }
-  return reversedPostorder;
+  return res;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b></div></div>
 </article>
@@ -1637,21 +1660,21 @@ flowchart TD
  * Trick: combine height-computation and diameter-tracking in one DFS. At each node the
  * longest path THROUGH it is exactly leftHeight + rightHeight.
  */
-private int globalDiameterMax = 0;
+private int best = 0;
 
 int diameterOfBinaryTree(TreeNode root){
-  globalDiameterMax = 0;
+  best = 0;
   measureHeight(root);
-  return globalDiameterMax;
+  return best;
 }
 
 private int measureHeight(TreeNode node){
   if(node == null) return 0;
-  int leftSubtreeHeight  = measureHeight(node.left);
-  int rightSubtreeHeight = measureHeight(node.right);
+  int lh = measureHeight(node.left);
+  int rh = measureHeight(node.right);
   // best path through THIS node spans leftHeight + rightHeight edges
-  globalDiameterMax = Math.max(globalDiameterMax, leftSubtreeHeight + rightSubtreeHeight);
-  return 1 + Math.max(leftSubtreeHeight, rightSubtreeHeight);
+  best = Math.max(best, lh + rh);
+  return 1 + Math.max(lh, rh);
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b></div></div>
 </article>
@@ -1715,31 +1738,31 @@ flowchart TD
  * remaining elements into the left and right subtrees in O(1) via a HashMap.
  */
 TreeNode buildTree(int[] inorder, int[] postorder){
-  Map&lt;Integer,Integer&gt; inorderIndexOf = new HashMap&lt;&gt;();
-  for(int i = 0; i &lt; inorder.length; i++) inorderIndexOf.put(inorder[i], i);
+  Map&lt;Integer,Integer&gt; pos = new HashMap&lt;&gt;();
+  for(int i = 0; i &lt; inorder.length; i++) pos.put(inorder[i], i);
   return constructSubtree(postorder, 0, postorder.length - 1,
                           inorder,   0, inorder.length  - 1,
-                          inorderIndexOf);
+                          pos);
 }
 
 private TreeNode constructSubtree(int[] postorder, int postStart, int postEnd,
                                   int[] inorder,   int inStart,   int inEnd,
-                                  Map&lt;Integer,Integer&gt; inorderIndexOf){
+                                  Map&lt;Integer,Integer&gt; pos){
   if(postStart &gt; postEnd || inStart &gt; inEnd) return null;
 
-  int rootValue       = postorder[postEnd];                  // postorder's last = root
-  int rootInorderIdx  = inorderIndexOf.get(rootValue);
-  int leftSubtreeSize = rootInorderIdx - inStart;
+  int rootVal   = postorder[postEnd];                  // postorder's last = root
+  int rootIdx   = pos.get(rootVal);
+  int leftSize  = rootIdx - inStart;
 
-  TreeNode root = new TreeNode(rootValue);
-  // left subtree comes from the first leftSubtreeSize postorder slots
-  root.left  = constructSubtree(postorder, postStart,                       postStart + leftSubtreeSize - 1,
-                                inorder,   inStart,                         rootInorderIdx - 1,
-                                inorderIndexOf);
+  TreeNode root = new TreeNode(rootVal);
+  // left subtree comes from the first leftSize postorder slots
+  root.left  = constructSubtree(postorder, postStart,                 postStart + leftSize - 1,
+                                inorder,   inStart,                   rootIdx - 1,
+                                pos);
   // right subtree comes from the next slots up to postEnd-1 (excluding root)
-  root.right = constructSubtree(postorder, postStart + leftSubtreeSize,     postEnd - 1,
-                                inorder,   rootInorderIdx + 1,              inEnd,
-                                inorderIndexOf);
+  root.right = constructSubtree(postorder, postStart + leftSize,      postEnd - 1,
+                                inorder,   rootIdx + 1,               inEnd,
+                                pos);
   return root;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(n)</b></div></div>
@@ -1800,16 +1823,16 @@ flowchart TD
  * Trick: in a balanced BST the middle element of any sorted range is the root that
  * splits the range into two equal-size halves → both subtrees grow identically.
  */
-TreeNode sortedArrayToBST(int[] sortedNumbers){
-  return buildBalanced(sortedNumbers, 0, sortedNumbers.length - 1);
+TreeNode sortedArrayToBST(int[] nums){
+  return buildBalanced(nums, 0, nums.length - 1);
 }
 
-private TreeNode buildBalanced(int[] sortedNumbers, int leftIdx, int rightIdx){
-  if(leftIdx &gt; rightIdx) return null;
-  int midIdx = (leftIdx + rightIdx) / 2;                  // root sits at the median of the range
-  TreeNode root = new TreeNode(sortedNumbers[midIdx]);
-  root.left  = buildBalanced(sortedNumbers, leftIdx,    midIdx - 1);
-  root.right = buildBalanced(sortedNumbers, midIdx + 1, rightIdx);
+private TreeNode buildBalanced(int[] nums, int lo, int hi){
+  if(lo &gt; hi) return null;
+  int mid = (lo + hi) / 2;                  // root sits at the median of the range
+  TreeNode root = new TreeNode(nums[mid]);
+  root.left  = buildBalanced(nums, lo,      mid - 1);
+  root.right = buildBalanced(nums, mid + 1, hi);
   return root;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(log n)</b> recursion</div></div>
@@ -1876,19 +1899,19 @@ flowchart TD
  * as soon as we've visited k nodes — no need to traverse the entire tree.
  */
 int kthSmallest(TreeNode root, int k){
-  Deque&lt;TreeNode&gt; inorderStack = new ArrayDeque&lt;&gt;();
-  TreeNode currentNode = root;
-  int visitedCount = 0;
+  Deque&lt;TreeNode&gt; st = new ArrayDeque&lt;&gt;();
+  TreeNode cur = root;
+  int count = 0;
 
-  while(currentNode != null || !inorderStack.isEmpty()){
+  while(cur != null || !st.isEmpty()){
     // descend leftmost, recording the ancestors we'll need to revisit
-    while(currentNode != null){
-      inorderStack.push(currentNode);
-      currentNode = currentNode.left;
+    while(cur != null){
+      st.push(cur);
+      cur = cur.left;
     }
-    TreeNode poppedNode = inorderStack.pop();
-    if(++visitedCount == k) return poppedNode.val;       // k-th value in inorder
-    currentNode = poppedNode.right;                      // explore right subtree next
+    TreeNode node = st.pop();
+    if(++count == k) return node.val;       // k-th value in inorder
+    cur = node.right;                        // explore right subtree next
   }
   throw new IllegalArgumentException("k larger than tree size");
 }</code></pre>
@@ -1950,19 +1973,19 @@ flowchart LR
  * Root = smallest of the largest k seen so far = the k-th largest overall.
  */
 class KthLargest {
-  private final PriorityQueue&lt;Integer&gt; topKMinHeap;
+  private final PriorityQueue&lt;Integer&gt; pq;
   private final int k;
 
-  KthLargest(int k, int[] initialValues){
+  KthLargest(int k, int[] nums){
     this.k = k;
-    this.topKMinHeap = new PriorityQueue&lt;&gt;();
-    for(int value : initialValues) add(value);
+    this.pq = new PriorityQueue&lt;&gt;();
+    for(int x : nums) add(x);
   }
 
-  int add(int value){
-    topKMinHeap.offer(value);
-    if(topKMinHeap.size() &gt; k) topKMinHeap.poll();   // shrink to exactly k largest
-    return topKMinHeap.peek();
+  int add(int x){
+    pq.offer(x);
+    if(pq.size() &gt; k) pq.poll();   // shrink to exactly k largest
+    return pq.peek();
   }
 }</code></pre>
   <div class="complexity"><div>Time <b>O(log k)</b> add</div><div>Space <b>O(k)</b></div></div>
@@ -2024,25 +2047,25 @@ flowchart TD
  * BFS traversal from vertex 0 using a queue and a visited array.
  * Mark on ENQUEUE (not dequeue) to avoid pushing the same vertex twice.
  */
-List&lt;Integer&gt; bfsOfGraph(int vertexCount, List&lt;List&lt;Integer&gt;&gt; adjacencyList){
-  boolean[] visitedVertices = new boolean[vertexCount];
-  List&lt;Integer&gt; bfsOrder = new ArrayList&lt;&gt;();
+List&lt;Integer&gt; bfsOfGraph(int n, List&lt;List&lt;Integer&gt;&gt; adj){
+  boolean[] visited = new boolean[n];
+  List&lt;Integer&gt; res = new ArrayList&lt;&gt;();
 
-  Deque&lt;Integer&gt; explorationQueue = new ArrayDeque&lt;&gt;();
-  explorationQueue.offer(0);
-  visitedVertices[0] = true;
+  Deque&lt;Integer&gt; q = new ArrayDeque&lt;&gt;();
+  q.offer(0);
+  visited[0] = true;
 
-  while(!explorationQueue.isEmpty()){
-    int currentVertex = explorationQueue.poll();
-    bfsOrder.add(currentVertex);
-    for(int neighbourVertex : adjacencyList.get(currentVertex)){
-      if(!visitedVertices[neighbourVertex]){
-        visitedVertices[neighbourVertex] = true;        // mark on enqueue → no duplicates
-        explorationQueue.offer(neighbourVertex);
+  while(!q.isEmpty()){
+    int u = q.poll();
+    res.add(u);
+    for(int v : adj.get(u)){
+      if(!visited[v]){
+        visited[v] = true;        // mark on enqueue → no duplicates
+        q.offer(v);
       }
     }
   }
-  return bfsOrder;
+  return res;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(V + E)</b></div><div>Space <b>O(V)</b></div></div>
 </article>
@@ -2102,38 +2125,38 @@ flowchart TD
 
   <div class="section-title">Code (Java)</div>
 <pre><code class="language-java">/**
- * Bellman-Ford shortest paths from sourceVertex on a graph with possibly negative weights.
+ * Bellman-Ford shortest paths from src on a graph with possibly negative weights.
  * Trick: a simple shortest path has at most V-1 edges, so V-1 relaxation rounds are
  * enough. A V-th round that still finds an improvement proves a reachable negative cycle.
  */
-int[] bellmanFord(int vertexCount, int[][] edges, int sourceVertex){
-  int[] shortestDistance = new int[vertexCount];
-  Arrays.fill(shortestDistance, Integer.MAX_VALUE);
-  shortestDistance[sourceVertex] = 0;
+int[] bellmanFord(int n, int[][] edges, int src){
+  int[] dist = new int[n];
+  Arrays.fill(dist, Integer.MAX_VALUE);
+  dist[src] = 0;
 
   // ---- V-1 relaxation rounds ----
-  for(int round = 0; round &lt; vertexCount - 1; round++){
-    boolean relaxedThisRound = false;
+  for(int round = 0; round &lt; n - 1; round++){
+    boolean changed = false;
     for(int[] edge : edges){                     // edge = {u, v, w}
-      int from = edge[0], to = edge[1], weight = edge[2];
-      if(shortestDistance[from] != Integer.MAX_VALUE
-         &amp;&amp; shortestDistance[from] + weight &lt; shortestDistance[to]){
-        shortestDistance[to] = shortestDistance[from] + weight;
-        relaxedThisRound = true;
+      int u = edge[0], v = edge[1], w = edge[2];
+      if(dist[u] != Integer.MAX_VALUE
+         &amp;&amp; dist[u] + w &lt; dist[v]){
+        dist[v] = dist[u] + w;
+        changed = true;
       }
     }
-    if(!relaxedThisRound) break;                 // early exit when stable
+    if(!changed) break;                          // early exit when stable
   }
 
   // ---- detect negative cycle via one extra pass ----
   for(int[] edge : edges){
-    int from = edge[0], to = edge[1], weight = edge[2];
-    if(shortestDistance[from] != Integer.MAX_VALUE
-       &amp;&amp; shortestDistance[from] + weight &lt; shortestDistance[to]){
+    int u = edge[0], v = edge[1], w = edge[2];
+    if(dist[u] != Integer.MAX_VALUE
+       &amp;&amp; dist[u] + w &lt; dist[v]){
       return new int[]{-1};                      // sentinel: negative cycle reachable
     }
   }
-  return shortestDistance;
+  return dist;
 }</code></pre>
   <div class="complexity"><div>Time <b>O(V · E)</b></div><div>Space <b>O(V)</b></div></div>
 </article>
@@ -2171,6 +2194,34 @@ int[] bellmanFord(int vertexCount, int[][] edges, int sourceVertex){
     <div class="alt"><b>Better</b> Memoized recursion. — <code>O(n·m)</code> time & space.</div>
   </div>
 
+  <div class="section-title">2D DP — Tabulation (start here)</div>
+  <div class="approach"><ol>
+    <li>Define <code>dp[i][j]</code> = LCS length of <code>a[0..i-1]</code> and <code>b[0..j-1]</code>. Row 0 and column 0 are <code>0</code> (one string is empty).</li>
+    <li>If <code>a[i-1] == b[j-1]</code> → <code>dp[i][j] = dp[i-1][j-1] + 1</code> (extend the diagonal).</li>
+    <li>Else <code>dp[i][j] = max(dp[i-1][j], dp[i][j-1])</code> (drop one character from either string).</li>
+    <li>Answer is <code>dp[n][m]</code>.</li>
+  </ol></div>
+<pre><code class="language-java">/**
+ * Longest Common Subsequence — foundational 2D tabulation.
+ * dp[i][j] = LCS length of a[0..i-1] and b[0..j-1]. Row 0 / col 0 are 0 (empty prefix).
+ */
+int longestCommonSubsequence(String a, String b){
+  int n = a.length(), m = b.length();
+  int[][] dp = new int[n + 1][m + 1];          // dp[0][*] = dp[*][0] = 0
+
+  for(int i = 1; i &lt;= n; i++){
+    for(int j = 1; j &lt;= m; j++){
+      if(a.charAt(i - 1) == b.charAt(j - 1)){
+        dp[i][j] = dp[i - 1][j - 1] + 1;        // match → diagonal + 1
+      } else {
+        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]); // drop one char
+      }
+    }
+  }
+  return dp[n][m];
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n·m)</b></div><div>Space <b>O(n·m)</b></div></div>
+
   <div class="section-title">Optimal Approach (1D rolling DP)</div>
   <div class="approach"><ol>
     <li><code>dp[0..m]</code> all zero.</li>
@@ -2191,23 +2242,23 @@ flowchart TD
  * Trick: standard 2D DP only ever reads dp[i-1][j-1], dp[i-1][j], dp[i][j-1] — so a
  * single row plus one "previous diagonal" scalar is enough.
  */
-int longestCommonSubsequence(String textA, String textB){
-  int lenA = textA.length(), lenB = textB.length();
-  int[] previousRowDp = new int[lenB + 1];
+int longestCommonSubsequence(String a, String b){
+  int n = a.length(), m = b.length();
+  int[] dp = new int[m + 1];
 
-  for(int i = 1; i &lt;= lenA; i++){
-    int previousDiagonalValue = 0;                   // = dp[i-1][j-1] before being overwritten
-    for(int j = 1; j &lt;= lenB; j++){
-      int aboveValue = previousRowDp[j];             // = dp[i-1][j] right now
-      if(textA.charAt(i - 1) == textB.charAt(j - 1)){
-        previousRowDp[j] = previousDiagonalValue + 1;
+  for(int i = 1; i &lt;= n; i++){
+    int prevDiag = 0;                   // = dp[i-1][j-1] before being overwritten
+    for(int j = 1; j &lt;= m; j++){
+      int tmp = dp[j];                  // = dp[i-1][j] right now
+      if(a.charAt(i - 1) == b.charAt(j - 1)){
+        dp[j] = prevDiag + 1;
       } else {
-        previousRowDp[j] = Math.max(previousRowDp[j], previousRowDp[j - 1]);
+        dp[j] = Math.max(dp[j], dp[j - 1]);
       }
-      previousDiagonalValue = aboveValue;            // for next column iteration
+      prevDiag = tmp;                   // for next column iteration
     }
   }
-  return previousRowDp[lenB];
+  return dp[m];
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n·m)</b></div><div>Space <b>O(min(n,m))</b></div></div>
 </article>
@@ -2248,6 +2299,34 @@ int longestCommonSubsequence(String textA, String textB){
     <div class="alt"><b>Better</b> 2D DP <code>dp[i][w]</code>. — <code>O(n·W)</code> time & space.</div>
   </div>
 
+  <div class="section-title">2D DP — Tabulation (start here)</div>
+  <div class="approach"><ol>
+    <li>Define <code>dp[i][c]</code> = best value using the first <code>i</code> items with capacity <code>c</code>. Row 0 is all <code>0</code> (no items).</li>
+    <li><b>Skip</b> item <code>i</code>: <code>dp[i][c] = dp[i-1][c]</code>.</li>
+    <li><b>Take</b> item <code>i</code> (only if <code>weight[i-1] &lt;= c</code>): <code>dp[i-1][c - weight[i-1]] + value[i-1]</code>; keep the max of skip/take.</li>
+    <li>Answer is <code>dp[n][W]</code>.</li>
+  </ol></div>
+<pre><code class="language-java">/**
+ * 0/1 Knapsack — foundational 2D tabulation.
+ * dp[i][c] = best value using the first i items within capacity c.
+ */
+int knapsack01(int[] wt, int[] val, int cap){
+  int n = wt.length;
+  int[][] dp = new int[n + 1][cap + 1];        // dp[0][*] = 0 (no items)
+
+  for(int i = 1; i &lt;= n; i++){
+    for(int c = 0; c &lt;= cap; c++){
+      dp[i][c] = dp[i - 1][c];                  // skip item i
+      if(wt[i - 1] &lt;= c){                        // can it fit?
+        int take = dp[i - 1][c - wt[i - 1]] + val[i - 1];
+        dp[i][c] = Math.max(dp[i][c], take);    // best of skip / take
+      }
+    }
+  }
+  return dp[n][cap];
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n·W)</b></div><div>Space <b>O(n·W)</b></div></div>
+
   <div class="section-title">Optimal Approach</div>
   <div class="approach"><ol>
     <li><code>dp[0..W] = 0</code>.</li>
@@ -2272,19 +2351,19 @@ flowchart TD
  * Trick: iterating capacity from HIGH to LOW guarantees dp[w - weight[i]] still refers
  * to the "without item i" state — so item i can't be picked twice.
  */
-int knapsack01(int[] itemWeights, int[] itemValues, int capacity){
-  int[] bestValueAtCapacity = new int[capacity + 1];     // dp[w] after processing items
+int knapsack01(int[] wt, int[] val, int cap){
+  int[] dp = new int[cap + 1];     // dp[w] after processing items
 
-  for(int itemIdx = 0; itemIdx &lt; itemWeights.length; itemIdx++){
-    int weight = itemWeights[itemIdx];
-    int value  = itemValues[itemIdx];
+  for(int i = 0; i &lt; wt.length; i++){
+    int w = wt[i];
+    int v = val[i];
     // walk capacity from HIGH → LOW so each item is counted at most once
-    for(int currentCapacity = capacity; currentCapacity &gt;= weight; currentCapacity--){
-      int valueIfTaken = bestValueAtCapacity[currentCapacity - weight] + value;
-      bestValueAtCapacity[currentCapacity] = Math.max(bestValueAtCapacity[currentCapacity], valueIfTaken);
+    for(int c = cap; c &gt;= w; c--){
+      int take = dp[c - w] + v;
+      dp[c] = Math.max(dp[c], take);
     }
   }
-  return bestValueAtCapacity[capacity];
+  return dp[cap];
 }</code></pre>
   <div class="complexity"><div>Time <b>O(n·W)</b></div><div>Space <b>O(W)</b></div></div>
 </article>
@@ -2349,22 +2428,22 @@ flowchart TD
  * Trick: every distinct substring corresponds to a unique root-to-node path in the
  * trie. Whenever we have to allocate a fresh child node we've discovered a NEW substring.
  */
-int countDistinctSubstrings(String text){
+int countDistinctSubstrings(String s){
   TrieNode root = new TrieNode();
-  int distinctSubstringCount = 0;
+  int count = 0;
 
-  for(int startIdx = 0; startIdx &lt; text.length(); startIdx++){
-    TrieNode currentNode = root;
-    for(int endIdx = startIdx; endIdx &lt; text.length(); endIdx++){
-      int childIdx = text.charAt(endIdx) - 'a';
-      if(currentNode.children[childIdx] == null){
-        currentNode.children[childIdx] = new TrieNode();
-        distinctSubstringCount++;                  // new node = new distinct substring
+  for(int i = 0; i &lt; s.length(); i++){
+    TrieNode node = root;
+    for(int j = i; j &lt; s.length(); j++){
+      int c = s.charAt(j) - 'a';
+      if(node.children[c] == null){
+        node.children[c] = new TrieNode();
+        count++;                  // new node = new distinct substring
       }
-      currentNode = currentNode.children[childIdx];
+      node = node.children[c];
     }
   }
-  return distinctSubstringCount;
+  return count;
 }
 
 private static class TrieNode { TrieNode[] children = new TrieNode[26]; }</code></pre>
@@ -2388,15 +2467,30 @@ private static class TrieNode { TrieNode[] children = new TrieNode[26]; }</code>
     startOnLoad: true,
     theme: 'base',
     themeVariables: {
-      primaryColor: '#0f1f3d',
-      primaryTextColor: '#ffffff',
-      primaryBorderColor: '#00d4aa',
-      lineColor: '#5b8dee',
-      secondaryColor: '#142a52',
-      tertiaryColor: '#1a3060',
-      fontFamily: 'Inter, sans-serif'
+      background: 'transparent',
+      primaryColor: '#16294e',
+      primaryTextColor: '#e6edf7',
+      primaryBorderColor: '#5b8dee',
+      secondaryColor: '#0f3a33',
+      secondaryTextColor: '#e6edf7',
+      secondaryBorderColor: '#00d4aa',
+      tertiaryColor: '#1f3b6e',
+      tertiaryTextColor: '#e6edf7',
+      tertiaryBorderColor: '#7aa6ff',
+      lineColor: '#7aa6ff',
+      textColor: '#cfe0ff',
+      mainBkg: '#16294e',
+      nodeBorder: '#5b8dee',
+      clusterBkg: 'rgba(91,141,238,.06)',
+      clusterBorder: 'rgba(91,141,238,.25)',
+      defaultLinkColor: '#7aa6ff',
+      titleColor: '#f5c842',
+      edgeLabelBackground: '#0e1a33',
+      nodeTextColor: '#e6edf7',
+      fontFamily: 'Inter, sans-serif',
+      fontSize: '14px'
     },
-    flowchart:{ htmlLabels:true, curve:'basis' }
+    flowchart:{ htmlLabels:true, curve:'basis', padding:14, nodeSpacing:42, rankSpacing:48 }
   });
 </script>
 <script>

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 768 549" width="768" height="549" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="768" height="549" fill="#ffffff"/>
+<g transform="translate(-16,18)">
+<rect x="40" y="110" width="120" height="50" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="245" y="110" width="150" height="50" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="465" y="85" width="120" height="45" rx="10" fill="#99e9f2" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="465" y="150" width="120" height="45" rx="10" fill="#99e9f2" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="620" y="110" width="140" height="55" rx="10" fill="#ffc9c9" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="40" y="300" width="120" height="50" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="245" y="300" width="150" height="50" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="465" y="270" width="120" height="45" rx="10" fill="#99e9f2" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="465" y="325" width="120" height="45" rx="10" fill="#99e9f2" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="465" y="385" width="120" height="45" rx="10" fill="#99e9f2" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="165,135 235,135" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="400,125 460,100" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="400,135 460,155" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="590,130 620,135" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="165,325 235,325" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="400,315 460,285" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="400,325 460,325" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="400,335 460,370" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="20" fill="#1e1e1e" text-anchor="start"><tspan x="300" y="26">Message Queues — Patterns &amp; Delivery</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="13" fill="#5b8dee" text-anchor="start"><tspan x="40" y="83">■ POINT-TO-POINT (work queue)  — one message -&gt; one consumer</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="100" y="140.6">Producer</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="320" y="130.94">Queue</tspan><tspan x="320" y="148.85999999999999">(FIFO)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="525" y="113.1">Worker 1</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="525" y="178.1">Worker 2</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="690" y="132.86">Dead Letter</tspan><tspan x="690" y="153.34">Queue (DLQ)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="600" y="187">after N failed</tspan><tspan x="600" y="202.36">ack retries</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="13" fill="#2f9e44" text-anchor="start"><tspan x="40" y="273">■ PUBLISH / SUBSCRIBE  — one message -&gt; all subscribers</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="100" y="330.6">Publisher</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="320" y="320.94">Topic</tspan><tspan x="320" y="338.86">(broker)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="525" y="287.86">Sub A</tspan><tspan x="525" y="308.34000000000003">(email)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="525" y="342.86">Sub B</tspan><tspan x="525" y="363.34000000000003">(analytics)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="525" y="402.86">Sub C</tspan><tspan x="525" y="423.34000000000003">(audit)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="40" y="472">Delivery guarantees: at-most-once | at-least-once (+ idempotency) | exactly-once</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="40" y="502">ack/nack drives redelivery; visibility timeout hides in-flight msgs</tspan></text>
+</g>
+</svg>

@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1283 743" width="1283" height="743" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="1283" height="743" fill="#ffffff"/>
+<g transform="translate(-16,18)">
+<rect x="40" y="130" width="120" height="60" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="40" y="220" width="120" height="60" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="40" y="330" width="120" height="60" rx="10" fill="#e3fafc" stroke="#1e1e1e" stroke-width="2"/>
+<polygon points="300,165 355,210 300,255 245,210" fill="#ffc9c9" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="420" y="95" width="150" height="60" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="420" y="180" width="150" height="60" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="420" y="265" width="150" height="60" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="650" y="175" width="150" height="70" rx="10" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<ellipse cx="950" cy="135" rx="75" ry="40" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="875" y="220" width="180" height="55" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="870" y="335" width="190" height="60" rx="10" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="560" y="325" width="230" height="60" rx="10" fill="#ffec99" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="1135" y="335" width="140" height="60" rx="10" fill="#ffc9c9" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="660" y="50" width="170" height="55" rx="10" fill="#ffec99" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="230" y="520" width="230" height="70" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="520" y="470" width="150" height="55" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="520" y="555" width="150" height="55" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="520" y="640" width="180" height="55" rx="10" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="770" y="555" width="210" height="80" rx="10" fill="#dee2e6" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="875" y="460" width="190" height="55" rx="10" fill="#99e9f2" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="165,160 225,190" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="165,250 225,230" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="360,195 415,125" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="360,210 415,210" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="360,225 415,295" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="575,210 645,210" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="800,185 870,125" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="800,215 870,245" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="965,275 965,330" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="700,245 690,320" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="870,365 790,365 790,335" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="870,350 570,215" fill="none" stroke="#868e96" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="1065,365 1135,365" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="725,175 725,120" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="110,360 230,525" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="465,530 520,490" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="465,545 520,575" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="465,560 520,660" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="495,250 795,550" fill="none" stroke="#868e96" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="710,575 765,575" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="675,360 870,470" fill="none" stroke="#868e96" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="20" fill="#1e1e1e" text-anchor="start"><tspan x="360" y="26">Design a Chat System — High Level Architecture</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="13" fill="#2f9e44" text-anchor="start"><tspan x="40" y="83">■ REAL-TIME PATH  (WebSocket — persistent, bidirectional)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="13" fill="#5b8dee" text-anchor="start"><tspan x="40" y="483">■ CONTROL PATH  (HTTP REST — login, groups, history)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="100" y="165.6">Phone A</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="100" y="255.6">Laptop A</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="100" y="365.6">Phone B</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="300" y="205.94">LB (L4)</tspan><tspan x="300" y="223.85999999999999">least-conn</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="495" y="120.36">WS-GW 01</tspan><tspan x="495" y="140.84">fd=47 -&gt; Bob</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="495" y="205.35999999999999">WS-GW 17</tspan><tspan x="495" y="225.83999999999997">~50K conns</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="495" y="290.36">WS-GW 150</tspan><tspan x="495" y="310.84000000000003">(stateful)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="725" y="205.35999999999999">Chat Service</tspan><tspan x="725" y="225.83999999999997">(stateless)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="950" y="130.94">Cassandra</tspan><tspan x="950" y="148.85999999999999">part=channel_id</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="14" fill="#1e1e1e" text-anchor="middle"><tspan x="965" y="243.44">Kafka</tspan><tspan x="965" y="261.35999999999996">msg.delivery.{shard}</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="965" y="360.36">Delivery Workers</tspan><tspan x="965" y="380.84000000000003">(consume Kafka)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="675" y="350.36">Redis</tspan><tspan x="675" y="370.84000000000003">user:bob -&gt; {gw-17, conn47}</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="1205" y="360.36">Push Notif</tspan><tspan x="1205" y="380.84000000000003">APNs / FCM</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="745" y="72.86">Snowflake ID Gen</tspan><tspan x="745" y="93.34">time-sortable</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="345" y="550.36">API Gateway (L7)</tspan><tspan x="345" y="570.84">auth - JWT - rate-limit - TLS</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="595" y="492.86">User Svc</tspan><tspan x="595" y="513.34">/api/users/*</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="595" y="577.86">Group Svc</tspan><tspan x="595" y="598.34">/api/groups/*</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="610" y="662.86">History Svc</tspan><tspan x="610" y="683.34">/api/messages/history</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="875" y="580.12">Service Discovery</tspan><tspan x="875" y="600.6">(Consul / K8s / Eureka)</tspan><tspan x="875" y="621.08">resolves pod IPs</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="970" y="482.86">Presence Svc</tspan><tspan x="970" y="503.34000000000003">heartbeat + TTL 60s</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="70" y="187">WebSocket</tspan><tspan x="70" y="202.36">upgrade</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="585" y="202">internal gRPC</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="800" y="142">persist</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="805" y="262">enqueue</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="600" y="427">session lookup</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="560" y="442">push (online)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="140" y="442">HTTPS REST</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="560" y="612">register / resolve</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="1075" y="332">offline</tspan></text>
+</g>
+</svg>

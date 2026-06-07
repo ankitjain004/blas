@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Message Queues Deep Dive · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+    --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+    --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  header.hero .crumb a:hover{color:var(--teal)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .label{color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 8px;font-weight:700}
+  .label.gold{color:var(--gold)}
+
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  .define em{color:var(--muted);font-style:normal;display:block;font-size:13px;margin-top:4px}
+
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .callout b{color:var(--teal)}
+  .warn{background:rgba(239,68,68,.06);border-left:3px solid #ef4444;padding:14px 18px;border-radius:8px;margin:10px 0}
+  .warn b{color:#ef4444}
+
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  td code, th code{background:rgba(0,212,170,.10);padding:1px 6px;border-radius:4px;color:var(--teal);font-size:12px}
+
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto;font-family:'JetBrains Mono',monospace}
+
+  ul.bullets{padding-left:22px}
+  ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px}
+  ol.steps li{margin:8px 0}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .pillbox{background:rgba(91,141,238,.05);border:1px solid rgba(91,141,238,.2);border-radius:10px;padding:14px 16px}
+  .pillbox h4{margin:0 0 6px;font-size:14px;color:var(--blue)}
+  .pillbox p{margin:0;font-size:13.5px;color:#cdd9ee}
+
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="crumb"><a href="index.html">System Design</a> · MESSAGE QUEUES</div>
+  <span class="badge">Deep Dive</span>
+  <h1 class="title">Message Queues &amp; <span>Event Streaming</span></h1>
+  <p class="sub">Internal architecture, delivery semantics, when to use what, and the top interview questions — from RabbitMQ to Kafka to SQS.</p>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#what">What Is a Message Queue?</a></li>
+    <li><a href="#why">Why Use One? (Problems It Solves)</a></li>
+    <li><a href="#internals">Internal Architecture (Kafka Deep Dive)</a></li>
+    <li><a href="#semantics">Delivery Semantics: At-Most, At-Least, Exactly-Once</a></li>
+    <li><a href="#patterns">Patterns: Point-to-Point vs Pub/Sub vs Streaming</a></li>
+    <li><a href="#comparison">Comparison: Kafka vs RabbitMQ vs SQS vs Pulsar</a></li>
+    <li><a href="#partitions">Partitions, Ordering &amp; Consumer Groups</a></li>
+    <li><a href="#backpressure">Back-Pressure &amp; Flow Control</a></li>
+    <li><a href="#dlq">Dead Letter Queues &amp; Error Handling</a></li>
+    <li><a href="#exactly-once">Achieving Exactly-Once (Idempotent Consumers)</a></li>
+    <li><a href="#when">When to Use vs When NOT to Use</a></li>
+    <li><a href="#interview">Top Interview Questions &amp; Answers</a></li>
+  </ol>
+</nav>
+
+<!-- ====================== WHAT ====================== -->
+<section class="step" id="what">
+  <h2><span class="num">01</span>What Is a Message Queue?</h2>
+
+  <div class="define">
+    <b>Message Queue</b> = An intermediary that accepts messages from producers, stores them durably, and delivers them to consumers — decoupling the sender from the receiver in time, space, and speed.
+    <em>Analogy: A post office. Sender drops a letter (message), post office holds it, recipient picks it up when ready.</em>
+  </div>
+
+  <pre class="ascii">
+Producer A ──┐                              ┌── Consumer X
+Producer B ──┼──→  [ MESSAGE QUEUE ]  ──→──┼── Consumer Y
+Producer C ──┘     (durable, ordered)       └── Consumer Z
+  </pre>
+
+  <p class="label gold">Core Properties</p>
+  <ul class="bullets">
+    <li><b>Asynchronous</b> — producer doesn't wait for consumer to process</li>
+    <li><b>Durable</b> — messages survive broker restarts (written to disk)</li>
+    <li><b>Decoupled</b> — producer and consumer don't know about each other</li>
+    <li><b>Buffering</b> — absorbs traffic spikes (consumer processes at its own pace)</li>
+  </ul>
+</section>
+
+<!-- ====================== WHY ====================== -->
+<section class="step" id="why">
+  <h2><span class="num">02</span>Why Use One? (Problems It Solves)</h2>
+
+  <table>
+    <tr><th>Problem</th><th>Without Queue</th><th>With Queue</th></tr>
+    <tr><td>Traffic spike (10x load)</td><td>Backend overwhelmed, 503s</td><td>Queue absorbs spike, consumer drains at steady rate</td></tr>
+    <tr><td>Slow downstream service</td><td>Request times out, user sees error</td><td>Message queued, processed when downstream recovers</td></tr>
+    <tr><td>Service coupling</td><td>Order Service directly calls Email, SMS, Analytics...</td><td>Order Service publishes event, each consumer subscribes independently</td></tr>
+    <tr><td>Data loss on crash</td><td>In-memory request lost</td><td>Message persisted to disk, redelivered after restart</td></tr>
+    <tr><td>Ordering guarantees</td><td>Concurrent threads → race conditions</td><td>Single partition → strict ordering</td></tr>
+    <tr><td>Retry/failure handling</td><td>Complex retry logic in app code</td><td>Queue redelivers on NACK, DLQ on repeated failure</td></tr>
+  </table>
+
+  <div class="callout">
+    <b>Rule of thumb:</b> If producer and consumer have different speed, availability, or deployment schedules — put a queue between them.
+  </div>
+</section>
+
+<!-- ====================== INTERNALS ====================== -->
+<section class="step" id="internals">
+  <h2><span class="num">03</span>Internal Architecture (Kafka Deep Dive)</h2>
+
+  <p class="label gold">High-Level Architecture</p>
+  <pre class="ascii">
+┌───────────────────────────────────────────────────────────────────┐
+│                        KAFKA CLUSTER                                │
+│                                                                    │
+│  ┌──────────┐    ┌──────────┐    ┌──────────┐                    │
+│  │ Broker 0 │    │ Broker 1 │    │ Broker 2 │                    │
+│  │          │    │          │    │          │                    │
+│  │ Topic A  │    │ Topic A  │    │ Topic A  │                    │
+│  │ Part 0   │    │ Part 1   │    │ Part 2   │ ← Partitions      │
+│  │ (leader) │    │ (leader) │    │ (leader) │   spread across    │
+│  │          │    │          │    │          │   brokers           │
+│  │ Topic A  │    │ Topic A  │    │ Topic A  │                    │
+│  │ Part 1   │    │ Part 2   │    │ Part 0   │ ← Replicas        │
+│  │ (replica)│    │ (replica)│    │ (replica)│   for durability   │
+│  └──────────┘    └──────────┘    └──────────┘                    │
+│                                                                    │
+│  ┌──────────────────────────────────────────┐                     │
+│  │ ZooKeeper / KRaft (Controller)           │                     │
+│  │ ─ Leader election                         │                     │
+│  │ ─ Broker membership                       │                     │
+│  │ ─ Topic/partition metadata                │                     │
+│  └──────────────────────────────────────────┘                     │
+└───────────────────────────────────────────────────────────────────┘
+  </pre>
+
+  <img src="message-queues.svg" alt="Message Queue Patterns and Delivery Diagram" style="width:100%;max-width:1100px;border-radius:12px;margin-top:16px;border:1px solid var(--line);background:#fff" />
+  <p style="margin-top:12px"><a href="message-queues.excalidraw" download class="badge" style="cursor:pointer;text-decoration:none">⬇ Download Interactive Diagram (.excalidraw)</a> &nbsp; <a href="https://excalidraw.com" target="_blank" class="badge" style="cursor:pointer;text-decoration:none;background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.3)">↗ Open in Excalidraw</a></p>
+
+  <p class="label gold">What Is a Partition?</p>
+  <pre class="ascii">
+Topic "order-events", Partition 0:
+
+Offset:  0     1     2     3     4     5     6     7
+       ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
+       │msg0 │msg1 │msg2 │msg3 │msg4 │msg5 │msg6 │msg7 │ → (append-only)
+       └─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
+                                        ↑           ↑
+                                   Consumer A   Producer writes
+                                   (offset 5)   here (offset 7)
+
+─ Append-only log (immutable once written)
+─ Each message has a unique OFFSET (sequential number)
+─ Consumer tracks its own offset ("I've read up to 5")
+─ Messages are NOT deleted after consumption (retained by time/size policy)
+  </pre>
+
+  <p class="label gold">How a Message Gets Written (Producer Path)</p>
+  <pre class="ascii">
+Producer:
+  1. Serialize message (key + value + headers)
+  2. Determine partition:
+     ─ If key exists: partition = hash(key) % num_partitions
+     ─ If no key: round-robin across partitions
+  3. Send to the LEADER broker for that partition
+  4. Leader writes to local log (page cache → disk)
+  5. Replicas FETCH from leader and write to their logs
+  6. Once min.insync.replicas confirm → leader ACKs producer
+
+ACK modes (acks config):
+  acks=0  → fire-and-forget (fastest, may lose data)
+  acks=1  → leader wrote to its log (one broker confirms)
+  acks=all→ all ISR replicas confirmed (safest, slowest)
+  </pre>
+
+  <p class="label gold">How a Message Gets Read (Consumer Path)</p>
+  <pre class="ascii">
+Consumer:
+  1. Subscribe to topic (joins a Consumer Group)
+  2. Coordinator assigns partitions to consumers in the group
+  3. Consumer sends FETCH request to leader of its assigned partition(s)
+  4. Reads from the offset it last committed
+  5. Processes message
+  6. Commits offset (manual or auto):
+     ─ Auto-commit: every 5s (default), may lose/re-read on crash
+     ─ Manual commit: after processing (at-least-once guarantee)
+  </pre>
+
+  <p class="label gold">On-Disk Storage (Segment Files)</p>
+  <pre class="ascii">
+/var/kafka/topic-order-events/partition-0/
+├── 00000000000000000000.log    ← messages offset 0-15231
+├── 00000000000000000000.index  ← sparse offset → byte position
+├── 00000000000000015232.log    ← messages offset 15232-...
+├── 00000000000000015232.index
+└── ...
+
+─ Segments roll over at 1GB or 7 days (configurable)
+─ Old segments deleted after retention period
+─ Sequential disk I/O → extremely fast writes (no random seeks)
+─ Uses OS page cache (no JVM heap for message storage)
+─ Zero-copy: sendfile() transfers directly from page cache to NIC
+  </pre>
+</section>
+
+<!-- ====================== SEMANTICS ====================== -->
+<section class="step" id="semantics">
+  <h2><span class="num">04</span>Delivery Semantics</h2>
+
+  <table>
+    <tr><th>Semantic</th><th>Meaning</th><th>How</th><th>Risk</th></tr>
+    <tr>
+      <td><b>At-most-once</b></td>
+      <td>Message delivered 0 or 1 times</td>
+      <td>Commit offset BEFORE processing. If consumer crashes mid-process, message is lost.</td>
+      <td>Data loss</td>
+    </tr>
+    <tr>
+      <td><b>At-least-once</b></td>
+      <td>Message delivered 1 or more times</td>
+      <td>Commit offset AFTER processing. If consumer crashes after processing but before commit → redelivery → duplicate.</td>
+      <td>Duplicates</td>
+    </tr>
+    <tr>
+      <td><b>Exactly-once</b></td>
+      <td>Message delivered exactly 1 time</td>
+      <td>Kafka transactions (producer) + idempotent consumer (dedup on consume side)</td>
+      <td>Higher latency, more complex</td>
+    </tr>
+  </table>
+
+  <pre class="ascii">
+At-most-once:
+  commit offset → process → CRASH → message gone, never retried
+
+At-least-once:
+  process → CRASH → restart → re-read same message → duplicate
+
+Exactly-once:
+  process + commit offset + write result ALL in one atomic operation
+  (Kafka transactions / consume-transform-produce pattern)
+  </pre>
+
+  <div class="callout">
+    <b>In practice:</b> Most systems use at-least-once + idempotent consumer (dedup using a unique message ID stored in DB). True exactly-once is only within Kafka's consume-transform-produce pipeline.
+  </div>
+</section>
+
+<!-- ====================== PATTERNS ====================== -->
+<section class="step" id="patterns">
+  <h2><span class="num">05</span>Patterns: Point-to-Point vs Pub/Sub vs Streaming</h2>
+
+  <div class="grid2">
+    <div class="pillbox">
+      <h4>Point-to-Point (Work Queue)</h4>
+      <p>One message → one consumer. Multiple consumers compete for messages. Used for task distribution.</p>
+      <p><code>RabbitMQ queue, SQS, Kafka single consumer group</code></p>
+    </div>
+    <div class="pillbox">
+      <h4>Pub/Sub (Fan-out)</h4>
+      <p>One message → all subscribers. Each subscriber gets a copy. Used for event broadcasting.</p>
+      <p><code>Kafka multiple consumer groups, SNS, Redis Pub/Sub</code></p>
+    </div>
+  </div>
+
+  <pre class="ascii">
+POINT-TO-POINT (competing consumers):
+  Producer → [Queue] → Consumer A picks msg1
+                      → Consumer B picks msg2
+                      → Consumer A picks msg3
+  (each message processed by exactly ONE consumer)
+
+PUB/SUB (fan-out):
+  Producer → [Topic] → Consumer Group 1 (Payment) gets ALL messages
+                      → Consumer Group 2 (Notification) gets ALL messages
+                      → Consumer Group 3 (Analytics) gets ALL messages
+  (each group gets every message independently)
+
+STREAMING:
+  Producer → [Topic, Partition 0] → msg0, msg1, msg2... (ordered stream)
+  Consumer reads at its own pace, can replay from any offset
+  Messages retained for days (not deleted after consumption)
+  </pre>
+
+  <table>
+    <tr><th>Pattern</th><th>Use Case</th><th>Technology</th></tr>
+    <tr><td>Point-to-Point</td><td>Job processing, email sending, image resizing</td><td>SQS, RabbitMQ, Celery</td></tr>
+    <tr><td>Pub/Sub</td><td>Event notification, microservice integration</td><td>Kafka, SNS+SQS, Google Pub/Sub</td></tr>
+    <tr><td>Streaming</td><td>Real-time analytics, CDC, log aggregation</td><td>Kafka, Kinesis, Pulsar</td></tr>
+  </table>
+</section>
+
+<!-- ====================== COMPARISON ====================== -->
+<section class="step" id="comparison">
+  <h2><span class="num">06</span>Comparison: Kafka vs RabbitMQ vs SQS vs Pulsar</h2>
+
+  <table>
+    <tr><th>Feature</th><th>Kafka</th><th>RabbitMQ</th><th>SQS</th><th>Pulsar</th></tr>
+    <tr><td>Model</td><td>Distributed log</td><td>Message broker</td><td>Managed queue</td><td>Distributed log</td></tr>
+    <tr><td>Ordering</td><td>Per-partition</td><td>Per-queue (FIFO)</td><td>FIFO queue option</td><td>Per-partition</td></tr>
+    <tr><td>Throughput</td><td>Millions/sec</td><td>~50K/sec</td><td>~3K/sec (standard)</td><td>Millions/sec</td></tr>
+    <tr><td>Message retention</td><td>Days/weeks (configurable)</td><td>Until consumed + ACK</td><td>14 days max</td><td>Tiered (hot+cold)</td></tr>
+    <tr><td>Replay</td><td>✓ (seek to offset)</td><td>✗ (message deleted after ACK)</td><td>✗</td><td>✓</td></tr>
+    <tr><td>Consumer model</td><td>Pull-based</td><td>Push-based (or pull)</td><td>Pull-based</td><td>Push + Pull</td></tr>
+    <tr><td>Delivery</td><td>At-least-once (exactly-once with txn)</td><td>At-least-once / at-most-once</td><td>At-least-once</td><td>Exactly-once (with txn)</td></tr>
+    <tr><td>Ops complexity</td><td>High (ZK/KRaft, partitions, ISR)</td><td>Medium</td><td>Zero (managed)</td><td>High (BookKeeper)</td></tr>
+    <tr><td>Best for</td><td>Event streaming, CDC, high throughput</td><td>Task queues, RPC, routing logic</td><td>Simple async jobs (AWS native)</td><td>Multi-tenant, geo-replication</td></tr>
+  </table>
+
+  <div class="callout">
+    <b>Interview shortcut:</b> "Kafka for streaming/event-sourcing, RabbitMQ for task queues with complex routing, SQS for simple serverless async jobs."
+  </div>
+</section>
+
+<!-- ====================== PARTITIONS ====================== -->
+<section class="step" id="partitions">
+  <h2><span class="num">07</span>Partitions, Ordering &amp; Consumer Groups</h2>
+
+  <pre class="ascii">
+Topic: "order-events" (6 partitions)
+
+Consumer Group: "payment-workers" (3 consumers)
+
+  Partition 0 ──→ Consumer A
+  Partition 1 ──→ Consumer A
+  Partition 2 ──→ Consumer B
+  Partition 3 ──→ Consumer B
+  Partition 4 ──→ Consumer C
+  Partition 5 ──→ Consumer C
+
+Rules:
+  ─ Each partition assigned to EXACTLY ONE consumer in a group
+  ─ One consumer can handle MULTIPLE partitions
+  ─ If consumers > partitions → some consumers sit idle
+  ─ If consumer dies → its partitions rebalanced to others
+  </pre>
+
+  <p class="label gold">Ordering Guarantee</p>
+  <div class="define">
+    <b>Kafka guarantees order WITHIN a partition, NOT across partitions.</b>
+    <em>Messages with the same key (e.g., order_id) always go to the same partition → ordered. Messages with different keys may go to different partitions → no global order.</em>
+  </div>
+
+  <pre class="ascii">
+Key = "order-123" → hash("order-123") % 6 = partition 2
+  msg: ORDER_CREATED  (offset 0)
+  msg: PAYMENT_CAPTURED (offset 1)
+  msg: ORDER_COMPLETED (offset 2)
+  → Consumer B reads them IN ORDER ✓
+
+Key = "order-456" → hash("order-456") % 6 = partition 4
+  → Goes to Consumer C (independent, parallel processing)
+  </pre>
+
+  <p class="label gold">Consumer Group Rebalancing</p>
+  <pre class="ascii">
+Consumer C crashes:
+  Before: A[P0,P1] B[P2,P3] C[P4,P5]
+  After:  A[P0,P1,P4] B[P2,P3,P5]  ← automatic rebalance
+
+New consumer D joins:
+  Before: A[P0,P1] B[P2,P3] C[P4,P5]
+  After:  A[P0,P1] B[P2] C[P4] D[P3,P5]  ← rebalance
+  </pre>
+</section>
+
+<!-- ====================== BACKPRESSURE ====================== -->
+<section class="step" id="backpressure">
+  <h2><span class="num">08</span>Back-Pressure &amp; Flow Control</h2>
+
+  <div class="define">
+    <b>Back-pressure</b> = When the consumer is slower than the producer, how do you prevent the system from blowing up?
+  </div>
+
+  <table>
+    <tr><th>Strategy</th><th>How</th><th>Used By</th></tr>
+    <tr><td>Unbounded buffer</td><td>Queue grows infinitely (disk). Consumer catches up later.</td><td>Kafka (retention-based)</td></tr>
+    <tr><td>Bounded buffer + block</td><td>Queue has max size. Producer blocks when full.</td><td>RabbitMQ (memory alarms), Java BlockingQueue</td></tr>
+    <tr><td>Drop messages</td><td>Oldest/newest messages dropped when full.</td><td>Redis Streams (MAXLEN), UDP-based systems</td></tr>
+    <tr><td>Rate limit producer</td><td>Broker rejects/throttles producers when overloaded.</td><td>Kafka quotas, SQS throttling</td></tr>
+    <tr><td>Scale consumers</td><td>Auto-scale consumer instances based on lag.</td><td>KEDA (Kubernetes), Lambda+SQS</td></tr>
+  </table>
+
+  <pre class="ascii">
+Consumer Lag (Kafka):
+  Producer offset: 1,000,000
+  Consumer offset:   800,000
+  LAG = 200,000 messages behind
+
+  If lag grows → scale up consumers (add more pods)
+  If lag shrinks → scale down
+
+  Monitoring: kafka-consumer-groups --describe
+  Alert if lag > threshold (e.g., > 100K for > 5 min)
+  </pre>
+</section>
+
+<!-- ====================== DLQ ====================== -->
+<section class="step" id="dlq">
+  <h2><span class="num">09</span>Dead Letter Queues &amp; Error Handling</h2>
+
+  <pre class="ascii">
+Normal flow:
+  Message → Consumer → Process → ACK → done ✓
+
+Failure flow:
+  Message → Consumer → Process → ERROR
+    → Retry 1 (backoff 1s) → ERROR
+    → Retry 2 (backoff 5s) → ERROR
+    → Retry 3 (backoff 30s) → ERROR
+    → Move to DLQ (Dead Letter Queue)
+    → Alert ops team
+    → Original queue moves on (not blocked)
+  </pre>
+
+  <table>
+    <tr><th>Failure Type</th><th>Action</th><th>Example</th></tr>
+    <tr><td>Transient (network blip)</td><td>Retry with backoff</td><td>Payment gateway timeout</td></tr>
+    <tr><td>Poison message (bad data)</td><td>Send to DLQ immediately</td><td>Malformed JSON, unknown order_id</td></tr>
+    <tr><td>Downstream permanently down</td><td>Retry with DLQ after max attempts</td><td>Third-party API deprecated</td></tr>
+  </table>
+
+  <div class="callout">
+    <b>DLQ design:</b> Same schema as main queue, plus metadata: original_topic, original_offset, error_message, retry_count, timestamp. Ops can inspect, fix, and replay from DLQ.
+  </div>
+
+  <pre class="ascii">
+DLQ message example:
+{
+  "original_topic": "order-events",
+  "original_partition": 2,
+  "original_offset": 45021,
+  "payload": { "type": "ORDER_CREATED", "order_id": "ord-789" },
+  "error": "PaymentGatewayTimeout after 3 retries",
+  "attempts": 3,
+  "first_failed_at": "2026-05-29T10:00:00Z",
+  "last_failed_at": "2026-05-29T10:01:30Z"
+}
+  </pre>
+</section>
+
+<!-- ====================== EXACTLY ONCE ====================== -->
+<section class="step" id="exactly-once">
+  <h2><span class="num">10</span>Achieving Exactly-Once (Idempotent Consumers)</h2>
+
+  <p class="label gold">The Problem</p>
+  <pre class="ascii">
+At-least-once delivery means consumer MAY see the same message twice:
+  1. Consumer processes message (e.g., captures payment)
+  2. Consumer crashes BEFORE committing offset
+  3. Consumer restarts, re-reads same message
+  4. Processes again → DOUBLE CHARGE ❌
+  </pre>
+
+  <p class="label gold">Solution: Idempotent Consumer</p>
+  <pre class="ascii">
+Consumer logic:
+  1. Read message
+  2. Check: "Have I processed this message_id before?"
+     → Query dedup table: SELECT 1 FROM processed_messages WHERE id = ?
+  3. If YES → skip (already done)
+  4. If NO → process + INSERT into dedup table (same transaction as result)
+
+┌────────────────────────────────────────────┐
+│ PostgreSQL (consumer's DB)                  │
+│                                            │
+│ BEGIN TRANSACTION;                          │
+│   -- business logic                        │
+│   UPDATE orders SET status='CAPTURED'       │
+│     WHERE id='ord-123';                    │
+│                                            │
+│   -- dedup record                          │
+│   INSERT INTO processed_messages            │
+│     (message_id, processed_at)             │
+│     VALUES ('order-events-P2-45021', now())│
+│     ON CONFLICT DO NOTHING;                │
+│ COMMIT;                                    │
+│                                            │
+│ -- If this txn succeeds → safe to commit   │
+│ -- offset in Kafka                         │
+└────────────────────────────────────────────┘
+  </pre>
+
+  <p class="label gold">Kafka-Native Exactly-Once (Transactions)</p>
+  <pre class="ascii">
+Consume-Transform-Produce (Kafka Streams):
+  1. Read from input topic
+  2. Transform
+  3. Write to output topic + commit consumer offset
+  ALL in a single Kafka transaction (atomic)
+
+  producer.initTransactions();
+  producer.beginTransaction();
+  producer.send(outputRecord);
+  producer.sendOffsetsToTransaction(consumedOffsets, consumerGroupId);
+  producer.commitTransaction();
+  // If any step fails → entire transaction aborted → no partial state
+  </pre>
+
+  <div class="warn">
+    <b>Important:</b> Kafka exactly-once only works within Kafka (topic→topic). The moment you have a side-effect outside Kafka (DB write, API call), you need idempotent consumers.
+  </div>
+</section>
+
+<!-- ====================== WHEN ====================== -->
+<section class="step" id="when">
+  <h2><span class="num">11</span>When to Use vs When NOT to Use</h2>
+
+  <div class="grid2">
+    <div class="pillbox">
+      <h4>✓ Use a Queue When</h4>
+      <p>• Producer and consumer have different speeds<br>
+         • You need retry/failure isolation<br>
+         • Fan-out to multiple consumers<br>
+         • Async processing (user doesn't need instant result)<br>
+         • Traffic spikes (buffer between services)<br>
+         • Event sourcing / audit log<br>
+         • Cross-service communication (microservices)<br>
+         • Ordering guarantees needed</p>
+    </div>
+    <div class="pillbox">
+      <h4>✗ Do NOT Use a Queue When</h4>
+      <p>• User needs synchronous response (&lt;100ms)<br>
+         • Simple request-response (just use HTTP)<br>
+         • Data is needed RIGHT NOW (use cache/DB directly)<br>
+         • Two services on same machine (use function call)<br>
+         • Message size is huge (>1MB; use blob storage + pointer)<br>
+         • You need strong consistency (queue = eventual consistency)<br>
+         • Team can't handle operational complexity</p>
+    </div>
+  </div>
+
+  <table>
+    <tr><th>Use Case</th><th>Queue?</th><th>Why</th></tr>
+    <tr><td>User clicks "Buy" → confirm order</td><td>No (sync)</td><td>User needs instant confirmation</td></tr>
+    <tr><td>After order confirmed → send email</td><td>Yes</td><td>Email can be 2-5s late, user doesn't wait</td></tr>
+    <tr><td>After order → capture payment</td><td>Yes</td><td>Async, retryable, isolated from user flow</td></tr>
+    <tr><td>Real-time chat messages</td><td>Maybe (WebSocket + queue for persistence)</td><td>Delivery needs to be real-time but also durable</td></tr>
+    <tr><td>Fetching user profile on page load</td><td>No</td><td>User waits for data, use DB/cache directly</td></tr>
+    <tr><td>Processing 10M uploaded images</td><td>Yes</td><td>Classic job queue: distribute work across workers</td></tr>
+  </table>
+</section>
+
+<!-- ====================== INTERVIEW ====================== -->
+<section class="step" id="interview">
+  <h2><span class="num">12</span>Top Interview Questions &amp; Answers</h2>
+
+  <div class="define">
+    <b>Q1: How does Kafka achieve high throughput?</b>
+    <em>Sequential disk I/O (no random seeks), OS page cache (not JVM heap), zero-copy (sendfile), batching (producer batches messages), compression (snappy/lz4), partitioning (parallelism across brokers).</em>
+  </div>
+
+  <div class="define">
+    <b>Q2: How do you guarantee ordering in Kafka?</b>
+    <em>Use the same key for related messages → they go to the same partition → strictly ordered. No ordering across partitions. For global ordering, use a single partition (sacrifices throughput).</em>
+  </div>
+
+  <div class="define">
+    <b>Q3: What happens when a Kafka broker dies?</b>
+    <em>Partitions that had their leader on that broker → controller elects new leader from ISR (in-sync replicas). Producers/consumers get metadata refresh and start talking to new leader. If replication factor ≥ 3, no data loss.</em>
+  </div>
+
+  <div class="define">
+    <b>Q4: Kafka vs RabbitMQ — when to use which?</b>
+    <em>Kafka: high throughput, event streaming, replay capability, append-only log, many consumers reading same data. RabbitMQ: complex routing (headers, topic, fanout exchanges), low-latency task queues, message acknowledgment and redelivery per message, simpler for small scale.</em>
+  </div>
+
+  <div class="define">
+    <b>Q5: How do you handle a poison message (message that always fails)?</b>
+    <em>Track retry count per message. After N failures → move to Dead Letter Queue. Don't block the partition. Alert ops. DLQ messages can be inspected, fixed, and replayed.</em>
+  </div>
+
+  <div class="define">
+    <b>Q6: How do you achieve exactly-once processing?</b>
+    <em>Two parts: (1) Kafka idempotent producer (deduplicates on broker side using producer ID + sequence number). (2) Idempotent consumer: store processed_message_id in same DB transaction as the business logic. On redelivery, check if already processed → skip.</em>
+  </div>
+
+  <div class="define">
+    <b>Q7: What is consumer lag and how do you handle it?</b>
+    <em>Lag = producer's latest offset − consumer's committed offset. Monitor with Burrow/Prometheus. If growing: scale consumers (more pods), increase partition count, or fix slow processing. Alert if lag > threshold.</em>
+  </div>
+
+  <div class="define">
+    <b>Q8: How does Kafka store data on disk?</b>
+    <em>Segments (.log files, ~1GB each). Each partition is a directory. Messages appended sequentially. Sparse index files map offset → byte position. Old segments deleted/compacted per retention policy. Sequential I/O makes it fast despite being on disk.</em>
+  </div>
+
+  <div class="define">
+    <b>Q9: What is the outbox pattern?</b>
+    <em>Write the event to an "outbox" table in the SAME database transaction as the business data. A CDC tool (Debezium) or poller reads the outbox and publishes to Kafka. Ensures event is published if and only if the DB transaction committed. Solves the dual-write problem.</em>
+  </div>
+
+  <div class="define">
+    <b>Q10: How do you scale a Kafka topic?</b>
+    <em>Add more partitions (more parallelism). Add more brokers (more disk/network). Add more consumers in the group (up to partition count). For throughput: tune batch.size, linger.ms, compression. For storage: tune retention.ms, segment.bytes.</em>
+  </div>
+
+  <div class="define">
+    <b>Q11: What is log compaction?</b>
+    <em>Instead of deleting old messages by time, Kafka keeps only the LATEST message per key. Used for changelog topics (e.g., user profile updates): only need latest state, not full history. Delete old values with same key, keep the newest.</em>
+  </div>
+
+  <div class="define">
+    <b>Q12: How would you design a notification system using message queues?</b>
+    <em>Events → Kafka topic "notifications". Consumer groups per channel: email-worker, push-worker, sms-worker. Each reads all events, filters by user preferences, sends via respective gateway. DLQ for failures. Priority queue for urgent notifications. Rate limiting per user to prevent spam.</em>
+  </div>
+
+  <div class="define">
+    <b>Q13: What is back-pressure and how do you handle it?</b>
+    <em>When consumer can't keep up with producer. Solutions: (1) Scale consumers. (2) Rate-limit producers (Kafka quotas). (3) Let queue buffer (Kafka retains on disk for days). (4) Drop low-priority messages. (5) Alert on growing lag.</em>
+  </div>
+
+  <div class="define">
+    <b>Q14: Difference between a queue and a stream?</b>
+    <em>Queue: message consumed and deleted (one-time delivery). RabbitMQ, SQS. Stream: message appended to a log, retained, can be replayed. Multiple consumers read independently. Kafka, Kinesis. Stream = durable, replayable log. Queue = transient delivery pipe.</em>
+  </div>
+
+  <div class="define">
+    <b>Q15: How does consumer group coordination work in Kafka?</b>
+    <em>Group Coordinator (a broker) manages membership. Consumers send heartbeats. If missed → rebalance triggered. Partition assignment strategies: Range, RoundRobin, Sticky, Cooperative. Rebalance pauses consumption briefly (stop-the-world in older protocols, incremental in cooperative).</em>
+  </div>
+</section>
+
+</div><!-- .wrap -->
+
+<a href="#" class="top" id="topBtn">↑</a>
+
+<footer>
+  <b>BuildLikeASenior</b> · Think · Design · Grow Like a Senior Engineer
+</footer>
+
+<script>
+const btn=document.getElementById('topBtn');
+window.addEventListener('scroll',()=>{btn.classList.toggle('show',window.scrollY>300)});
+</script>
+</body>
+</html>

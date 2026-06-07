@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 881 453" width="881" height="453" font-weight="600">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="881" height="453" fill="#ffffff"/>
+<g transform="translate(-46,18)">
+<rect x="260" y="60" width="340" height="64" rx="10" fill="#fff3bf" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="260" y="172" width="340" height="64" rx="10" fill="#ffec99" stroke="#1e1e1e" stroke-width="2"/>
+<rect x="260" y="284" width="340" height="64" rx="10" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2"/>
+<polyline points="430,124 430,172" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="430,236 430,284" fill="none" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="220,316 220,232" fill="none" stroke="#2f9e44" stroke-width="2" marker-end="url(#arrow)"/>
+<polyline points="220,204 220,120" fill="none" stroke="#2f9e44" stroke-width="2" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="19" fill="#1e1e1e" text-anchor="start"><tspan x="150" y="25">Certificate Chain of Trust — Verify Up to a Root You Already Trust</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="430" y="87.36">ROOT CA  —  DigiCert Global Root</tspan><tspan x="430" y="107.84">self-signed · private key offline in HSM</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#f5c842" text-anchor="start"><tspan x="620" y="77">PRE-INSTALLED in your</tspan><tspan x="620" y="91.08">device's trust store</tspan><tspan x="620" y="105.16">(~150 roots ship with</tspan><tspan x="620" y="119.24000000000001">the OS / browser)</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="440" y="150">signs</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="430" y="199.35999999999999">INTERMEDIATE CA  —  DigiCert TLS RSA CA</tspan><tspan x="430" y="219.83999999999997">signs day-to-day site certificates</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="440" y="262">signs</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="16" fill="#1e1e1e" text-anchor="middle"><tspan x="430" y="311.36">LEAF CERT  —  bank.com</tspan><tspan x="430" y="331.84000000000003">public key · domain · expiry</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#2f9e44" text-anchor="start"><tspan x="620" y="307">What the SERVER</tspan><tspan x="620" y="321.08">presents during</tspan><tspan x="620" y="335.16">the handshake</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="11" fill="#2f9e44" text-anchor="start"><tspan x="70" y="241">verify each</tspan><tspan x="70" y="255.08">signature with</tspan><tspan x="70" y="269.16">the ISSUER's</tspan><tspan x="70" y="283.24">public key one</tspan><tspan x="70" y="297.32">level UP</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#7048e8" text-anchor="start"><tspan x="70" y="384">Server sends LEAF + INTERMEDIATE(s).  Device already has the ROOT.  The browser climbs the chain</tspan></text>
+<text font-family="'Segoe UI','Inter',system-ui,sans-serif" font-size="12" fill="#7048e8" text-anchor="start"><tspan x="70" y="406">until it lands on a trusted root — then the whole chain is trusted. Missing intermediate = 'unable to verify'.</tspan></text>
+</g>
+</svg>
