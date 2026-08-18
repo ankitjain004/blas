@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>URBAC 2.0 — Per-Slide Speaking Transcript</title>
+<style>
+  :root{ --brand:#0b3d68; --teal:#0e7c86; --ink:#111; --line:#e1dfdd; --ice:#eaf3fc; }
+  *{box-sizing:border-box}
+  body{font-family:'Segoe UI',Arial,sans-serif;color:var(--ink);margin:0;background:#f5f6f8;line-height:1.6}
+  .wrap{max-width:860px;margin:0 auto;padding:30px 24px 70px}
+  header{background:linear-gradient(135deg,#0b3d68,#0e7c86);color:#fff;border-radius:14px;padding:22px 26px;margin-bottom:10px}
+  header h1{margin:0 0 4px;font-size:23px}
+  header p{margin:0;font-size:13px;opacity:.95}
+  .hint{font-size:12.5px;color:#555;margin:12px 4px 16px}
+  details{background:#fff;border:1px solid var(--line);border-radius:11px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  summary{cursor:pointer;list-style:none;padding:14px 18px;display:flex;align-items:center;gap:12px;font-size:16px;font-weight:600;color:var(--brand);user-select:none}
+  summary::-webkit-details-marker{display:none}
+  summary:hover{background:#f7fafd}
+  .num{background:var(--brand);color:#fff;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:14px;flex:0 0 auto}
+  details[open] summary{background:var(--ice);border-bottom:1px solid var(--line)}
+  .chev{margin-left:auto;color:#999;font-size:13px;transition:transform .2s}
+  details[open] .chev{transform:rotate(90deg)}
+  .body{padding:16px 20px 20px 20px}
+  .say{background:#f0f7ff;border-left:4px solid var(--teal);border-radius:0 8px 8px 0;padding:12px 15px;margin:0 0 12px;font-size:15px}
+  .say::before{content:"🗣 Say this";display:block;font-size:11px;font-weight:700;color:var(--teal);letter-spacing:.5px;margin-bottom:6px}
+  ul.cue{margin:8px 0 0;padding-left:20px}
+  ul.cue li{margin:4px 0;font-size:13px;color:#333}
+  .cuehdr{font-size:11px;font-weight:700;color:#8a5a00;letter-spacing:.4px;margin-top:4px}
+  code{font-family:Consolas,monospace;font-size:12.5px;background:#f1f0ee;padding:1px 5px;border-radius:4px}
+  .controls{margin:0 4px 14px;display:flex;gap:10px}
+  .controls button{font-size:12.5px;border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 12px;cursor:pointer;color:var(--brand);font-weight:600}
+  .controls button:hover{background:var(--ice)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>URBAC 2.0 — Per-Slide Speaking Transcript</h1>
+    <p>Ankit's half · senior forum · 18 Aug 2026 · click a slide to reveal what to say</p>
+  </header>
+  <p class="hint">Deck: <code>URBAC-2.0-MDI-Labeling.pptx</code> · the <b>Say this</b> block is spoken almost verbatim; the amber cues are backups only if asked.</p>
+
+  <div class="controls">
+    <button onclick="document.querySelectorAll('details').forEach(d=>d.open=true)">Expand all</button>
+    <button onclick="document.querySelectorAll('details').forEach(d=>d.open=false)">Collapse all</button>
+  </div>
+
+  <!-- 1 -->
+  <details>
+    <summary><span class="num">1</span> Title — URBAC 2.0 <span class="chev">▶</span></summary>
+    <div class="body">
+      <div class="say">Thanks Sid. So Sid just gave a really nice holistic view of the whole thing. What I'm going to do now is take a slice out of that and go a level deeper — basically the MDI part of it.<br><br>So: what exactly we tag, how much of it there is, the identifiers we key on, and then the two end-to-end flows that carry the label.</div>
+    </div>
+  </details>
+
+  <!-- 2 -->
+  <details>
+    <summary><span class="num">2</span> Agenda — What I'll cover <span class="chev">▶</span></summary>
+    <div class="body">
+      <div class="say">So here's a quick roadmap of the part I'll be covering. First, what a logical activity and an alert actually are — the two data types we produce. Then their volume and stats. Then the identifiers we extract for identity labeling, which is this quarter, and the completeness of that coverage. Then the same for device labeling. And I'll close on the two flows — on-prem and third-party — that show where the label gets stamped.</div>
+    </div>
+  </details>
+
+  <!-- 3 -->
+  <details>
+    <summary><span class="num">3</span> What is a Logical Activity & an Alert <span class="chev">▶</span></summary>
+    <div class="body">
+      <div class="say">Before I go deeper into the details, I want to take a moment to explain what a logical activity and an alert actually are.<br><br>A <b>logical activity</b> is basically what our processor builds from the raw sensor traffic — it takes the low-level events off the domain controllers and stitches them into one meaningful action: a logon, an LDAP query, a directory change. That's what lands in the hunting tables people query, and it's also what our detectors run on.<br><br>An <b>alert</b> is what we raise when a detector fires on those activities. One important point to note is that these are legacy alerts, not the ones that come from the correlation engine — they're generated inside our own workspace processor. They leave MDI as AlertV3 into MTP.</div>
+      <div class="cuehdr">IF ASKED</div>
+      <ul class="cue">
+        <li>Raw sensor events are aggregated into logical activities; only logical activities are stored + go to hunting.</li>
+        <li>Correlation-engine alerts get the alert without the underlying events → must be labeled at creation.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- 4 -->
+  <details>
+    <summary><span class="num">4</span> Volume & stats <span class="chev">▶</span></summary>
+    <div class="body">
+      <div class="say">On scale — on-prem we process roughly 25,000 logical activities per second aggregate, about 8,000 a second in the busiest region. Third-party is far smaller, a few hundred events a second. And in terms of variety, there are 77 logical-activity types and 76 alert types in the code today.</div>
+      <div class="cuehdr">IF ASKED</div>
+      <ul class="cue">
+        <li>Counts = concrete <code>LogicalActivity</code> / <code>SecurityAlert</code> subclasses on cloud/master.</li>
+        <li>We only build the label set for Account or Computer principals — Groups excluded.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- 5 -->
+  <details>
+    <summary><span class="num">5</span> Identity identifiers & coverage (this quarter) <span class="chev">▶</span></summary>
+    <div class="body">
+      <div class="say">For identity, we can label basically all of it. Every activity and every alert resolves to a security principal that carries a strong identity key.<br><br>On-prem that's the AD objectSID and objectGUID.<br><br>On third-party it's a per-provider triple — provider, instance, and id — and CyberArk is out because it emits no events.<br><br>On the third-party status — UII's team is actively adding these third-party provider ids into the mapping, the same way they handle the other identifiers. There's still an open question on whether the provider and the instance — the connector — need to be part of the key, or just the id; Nissim is confirming that with Itay. So third-party labeling is basically waiting on that to land in the file.</div>
+      <div class="cuehdr">IF ASKED</div>
+      <ul class="cue">
+        <li>UII (Nissim) owns correlating the 3P id to the unified identity — that's why 3P is blocked on UII onboarding the key.</li>
+        <li><b>Nissim's latest:</b> UII is adding all ThirdPartyProviderIds to the mapping (like the other identifiers); waiting on Itay to confirm whether provider / instance are needed; once it's in the file they can map it out; still open whether the instance (connector) has an active role and must be added.</li>
+        <li>Only non-labelable: Groups (excluded) + principals that don't resolve. Design rule: never a wrong label — missing is safe.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- 6 -->
+  <details>
+    <summary><span class="num">6</span> Device identifiers & coverage (next quarter) <span class="chev">▶</span></summary>
+    <div class="body">
+      <div class="say">From the device-labeling perspective, the only strong device key is the AD computer objectGUID.<br><br>On-prem, 31 of the 77 activity types always carry a source device — the machine the action came from — and some more can carry a device at runtime depending on what the event touches; we exclude domain controllers since those are infrastructure, not real endpoint devices. On alerts, 59 of 76 carry host or source computer evidence.<br><br>Third-party, though, is ruled out — those events only carry an IP address, and an IP just isn't a reliable way to point to a specific device. Multiple devices can sit behind the same IP through NAT or a proxy; DHCP hands the same IP to different machines over time; and VPNs or egress gateways put a whole bunch of users behind one address. So you can't deterministically map an IP back to one device — and since a wrong device label is worse than no label, we don't label third-party devices at all.</div>
+      <div class="cuehdr">IF ASKED — what "runtime" and "DCs excluded" mean</div>
+      <ul class="cue">
+        <li><b>+ runtime:</b> coverage is entity-driven — any computer referenced (source/dest/target) that resolves gets a GUID, so e.g. a computer-object change carries a device even if it's not in the always-source 31.</li>
+        <li><b>DCs excluded:</b> the destination is often just the DC that logged the action (our sensor runs on the DC); we skip those via the <code>IsDomainController</code> flag.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- 7 -->
+  <details>
+    <summary><span class="num">7</span> On-prem: one activity, two paths <span class="chev">▶</span></summary>
+    <div class="body">
+      <div class="say">So this flow diagram shows how we actually do the tagging for on-prem — both the logical activities and the alerts. The processor builds one logical activity, and it fans out two ways, and the label rides both.<br><br>The first path is hunting: the enricher stamps the label onto the activity, then it flows through the router and the activities pipeline — the router sends the activity to the right region, and the pipeline transforms it and writes it into the hunting Kusto tables — so our label just has to survive those hops, and it shows up as a column in the three on-prem tables.<br><br>The second path is the alert path: the same activity goes to the detectors, and they create a SecurityAlert. We tag it right there, and it gets upserted into Cosmos. Then a background job — the SecurityAlertForwarder — picks the alert up from Cosmos when it's due for forwarding, builds the AlertV3, carries the label onto it, and forwards it to MTP over an Event Hub. And since it re-processes on every update, if the labels change the alert just gets re-tagged.<br><br>Same activity, two consumers, tagged on both.</div>
+      <div class="cuehdr">IF ASKED</div>
+      <ul class="cue">
+        <li>Hunting tables: <code>IdentityDirectoryEvents / IdentityLogonEvents / IdentityQueryEvents</code>.</li>
+        <li>Enricher writes into <code>AdvancedHuntingInfoMapping</code>; router is pass-through; the field must survive every hop.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- 8 -->
+  <details>
+    <summary><span class="num">8</span> 3P: one event, two paths <span class="chev">▶</span></summary>
+    <div class="body">
+      <div class="say">Third-party has the same shape but is simpler. One normalized event — Okta, Ping or SailPoint — processed once.<br><br>The first path is hunting: the orchestrator routes by event type and the translators write the hunting event directly into IdentityEvents and IdentityLogonEvents — note there's no router or pipeline hop here, it's a direct map.<br><br>The second path is detections: the hint detectors evaluate the event and publish to a hint-detection Event Hub. And one thing to be clear about — a hint detection is kind of a pseudo-alert; it doesn't actually go out to the customer. It's just an internal signal that the research detection platform picks up, along with our hunting events, to decide whether to raise a real alert.<br><br>So MDI doesn't create the third-party alerts — research builds those downstream from the events we've already labeled. The label reaches the alerts by riding the events, not by us tagging an alert.</div>
+      <div class="cuehdr">IF ASKED</div>
+      <ul class="cue">
+        <li>A hint detection is an internal signal, not a customer-facing alert — research decides if it becomes a real alert.</li>
+        <li>Hint detections today = Okta + Ping only; SailPoint's hook is a stub, CyberArk emits no events.</li>
+        <li>Research/DXP consumes hunting events + hint detections + raw entities → writes alerts as KQL.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- 9 -->
+  <details>
+    <summary><span class="num">9</span> Close — Where the label lands <span class="chev">▶</span></summary>
+    <div class="body">
+      <div class="say">To wrap up, here's the whole thing in one picture — there are three stages, and we own the middle one.<br><br>First, someone else <b>produces</b> the labels — that's UII and Lilach's cache; we just consume them.<br><br>The middle stage is <b>ours</b>: we take that label and stamp it — the UnifiedLabels column — onto our data, the activities, events and alerts, on-prem and third-party, in every region.<br><br>And the third stage, <b>enforcement</b> — who actually gets to see what — is a separate layer that other teams own.<br><br>So really our job is just that middle box: get the right label onto the data, correctly, everywhere. Happy to take questions.</div>
+      <div class="cuehdr">IF ASKED — biggest dependency</div>
+      <ul class="cue">
+        <li>3P labeling is blocked on UII onboarding the 3P identifier types (Provider + Instance + Id).</li>
+        <li>We register our first-party app id with the cache team for the allow-list before we can call it.</li>
+      </ul>
+    </div>
+  </details>
+
+</div>
+</body>
+</html>
