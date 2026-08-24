@@ -3,6 +3,7 @@ const path = require("path");
 const express = require("express");
 const helmet = require("helmet");
 const Razorpay = require("razorpay");
+const { createClient } = require("@supabase/supabase-js");
 require("dotenv").config();
 
 const app = express();
@@ -27,6 +28,15 @@ const razorpay = hasRazorpayConfig
     })
   : null;
 
+const hasSupabaseConfig = Boolean(
+  process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+const supabaseAdmin = hasSupabaseConfig
+  ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    })
+  : null;
+
 app.use(
   helmet({
     contentSecurityPolicy: false,
@@ -35,6 +45,35 @@ app.use(
 );
 app.use(express.json({ limit: "20kb" }));
 
+// Resolves the authenticated Supabase user from the request's bearer token.
+async function getUserFromRequest(request) {
+  if (!supabaseAdmin) return null;
+  const header = request.headers.authorization || "";
+  const token = header.startsWith("Bearer ") ? header.slice(7) : "";
+  if (!token) return null;
+  const { data, error } = await supabaseAdmin.auth.getUser(token);
+  if (error || !data || !data.user) return null;
+  return data.user;
+}
+
+async function requireUser(request, response) {
+  const user = await getUserFromRequest(request);
+  if (!user) {
+    response.status(401).json({ error: "Please sign in to continue." });
+    return null;
+  }
+  return user;
+}
+
+app.get("/api/config", (request, response) => {
+  response.json({
+    supabaseUrl: process.env.SUPABASE_URL || "",
+    supabaseAnonKey: process.env.SUPABASE_ANON_KEY || "",
+    authEnabled: hasSupabaseConfig,
+    paymentsEnabled: hasRazorpayConfig
+  });
+});
+
 app.post("/api/payments/order", async (request, response) => {
   try {
     if (!razorpay) {
@@ -42,6 +81,8 @@ app.post("/api/payments/order", async (request, response) => {
         error: "Payment provider is not configured. Add Razorpay credentials to .env."
       });
     }
+    const user = await requireUser(request, response);
+    if (!user) return undefined;
 
     const courseIds = Array.isArray(request.body.courseIds)
       ? [...new Set(request.body.courseIds)]
@@ -58,14 +99,15 @@ app.post("/api/payments/order", async (request, response) => {
       amount: amountInPaise,
       currency: "INR",
       receipt: `blas_${Date.now()}`,
-      notes: { courseIds: courseIds.join(",") }
+      notes: { courseIds: courseIds.join(","), userId: user.id }
     });
 
     return response.status(201).json({
       keyId: process.env.RAZORPAY_KEY_ID,
       orderId: order.id,
       amount: order.amount,
-      currency: order.currency
+      currency: order.currency,
+      email: user.email
     });
   } catch (error) {
     console.error("Unable to create Razorpay order:", error.message);
@@ -73,12 +115,14 @@ app.post("/api/payments/order", async (request, response) => {
   }
 });
 
-app.post("/api/payments/verify", (request, response) => {
+app.post("/api/payments/verify", async (request, response) => {
   if (!hasRazorpayConfig) {
     return response.status(503).json({ error: "Payment provider is not configured." });
   }
+  const user = await requireUser(request, response);
+  if (!user) return undefined;
 
-  const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = request.body;
+  const { razorpayOrderId, razorpayPaymentId, razorpaySignature, courseIds } = request.body;
   if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
     return response.status(400).json({ error: "Incomplete payment verification data." });
   }
@@ -97,7 +141,43 @@ app.post("/api/payments/verify", (request, response) => {
     return response.status(400).json({ error: "Payment signature verification failed." });
   }
 
-  return response.json({ verified: true, paymentId: razorpayPaymentId });
+  const purchasedIds = Array.isArray(courseIds)
+    ? [...new Set(courseIds)].filter(id => coursePrices[id])
+    : [];
+  if (purchasedIds.length && supabaseAdmin) {
+    const rows = purchasedIds.map(id => ({
+      user_id: user.id,
+      course_id: id,
+      amount: coursePrices[id],
+      razorpay_order_id: razorpayOrderId,
+      razorpay_payment_id: razorpayPaymentId
+    }));
+    const { error } = await supabaseAdmin
+      .from("purchases")
+      .upsert(rows, { onConflict: "user_id,course_id" });
+    if (error) {
+      console.error("Unable to record purchase:", error.message);
+      return response.status(500).json({ error: "Payment succeeded but access could not be saved. Contact support." });
+    }
+  }
+
+  return response.json({ verified: true, paymentId: razorpayPaymentId, courseIds: purchasedIds });
+});
+
+app.get("/api/me/courses", async (request, response) => {
+  const user = await requireUser(request, response);
+  if (!user) return undefined;
+  if (!supabaseAdmin) return response.json({ courseIds: [] });
+
+  const { data, error } = await supabaseAdmin
+    .from("purchases")
+    .select("course_id")
+    .eq("user_id", user.id);
+  if (error) {
+    console.error("Unable to load purchases:", error.message);
+    return response.status(500).json({ error: "Unable to load your courses." });
+  }
+  return response.json({ courseIds: data.map(row => row.course_id) });
 });
 
 app.use(express.static(path.join(__dirname)));
@@ -107,5 +187,8 @@ app.listen(port, () => {
   console.log(`BuildLikeASenior is running at http://localhost:${port}`);
   if (!hasRazorpayConfig) {
     console.warn("Razorpay is disabled until RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET are set.");
+  }
+  if (!hasSupabaseConfig) {
+    console.warn("Supabase auth is disabled until SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set.");
   }
 });

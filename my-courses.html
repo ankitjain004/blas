@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Access the engineering courses you have purchased." />
+  <title>My Courses | BuildLikeASenior</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <style>
+    :root{--ink:#101c2c;--navy:#0b1729;--teal:#087f72;--teal-bright:#00b894;--gold:#e5a91f;--coral:#e85d4a;--paper:#f7f5ef;--muted:#637083;--line:#dce1e6;--shadow:0 18px 50px rgba(16,28,44,.12)}
+    *{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--paper);font-family:"DM Sans",sans-serif}button{font:inherit;border:0;cursor:pointer}a{color:inherit;text-decoration:none}img{display:block;max-width:100%}h1,h2,h3{font-family:"Manrope",sans-serif;margin-top:0}.shell{width:min(1100px,calc(100% - 40px));margin:0 auto}
+    .site-header{position:sticky;top:0;z-index:20;background:rgba(11,23,41,.96);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.1)}.nav{height:68px;display:flex;align-items:center;gap:20px;color:#fff}.brand{display:inline-flex;align-items:center;gap:11px;margin-right:auto;font:800 18px "Manrope",sans-serif}.brand-mark{width:34px;height:34px;display:grid;place-items:center;background:var(--teal-bright);color:var(--navy)}.nav a.link{color:#c7d1de;font-size:14px;font-weight:600}.nav a.link:hover{color:#fff}.acct-btn{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 13px;color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:13px;font-weight:700}.acct-btn .avatar{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--teal-bright);color:var(--navy);font-size:12px;font-weight:800}
+    .page{padding:56px 0 90px}.page h1{font-size:clamp(30px,4vw,44px);margin-bottom:8px}.page .lead{color:var(--muted);margin-bottom:34px}
+    .state{padding:70px 24px;text-align:center;background:#fff;border:1px solid var(--line)}.state svg{color:#aab4bd;margin-bottom:14px}.state h2{font-size:22px;margin-bottom:8px}.state p{color:var(--muted);margin:0 auto 22px;max-width:420px}
+    .button{display:inline-flex;align-items:center;gap:9px;min-height:46px;padding:0 20px;background:var(--teal-bright);color:var(--navy);font-weight:800}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.card{overflow:hidden;background:#fff;border:1px solid var(--line)}.card .media{height:170px;overflow:hidden;background:#dde4e9}.card .media img{width:100%;height:100%;object-fit:cover}.card .body{padding:20px}.card h3{font-size:18px;margin-bottom:12px;min-height:48px}.card .open-btn{width:100%;height:44px;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--teal);color:#fff;font-weight:800}.card .open-btn:hover{background:#066b60}
+    @media(max-width:900px){.grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:620px){.grid{grid-template-columns:1fr}.card h3{min-height:0}.nav a.link{display:none}}
+  </style>
+</head>
+<body>
+  <header class="site-header"><nav class="nav shell"><a class="brand" href="index.html"><span class="brand-mark">B</span>BuildLikeASenior</a><a class="link" href="index.html#courses">Browse courses</a><button class="acct-btn" id="accountButton" type="button"><span class="avatar" id="accountAvatar">?</span><span id="accountLabel">Sign in</span></button></nav></header>
+  <main class="page shell">
+    <h1>My Courses</h1>
+    <p class="lead">Everything you have purchased, ready to open anytime.</p>
+    <div id="content"></div>
+  </main>
+  <script>
+    const courses={
+      dsa:{title:"DSA Patterns for Product Interviews",image:"https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=900&q=82",url:"dsalgo/index.html"},
+      system:{title:"System Design: First Principles",image:"https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=82",url:"system-design/index.html"},
+      lld:{title:"Low-Level Design for Senior Rounds",image:"https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=82",url:"lld/index.html"},
+      career:{title:"The Senior Engineer Playbook",image:"https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=900&q=82",url:"projects/index.html"},
+      bundle:{title:"Senior Engineer Interview Bundle",image:"https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=900&q=82",url:"dsalgo/index.html"},
+      architecture:{title:"Architecture Stories from Production",image:"https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=900&q=82",url:"projects/index.html"}
+    };
+    document.addEventListener("DOMContentLoaded",function(){
+      const content=document.getElementById("content"),accountAvatar=document.getElementById("accountAvatar"),accountLabel=document.getElementById("accountLabel"),accountButton=document.getElementById("accountButton");
+      let sbClient=null,currentUser=null;
+      function renderState(icon,title,text,cta){content.innerHTML='<div class="state"><i data-lucide="'+icon+'" width="40" height="40"></i><h2>'+title+'</h2><p>'+text+'</p>'+(cta||"")+'</div>';lucide.createIcons()}
+      function renderAccount(){if(currentUser){accountAvatar.textContent=(currentUser.email||"?").charAt(0).toUpperCase();accountLabel.textContent="Account"}else{accountAvatar.textContent="?";accountLabel.textContent="Sign in"}}
+      function renderCourses(ids){if(!ids.length){renderState("book-open","No courses yet","You haven't purchased any courses. Browse the catalog to get started.",'<a class="button" href="index.html#courses">Browse courses</a>');return}content.innerHTML='<div class="grid">'+ids.map(function(id){const c=courses[id];if(!c)return"";return '<div class="card"><div class="media"><img src="'+c.image+'" alt=""></div><div class="body"><h3>'+c.title+'</h3><a class="open-btn" href="'+c.url+'"><i data-lucide="play"></i> Open course</a></div></div>'}).join("")+'</div>';lucide.createIcons({attrs:{width:17,height:17}})}
+      async function loadCourses(){const{data}=await sbClient.auth.getSession();const token=data&&data.session?data.session.access_token:"";if(!token){renderState("lock","Please sign in","Sign in to view the courses you've purchased.",'<button class="button" id="signInCta" type="button">Sign in</button>');const cta=document.getElementById("signInCta");if(cta)cta.addEventListener("click",()=>accountButton.click());return}try{const res=await fetch("/api/me/courses",{headers:{Authorization:"Bearer "+token}});const body=await res.json();if(!res.ok)throw new Error(body.error||"Unable to load your courses");renderCourses(body.courseIds||[])}catch(err){renderState("alert-triangle","Something went wrong",err.message,"")}}
+      accountButton.addEventListener("click",()=>{if(currentUser){if(confirm("Sign out?"))sbClient.auth.signOut().then(()=>location.reload())}else{window.location.href="index.html"}});
+      renderState("loader","Loading","Fetching your courses...","");
+      fetch("/api/config").then(r=>r.json()).then(cfg=>{if(!cfg.authEnabled||!cfg.supabaseUrl||!cfg.supabaseAnonKey||!window.supabase){renderState("lock","Sign-in not enabled","Accounts are not configured yet. Please check back soon.","");return}sbClient=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);sbClient.auth.getSession().then(({data})=>{currentUser=data.session?data.session.user:null;renderAccount();loadCourses()});sbClient.auth.onAuthStateChange((_e,session)=>{currentUser=session?session.user:null;renderAccount();loadCourses()})}).catch(()=>renderState("alert-triangle","Connection error","Could not reach the server. Please refresh.",""));
+    });
+  </script>
+</body>
+</html>
