@@ -180,6 +180,43 @@ app.get("/api/me/courses", async (request, response) => {
   return response.json({ courseIds: data.map(row => row.course_id) });
 });
 
+// Course content is gated: only buyers of the matching course (or the bundle) may load these folders.
+const gatedSections = [
+  { prefix: "/dsalgo", courses: ["dsa", "bundle"] },
+  { prefix: "/system-design", courses: ["system", "bundle"] },
+  { prefix: "/lld", courses: ["lld", "bundle"] }
+];
+
+function readCookie(request, name) {
+  const header = request.headers.cookie || "";
+  const entry = header.split(";").map(part => part.trim()).find(part => part.startsWith(name + "="));
+  return entry ? decodeURIComponent(entry.slice(name.length + 1)) : "";
+}
+
+app.use(async (request, response, next) => {
+  const section = gatedSections.find(
+    s => request.path === s.prefix || request.path.startsWith(s.prefix + "/")
+  );
+  if (!section || !supabaseAdmin) return next();
+  const deny = () => response.redirect(302, "/?unlock=" + section.prefix.slice(1));
+  const token = readCookie(request, "sb-access-token");
+  if (!token) return deny();
+  try {
+    const { data, error } = await supabaseAdmin.auth.getUser(token);
+    if (error || !data || !data.user) return deny();
+    const { data: rows } = await supabaseAdmin
+      .from("purchases")
+      .select("course_id")
+      .eq("user_id", data.user.id);
+    const owned = (rows || []).map(row => row.course_id);
+    if (!section.courses.some(course => owned.includes(course))) return deny();
+    return next();
+  } catch (err) {
+    console.error("Content gate error:", err.message);
+    return deny();
+  }
+});
+
 app.use(express.static(path.join(__dirname)));
 app.get("*", (request, response) => response.sendFile(path.join(__dirname, "index.html")));
 
