@@ -1,3 +1,7 @@
+node_modules/
+.env
+npm-debug.log*
+
 # Private — interview-prep deep dives (kept in the separate private repo: blas-projects)
 projects/
 
