@@ -193,6 +193,10 @@ function readCookie(request, name) {
   return entry ? decodeURIComponent(entry.slice(name.length + 1)) : "";
 }
 
+// Short-lived cache so a course page with many assets doesn't re-verify on every request.
+const gateCache = new Map();
+const GATE_TTL = 30000;
+
 app.use(async (request, response, next) => {
   const section = gatedSections.find(
     s => request.path === s.prefix || request.path.startsWith(s.prefix + "/")
@@ -202,14 +206,19 @@ app.use(async (request, response, next) => {
   const token = readCookie(request, "sb-access-token");
   if (!token) return deny();
   try {
-    const { data, error } = await supabaseAdmin.auth.getUser(token);
-    if (error || !data || !data.user) return deny();
-    const { data: rows } = await supabaseAdmin
-      .from("purchases")
-      .select("course_id")
-      .eq("user_id", data.user.id);
-    const owned = (rows || []).map(row => row.course_id);
-    if (!section.courses.some(course => owned.includes(course))) return deny();
+    let entry = gateCache.get(token);
+    if (!entry || Date.now() - entry.ts > GATE_TTL) {
+      const { data, error } = await supabaseAdmin.auth.getUser(token);
+      if (error || !data || !data.user) return deny();
+      const { data: rows } = await supabaseAdmin
+        .from("purchases")
+        .select("course_id")
+        .eq("user_id", data.user.id);
+      entry = { owned: new Set((rows || []).map(row => row.course_id)), ts: Date.now() };
+      if (gateCache.size > 500) gateCache.clear();
+      gateCache.set(token, entry);
+    }
+    if (!section.courses.some(course => entry.owned.has(course))) return deny();
     return next();
   } catch (err) {
     console.error("Content gate error:", err.message);
