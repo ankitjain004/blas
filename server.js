@@ -182,9 +182,9 @@ app.get("/api/me/courses", async (request, response) => {
 
 // Course content is gated: only buyers of the matching course (or the bundle) may load these folders.
 const gatedSections = [
-  { prefix: "/dsalgo", courses: ["dsa", "bundle"] },
-  { prefix: "/system-design", courses: ["system", "bundle"] },
-  { prefix: "/lld", courses: ["lld", "bundle"] }
+  { prefix: "/dsalgo", id: "dsa", courses: ["dsa", "bundle"] },
+  { prefix: "/system-design", id: "system", courses: ["system", "bundle"] },
+  { prefix: "/lld", id: "lld", courses: ["lld", "bundle"] }
 ];
 
 function readCookie(request, name) {
@@ -198,7 +198,7 @@ app.use(async (request, response, next) => {
     s => request.path === s.prefix || request.path.startsWith(s.prefix + "/")
   );
   if (!section || !supabaseAdmin) return next();
-  const deny = () => response.redirect(302, "/?unlock=" + section.prefix.slice(1));
+  const deny = () => response.redirect(302, "/preview.html?course=" + section.id);
   const token = readCookie(request, "sb-access-token");
   if (!token) return deny();
   try {

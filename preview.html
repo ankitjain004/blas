@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Course Preview | BuildLikeASenior</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+  <style>
+    :root{--ink:#101c2c;--navy:#0b1729;--teal:#087f72;--teal-bright:#00b894;--gold:#e5a91f;--coral:#e85d4a;--paper:#f7f5ef;--muted:#637083;--line:#dce1e6;--shadow:0 18px 50px rgba(16,28,44,.12)}
+    *{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--paper);font-family:"DM Sans",sans-serif}a{color:inherit;text-decoration:none}button{font:inherit;border:0;cursor:pointer}h1,h2,h3{font-family:"Manrope",sans-serif;margin-top:0}.shell{width:min(920px,calc(100% - 40px));margin:0 auto}
+    .site-header{position:sticky;top:0;z-index:20;background:rgba(11,23,41,.96);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.1)}.nav{height:66px;display:flex;align-items:center;gap:18px;color:#fff}.brand{display:inline-flex;align-items:center;gap:11px;margin-right:auto;font:800 18px "Manrope",sans-serif}.brand-mark{width:34px;height:34px;display:grid;place-items:center;background:var(--teal-bright);color:var(--navy)}.nav a.back{display:inline-flex;align-items:center;gap:7px;color:#c7d1de;font-size:14px;font-weight:600}.nav a.back:hover{color:#fff}
+    .hero{padding:52px 0 26px}.eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--teal);font:800 12px "Manrope",sans-serif;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px}.hero h1{font-size:clamp(30px,5vw,46px);line-height:1.08;margin-bottom:14px}.hero p{color:var(--muted);font-size:17px;line-height:1.6;max-width:640px;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:18px;color:#54627a;font-size:13px;font-weight:600}.meta span{display:inline-flex;align-items:center;gap:6px}
+    .content{padding:8px 0 90px}
+    .free-tag{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:#e4f7f0;color:var(--teal);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-bottom:16px}
+    .card{background:#fff;border:1px solid var(--line);padding:26px 28px;margin-bottom:20px}
+    .card h2{font-size:22px;margin-bottom:8px}
+    .sample p{color:#3f4b5c;line-height:1.75;font-size:15.5px}
+    .topics{list-style:none;padding:0;margin:14px 0 0}.topics li{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid #eef1f2;font-size:15px}.topics li:last-child{border-bottom:0}.topics svg{flex:0 0 auto;color:var(--teal);margin-top:2px}
+    .locked-wrap{position:relative;margin-top:8px}
+    .locked{filter:blur(6px);pointer-events:none;user-select:none;opacity:.6}
+    .locked .row{height:16px;background:#dfe4e9;border-radius:6px;margin:14px 0}.locked .row.s{width:62%}.locked .row.m{width:84%}
+    .paywall{position:absolute;inset:0;display:grid;place-items:center;padding:20px}
+    .paywall-card{width:min(440px,100%);background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);padding:30px;text-align:center}
+    .paywall-card .lock{width:56px;height:56px;margin:0 auto 14px;display:grid;place-items:center;background:var(--navy);color:#fff;border-radius:50%}
+    .paywall-card h3{font-size:23px;margin-bottom:6px}
+    .paywall-card p.sub{color:var(--muted);font-size:14px;margin:0 0 18px}
+    .price{display:flex;align-items:baseline;justify-content:center;gap:10px;margin-bottom:18px}.price .now{font:800 32px "Manrope",sans-serif}.price .was{color:#8d98a5;text-decoration:line-through;font-size:16px}.price .off{color:var(--coral);font-size:13px;font-weight:800}
+    .buy{width:100%;min-height:50px;display:inline-flex;align-items:center;justify-content:center;gap:9px;background:var(--teal-bright);color:var(--navy);font-weight:800;font-size:15px;transition:transform .18s,background .18s}.buy:hover{transform:translateY(-2px);background:#18caa7}
+    .assure{margin:14px 0 0;color:var(--muted);font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px}
+    .includes{list-style:none;padding:0;margin:18px 0 0;text-align:left}.includes li{display:flex;gap:9px;align-items:center;padding:6px 0;font-size:13.5px;color:#3f4b5c}.includes svg{color:var(--teal)}
+    footer{padding:30px 0;color:#9eabbc;background:#07111f;font-size:13px}
+    @media(max-width:620px){.paywall-card{padding:22px}}
+  </style>
+</head>
+<body>
+  <header class="site-header"><nav class="nav shell"><a class="brand" href="index.html"><span class="brand-mark">B</span>BuildLikeASenior</a><a class="back" href="index.html#courses"><i data-lucide="arrow-left"></i> All courses</a></nav></header>
+  <main>
+    <section class="hero"><div class="shell"><div class="eyebrow"><i data-lucide="book-open" width="15" height="15"></i> Course preview</div><h1 id="title">Course</h1><p id="desc"></p><div class="meta" id="meta"></div></div></section>
+    <section class="content"><div class="shell">
+      <div class="card sample"><div class="free-tag"><i data-lucide="unlock" width="13" height="13"></i> Free preview</div><h2 id="sampleTitle">What you'll learn</h2><div id="sampleBody"></div><ul class="topics" id="topics"></ul></div>
+      <div class="locked-wrap">
+        <div class="card locked" aria-hidden="true"><div class="row m"></div><div class="row s"></div><div class="row"></div><div class="row m"></div><div class="row s"></div><div class="row"></div><div class="row m"></div><div class="row"></div><div class="row s"></div><div class="row m"></div><div class="row"></div><div class="row s"></div></div>
+        <div class="paywall"><div class="paywall-card"><div class="lock"><i data-lucide="lock"></i></div><h3>Unlock the full course</h3><p class="sub" id="lockedCount">Get lifetime access to every lesson.</p><div class="price"><span class="now" id="priceNow">₹0</span><span class="was" id="priceWas">₹0</span><span class="off" id="priceOff"></span></div><button class="buy" id="buyBtn"><i data-lucide="shopping-bag"></i> Buy now</button><div class="assure"><i data-lucide="shield-check" width="14" height="14"></i> 7-day money-back guarantee</div><ul class="includes"><li><i data-lucide="check" width="15" height="15"></i> Lifetime access &amp; future updates</li><li><i data-lucide="check" width="15" height="15"></i> Production-quality code &amp; diagrams</li><li><i data-lucide="check" width="15" height="15"></i> Learn at your own pace</li></ul></div></div>
+      </div>
+    </div></section>
+  </main>
+  <footer><div class="shell">© 2026 BuildLikeASenior · Preview mode</div></footer>
+  <script>
+    const catalog={
+      dsa:{title:"DSA Patterns for Product Interviews",desc:"Master 27 core patterns through 187 carefully sequenced problems and interview-ready Java solutions.",lessons:187,hours:42,rating:"4.9",price:2499,oldPrice:3999,sample:"Every problem starts with a mental model, not memorization. You'll learn to recognize which pattern applies, why it works, and how to explain your reasoning out loud — the exact skill product-company interviewers score you on.",topics:["Arrays & two-pointer patterns — Set Matrix Zeros, Two Sum, 3Sum","Binary search on the answer — Allocate Pages, Aggressive Cows","Dynamic programming ladders — LCS, Knapsack, Edit Distance","Graphs — BFS/DFS, topological sort, shortest paths, MST","Trees, tries & heaps with production-quality Java"]},
+      system:{title:"System Design: First Principles",desc:"Design scalable services by reasoning about traffic, APIs, storage, caching, queues, and reliability.",lessons:54,hours:18,rating:"4.8",price:2999,oldPrice:4999,sample:"Great system design answers aren't memorized architectures — they're a sequence of defensible tradeoffs. You'll learn a repeatable framework: clarify, estimate, define APIs, pick storage, then scale the bottlenecks one by one.",topics:["Estimation & back-of-the-envelope capacity planning","API gateways, rate limiters & load balancing","Databases, sharding, replication & caching strategies","Kafka, message queues & event-driven design","Real designs — typeahead, chat, YouTube, BookMyShow"]},
+      lld:{title:"Low-Level Design for Senior Rounds",desc:"Turn fuzzy requirements into clean object models using SOLID, design patterns, and complete case studies.",lessons:38,hours:12,rating:"4.9",price:1999,oldPrice:3299,sample:"Senior LLD rounds test how you translate ambiguity into extensible objects. You'll practice an 8-step framework — scope, entities, relationships, patterns — on four full problems you can reuse in any interview.",topics:["The 8-step LLD framework & SOLID applied","Design patterns — State, Strategy, Factory, Observer","Parking Lot & Vending Machine (State pattern)","Splitwise — balances, settlements, expense splitting","LRU Cache — O(1) with HashMap + doubly linked list"]}
+    };
+    const params=new URLSearchParams(location.search);
+    const id=params.get("course");
+    const c=catalog[id];
+    const inr=v=>new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(v);
+    document.addEventListener("DOMContentLoaded",()=>{
+      if(!c){location.href="index.html#courses";return}
+      document.getElementById("title").textContent=c.title;
+      document.getElementById("desc").textContent=c.desc;
+      document.getElementById("meta").innerHTML='<span><i data-lucide="book-open" width="15" height="15"></i>'+c.lessons+' lessons</span><span><i data-lucide="clock-3" width="15" height="15"></i>'+c.hours+' hours</span><span><i data-lucide="star" width="15" height="15"></i>'+c.rating+' rating</span>';
+      document.getElementById("sampleBody").innerHTML='<p>'+c.sample+'</p>';
+      document.getElementById("topics").innerHTML=c.topics.map(t=>'<li><i data-lucide="check-circle-2" width="17" height="17"></i>'+t+'</li>').join("");
+      document.getElementById("lockedCount").textContent="Get lifetime access to all "+c.lessons+" lessons.";
+      document.getElementById("priceNow").textContent=inr(c.price);
+      document.getElementById("priceWas").textContent=inr(c.oldPrice);
+      document.getElementById("priceOff").textContent=Math.round((1-c.price/c.oldPrice)*100)+"% off";
+      document.title=c.title+" · Preview | BuildLikeASenior";
+      document.getElementById("buyBtn").addEventListener("click",()=>{location.href="index.html?buy="+id});
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
