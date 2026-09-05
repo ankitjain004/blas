@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -41,11 +41,43 @@
 
 <header class="hero">
   <span class="badge">System Design · BuildLikeASenior</span>
-  <h1 class="title">Ankit's <span>System Design</span> Notes</h1>
+  <h1 class="title">High-Level Design <span>(HLD)</span></h1>
   <p class="sub">Senior-engineer system design walkthroughs — clarifying questions, capacity math, components, failure modes, and the 30-second pitch.</p>
 </header>
+<div style="text-align:center;padding:8px 0 0">
+  <a href="../index.html" style="display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.25);border-radius:10px;color:var(--teal);font-size:13px;font-family:'JetBrains Mono',monospace;text-decoration:none">← Back to Main Hub</a>
+</div>
 
 <div class="wrap">
+
+<style>
+.concepts{background:linear-gradient(180deg,#0f1f3d,#142a52);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px 24px 20px;margin:6px 0 26px}
+.concepts .ctitle{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:#f5c842;font-weight:700;margin-bottom:6px}
+.concepts .cintro{color:#8aa0c4;font-size:14px;margin:0 0 16px;max-width:820px;line-height:1.6}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.concept{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:11px;padding:13px 15px}
+.concept b{color:#00d4aa;font-size:14px}
+.concept span{color:#c4d1e6;font-size:13px;display:block;margin-top:5px;line-height:1.5}
+</style>
+<section class="concepts">
+  <div class="ctitle">Core Concepts · Master These First</div>
+  <p class="cintro">Every design below is assembled from the same building blocks. Skim these definitions first — if a problem feels hard, you're usually missing one of these, not the problem itself. Many have full deep-dive pages in the cards below.</p>
+  <div class="cgrid">
+    <div class="concept"><b>Scalability</b><span>Vertical (bigger box) vs horizontal (more boxes). Prefer scaling out with a stateless web tier.</span></div>
+    <div class="concept"><b>Load Balancing</b><span>Spread traffic across servers (L4/L7, round-robin, least-connections) for scale-out and failover.</span></div>
+    <div class="concept"><b>Caching</b><span>Keep hot data close — client, CDN, Redis. Cache-aside vs write-through; TTL + LRU eviction.</span></div>
+    <div class="concept"><b>SQL vs NoSQL</b><span>Relational (ACID, joins) vs key-value / document / wide-column (scale, flexible schema). Pick by access pattern.</span></div>
+    <div class="concept"><b>Indexing</b><span>B-tree / hash indexes turn full scans into fast lookups — at the cost of write speed and storage.</span></div>
+    <div class="concept"><b>Sharding &amp; Partitioning</b><span>Split data across nodes by key (hash / range). Watch for hotspots and cross-shard joins.</span></div>
+    <div class="concept"><b>Replication</b><span>Copy data to replicas for read-scale and high availability. Leader–follower; sync vs async.</span></div>
+    <div class="concept"><b>CAP &amp; Consistency</b><span>Under a network partition, choose consistency or availability. Strong vs eventual; read-your-writes.</span></div>
+    <div class="concept"><b>Message Queues</b><span>Decouple producers and consumers — async, buffering, retries (Kafka / SQS). At-least-once + idempotency.</span></div>
+    <div class="concept"><b>Rate Limiting</b><span>Protect services with token bucket / sliding window; throttle per user or API key at the gateway.</span></div>
+    <div class="concept"><b>CDN</b><span>Cache static and media content at edge locations near users to cut latency and origin load.</span></div>
+    <div class="concept"><b>Idempotency &amp; Consensus</b><span>Idempotent operations make retries safe; consensus (Raft) coordinates leaders and replicated state.</span></div>
+    <div class="concept"><b>Capacity Estimation</b><span>Back-of-the-envelope QPS, storage, and bandwidth math — size the system before you architect it.</span></div>
+  </div>
+</section>
 
 <div class="grid">
 
@@ -238,6 +270,30 @@
       <span class="tag">Double-Entry Ledger</span>
       <span class="tag">PCI-DSS</span>
       <span class="tag">Exactly-Once</span>
+    </div>
+  </a>
+
+  <a class="card" href="nearby-friends.html">
+    <div class="num">16 / SOCIAL · GEOLOCATION</div>
+    <h3>Design Nearby Friends</h3>
+    <div class="desc">Find only your friends within a selected radius using 5-second location updates, geo-cell indexing, friend-graph intersection, and strict privacy gates under sub-500 ms latency targets.</div>
+    <div class="tags">
+      <span class="tag">Geo Index</span>
+      <span class="tag">Real-Time</span>
+      <span class="tag">Graph Intersection</span>
+      <span class="tag">10M DAU</span>
+    </div>
+  </a>
+
+  <a class="card" href="bookmyshow.html">
+    <div class="num">17 / TICKETING · TRANSACTIONS</div>
+    <h3>Design BookMyShow</h3>
+    <div class="desc">Design event search and high-contention seat booking at scale with lock TTL, idempotent payment flow, and strict consistency to prevent double booking.</div>
+    <div class="tags">
+      <span class="tag">Seat Locking</span>
+      <span class="tag">Payments</span>
+      <span class="tag">Consistency</span>
+      <span class="tag">100M DAU</span>
     </div>
   </a>
 
