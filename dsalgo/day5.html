@@ -160,7 +160,7 @@ const AnimKit = {
   <span class="badge">Day 5 · BuildLikeASenior</span>
   <h1 class="title">BLAS DSA Blueprint — <span>Day 5</span></h1>
   <p class="sub">Fifth question per section. Median of Two Sorted Arrays, Largest Rectangle, Prim's MST, Maximum XOR via Trie — the heavy artillery.</p>
-  <div class="meta"><span><b>27</b> questions</span><span><b>27</b> sections</span><span><b>~4 hrs</b> deep work</span></div>
+  <div class="meta"><span><b>22</b> questions</span><span><b>22</b> sections</span><span><b>~4 hrs</b> deep work</span></div>
 </header>
 
 <div class="wrap">
@@ -175,26 +175,21 @@ const AnimKit = {
   <h3>Today's Run-list</h3>
   <ol>
     <li><a href="#q1">Sort Colors (Dutch National Flag)</a></li>
-    <li><a href="#q2">Find Missing and Repeating Numbers</a></li>
     <li><a href="#q3">Unique Paths</a></li>
     <li><a href="#q4">Count Subarrays with XOR K</a></li>
     <li><a href="#q5">Add Two Numbers (Linked List)</a></li>
-    <li><a href="#q6">Flatten a Linked List</a></li>
     <li><a href="#q7">Remove Duplicates from Sorted Array</a></li>
     <li><a href="#q8">Minimum Coins (Denominations)</a></li>
     <li><a href="#q9">Palindrome Partitioning</a></li>
     <li><a href="#q10">Rat in a Maze</a></li>
     <li><a href="#q11">Median of Two Sorted Arrays</a></li>
-    <li><a href="#q12">K Most Frequent Elements</a></li>
     <li><a href="#q13">Valid Parentheses</a></li>
     <li><a href="#q14">Largest Rectangle in Histogram</a></li>
     <li><a href="#q15">String to Integer (atoi)</a></li>
-    <li><a href="#q16">Count and Say</a></li>
     <li><a href="#q17">Left View of Binary Tree</a></li>
     <li><a href="#q18">ZigZag Level Order Traversal</a></li>
     <li><a href="#q19">Maximum Width of Binary Tree</a></li>
     <li><a href="#q20">Inorder Successor in BST</a></li>
-    <li><a href="#q21">Floor and Ceil in BST</a></li>
     <li><a href="#q22">BST Iterator</a></li>
     <li><a href="#q23">Topological Sort (DFS)</a></li>
     <li><a href="#q24">Prim's Minimum Spanning Tree</a></li>
@@ -348,189 +343,9 @@ void sortColors(int[] nums){
 </article>
 
 <!-- ================= Q2 ================= -->
-<article class="q" id="q2">
-  <div class="head"><h2><span class="num">02</span>Find Missing and Repeating Numbers <span class="pill hard">Hard</span></h2></div>
-  <div class="topic">Section · Arrays Part-II</div>
-  <div class="links">
-    <a href="https://www.geeksforgeeks.org/find-a-repeating-and-a-missing-number/" target="_blank">GFG</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">An array holds <code>n</code> numbers from <code>[1, n]</code> where one value repeats and one is missing; find both in O(n) time and O(1) space.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input A:</b> <code>[4,3,6,2,1,1]</code> (n=6)&nbsp;·&nbsp;<b>Output:</b> repeating=<code>1</code>, missing=<code>5</code></p>
-    <ol>
-      <li>XOR all <code>nums</code> with <code>1..n</code>: every value cancels except <code>x ⊕ y</code> where x=missing, y=repeating.</li>
-      <li>Pick any set bit in xor (lowest via <code>x &amp; -x</code>); partition both lists by that bit.</li>
-      <li>XOR each partition independently → yields x and y. Verify by counting one of them in nums to label which is missing vs repeating.</li>
-      <li>Result → missing=<b>5</b>, repeating=<b>1</b>.</li>
-    </ol>
-    <p><b>Input B (edge — small input):</b> <code>[2,2]</code> (n=2)&nbsp;·&nbsp;<b>Output:</b> repeating=<code>2</code>, missing=<code>1</code></p>
-    <ol>
-      <li>XOR(2,2,1,2) = 1⊕2 = 3 (binary 11). Lowest set bit = 1; partitions: bit-set group {1}, bit-clear group {2,2,2}; XOR → 1 and 2 → verify count(2)=2 → repeating=2.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>XOR all array values with 1..n.</b> The XOR result equals <code>missing XOR repeated</code>. Use a set bit in this XOR to partition both arrays into two groups → one group contains missing, the other contains repeated.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Brute</b> Count each value with a HashMap → O(n)/O(n).</div>
-    <div class="alt"><b>Math</b> Use sum and sum-of-squares to derive two equations → O(n)/O(1) but risk overflow.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach (XOR)</div>
-  <div class="approach"><ol>
-    <li><code>xorAll = XOR(array) XOR XOR(1..n)</code>. This equals <code>repeated ^ missing</code>.</li>
-    <li>Pick any set bit <code>b</code> of xorAll.</li>
-    <li>Split numbers into "bit set" and "bit unset" groups (do same for 1..n). XOR within each group gives the two values.</li>
-    <li>Decide which is missing vs repeated by scanning the array once.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart TD
-  X["xorAll = repeated XOR missing"] --> B["pick a set bit b"]
-  B --> P["partition into bit-set / bit-unset groups"]
-  P --> R["each group XORs to one of {repeated, missing}"]
-  R --> S["scan once → label which is which"]
-  </pre></div>
-
-  <div class="section-title">Animation</div>
-  <div class="anim">
-    <canvas id="animc-2" class="anim-canvas" width="720" height="260"></canvas>
-    <div class="anim-controls">
-      <button class="anim-btn" onclick="ANIM2.reset()">⟲ Reset</button>
-      <button class="anim-btn sec" onclick="ANIM2.step()">▶ Step</button>
-      <button class="anim-btn sec" onclick="ANIM2.auto()">⏩ Auto</button>
-    </div>
-    <div class="anim-stats">xorAll <b id="a2x">0</b> · bit <b id="a2b">–</b> · group<sub>1</sub> <b id="a2g1">0</b> · group<sub>0</sub> <b id="a2g0">0</b></div>
-    <div class="anim-note" id="anim-note-2">arr=[1,2,3,3,5], n=5. Find missing & repeated using XOR partition.</div>
-  </div>
-  <script>
-  const ANIM2 = (function(){
-    const cv=document.getElementById('animc-2');
-    const note=document.getElementById('anim-note-2');
-    const arr=[1,2,3,3,5], n=5;
-    function build(){
-      const f=[]; let x=0; const xs=[];
-      for(const v of arr){ x^=v; xs.push({v,after:x,src:'arr'}); }
-      for(let i=1;i<=n;i++){ x^=i; xs.push({v:i,after:x,src:'1..n'}); }
-      f.push({stage:1,xs,xor:0,msg:'XOR all of arr and 1..n.'});
-      let cur=0;
-      for(let k=0;k<xs.length;k++){ cur=xs[k].after;
-        f.push({stage:1,xs,xor:cur,k,msg:`xor ^= ${xs[k].v} (${xs[k].src}) → xor=${cur}.`});
-      }
-      const xorAll=cur;
-      const bit = xorAll & -xorAll; const bitIdx = Math.log2(bit);
-      f.push({stage:2,xor:xorAll,bit,bitIdx,msg:`xorAll=${xorAll} (binary ${xorAll.toString(2)}). pick rightmost set bit → bit ${bitIdx}.`});
-      let g1=0,g0=0;
-      const items=[...arr.map(v=>({v,src:'arr'})),...Array.from({length:n},(_,i)=>({v:i+1,src:'1..n'}))];
-      for(let i=0;i<items.length;i++){ const v=items[i].v; if(v&bit) g1^=v; else g0^=v;
-        f.push({stage:3,xor:xorAll,bit,bitIdx,g1,g0,it:i,items,msg:`${items[i].src} ${v} → ${(v&bit)?'group1 (bit set)':'group0'} → g1=${g1}, g0=${g0}.`});
-      }
-      // label
-      const inArr1=arr.includes(g1), inArr0=arr.includes(g0);
-      const counts1=arr.filter(v=>v===g1).length, counts0=arr.filter(v=>v===g0).length;
-      const repeated = counts1===2? g1 : g0;
-      const missing = counts1===2? g0 : g1;
-      f.push({stage:4,xor:xorAll,bit,bitIdx,g1,g0,repeated,missing,done:true,msg:`scan arr to label → repeated=${repeated}, missing=${missing} ✓`});
-      return f;
-    }
-    let frames,idx,timer;
-    function reset(){ frames=build(); idx=0; stop(); update(); note.innerHTML='arr=[1,2,3,3,5], n=5. Find missing & repeated using XOR partition.'; draw(); }
-    function update(){ const fr=frames[idx];
-      document.getElementById('a2x').textContent=fr.xor||0;
-      document.getElementById('a2b').textContent=fr.bitIdx!==undefined?'#'+fr.bitIdx:'–';
-      document.getElementById('a2g1').textContent=fr.g1||0;
-      document.getElementById('a2g0').textContent=fr.g0||0;
-    }
-    function draw(){
-      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
-      const fr=frames[idx];
-      AnimKit.text(ctx,'stage '+fr.stage+(fr.done?' → done':''),W/2,22,{color:'#f5c842',font:'bold 12px Inter'});
-      if(fr.stage===1){
-        const cw=58, total=fr.xs.length, ox=W/2-total*cw/2, y=70;
-        AnimKit.text(ctx,'arr',ox-10,y+28,{color:'#5b8dee',font:'bold 11px Inter',align:'right'});
-        for(let i=0;i<total;i++){ const x=ox+i*cw, item=fr.xs[i], isCur=fr.k===i, was=fr.k!==undefined&&i<fr.k;
-          let opt,dark=false;
-          if(isCur){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.55)',border:'rgba(245,200,66,.9)'}; dark=true; }
-          else if(was) opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.5)'};
-          else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
-          AnimKit.cell(ctx,x,y,cw-6,46,opt);
-          AnimKit.text(ctx,item.v,x+(cw-6)/2,y+24,{color:dark?'#0a1428':'#cfe0ff',font:'bold 16px JetBrains Mono'});
-          AnimKit.text(ctx,item.src,x+(cw-6)/2,y+58,{color:'#5a6e92',font:'9px Inter'});
-        }
-        AnimKit.text(ctx,'running xor = '+(fr.xor||0),W/2,y+150,{color:'#00d4aa',font:'bold 18px JetBrains Mono'});
-      } else if(fr.stage===2){
-        AnimKit.text(ctx,'xorAll = '+fr.xor,W/2,80,{color:'#cfe0ff',font:'bold 22px JetBrains Mono'});
-        AnimKit.text(ctx,'binary: '+fr.xor.toString(2).padStart(8,'0'),W/2,120,{color:'#f5c842',font:'bold 20px JetBrains Mono'});
-        AnimKit.text(ctx,'rightmost set bit: #'+fr.bitIdx,W/2,160,{color:'#00d4aa',font:'bold 14px Inter'});
-      } else { // 3,4
-        const items=fr.items||[];
-        const cw=58, ox=W/2-items.length*cw/2, y=60;
-        for(let i=0;i<items.length;i++){ const x=ox+i*cw, v=items[i].v, isCur=fr.it===i, on=(v&fr.bit)!==0;
-          let opt,dark=false;
-          if(isCur){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.55)',border:'rgba(245,200,66,.9)'}; dark=true; }
-          else if(fr.it!==undefined&&i<fr.it) { opt = on? {grad:['#1ad9b0','#0aa37e'],border:'rgba(0,212,170,.7)'} : {grad:['#5b8dee','#3a6fd0'],border:'rgba(91,141,238,.7)'}; dark=true; }
-          else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
-          AnimKit.cell(ctx,x,y,cw-6,46,opt);
-          AnimKit.text(ctx,v,x+(cw-6)/2,y+24,{color:dark?'#0a1428':'#cfe0ff',font:'bold 16px JetBrains Mono'});
-          AnimKit.text(ctx,items[i].src,x+(cw-6)/2,y+58,{color:'#5a6e92',font:'9px Inter'});
-        }
-        AnimKit.cell(ctx,W/2-220,160,200,52,{grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.5)'});
-        AnimKit.text(ctx,'group1 (bit set)',W/2-120,176,{color:'#00d4aa',font:'bold 11px Inter'});
-        AnimKit.text(ctx,fr.g1||0,W/2-120,198,{color:'#cfe0ff',font:'bold 22px JetBrains Mono'});
-        AnimKit.cell(ctx,W/2+20,160,200,52,{grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.5)'});
-        AnimKit.text(ctx,'group0 (bit clear)',W/2+120,176,{color:'#5b8dee',font:'bold 11px Inter'});
-        AnimKit.text(ctx,fr.g0||0,W/2+120,198,{color:'#cfe0ff',font:'bold 22px JetBrains Mono'});
-        if(fr.done){ AnimKit.text(ctx,`repeated=${fr.repeated} · missing=${fr.missing}`,W/2,235,{color:'#f5c842',font:'bold 14px JetBrains Mono'}); }
-      }
-    }
-    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; update(); note.innerHTML=frames[idx].msg; draw(); }
-    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },650); }
-    function stop(){ if(timer){clearInterval(timer);timer=null;} }
-    reset();
-    return {reset,step,auto};
-  })();
-  </script>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Returns {repeated, missing} in O(n) time, O(1) space using XOR partitioning.
- * Trick: x XOR x = 0 cancels every value present in both array and 1..n. What remains
- * is (repeated XOR missing). A single set bit of that XOR distinguishes them.
- */
-int[] findRepeatedAndMissing(int[] nums){
-  int xor = 0;
-  for(int x : nums) xor ^= x;
-  for(int i = 1; i &lt;= nums.length; i++) xor ^= i;
-
-  int bit = xor &amp; -xor;  // lowest set bit
-  int a = 0, b = 0;
-  for(int x : nums){
-    if((x &amp; bit) == 0) a ^= x;
-    else               b ^= x;
-  }
-  for(int i = 1; i &lt;= nums.length; i++){
-    if((i &amp; bit) == 0) a ^= i;
-    else               b ^= i;
-  }
-  // figure out which is repeated vs missing
-  for(int x : nums){
-    if(x == a) return new int[]{a, b};   // a appears → repeated
-  }
-  return new int[]{b, a};
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
-</article>
-
 <!-- ================= Q3 ================= -->
 <article class="q" id="q3">
-  <div class="head"><h2><span class="num">03</span>Unique Paths <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">02</span>Unique Paths <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Arrays Part-III</div>
   <div class="links">
     <a href="https://leetcode.com/problems/unique-paths/" target="_blank">LeetCode</a>
@@ -673,7 +488,7 @@ int uniquePaths(int m, int n){
 
 <!-- ================= Q4 ================= -->
 <article class="q" id="q4">
-  <div class="head"><h2><span class="num">04</span>Count Subarrays with XOR K <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">03</span>Count Subarrays with XOR K <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Arrays Part-IV</div>
   <div class="links">
     <a href="https://www.geeksforgeeks.org/count-number-subarrays-given-xor/" target="_blank">GFG</a>
@@ -825,7 +640,7 @@ int countSubarraysWithXorEqualsK(int[] nums, int k){
 
 <!-- ================= Q5 ================= -->
 <article class="q" id="q5">
-  <div class="head"><h2><span class="num">05</span>Add Two Numbers (Linked List) <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">04</span>Add Two Numbers (Linked List) <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Linked List</div>
   <div class="links">
     <a href="https://leetcode.com/problems/add-two-numbers/" target="_blank">LeetCode</a>
@@ -972,160 +787,9 @@ ListNode addTwoNumbers(ListNode l1, ListNode l2){
 </article>
 
 <!-- ================= Q6 ================= -->
-<article class="q" id="q6">
-  <div class="head"><h2><span class="num">06</span>Flatten a Multi-Level Linked List <span class="pill hard">Hard</span></h2></div>
-  <div class="topic">Section · Linked List Part-II</div>
-  <div class="links">
-    <a href="https://www.geeksforgeeks.org/flattening-a-linked-list/" target="_blank">GFG</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">Each node carries <code>next</code> and <code>bottom</code> pointers, and the <code>bottom</code> sub-lists are sorted; flatten everything into a single sorted <code>bottom</code>-linked list.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input A:</b> heads-along-next: 5→10→19→28; their bottom-lists are 5→7→8→30, 10→20, 19→22→50, 28→35→40→45&nbsp;·&nbsp;<b>Output:</b> <code>5→7→8→10→19→20→22→28→30→35→40→45→50</code></p>
-    <ol>
-      <li>Recursive merge from the right: flatten(head.next) first, then merge two sorted bottom-lists.</li>
-      <li>Merge by bottom pointers: 5→7→8→30 with 10→20 → 5→7→8→10→20→30 … keep merging.</li>
-    </ol>
-    <p><b>Input B (edge — single sub-list):</b> head=3→5→7 (next=null)&nbsp;·&nbsp;<b>Output:</b> <code>3→5→7</code></p>
-    <ol>
-      <li>Recursion bottoms out immediately; nothing to merge.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Recurse to the right first, then merge two sorted bottom-lists.</b> Reduces to repeated 2-way merges of sorted lists.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Brute</b> Collect all node values, sort, rebuild → O(N log N).</div>
-    <div class="alt"><b>Min-heap</b> Merge K sorted bottom-lists with a heap.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li><code>flatten(node)</code>: if node or node.next null → return node.</li>
-    <li><code>node.next = flatten(node.next)</code>.</li>
-    <li>Return <code>mergeTwoSortedBottom(node, node.next)</code>.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart TD
-  F["flatten(node)"] --> R["flatten(node.next) first"]
-  R --> M["merge two sorted bottom-lists"]
-  M --> O["return head"]
-  </pre></div>
-
-  <div class="section-title">Animation</div>
-  <div class="anim">
-    <canvas id="animc-6" class="anim-canvas" width="720" height="320"></canvas>
-    <div class="anim-controls">
-      <button class="anim-btn" onclick="ANIM6.reset()">⟲ Reset</button>
-      <button class="anim-btn sec" onclick="ANIM6.step()">▶ Step</button>
-      <button class="anim-btn sec" onclick="ANIM6.auto()">⏩ Auto</button>
-    </div>
-    <div class="anim-note" id="anim-note-6">Two columns: head 5→7→20, child chains attached. Recurse right → merge bottom-lists.</div>
-  </div>
-  <script>
-  const ANIM6 = (function(){
-    const cv=document.getElementById('animc-6');
-    const note=document.getElementById('anim-note-6');
-    const cols=[ [5,7,8,30], [10,20], [19,22,50] ];
-    function build(){
-      const f=[]; 
-      f.push({phase:0,merged:[],col:-1,msg:'Initial multi-level list. Recurse to the rightmost column first.'});
-      // recurse to deepest
-      f.push({phase:'r',col:2,msg:'flatten(col 2) → already a single sorted bottom list.'});
-      f.push({phase:'m',col:1, merged:[10,19,20,22,50], absorbed:[1,2], msg:'merge col 1 [10,20] with col 2 result → [10,19,20,22,50].'});
-      f.push({phase:'m',col:0, merged:[5,7,8,10,19,20,22,30,50], absorbed:[0,1,2], msg:'merge col 0 [5,7,8,30] with previous → [5,7,8,10,19,20,22,30,50].'});
-      f.push({phase:'done',merged:[5,7,8,10,19,20,22,30,50], absorbed:[0,1,2], done:true, msg:'Done ✓ single sorted bottom list.'});
-      return f;
-    }
-    let frames,idx,timer;
-    function reset(){ frames=build(); idx=0; stop(); note.innerHTML='Two columns: head 5→7→20, child chains attached. Recurse right → merge bottom-lists.'; draw(); }
-    function draw(){
-      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
-      const fr=frames[idx];
-      // draw original columns top portion
-      const cw=80, ch=40;
-      cols.forEach((col,ci)=>{
-        const ox=70+ci*150;
-        const absorbed = fr.absorbed && fr.absorbed.includes(ci);
-        const isActive = fr.col===ci;
-        col.forEach((v,ri)=>{ const y=20+ri*48;
-          let opt,dark=false;
-          if(absorbed) opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.4)'};
-          else if(isActive){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.85)'}; dark=true; }
-          else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
-          AnimKit.cell(ctx,ox,y,cw,ch,opt);
-          AnimKit.text(ctx,v,ox+cw/2,y+ch/2,{color:dark?'#0a1428':absorbed?'#7d92b8':'#cfe0ff',font:'bold 16px JetBrains Mono'});
-          if(ri<col.length-1){ ctx.strokeStyle=absorbed?'rgba(91,141,238,.3)':'rgba(91,141,238,.7)'; ctx.lineWidth=1.6;
-            ctx.beginPath(); ctx.moveTo(ox+cw/2,y+ch); ctx.lineTo(ox+cw/2,y+ch+8); ctx.stroke();
-            ctx.fillStyle=absorbed?'rgba(91,141,238,.3)':'rgba(91,141,238,.7)';
-            ctx.beginPath(); ctx.moveTo(ox+cw/2-4,y+ch+4); ctx.lineTo(ox+cw/2+4,y+ch+4); ctx.lineTo(ox+cw/2,y+ch+10); ctx.closePath(); ctx.fill();
-          }
-        });
-        // top connector → next col
-        if(ci<cols.length-1){ const y=20+ch/2;
-          ctx.strokeStyle=absorbed?'rgba(91,141,238,.3)':'rgba(122,166,255,.7)';
-          ctx.beginPath(); ctx.moveTo(ox+cw,y); ctx.lineTo(ox+cw+70,y); ctx.stroke();
-        }
-      });
-      // merged result row
-      const my=240;
-      AnimKit.text(ctx,'merged →',46,my+22,{color:'#00d4aa',font:'bold 12px Inter',align:'right'});
-      const merged=fr.merged||[];
-      const mw=64;
-      merged.forEach((v,k)=>{ const x=60+k*mw;
-        const opt = fr.done? {grad:['#1ad9b0','#0aa37e'],border:'rgba(0,212,170,.85)'} : {grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.55)'};
-        AnimKit.cell(ctx,x,my,mw-6,40,opt);
-        AnimKit.text(ctx,v,x+(mw-6)/2,my+20,{color:fr.done?'#0a1428':'#cfe0ff',font:'bold 15px JetBrains Mono'});
-        if(k<merged.length-1){ ctx.fillStyle=fr.done?'#0a1428':'#00d4aa'; ctx.font='bold 13px Inter'; ctx.textAlign='center'; ctx.fillText('→',x+mw-9,my+22); }
-      });
-    }
-    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
-    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },1000); }
-    function stop(){ if(timer){clearInterval(timer);timer=null;} }
-    reset();
-    return {reset,step,auto};
-  })();
-  </script>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Flatten a multi-level sorted linked list into one sorted bottom-list.
- * Trick: recurse to flatten the right tail FIRST, then merge the current bottom-list
- * with the already-flattened tail. Each node visited once during its merge.
- */
-Node flatten(Node head){
-  if(head == null || head.next == null) return head;
-
-  Node right = flatten(head.next);
-  return merge(head, right);
-}
-
-private Node merge(Node a, Node b){
-  Node dummy = new Node(0);
-  Node tail = dummy;
-
-  while(a != null &amp;&amp; b != null){
-    if(a.val &lt;= b.val){ tail.bottom = a; a = a.bottom; }
-    else               { tail.bottom = b; b = b.bottom; }
-    tail = tail.bottom;
-  }
-  tail.bottom = (a != null) ? a : b;
-  dummy.next = null;                       // flattened result uses bottom-pointers only
-  return dummy.bottom;
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(N)</b> total nodes</div><div>Space <b>O(depth)</b> recursion</div></div>
-</article>
-
 <!-- ================= Q7 ================= -->
 <article class="q" id="q7">
-  <div class="head"><h2><span class="num">07</span>Remove Duplicates from Sorted Array <span class="pill easy">Easy</span></h2></div>
+  <div class="head"><h2><span class="num">05</span>Remove Duplicates from Sorted Array <span class="pill easy">Easy</span></h2></div>
   <div class="topic">Section · LL &amp; Arrays</div>
   <div class="links">
     <a href="https://leetcode.com/problems/remove-duplicates-from-sorted-array/" target="_blank">LeetCode</a>
@@ -1255,7 +919,7 @@ int removeDuplicatesFromSortedArray(int[] nums){
 
 <!-- ================= Q8 ================= -->
 <article class="q" id="q8">
-  <div class="head"><h2><span class="num">08</span>Minimum Coins (Canonical Denominations) <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">06</span>Minimum Coins (Canonical Denominations) <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Greedy</div>
   <div class="links">
     <a href="https://www.geeksforgeeks.org/greedy-algorithm-to-find-minimum-number-of-coins/" target="_blank">GFG</a>
@@ -1387,7 +1051,7 @@ int minimumCoinsCanonical(int amount){
 
 <!-- ================= Q9 ================= -->
 <article class="q" id="q9">
-  <div class="head"><h2><span class="num">09</span>Palindrome Partitioning <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">07</span>Palindrome Partitioning <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Recursion</div>
   <div class="links">
     <a href="https://leetcode.com/problems/palindrome-partitioning/" target="_blank">LeetCode</a>
@@ -1552,7 +1216,7 @@ private boolean isPal(String s, int lo, int hi){
 
 <!-- ================= Q10 ================= -->
 <article class="q" id="q10">
-  <div class="head"><h2><span class="num">10</span>Rat in a Maze <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">08</span>Rat in a Maze <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Recursion &amp; Backtracking</div>
   <div class="links">
     <a href="https://www.geeksforgeeks.org/rat-in-a-maze-backtracking-2/" target="_blank">GFG</a>
@@ -1719,7 +1383,7 @@ private void dfs(int r, int c, int[][] grid, int n,
 
 <!-- ================= Q11 ================= -->
 <article class="q" id="q11">
-  <div class="head"><h2><span class="num">11</span>Median of Two Sorted Arrays <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">09</span>Median of Two Sorted Arrays <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Binary Search</div>
   <div class="links">
     <a href="https://leetcode.com/problems/median-of-two-sorted-arrays/" target="_blank">LeetCode</a>
@@ -1896,167 +1560,9 @@ double findMedianSortedArrays(int[] a, int[] b){
 </article>
 
 <!-- ================= Q12 ================= -->
-<article class="q" id="q12">
-  <div class="head"><h2><span class="num">12</span>K Most Frequent Elements <span class="pill med">Medium</span></h2></div>
-  <div class="topic">Section · Heaps</div>
-  <div class="links">
-    <a href="https://leetcode.com/problems/top-k-frequent-elements/" target="_blank">LeetCode</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">Return the <code>k</code> values that occur most often in an array.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input A:</b> <code>nums=[1,1,1,2,2,3], k=2</code>&nbsp;·&nbsp;<b>Output:</b> <code>[1, 2]</code></p>
-    <ol>
-      <li>Hashmap of frequencies: <code>{1:3, 2:2, 3:1}</code>.</li>
-      <li>Min-heap of size <code>k</code> keyed by frequency: push 1→[(3,1)]; push 2→[(2,2),(3,1)]; push 3 → size 3, pop smallest (1,3) → [(2,2),(3,1)].</li>
-      <li>Drain heap → keys <b>[1, 2]</b> (any order accepted by problem).</li>
-    </ol>
-    <p><b>Input B (edge — ties):</b> <code>nums=[1,2], k=2</code>&nbsp;·&nbsp;<b>Output:</b> <code>[1,2]</code></p>
-    <ol>
-      <li>All frequencies equal; both fit in heap of size k=2 → both returned.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>HashMap of counts → bucket sort by frequency.</b> Frequencies are bounded by <code>n</code>, so we can store lists per frequency and walk from high → low until we've collected k.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Heap</b> Min-heap of size k by frequency → O(n log k).</div>
-    <div class="alt"><b>Sort</b> Count, then sort entries by freq → O(n log n).</div>
-  </div>
-
-  <div class="section-title">Optimal Approach (Bucket Sort)</div>
-  <div class="approach"><ol>
-    <li>Count frequencies in a HashMap.</li>
-    <li>Build <code>buckets[freq]</code> (length n+1), each a list of values with that frequency.</li>
-    <li>Walk <code>freq</code> from <code>n</code> down to 1, collecting values until size == k.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart TD
-  C["count frequencies"] --> B["buckets[freq] = list of values"]
-  B --> W["walk freq high → low, collect until k"]
-  </pre></div>
-
-  <div class="section-title">Animation</div>
-  <div class="anim">
-    <canvas id="animc-12" class="anim-canvas" width="720" height="300"></canvas>
-    <div class="anim-controls">
-      <button class="anim-btn" onclick="ANIM12.reset()">⟲ Reset</button>
-      <button class="anim-btn sec" onclick="ANIM12.step()">▶ Step</button>
-      <button class="anim-btn sec" onclick="ANIM12.auto()">⏩ Auto</button>
-    </div>
-    <div class="anim-note" id="anim-note-12">nums=[1,1,1,2,2,3], k=2. Bucket sort by frequency.</div>
-  </div>
-  <script>
-  const ANIM12 = (function(){
-    const cv=document.getElementById('animc-12');
-    const note=document.getElementById('anim-note-12');
-    const nums=[1,1,1,2,2,3], k=2;
-    function build(){
-      const f=[], freq={}, n=nums.length;
-      f.push({phase:1,freq:{...freq},msg:'phase 1: count frequencies.'});
-      for(let i=0;i<n;i++){ freq[nums[i]]=(freq[nums[i]]||0)+1;
-        f.push({phase:1,freq:{...freq},i,msg:`see ${nums[i]} → freq[${nums[i]}] = ${freq[nums[i]]}.`});
-      }
-      const buckets=Array.from({length:n+1},()=>[]);
-      Object.entries(freq).forEach(([v,c])=>buckets[c].push(+v));
-      f.push({phase:2,freq:{...freq},buckets:buckets.map(b=>[...b]),msg:'phase 2: bucket by frequency.'});
-      const out=[];
-      for(let cFreq=n;cFreq>=1 && out.length<k;cFreq--){
-        if(!buckets[cFreq].length){ f.push({phase:3,freq:{...freq},buckets:buckets.map(b=>[...b]),probe:cFreq,out:[...out],msg:`bucket[${cFreq}] empty.`}); continue; }
-        for(const v of buckets[cFreq]){ if(out.length<k){ out.push(v);
-          f.push({phase:3,freq:{...freq},buckets:buckets.map(b=>[...b]),probe:cFreq,take:v,out:[...out],msg:`take ${v} from bucket[${cFreq}] → out=[${out.join(', ')}].`});
-        } }
-      }
-      f.push({phase:'done',freq:{...freq},buckets:buckets.map(b=>[...b]),out:[...out],done:true,msg:`Done ✓ top-${k} = [${out.join(', ')}].`});
-      return f;
-    }
-    let frames,idx,timer;
-    function reset(){ frames=build(); idx=0; stop(); note.innerHTML='nums=[1,1,1,2,2,3], k=2. Bucket sort by frequency.'; draw(); }
-    function draw(){
-      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
-      const fr=frames[idx];
-      // nums row
-      const cw=58, ox=W/2-nums.length*cw/2, y=20;
-      AnimKit.text(ctx,'nums',ox-12,y+22,{color:'#5b8dee',font:'bold 11px Inter',align:'right'});
-      for(let i=0;i<nums.length;i++){ const x=ox+i*cw, isCur=fr.i===i;
-        let opt,dark=false;
-        if(isCur){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.85)'}; dark=true; }
-        else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
-        AnimKit.cell(ctx,x,y,cw-6,40,opt);
-        AnimKit.text(ctx,nums[i],x+(cw-6)/2,y+20,{color:dark?'#0a1428':'#cfe0ff',font:'bold 16px JetBrains Mono'});
-      }
-      // freq map
-      AnimKit.text(ctx,'freq',60,90,{color:'#00d4aa',font:'bold 11px Inter',align:'left'});
-      const fEntries=Object.entries(fr.freq||{});
-      fEntries.forEach(([key,v],i)=>{ const x=110+i*82;
-        AnimKit.cell(ctx,x,80,72,42,{grad:['#0f3a33','#0c2b27'],border:'rgba(0,212,170,.5)'});
-        AnimKit.text(ctx,key+'→'+v,x+36,101,{color:'#cfe0ff',font:'bold 14px JetBrains Mono'});
-      });
-      // buckets
-      const buckets=fr.buckets||[];
-      const by=160, bw=64;
-      AnimKit.text(ctx,'buckets',60,by+22,{color:'#f5c842',font:'bold 11px Inter',align:'left'});
-      for(let cFreq=1;cFreq<buckets.length;cFreq++){ const x=140+(cFreq-1)*bw;
-        const isProbe=fr.probe===cFreq;
-        let opt,dark=false;
-        if(isProbe){ opt={grad:['#f6d04a','#e0a91e'],border:'rgba(245,200,66,.85)'}; dark=true; }
-        else opt={grad:['#13213d','#0e1a30'],border:'rgba(91,141,238,.3)'};
-        AnimKit.cell(ctx,x,by,bw-6,52,opt);
-        AnimKit.text(ctx,'#'+cFreq,x+(bw-6)/2,by+14,{color:dark?'#0a1428':'#8aa0c4',font:'bold 10px Inter'});
-        AnimKit.text(ctx,(buckets[cFreq]||[]).join(','),x+(bw-6)/2,by+34,{color:dark?'#0a1428':'#cfe0ff',font:'bold 14px JetBrains Mono'});
-      }
-      // out
-      AnimKit.text(ctx,'out = ['+(fr.out||[]).join(', ')+']',W/2,250,{color:'#1ad9b0',font:'bold 18px JetBrains Mono'});
-    }
-    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
-    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },650); }
-    function stop(){ if(timer){clearInterval(timer);timer=null;} }
-    reset();
-    return {reset,step,auto};
-  })();
-  </script>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Top-k frequent elements in O(n) average via bucket sort by frequency.
- * Trick: frequencies are bounded by n, so a length-(n+1) array of buckets indexed by
- * frequency lets us "sort by frequency" in O(n) — no heap, no real sort.
- */
-int[] topKFrequent(int[] nums, int k){
-  Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();
-  for(int x : nums) freq.merge(x, 1, Integer::sum);
-
-  List&lt;Integer&gt;[] buckets = new List[nums.length + 1];
-  for(Map.Entry&lt;Integer, Integer&gt; e : freq.entrySet()){
-    int f = e.getValue();
-    if(buckets[f] == null) buckets[f] = new ArrayList&lt;&gt;();
-    buckets[f].add(e.getKey());
-  }
-
-  int[] ans = new int[k];
-  int j = 0;
-  for(int f = buckets.length - 1; f &gt;= 1 &amp;&amp; j &lt; k; f--){
-    if(buckets[f] == null) continue;
-    for(int x : buckets[f]){
-      ans[j++] = x;
-      if(j == k) break;
-    }
-  }
-  return ans;
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(n)</b></div></div>
-</article>
-
 <!-- ================= Q13 ================= -->
 <article class="q" id="q13">
-  <div class="head"><h2><span class="num">13</span>Valid Parentheses <span class="pill easy">Easy</span></h2></div>
+  <div class="head"><h2><span class="num">10</span>Valid Parentheses <span class="pill easy">Easy</span></h2></div>
   <div class="topic">Section · Stack &amp; Queue</div>
   <div class="links">
     <a href="https://leetcode.com/problems/valid-parentheses/" target="_blank">LeetCode</a>
@@ -2192,7 +1698,7 @@ boolean isValidParentheses(String s){
 
 <!-- ================= Q14 ================= -->
 <article class="q" id="q14">
-  <div class="head"><h2><span class="num">14</span>Largest Rectangle in Histogram <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">11</span>Largest Rectangle in Histogram <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Stack &amp; Queue Part-II</div>
   <div class="links">
     <a href="https://leetcode.com/problems/largest-rectangle-in-histogram/" target="_blank">LeetCode</a>
@@ -2345,7 +1851,7 @@ int largestRectangleArea(int[] heights){
 
 <!-- ================= Q15 ================= -->
 <article class="q" id="q15">
-  <div class="head"><h2><span class="num">15</span>String to Integer (atoi) <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">12</span>String to Integer (atoi) <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · String</div>
   <div class="links">
     <a href="https://leetcode.com/problems/string-to-integer-atoi/" target="_blank">LeetCode</a>
@@ -2497,147 +2003,9 @@ int myAtoi(String s){
 </article>
 
 <!-- ================= Q16 ================= -->
-<article class="q" id="q16">
-  <div class="head"><h2><span class="num">16</span>Count and Say <span class="pill med">Medium</span></h2></div>
-  <div class="topic">Section · String Part-II</div>
-  <div class="links">
-    <a href="https://leetcode.com/problems/count-and-say/" target="_blank">LeetCode</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">For the look-and-say sequence 1 → 11 → 21 → 1211 → 111221 → … where each term reads the previous aloud (run-length encoding), return the n-th term.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input A:</b> <code>n=4</code>&nbsp;·&nbsp;<b>Output:</b> <code>"1211"</code></p>
-    <ol>
-      <li>Start <code>cur="1"</code>; for <code>step=2..n</code>, build next via run-length: walk groups of equal chars, emit <code>count + char</code>.</li>
-      <li>step 2: "1" → "11". step 3: "11" → "21" (two 1s). step 4: "21" → "1211" (one 2, one 1).</li>
-    </ol>
-    <p><b>Input B (edge — n=1):</b>&nbsp;·&nbsp;<b>Output:</b> <code>"1"</code></p>
-    <ol>
-      <li>Loop doesn't run; return seed.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Run-length encode the previous string, appending "count + char" for each run.</b> Iterate from "1" n-1 times.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Recursion</b> <code>countAndSay(n) = describe(countAndSay(n-1))</code> — same complexity, more memory.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li>Start with <code>"1"</code>.</li>
-    <li>Repeat n-1 times: walk current string; collapse identical-char runs into "count + char"; replace.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart LR
-  A["1"] --> B["11 (one 1)"]
-  B --> C["21 (two 1s)"]
-  C --> D["1211 (one 2, one 1)"]
-  D --> E["111221"]
-  </pre></div>
-
-  <div class="section-title">Animation</div>
-  <div class="anim">
-    <canvas id="animc-16" class="anim-canvas" width="720" height="260"></canvas>
-    <div class="anim-controls">
-      <button class="anim-btn" onclick="ANIM16.reset()">⟲ Reset</button>
-      <button class="anim-btn sec" onclick="ANIM16.step()">▶ Step</button>
-      <button class="anim-btn sec" onclick="ANIM16.auto()">⏩ Auto</button>
-    </div>
-    <div class="anim-note" id="anim-note-16">n = 5. Build each generation by run-length describing the previous.</div>
-  </div>
-  <script>
-  const ANIM16 = (function(){
-    const cv=document.getElementById('animc-16');
-    const note=document.getElementById('anim-note-16');
-    const N=5;
-    function build(){
-      const f=[]; let cur='1'; const history=[cur];
-      f.push({gen:1,cur,history:[...history],msg:`generation 1: "${cur}".`});
-      for(let g=2;g<=N;g++){
-        let next=''; let i=0;
-        while(i<cur.length){
-          let j=i; while(j<cur.length && cur[j]===cur[i]) j++;
-          const cnt=j-i, ch=cur[i];
-          next += cnt+ch;
-          f.push({gen:g,cur,next,runStart:i,runEnd:j-1,history:[...history],msg:`run "${ch}".repeat(${cnt}) → append "${cnt}${ch}".`});
-          i=j;
-        }
-        cur=next; history.push(cur);
-        f.push({gen:g,cur,history:[...history],msg:`generation ${g}: "${cur}".`});
-      }
-      f.push({gen:N,cur,history:[...history],done:true,msg:`Done ✓ term[${N}] = "${cur}".`});
-      return f;
-    }
-    let frames,idx,timer;
-    function reset(){ frames=build(); idx=0; stop(); note.innerHTML=`n = ${N}. Build each generation by run-length describing the previous.`; draw(); }
-    function draw(){
-      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
-      const fr=frames[idx];
-      // history list
-      AnimKit.text(ctx,'history',W/2,16,{color:'#8aa0c4',font:'bold 11px Inter'});
-      (fr.history||[]).forEach((s,k)=>{
-        AnimKit.text(ctx,`gen ${k+1}: "${s}"`,W/2,38+k*20,{color:k===fr.history.length-1?'#1ad9b0':'#cfe0ff',font:'bold 14px JetBrains Mono'});
-      });
-      // current run highlighting
-      if(fr.cur && fr.runStart!==undefined){
-        const cw=44, ox=W/2-fr.cur.length*cw/2, y=160;
-        for(let i=0;i<fr.cur.length;i++){ const x=ox+i*cw, ch=fr.cur[i];
-          const inRun = i>=fr.runStart && i<=fr.runEnd;
-          let opt,dark=false;
-          if(inRun){ opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.85)'}; dark=true; }
-          else opt={grad:['#13213d','#0e1a30'],border:'rgba(255,255,255,.06)'};
-          AnimKit.cell(ctx,x,y,cw-4,40,opt);
-          AnimKit.text(ctx,ch,x+(cw-4)/2,y+20,{color:dark?'#0a1428':'#cfe0ff',font:'bold 18px JetBrains Mono'});
-        }
-        AnimKit.text(ctx,'→ next so far: "'+(fr.next||'')+'"',W/2,222,{color:'#1ad9b0',font:'bold 14px JetBrains Mono'});
-      }
-    }
-    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
-    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },700); }
-    function stop(){ if(timer){clearInterval(timer);timer=null;} }
-    reset();
-    return {reset,step,auto};
-  })();
-  </script>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * n-th term of the Count-and-Say sequence built by iterative run-length describe.
- * Trick: each term is the run-length encoding of the prior term — collapse identical
- * consecutive characters into "count + char".
- */
-String countAndSay(int n){
-  String cur = "1";
-  for(int g = 2; g &lt;= n; g++){
-    StringBuilder next = new StringBuilder();
-
-    int i = 0;
-    while(i &lt; cur.length()){
-      int j = i;
-      while(j &lt; cur.length() &amp;&amp; cur.charAt(j) == cur.charAt(i)){
-        j++;
-      }
-      next.append(j - i).append(cur.charAt(i));
-      i = j;
-    }
-    cur = next.toString();
-  }
-  return cur;
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(n · |term|)</b></div><div>Space <b>O(|term|)</b></div></div>
-</article>
-
 <!-- ================= Q17 ================= -->
 <article class="q" id="q17">
-  <div class="head"><h2><span class="num">17</span>Left View of Binary Tree <span class="pill easy">Easy</span></h2></div>
+  <div class="head"><h2><span class="num">13</span>Left View of Binary Tree <span class="pill easy">Easy</span></h2></div>
   <div class="topic">Section · Binary Tree</div>
   <div class="links">
     <a href="https://www.geeksforgeeks.org/print-left-view-binary-tree/" target="_blank">GFG</a>
@@ -2777,7 +2145,7 @@ private void dfs(TreeNode node, int d, List&lt;Integer&gt; res){
 
 <!-- ================= Q18 ================= -->
 <article class="q" id="q18">
-  <div class="head"><h2><span class="num">18</span>ZigZag Level Order Traversal <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">14</span>ZigZag Level Order Traversal <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Binary Tree Part-II</div>
   <div class="links">
     <a href="https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/" target="_blank">LeetCode</a>
@@ -2934,7 +2302,7 @@ List&lt;List&lt;Integer&gt;&gt; zigzagLevelOrder(TreeNode root){
 
 <!-- ================= Q19 ================= -->
 <article class="q" id="q19">
-  <div class="head"><h2><span class="num">19</span>Maximum Width of Binary Tree <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">15</span>Maximum Width of Binary Tree <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Binary Tree Part-III</div>
   <div class="links">
     <a href="https://leetcode.com/problems/maximum-width-of-binary-tree/" target="_blank">LeetCode</a>
@@ -3149,7 +2517,7 @@ Level 2: queue=[(4,0),(5,3)], first=0
 
 <!-- ================= Q20 ================= -->
 <article class="q" id="q20">
-  <div class="head"><h2><span class="num">20</span>Inorder Successor in BST <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">16</span>Inorder Successor in BST <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · BST</div>
   <div class="links">
     <a href="https://leetcode.com/problems/inorder-successor-in-bst/" target="_blank">LeetCode</a>
@@ -3290,93 +2658,9 @@ TreeNode inorderSuccessorBST(TreeNode root, TreeNode p){
 </article>
 
 <!-- ================= Q21 ================= -->
-<article class="q" id="q21">
-  <div class="head"><h2><span class="num">21</span>Floor and Ceil in BST <span class="pill easy">Easy</span></h2></div>
-  <div class="topic">Section · BST Part-II</div>
-  <div class="links">
-    <a href="https://www.geeksforgeeks.org/floor-and-ceil-from-a-bst/" target="_blank">GFG</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">For a target <code>x</code>, return its <b>floor</b> (greatest BST value &le; x) and <b>ceil</b> (smallest BST value &ge; x), using -1 when none exists.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input A:</b> BST contains <code>{2,5,8,12,15,21}</code>; <code>x=11</code>&nbsp;·&nbsp;<b>Output:</b> floor=<code>8</code>, ceil=<code>12</code></p>
-    <ol>
-      <li>Two passes (or interleaved): walk from root.</li>
-      <li>Floor: if <code>cur ≤ x</code> → record cur, go right; else go left. Trace: 8≤2→L? Actually root depends on tree shape; we just illustrate that 8 is the largest <code>≤ 11</code>.</li>
-      <li>Ceil: if <code>cur ≥ x</code> → record cur, go left; else go right → finds 12.</li>
-    </ol>
-    <p><b>Input B (edge — x larger than all):</b> <code>x=100</code>&nbsp;·&nbsp;<b>Output:</b> floor=<code>21</code>, ceil=<code>-1</code></p>
-    <ol>
-      <li>Floor walks rightmost; ceil never updates → stays -1.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Walk down once tracking "best candidate so far" for floor (resp. ceil).</b> When current ≤ x → could be floor → remember, go right (look for larger-but-still-≤x). Symmetric for ceil.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Inorder</b> Scan all → O(n).</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li><b>Floor</b>: cur = root; while cur: if cur.val == x → return x; if cur.val &lt; x → floor = cur.val; cur = cur.right; else cur = cur.left.</li>
-    <li><b>Ceil</b>: symmetric: if cur.val &gt; x → ceil = cur.val; cur = cur.left.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart TD
-  F["floor walk"] --> C{"cur.val &lt;= x?"}
-  C -- yes --> R["floor = cur.val; cur = cur.right"]
-  C -- no --> L["cur = cur.left"]
-  </pre></div>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Floor and ceil in a BST — each in O(h) time, O(1) space.
- * Trick: while descending, every node ≤ x is a CANDIDATE floor; remember it and go
- * right to look for an even-larger-but-still-≤x. Symmetric for ceil.
- */
-int floorInBST(TreeNode root, int target){
-  int ans = -1;
-  TreeNode cur = root;
-  while(cur != null){
-    if(cur.val == target) return target;
-    if(cur.val &lt; target){
-      ans = cur.val;
-      cur = cur.right;        // look for larger but still &lt;= target
-    } else {
-      cur = cur.left;
-    }
-  }
-  return ans;
-}
-
-int ceilInBST(TreeNode root, int target){
-  int ans = -1;
-  TreeNode cur = root;
-  while(cur != null){
-    if(cur.val == target) return target;
-    if(cur.val &gt; target){
-      ans = cur.val;
-      cur = cur.left;         // look for smaller but still &gt;= target
-    } else {
-      cur = cur.right;
-    }
-  }
-  return ans;
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(h)</b></div><div>Space <b>O(1)</b></div></div>
-</article>
-
 <!-- ================= Q22 ================= -->
 <article class="q" id="q22">
-  <div class="head"><h2><span class="num">22</span>BST Iterator <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">17</span>BST Iterator <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Binary Tree (Misc)</div>
   <div class="links">
     <a href="https://leetcode.com/problems/binary-search-tree-iterator/" target="_blank">LeetCode</a>
@@ -3453,7 +2737,7 @@ class BSTIterator {
 
 <!-- ================= Q23 ================= -->
 <article class="q" id="q23">
-  <div class="head"><h2><span class="num">23</span>Topological Sort (DFS) <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">18</span>Topological Sort (DFS) <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Graph</div>
   <div class="links">
     <a href="https://www.geeksforgeeks.org/topological-sorting/" target="_blank">GFG</a>
@@ -3531,7 +2815,7 @@ private void dfs(int u, List&lt;List&lt;Integer&gt;&gt; adj,
 
 <!-- ================= Q24 ================= -->
 <article class="q" id="q24">
-  <div class="head"><h2><span class="num">24</span>Prim's Minimum Spanning Tree <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">19</span>Prim's Minimum Spanning Tree <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Graph Part-II</div>
   <div class="links">
     <a href="https://www.geeksforgeeks.org/prims-minimum-spanning-tree-mst-greedy-algo-5/" target="_blank">GFG</a>
@@ -3613,7 +2897,7 @@ int primMSTWeight(int n, List&lt;int[]&gt;[] adj){
 
 <!-- ================= Q25 ================= -->
 <article class="q" id="q25">
-  <div class="head"><h2><span class="num">25</span>Subset Sum Equals K <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">20</span>Subset Sum Equals K <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Dynamic Programming</div>
   <div class="links">
     <a href="https://www.geeksforgeeks.org/subset-sum-problem-dp-25/" target="_blank">GFG</a>
@@ -3685,7 +2969,7 @@ boolean canPartitionToSum(int[] nums, int target){
 
 <!-- ================= Q26 ================= -->
 <article class="q" id="q26">
-  <div class="head"><h2><span class="num">26</span>Unbounded Knapsack <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">21</span>Unbounded Knapsack <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · DP Part-II</div>
   <div class="links">
     <a href="https://www.geeksforgeeks.org/unbounded-knapsack-repetition-items-allowed/" target="_blank">GFG</a>
@@ -3759,7 +3043,7 @@ int unboundedKnapsack(int[] wt, int[] val, int W){
 
 <!-- ================= Q27 ================= -->
 <article class="q" id="q27">
-  <div class="head"><h2><span class="num">27</span>Maximum XOR of Two Numbers (Trie) <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">22</span>Maximum XOR of Two Numbers (Trie) <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Trie</div>
   <div class="links">
     <a href="https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/" target="_blank">LeetCode</a>

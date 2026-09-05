@@ -106,7 +106,7 @@
   <span class="badge">Day 2 · BuildLikeASenior</span>
   <h1 class="title">BLAS DSA Blueprint — <span>Day 2</span></h1>
   <p class="sub">Second question from every section. Sharpen the patterns — interval geometry, two-pointer LL tricks, backtracking templates, BST routines, DP starters.</p>
-  <div class="meta"><span><b>27</b> questions</span><span><b>27</b> sections</span><span><b>~3-4 hrs</b> deep work</span></div>
+  <div class="meta"><span><b>26</b> questions</span><span><b>26</b> sections</span><span><b>~3-4 hrs</b> deep work</span></div>
 </header>
 
 <div class="wrap">
@@ -120,7 +120,6 @@
 <nav class="toc">
   <h3>Today's Run-list</h3>
   <ol>
-    <li><a href="#q1">Pascal's Triangle</a></li>
     <li><a href="#q2">Merge Overlapping Intervals</a></li>
     <li><a href="#q3">Pow(x, n)</a></li>
     <li><a href="#q4">4 Sum</a></li>
@@ -151,93 +150,9 @@
 </nav>
 
 <!-- ================= Q1 ================= -->
-<article class="q" id="q1">
-  <div class="head"><h2><span class="num">01</span>Pascal's Triangle <span class="pill med">Medium</span></h2></div>
-  <div class="topic">Section · Arrays</div>
-  <div class="links">
-    <a href="https://leetcode.com/problems/pascals-triangle/" target="_blank">LeetCode</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">Pascal's triangle, three variants: (a) the value at <code>(r,c)</code>, (b) the full <code>r-th</code> row, and (c) the first <code>n</code> rows.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input A:</b> value at <code>(r=4, c=2)</code>&nbsp;·&nbsp;<b>Output:</b> <code>6</code></p>
-    <ol>
-      <li><code>C(r, c) = C(r-1, c-1) · (r - c + 1) / c</code> walking <code>c</code> from 1 upward.</li>
-      <li><code>C(4,1)=4 → C(4,2)=4·(4-2+1)/2 = 12/2 = 6</code>.</li>
-    </ol>
-    <p><b>Input B (edge — first n rows, n=5):</b>&nbsp;·&nbsp;<b>Output:</b></p>
-    <ol>
-      <li>Row 0: <code>1</code>; Row 1: <code>1 1</code>; Row 2: <code>1 2 1</code>; Row 3: <code>1 3 3 1</code>; Row 4: <code>1 4 6 4 1</code>.</li>
-      <li>Each row generated in O(r) using the same multiplicative recurrence — no nested DP table needed.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Pascal's value is a binomial coefficient: <code>C(r-1, c-1)</code>.</b> A whole row can be generated in O(r) by sliding multiplication — no factorials, no DP table.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Brute</b> Build the full triangle row by row using <code>T[i][j] = T[i-1][j-1] + T[i-1][j]</code>. — <code>O(n²)</code> time & space.</div>
-    <div class="alt"><b>Better</b> For a single value <code>(r,c)</code> compute <code>C(r,c)</code> with factorials. — <code>O(r)</code> per query but risks overflow.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach (full row in O(r))</div>
-  <div class="approach"><ol>
-    <li>Row r starts with <code>1</code>.</li>
-    <li>For <code>i = 1..r-1</code>: next value = prev × <code>(r - i) / i</code>.</li>
-    <li>Repeating gives the whole row without computing factorials separately.</li>
-    <li>To print first <code>n</code> rows, just call this generator <code>n</code> times.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart TD
-  A["Start row r with 1"] --> B["i = 1"]
-  B --> C{"i &lt; r?"}
-  C -- no --> D["Row complete"]
-  C -- yes --> E["next = prev * (r - i) / i"]
-  E --> F["Append next, prev = next"]
-  F --> G["i = i + 1"]
-  G --> C
-  </pre></div>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Returns the r-th row of Pascal's triangle (1-indexed) in O(r) time and O(r) space.
- * Insight: each entry is C(r-1, k), and consecutive entries differ by the factor (r-1-k)/(k+1),
- * so we slide multiplicatively instead of recomputing binomials.
- */
-List&lt;Integer&gt; generateRow(int r){
-  List&lt;Integer&gt; row = new ArrayList&lt;&gt;();
-  long cur = 1;                                     // C(r-1, 0) = 1
-  row.add(1);
-  for(int k = 1; k &lt; r; k++){
-    // slide from C(r-1, k-1) to C(r-1, k)
-    cur = cur * (r - k) / k;
-    row.add((int) cur);
-  }
-  return row;
-}
-
-/**
- * Generates the first numRows rows of Pascal's triangle by reusing generateRow.
- */
-List&lt;List&lt;Integer&gt;&gt; generate(int numRows){
-  List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();
-  for(int i = 1; i &lt;= numRows; i++){
-    res.add(generateRow(i));
-  }
-  return res;
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(n²)</b></div><div>Space <b>O(n²)</b> (output)</div></div>
-</article>
-
 <!-- ================= Q2 ================= -->
 <article class="q" id="q2">
-  <div class="head"><h2><span class="num">02</span>Merge Overlapping Intervals <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">01</span>Merge Overlapping Intervals <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Arrays Part-II</div>
   <div class="links">
     <a href="https://leetcode.com/problems/merge-intervals/" target="_blank">LeetCode</a>
@@ -330,7 +245,7 @@ int[][] merge(int[][] intervals){
 
 <!-- ================= Q3 ================= -->
 <article class="q" id="q3">
-  <div class="head"><h2><span class="num">03</span>Pow(x, n) <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">02</span>Pow(x, n) <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Arrays Part-III</div>
   <div class="links">
     <a href="https://leetcode.com/problems/powx-n/" target="_blank">LeetCode</a>
@@ -410,7 +325,7 @@ double myPow(double x, int n){
 
 <!-- ================= Q4 ================= -->
 <article class="q" id="q4">
-  <div class="head"><h2><span class="num">04</span>4 Sum <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">03</span>4 Sum <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Arrays Part-IV</div>
   <div class="links">
     <a href="https://leetcode.com/problems/4sum/" target="_blank">LeetCode</a>
@@ -509,7 +424,7 @@ List&lt;List&lt;Integer&gt;&gt; fourSum(int[] nums, int target){
 
 <!-- ================= Q5 ================= -->
 <article class="q" id="q5">
-  <div class="head"><h2><span class="num">05</span>Find Middle of Linked List <span class="pill easy">Easy</span></h2></div>
+  <div class="head"><h2><span class="num">04</span>Find Middle of Linked List <span class="pill easy">Easy</span></h2></div>
   <div class="topic">Section · Linked List</div>
   <div class="links">
     <a href="https://leetcode.com/problems/middle-of-the-linked-list/" target="_blank">LeetCode</a>
@@ -581,7 +496,7 @@ ListNode middleNode(ListNode head){
 
 <!-- ================= Q6 ================= -->
 <article class="q" id="q6">
-  <div class="head"><h2><span class="num">06</span>Detect a Loop in Linked List <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">05</span>Detect a Loop in Linked List <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Linked List Part-II</div>
   <div class="links">
     <a href="https://leetcode.com/problems/linked-list-cycle/" target="_blank">LeetCode</a>
@@ -645,7 +560,7 @@ boolean hasCycle(ListNode head){
 
 <!-- ================= Q7 ================= -->
 <article class="q" id="q7">
-  <div class="head"><h2><span class="num">07</span>Clone a LL with Random Pointer <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">06</span>Clone a LL with Random Pointer <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Linked List &amp; Arrays</div>
   <div class="links">
     <a href="https://leetcode.com/problems/copy-list-with-random-pointer/" target="_blank">LeetCode</a>
@@ -736,7 +651,7 @@ Node copyRandomList(Node head){
 
 <!-- ================= Q8 ================= -->
 <article class="q" id="q8">
-  <div class="head"><h2><span class="num">08</span>Minimum Number of Platforms <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">07</span>Minimum Number of Platforms <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Greedy Algorithm</div>
   <div class="links">
     <a href="https://www.geeksforgeeks.org/minimum-number-platforms-required-railwaybus-station/" target="_blank">GFG</a>
@@ -825,7 +740,7 @@ int findPlatform(int[] arr, int[] dep){
 
 <!-- ================= Q9 ================= -->
 <article class="q" id="q9">
-  <div class="head"><h2><span class="num">09</span>Subsets II (with duplicates) <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">08</span>Subsets II (with duplicates) <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Recursion</div>
   <div class="links">
     <a href="https://leetcode.com/problems/subsets-ii/" target="_blank">LeetCode</a>
@@ -907,7 +822,7 @@ private void generateSubsets(int start, int[] nums,
 
 <!-- ================= Q10 ================= -->
 <article class="q" id="q10">
-  <div class="head"><h2><span class="num">10</span>N-Queens <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">09</span>N-Queens <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Recursion &amp; Backtracking</div>
   <div class="links">
     <a href="https://leetcode.com/problems/n-queens/" target="_blank">LeetCode</a>
@@ -1010,7 +925,7 @@ private void placeQueens(int col, char[][] board, List&lt;List&lt;String&gt;&gt;
 
 <!-- ================= Q11 ================= -->
 <article class="q" id="q11">
-  <div class="head"><h2><span class="num">11</span>Matrix Median <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">10</span>Matrix Median <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Binary Search</div>
   <div class="links">
     <a href="https://www.interviewbit.com/problems/matrix-median/" target="_blank">InterviewBit</a>
@@ -1139,7 +1054,7 @@ private int countLE(int[] row, int target){
 
 <!-- ================= Q12 ================= -->
 <article class="q" id="q12">
-  <div class="head"><h2><span class="num">12</span>Kth Largest Element in an Array <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">11</span>Kth Largest Element in an Array <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Heaps</div>
   <div class="links">
     <a href="https://leetcode.com/problems/kth-largest-element-in-an-array/" target="_blank">LeetCode</a>
@@ -1213,7 +1128,7 @@ int findKthLargest(int[] nums, int k){
 
 <!-- ================= Q13 ================= -->
 <article class="q" id="q13">
-  <div class="head"><h2><span class="num">13</span>Implement Queue using Arrays <span class="pill easy">Easy</span></h2></div>
+  <div class="head"><h2><span class="num">12</span>Implement Queue using Arrays <span class="pill easy">Easy</span></h2></div>
   <div class="topic">Section · Stack &amp; Queue</div>
   <div class="links">
     <a href="https://www.geeksforgeeks.org/queue-using-array/" target="_blank">GFG</a>
@@ -1308,7 +1223,7 @@ class ArrayQueue {
 
 <!-- ================= Q14 ================= -->
 <article class="q" id="q14">
-  <div class="head"><h2><span class="num">14</span>LRU Cache <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">13</span>LRU Cache <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Stack &amp; Queue Part-II</div>
   <div class="links">
     <a href="https://leetcode.com/problems/lru-cache/" target="_blank">LeetCode</a>
@@ -1421,7 +1336,7 @@ class LRUCache {
 
 <!-- ================= Q15 ================= -->
 <article class="q" id="q15">
-  <div class="head"><h2><span class="num">15</span>Longest Palindromic Substring <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">14</span>Longest Palindromic Substring <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · String</div>
   <div class="links">
     <a href="https://leetcode.com/problems/longest-palindromic-substring/" target="_blank">LeetCode</a>
@@ -1510,7 +1425,7 @@ private int expandAroundCentre(String s, int l, int r){
 
 <!-- ================= Q16 ================= -->
 <article class="q" id="q16">
-  <div class="head"><h2><span class="num">16</span>KMP — Longest Proper Prefix-Suffix (LPS) <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">15</span>KMP — Longest Proper Prefix-Suffix (LPS) <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · String Part-II</div>
   <div class="links">
     <a href="https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/" target="_blank">LeetCode</a>
@@ -1617,7 +1532,7 @@ int strStr(String text, String pattern){
 
 <!-- ================= Q17 ================= -->
 <article class="q" id="q17">
-  <div class="head"><h2><span class="num">17</span>Preorder Traversal (Iterative) <span class="pill easy">Easy</span></h2></div>
+  <div class="head"><h2><span class="num">16</span>Preorder Traversal (Iterative) <span class="pill easy">Easy</span></h2></div>
   <div class="topic">Section · Binary Tree</div>
   <div class="links">
     <a href="https://leetcode.com/problems/binary-tree-preorder-traversal/" target="_blank">LeetCode</a>
@@ -1694,7 +1609,7 @@ List&lt;Integer&gt; preorderTraversal(TreeNode root){
 
 <!-- ================= Q18 ================= -->
 <article class="q" id="q18">
-  <div class="head"><h2><span class="num">18</span>Maximum Depth of Binary Tree <span class="pill easy">Easy</span></h2></div>
+  <div class="head"><h2><span class="num">17</span>Maximum Depth of Binary Tree <span class="pill easy">Easy</span></h2></div>
   <div class="topic">Section · Binary Tree Part-II</div>
   <div class="links">
     <a href="https://leetcode.com/problems/maximum-depth-of-binary-tree/" target="_blank">LeetCode</a>
@@ -1757,7 +1672,7 @@ int maxDepth(TreeNode root){
 
 <!-- ================= Q19 ================= -->
 <article class="q" id="q19">
-  <div class="head"><h2><span class="num">19</span>Construct Binary Tree from Preorder + Inorder <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">18</span>Construct Binary Tree from Preorder + Inorder <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Binary Tree Part-III</div>
   <div class="links">
     <a href="https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/" target="_blank">LeetCode</a>
@@ -1846,7 +1761,7 @@ private TreeNode constructSubtree(int[] preorder, int preStart, int preEnd,
 
 <!-- ================= Q20 ================= -->
 <article class="q" id="q20">
-  <div class="head"><h2><span class="num">20</span>Search in a BST <span class="pill easy">Easy</span></h2></div>
+  <div class="head"><h2><span class="num">19</span>Search in a BST <span class="pill easy">Easy</span></h2></div>
   <div class="topic">Section · Binary Search Tree</div>
   <div class="links">
     <a href="https://leetcode.com/problems/search-in-a-binary-search-tree/" target="_blank">LeetCode</a>
@@ -1913,7 +1828,7 @@ TreeNode searchBST(TreeNode root, int target){
 
 <!-- ================= Q21 ================= -->
 <article class="q" id="q21">
-  <div class="head"><h2><span class="num">21</span>Ceil in a BST <span class="pill easy">Easy</span></h2></div>
+  <div class="head"><h2><span class="num">20</span>Ceil in a BST <span class="pill easy">Easy</span></h2></div>
   <div class="topic">Section · Binary Search Tree Part-II</div>
   <div class="links">
     <a href="https://www.codingninjas.com/studio/problems/ceil-from-bst_920464" target="_blank">Coding Ninjas</a>
@@ -1992,7 +1907,7 @@ int findCeil(TreeNode root, int targetValue){
 
 <!-- ================= Q22 ================= -->
 <article class="q" id="q22">
-  <div class="head"><h2><span class="num">22</span>Find Median from Data Stream <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">21</span>Find Median from Data Stream <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Binary Tree (Misc)</div>
   <div class="links">
     <a href="https://leetcode.com/problems/find-median-from-data-stream/" target="_blank">LeetCode</a>
@@ -2074,7 +1989,7 @@ class MedianFinder {
 
 <!-- ================= Q23 ================= -->
 <article class="q" id="q23">
-  <div class="head"><h2><span class="num">23</span>DFS Traversal of Graph <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">22</span>DFS Traversal of Graph <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Graph</div>
   <div class="links">
     <a href="https://www.geeksforgeeks.org/depth-first-search-or-dfs-for-a-graph/" target="_blank">GFG</a>
@@ -2149,7 +2064,7 @@ private void dfsExplore(int u, List&lt;List&lt;Integer&gt;&gt; adj,
 
 <!-- ================= Q24 ================= -->
 <article class="q" id="q24">
-  <div class="head"><h2><span class="num">24</span>Dijkstra's Algorithm <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">23</span>Dijkstra's Algorithm <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Graph Part-II</div>
   <div class="links">
     <a href="https://www.geeksforgeeks.org/dijkstras-shortest-path-algorithm-greedy-algo-7/" target="_blank">GFG</a>
@@ -2245,7 +2160,7 @@ int[] dijkstra(int n, List&lt;List&lt;int[]&gt;&gt; adj, int src){
 
 <!-- ================= Q25 ================= -->
 <article class="q" id="q25">
-  <div class="head"><h2><span class="num">25</span>Longest Increasing Subsequence <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">24</span>Longest Increasing Subsequence <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Dynamic Programming</div>
   <div class="links">
     <a href="https://leetcode.com/problems/longest-increasing-subsequence/" target="_blank">LeetCode</a>
@@ -2332,7 +2247,7 @@ int lengthOfLIS(int[] nums){
 
 <!-- ================= Q26 ================= -->
 <article class="q" id="q26">
-  <div class="head"><h2><span class="num">26</span>Coin Change II (number of ways) <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">25</span>Coin Change II (number of ways) <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · DP Part-II</div>
   <div class="links">
     <a href="https://leetcode.com/problems/coin-change-ii/" target="_blank">LeetCode</a>
@@ -2436,7 +2351,7 @@ int change(int amount, int[] coins){
 
 <!-- ================= Q27 ================= -->
 <article class="q" id="q27">
-  <div class="head"><h2><span class="num">27</span>Trie — Advanced (Prefix &amp; Word Counts) <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">26</span>Trie — Advanced (Prefix &amp; Word Counts) <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Trie</div>
   <div class="links">
     <a href="https://www.codingninjas.com/studio/problems/implement-trie_1387095" target="_blank">Coding Ninjas</a>

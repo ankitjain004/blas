@@ -106,7 +106,7 @@
   <span class="badge">Day 3 · BuildLikeASenior</span>
   <h1 class="title">BLAS DSA Blueprint — <span>Day 3</span></h1>
   <p class="sub">Third question from every section. Patterns get deeper — cycle detection, sliding windows, DP grids, Bellman-Ford, BST balance.</p>
-  <div class="meta"><span><b>27</b> questions</span><span><b>27</b> sections</span><span><b>~3-4 hrs</b> deep work</span></div>
+  <div class="meta"><span><b>23</b> questions</span><span><b>23</b> sections</span><span><b>~3-4 hrs</b> deep work</span></div>
 </header>
 
 <div class="wrap">
@@ -132,7 +132,6 @@
     <li><a href="#q10">Sudoku Solver</a></li>
     <li><a href="#q11">Single Element in Sorted Array</a></li>
     <li><a href="#q12">Top K Frequent Elements</a></li>
-    <li><a href="#q13">Implement Stack using Queue</a></li>
     <li><a href="#q14">Sliding Window Maximum</a></li>
     <li><a href="#q15">Longest Substring W/o Repeating Chars</a></li>
     <li><a href="#q16">Min Chars in Front to Make Palindrome</a></li>
@@ -141,12 +140,9 @@
     <li><a href="#q19">Build BT from Inorder + Postorder</a></li>
     <li><a href="#q20">Convert Sorted Array to BST</a></li>
     <li><a href="#q21">Kth Smallest Element in BST</a></li>
-    <li><a href="#q22">Kth Largest Element in a Stream</a></li>
     <li><a href="#q23">BFS Traversal of Graph</a></li>
-    <li><a href="#q24">Bellman-Ford Algorithm</a></li>
     <li><a href="#q25">Longest Common Subsequence</a></li>
     <li><a href="#q26">0/1 Knapsack</a></li>
-    <li><a href="#q27">Number of Distinct Substrings (Trie)</a></li>
   </ol>
 </nav>
 
@@ -1185,80 +1181,9 @@ int[] topKFrequent(int[] nums, int k){
 </article>
 
 <!-- ================= Q13 ================= -->
-<article class="q" id="q13">
-  <div class="head"><h2><span class="num">13</span>Implement Stack using Queue <span class="pill easy">Easy</span></h2></div>
-  <div class="topic">Section · Stack &amp; Queue</div>
-  <div class="links">
-    <a href="https://leetcode.com/problems/implement-stack-using-queues/" target="_blank">LeetCode</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">Build a stack's <code>push</code>, <code>pop</code>, <code>top</code>, and <code>empty</code> using only ordinary queue operations.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input A:</b> <code>push(1); push(2); push(3); top(); pop(); top()</code>&nbsp;·&nbsp;<b>Output:</b> <code>3, 3, 2</code></p>
-    <ol>
-      <li>Single-queue trick: on each push, enqueue, then rotate (n-1) times so the new element sits at the front.</li>
-      <li>push(1): q=[1]. push(2): enqueue → [1,2]; rotate once → [2,1]. push(3): enqueue → [2,1,3]; rotate twice → [3,2,1].</li>
-      <li><code>top()</code>=peek=3. <code>pop()</code>=dequeue=3 → q=[2,1]. <code>top()</code>=2.</li>
-    </ol>
-    <p><b>Input B (edge — pop on empty):</b>&nbsp;·&nbsp;<b>Output:</b> error</p>
-    <ol>
-      <li>Underlying queue empty → <code>poll()</code> returns null / throws → surface as <code>IllegalStateException</code>.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Single queue + costly push.</b> When pushing, enqueue then rotate all existing items behind the new one — front becomes the most recent. <code>pop</code> and <code>top</code> are then O(1).</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Two queues</b> Push to <code>q2</code>, move all from <code>q1</code> behind it, swap. — Same complexity, more memory shuffle.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li>Use one queue.</li>
-    <li><b>push(x)</b>: enqueue x; rotate (poll-and-add) <code>size-1</code> times → x sits at front.</li>
-    <li><b>pop</b>: <code>queue.poll()</code>.</li>
-    <li><b>top</b>: <code>queue.peek()</code>.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart LR
-  P["push(x)"] --> E["queue.add(x)"]
-  E --> R["rotate size-1 times → x at front"]
-  POP["pop / top → queue.poll / peek"]
-  </pre></div>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Stack-on-a-Queue using a single queue and an O(n) push.
- * Trick: after enqueuing x, cycle every prior element to the back so x sits at front.
- * Now pop()/top() are simple queue front operations — O(1).
- */
-class StackUsingQueue {
-  private final Deque&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();
-
-  void push(int x){
-    queue.addLast(x);                              // append at the back
-    // rotate (size-1) elements from front to back → newest element ends up at front
-    for(int i = queue.size() - 1; i &gt; 0; i--){
-      queue.addLast(queue.pollFirst());
-    }
-  }
-  int     pop()  { return queue.pollFirst(); }
-  int     top()  { return queue.peekFirst(); }
-  boolean empty(){ return queue.isEmpty(); }
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(n)</b> push, O(1) others</div><div>Space <b>O(n)</b></div></div>
-</article>
-
 <!-- ================= Q14 ================= -->
 <article class="q" id="q14">
-  <div class="head"><h2><span class="num">14</span>Sliding Window Maximum <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">13</span>Sliding Window Maximum <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Stack &amp; Queue Part-II</div>
   <div class="links">
     <a href="https://leetcode.com/problems/sliding-window-maximum/" target="_blank">LeetCode</a>
@@ -1352,7 +1277,7 @@ int[] maxSlidingWindow(int[] nums, int k){
 
 <!-- ================= Q15 ================= -->
 <article class="q" id="q15">
-  <div class="head"><h2><span class="num">15</span>Longest Substring Without Repeating Characters <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">14</span>Longest Substring Without Repeating Characters <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · String</div>
   <div class="links">
     <a href="https://leetcode.com/problems/longest-substring-without-repeating-characters/" target="_blank">LeetCode</a>
@@ -1434,7 +1359,7 @@ int lengthOfLongestSubstring(String s){
 
 <!-- ================= Q16 ================= -->
 <article class="q" id="q16">
-  <div class="head"><h2><span class="num">16</span>Minimum Chars to Add at Front to Make Palindrome <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">15</span>Minimum Chars to Add at Front to Make Palindrome <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · String Part-II</div>
   <div class="links">
     <a href="https://www.geeksforgeeks.org/minimum-characters-added-front-make-string-palindrome/" target="_blank">GFG</a>
@@ -1515,7 +1440,7 @@ private int[] buildLps(String p){
 
 <!-- ================= Q17 ================= -->
 <article class="q" id="q17">
-  <div class="head"><h2><span class="num">17</span>Postorder Traversal (Iterative) <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">16</span>Postorder Traversal (Iterative) <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Binary Tree</div>
   <div class="links">
     <a href="https://leetcode.com/problems/binary-tree-postorder-traversal/" target="_blank">LeetCode</a>
@@ -1609,7 +1534,7 @@ List&lt;Integer&gt; postorderTraversal(TreeNode root){
 
 <!-- ================= Q18 ================= -->
 <article class="q" id="q18">
-  <div class="head"><h2><span class="num">18</span>Diameter of Binary Tree <span class="pill easy">Easy</span></h2></div>
+  <div class="head"><h2><span class="num">17</span>Diameter of Binary Tree <span class="pill easy">Easy</span></h2></div>
   <div class="topic">Section · Binary Tree Part-II</div>
   <div class="links">
     <a href="https://leetcode.com/problems/diameter-of-binary-tree/" target="_blank">LeetCode</a>
@@ -1694,7 +1619,7 @@ private int measureHeight(TreeNode node){
 
 <!-- ================= Q19 ================= -->
 <article class="q" id="q19">
-  <div class="head"><h2><span class="num">19</span>Construct BT from Inorder + Postorder <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">18</span>Construct BT from Inorder + Postorder <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Binary Tree Part-III</div>
   <div class="links">
     <a href="https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/" target="_blank">LeetCode</a>
@@ -1783,7 +1708,7 @@ private TreeNode constructSubtree(int[] postorder, int postStart, int postEnd,
 
 <!-- ================= Q20 ================= -->
 <article class="q" id="q20">
-  <div class="head"><h2><span class="num">20</span>Convert Sorted Array to BST <span class="pill easy">Easy</span></h2></div>
+  <div class="head"><h2><span class="num">19</span>Convert Sorted Array to BST <span class="pill easy">Easy</span></h2></div>
   <div class="topic">Section · Binary Search Tree</div>
   <div class="links">
     <a href="https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/" target="_blank">LeetCode</a>
@@ -1853,7 +1778,7 @@ private TreeNode buildBalanced(int[] nums, int lo, int hi){
 
 <!-- ================= Q21 ================= -->
 <article class="q" id="q21">
-  <div class="head"><h2><span class="num">21</span>Kth Smallest Element in BST <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">20</span>Kth Smallest Element in BST <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Binary Search Tree Part-II</div>
   <div class="links">
     <a href="https://leetcode.com/problems/kth-smallest-element-in-a-bst/" target="_blank">LeetCode</a>
@@ -1932,81 +1857,9 @@ int kthSmallest(TreeNode root, int k){
 </article>
 
 <!-- ================= Q22 ================= -->
-<article class="q" id="q22">
-  <div class="head"><h2><span class="num">22</span>Kth Largest Element in a Stream <span class="pill easy">Easy</span></h2></div>
-  <div class="topic">Section · Binary Tree (Misc)</div>
-  <div class="links">
-    <a href="https://leetcode.com/problems/kth-largest-element-in-a-stream/" target="_blank">LeetCode</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">Design a class whose <code>add(val)</code> returns the k-th largest value observed so far.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input A:</b> <code>k=3</code>; ops <code>add(4), add(5), add(8), add(2), add(3), add(5), add(10), add(9), add(4)</code>&nbsp;·&nbsp;<b>Output:</b> <code>4, 5, 5, 8, 8</code> (returned only after stream has ≥ k items)</p>
-    <ol>
-      <li>Min-heap of size at most <code>k</code>. After <code>add</code>, if size&gt;k pop the smallest.</li>
-      <li>add(4): heap=[4]. add(5): [4,5]. add(8): [4,5,8] → top=4. add(2): pop 2 (smallest of 4) → top=4. add(3): pop 3 → top=4. (Returns each time: 4 once size hits k.)</li>
-      <li>add(5): pop 4 → [5,5,8] top=5. add(10): pop 5 → [5,8,10] top=5. add(9): pop 5 → [8,9,10] top=8. add(4): top stays 8.</li>
-    </ol>
-    <p><b>Input B (edge — stream shorter than k):</b> after <code>add(3)</code> with <code>k=5</code>&nbsp;·&nbsp;<b>Output:</b> sentinel / current min</p>
-    <ol>
-      <li>Heap size 1 &lt; k → return <code>heap.peek()</code>=3 as the best-effort “k-th largest seen so far.”</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>A size-<code>k</code> MIN-heap of the top-<code>k</code> elements.</b> Its root is always the smallest of the top-<code>k</code> = the k-th largest overall. <code>add</code> is O(log k).</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Brute</b> Keep sorted list; insert is <code>O(n)</code>. — Trivial but slow.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li>Constructor: push initial values into a min-heap; while size &gt; k poll.</li>
-    <li><code>add(x)</code>: push x; if size &gt; k poll; return <code>heap.peek()</code>.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart LR
-  N["add(x)"] --> P["heap.offer(x)"]
-  P --> S{"heap.size &gt; k?"}
-  S -- yes --> E["heap.poll()"]
-  S -- no --> R["return heap.peek()"]
-  E --> R
-  </pre></div>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Streaming k-th largest using a bounded min-heap.
- * Root = smallest of the largest k seen so far = the k-th largest overall.
- */
-class KthLargest {
-  private final PriorityQueue&lt;Integer&gt; pq;
-  private final int k;
-
-  KthLargest(int k, int[] nums){
-    this.k = k;
-    this.pq = new PriorityQueue&lt;&gt;();
-    for(int x : nums) add(x);
-  }
-
-  int add(int x){
-    pq.offer(x);
-    if(pq.size() &gt; k) pq.poll();   // shrink to exactly k largest
-    return pq.peek();
-  }
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(log k)</b> add</div><div>Space <b>O(k)</b></div></div>
-</article>
-
 <!-- ================= Q23 ================= -->
 <article class="q" id="q23">
-  <div class="head"><h2><span class="num">23</span>BFS Traversal of Graph <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">21</span>BFS Traversal of Graph <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Graph</div>
   <div class="links">
     <a href="https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/" target="_blank">GFG</a>
@@ -2084,99 +1937,9 @@ List&lt;Integer&gt; bfsOfGraph(int n, List&lt;List&lt;Integer&gt;&gt; adj){
 </article>
 
 <!-- ================= Q24 ================= -->
-<article class="q" id="q24">
-  <div class="head"><h2><span class="num">24</span>Bellman-Ford Algorithm <span class="pill hard">Hard</span></h2></div>
-  <div class="topic">Section · Graph Part-II</div>
-  <div class="links">
-    <a href="https://www.geeksforgeeks.org/bellman-ford-algorithm-dp-23/" target="_blank">GFG</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">Compute shortest paths from a source in a directed weighted graph that may contain <b>negative</b> edges, and report any negative cycle.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input A:</b> <code>V=5</code>, edges <code>0→1 (6), 0→2 (7), 1→2 (8), 1→3 (5), 1→4 (-4), 2→3 (-3), 2→4 (9), 3→1 (-2), 4→0 (2), 4→3 (7)</code>; src=0&nbsp;·&nbsp;<b>Output:</b> <code>dist=[0, 2, 7, 4, -2]</code></p>
-    <ol>
-      <li>Initialize <code>dist[0]=0</code>, others <code>+∞</code>.</li>
-      <li>Relax all edges <code>V-1 = 4</code> times. Each pass tightens at least one shortest path's hop count.</li>
-      <li>One more pass: if any edge still relaxes → negative cycle reachable. Here no further drop → stable distances.</li>
-    </ol>
-    <p><b>Input B (edge — negative cycle):</b> add <code>3→1 (-10)</code>&nbsp;·&nbsp;<b>Output:</b> report "negative cycle"</p>
-    <ol>
-      <li>The Vth pass still finds an edge with <code>dist[u] + w &lt; dist[v]</code> → algorithm signals infeasibility instead of returning distances.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Relax every edge <code>V - 1</code> times — that suffices because any simple shortest path has at most <code>V - 1</code> edges.</b> One extra pass: if any distance still decreases, a negative cycle is reachable from the source.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Dijkstra</b> Faster but breaks on negative weights.</div>
-    <div class="alt"><b>SPFA</b> Queue-based optimisation; usually faster in practice, worst case still <code>O(V·E)</code>.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li>Initialize <code>dist[]</code> to ∞; <code>dist[src] = 0</code>.</li>
-    <li>Repeat <code>V - 1</code> times: for every edge <code>(u, v, w)</code>, if <code>dist[u] + w &lt; dist[v]</code> → relax.</li>
-    <li>One more pass: if any edge can still relax → negative cycle exists.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart TD
-  S["dist[src] = 0; others ∞"] --> R["repeat V-1 times"]
-  R --> E["for each edge (u, v, w)"]
-  E --> X{"dist[u] + w &lt; dist[v]?"}
-  X -- yes --> A["relax: dist[v] = dist[u] + w"]
-  X -- no --> E
-  A --> E
-  R --> C["one more pass → if any relax: NEG CYCLE"]
-  </pre></div>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Bellman-Ford shortest paths from src on a graph with possibly negative weights.
- * Trick: a simple shortest path has at most V-1 edges, so V-1 relaxation rounds are
- * enough. A V-th round that still finds an improvement proves a reachable negative cycle.
- */
-int[] bellmanFord(int n, int[][] edges, int src){
-  int[] dist = new int[n];
-  Arrays.fill(dist, Integer.MAX_VALUE);
-  dist[src] = 0;
-
-  // ---- V-1 relaxation rounds ----
-  for(int round = 0; round &lt; n - 1; round++){
-    boolean changed = false;
-    for(int[] edge : edges){                     // edge = {u, v, w}
-      int u = edge[0], v = edge[1], w = edge[2];
-      if(dist[u] != Integer.MAX_VALUE
-         &amp;&amp; dist[u] + w &lt; dist[v]){
-        dist[v] = dist[u] + w;
-        changed = true;
-      }
-    }
-    if(!changed) break;                          // early exit when stable
-  }
-
-  // ---- detect negative cycle via one extra pass ----
-  for(int[] edge : edges){
-    int u = edge[0], v = edge[1], w = edge[2];
-    if(dist[u] != Integer.MAX_VALUE
-       &amp;&amp; dist[u] + w &lt; dist[v]){
-      return new int[]{-1};                      // sentinel: negative cycle reachable
-    }
-  }
-  return dist;
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(V · E)</b></div><div>Space <b>O(V)</b></div></div>
-</article>
-
 <!-- ================= Q25 ================= -->
 <article class="q" id="q25">
-  <div class="head"><h2><span class="num">25</span>Longest Common Subsequence <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">22</span>Longest Common Subsequence <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Dynamic Programming</div>
   <div class="links">
     <a href="https://leetcode.com/problems/longest-common-subsequence/" target="_blank">LeetCode</a>
@@ -2278,7 +2041,7 @@ int longestCommonSubsequence(String a, String b){
 
 <!-- ================= Q26 ================= -->
 <article class="q" id="q26">
-  <div class="head"><h2><span class="num">26</span>0/1 Knapsack <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">23</span>0/1 Knapsack <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · DP Part-II</div>
   <div class="links">
     <a href="https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/" target="_blank">GFG</a>
@@ -2382,88 +2145,6 @@ int knapsack01(int[] wt, int[] val, int cap){
 </article>
 
 <!-- ================= Q27 ================= -->
-<article class="q" id="q27">
-  <div class="head"><h2><span class="num">27</span>Number of Distinct Substrings (Trie) <span class="pill hard">Hard</span></h2></div>
-  <div class="topic">Section · Trie</div>
-  <div class="links">
-    <a href="https://www.codingninjas.com/studio/problems/number-of-distinct-substring_1062632" target="_blank">Coding Ninjas</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">Count how many distinct non-empty substrings <code>s</code> has.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input A:</b> <code>s="abab"</code>&nbsp;·&nbsp;<b>Output:</b> <code>7</code></p>
-    <ol>
-      <li>Build a trie of every <i>suffix</i>: "abab", "bab", "ab", "b".</li>
-      <li>Insert "abab": creates 4 new edges → +4 substrings.</li>
-      <li>Insert "bab": creates 3 new edges (root→b, b→a, a→b) → +3.</li>
-      <li>Insert "ab": traverses existing "a→b" — 0 new edges → +0.</li>
-      <li>Insert "b": existing → +0. Total = 4+3+0+0 = <b>7</b> distinct substrings: a, b, ab, ba, aba, bab, abab.</li>
-    </ol>
-    <p><b>Input B (edge — all same chars):</b> <code>s="aaa"</code>&nbsp;·&nbsp;<b>Output:</b> <code>3</code></p>
-    <ol>
-      <li>Suffixes "aaa","aa","a". Trie edges = 3 (one per length). Distinct substrings: a, aa, aaa → 3.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Insert every suffix into a Trie; count nodes created.</b> Every distinct substring corresponds to a unique root-to-node path → one new node = one new distinct substring. Add 1 for the empty string if the problem counts it.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Brute</b> HashSet of all substrings. — <code>O(n²)</code> time, <code>O(n²)</code> space in chars.</div>
-    <div class="alt"><b>Better</b> Suffix Array + LCP. — <code>O(n log n)</code>, conceptually heavier.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach (Trie)</div>
-  <div class="approach"><ol>
-    <li>For each starting index <code>i</code>, walk <code>s[i..n-1]</code> through the trie.</li>
-    <li>Whenever a child doesn't exist, create it and increment a counter.</li>
-    <li>Final count = distinct non-empty substrings (subtract 0 since we don't count root).</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart TD
-  R["root"] --> A["a (suffix abc, ab, a)"]
-  A --> B["b"]
-  B --> C["c"]
-  R --> B2["b (suffix bc, b)"]
-  B2 --> C2["c"]
-  R --> C3["c (suffix c)"]
-  </pre></div>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Counts distinct non-empty substrings using a trie of all suffixes.
- * Trick: every distinct substring corresponds to a unique root-to-node path in the
- * trie. Whenever we have to allocate a fresh child node we've discovered a NEW substring.
- */
-int countDistinctSubstrings(String s){
-  TrieNode root = new TrieNode();
-  int count = 0;
-
-  for(int i = 0; i &lt; s.length(); i++){
-    TrieNode node = root;
-    for(int j = i; j &lt; s.length(); j++){
-      int c = s.charAt(j) - 'a';
-      if(node.children[c] == null){
-        node.children[c] = new TrieNode();
-        count++;                  // new node = new distinct substring
-      }
-      node = node.children[c];
-    }
-  }
-  return count;
-}
-
-private static class TrieNode { TrieNode[] children = new TrieNode[26]; }</code></pre>
-  <div class="complexity"><div>Time <b>O(n²)</b></div><div>Space <b>O(n²)</b> trie</div></div>
-</article>
-
-
 <nav class="page-nav">
   <a class="nav-btn" href="day2.html">← Prev: Day 2</a>
   <a class="nav-btn home" href="index.html">⌂ DSA Index</a>

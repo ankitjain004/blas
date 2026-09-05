@@ -106,7 +106,7 @@
   <span class="badge">Day 6 · BuildLikeASenior</span>
   <h1 class="title">BLAS DSA Blueprint — <span>Day 6</span></h1>
   <p class="sub">Sixth question per section. Inversions, Reverse Pairs, Reverse-in-K-Groups, Word Search II, Kosaraju SCC — the senior-engineer round.</p>
-  <div class="meta"><span><b>27</b> questions</span><span><b>27</b> sections</span><span><b>~4 hrs</b> deep work</span></div>
+  <div class="meta"><span><b>20</b> questions</span><span><b>20</b> sections</span><span><b>~4 hrs</b> deep work</span></div>
 </header>
 
 <div class="wrap">
@@ -122,9 +122,6 @@
   <ol>
     <li><a href="#q1">Best Time to Buy and Sell Stock I</a></li>
     <li><a href="#q2">Count Inversions</a></li>
-    <li><a href="#q3">Reverse Pairs</a></li>
-    <li><a href="#q4">Max Consecutive Ones</a></li>
-    <li><a href="#q5">Delete Node in LL (Only Reference)</a></li>
     <li><a href="#q6">Reverse LL in Groups of K</a></li>
     <li><a href="#q7">Container With Most Water</a></li>
     <li><a href="#q8">Gas Station</a></li>
@@ -133,18 +130,14 @@
     <li><a href="#q11">Find Peak Element</a></li>
     <li><a href="#q12">Maximum Sum Combinations</a></li>
     <li><a href="#q13">Next Greater Element</a></li>
-    <li><a href="#q14">Stock Span Problem</a></li>
     <li><a href="#q15">Longest Common Prefix</a></li>
     <li><a href="#q16">Compare Version Numbers</a></li>
     <li><a href="#q17">Vertical Order Traversal of BT</a></li>
-    <li><a href="#q18">Boundary Traversal of BT</a></li>
-    <li><a href="#q19">Children Sum Property in BT</a></li>
     <li><a href="#q20">Delete a Node in BST</a></li>
     <li><a href="#q21">Convert BST to Sorted DLL</a></li>
     <li><a href="#q22">Maximum Sum BST in Binary Tree</a></li>
     <li><a href="#q23">Number of Islands</a></li>
     <li><a href="#q24">Bridges in Graph (Tarjan)</a></li>
-    <li><a href="#q25">Maximum Sum Increasing Subsequence</a></li>
     <li><a href="#q26">Coin Change (Min Coins)</a></li>
     <li><a href="#q27">Word Search II (Trie + DFS)</a></li>
   </ol>
@@ -310,228 +303,11 @@ private long merge(int[] a, int[] tmp, int lo, int mid, int hi){
 </article>
 
 <!-- ================= Q3 ================= -->
-<article class="q" id="q3">
-  <div class="head"><h2><span class="num">03</span>Reverse Pairs <span class="pill hard">Hard</span></h2></div>
-  <div class="topic">Section · Arrays Part-III</div>
-  <div class="links">
-    <a href="https://leetcode.com/problems/reverse-pairs/" target="_blank">LeetCode</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">Find the total number of index pairs <code>(i, j)</code> for which <code>i &lt; j</code> holds while <code>a[i] &gt; 2 · a[j]</code>.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input:</b> <code>nums=[1,3,2,3,1]</code> &nbsp;·&nbsp; <b>Output:</b> <code>2</code></p>
-    <ol>
-      <li>Pairs to check: <code>(i,j)</code> with <code>i&lt;j</code> and <code>nums[i] &gt; 2*nums[j]</code>.</li>
-      <li><code>(idx=1, val=3)</code> vs <code>(idx=4, val=1)</code>: <code>3 &gt; 2*1</code> &check; &rarr; pair #1.</li>
-      <li><code>(idx=3, val=3)</code> vs <code>(idx=4, val=1)</code>: <code>3 &gt; 2*1</code> &check; &rarr; pair #2.</li>
-      <li>All other pairs fail the strict <code>&gt; 2*</code> test.</li>
-      <li>Return <code>2</code>.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Merge sort again, but with a separate counting pass before merging.</b> For each <code>i</code> in the left half, advance a pointer <code>j</code> in the right half while <code>left[i] &gt; 2 · right[j]</code>. Both halves stay sorted → both pointers only move forward → O(n) per merge.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Brute</b> O(n²).</div>
-    <div class="alt"><b>BIT / Fenwick</b> Compress values, query prefix counts of <code>&gt; 2·a[j]</code>.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li>Merge sort. Before merging, count reverse pairs across halves with a two-pointer scan.</li>
-    <li>Then do the standard merge step.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart TD
-  L["left sorted"] --> C["for each i in left, advance j in right while left[i] &gt; 2·right[j]"]
-  R["right sorted"] --> C
-  C --> M["regular merge step"]
-  </pre></div>
-
-  <div class="section-title">Code (Java) — Part 1: Merge Sort Driver</div>
-<pre><code class="language-java">/**
- * Top-level entry + merge-sort recursion. Recursion contributes counts from each half;
- * the merge helper below contributes cross-pair counts and performs the actual merge.
- */
-int reversePairs(int[] a){
-  int[] tmp = new int[a.length];
-  return sort(a, tmp, 0, a.length - 1);
-}
-
-private int sort(int[] a, int[] tmp, int lo, int hi){
-  if(lo &gt;= hi) return 0;
-  int mid = lo + (hi - lo) / 2;
-  int cnt = sort(a, tmp, lo, mid)
-          + sort(a, tmp, mid + 1, hi);
-  cnt += merge(a, tmp, lo, mid, hi);
-  return cnt;
-}</code></pre>
-
-  <div class="section-title">Code (Java) — Part 2: Merge with Cross-Pair Count</div>
-<pre><code class="language-java">/**
- * Two-phase merge step:
- *  (a) count cross-pairs with monotone two-pointer scan (j only advances → O(n))
- *  (b) standard merge of the two sorted halves into tmp, copy back.
- */
-private int merge(int[] a, int[] tmp, int lo, int mid, int hi){
-  int cnt = 0;
-
-  // ---- (a) count cross-pairs with two monotone pointers ----
-  int r = mid + 1;
-  for(int i = lo; i &lt;= mid; i++){
-    while(r &lt;= hi &amp;&amp; (long) a[i] &gt; 2L * a[r]) r++;
-    cnt += (r - (mid + 1));
-  }
-
-  // ---- (b) standard merge ----
-  int i = lo, j = mid + 1, w = lo;
-  while(i &lt;= mid &amp;&amp; j &lt;= hi){
-    if(a[i] &lt;= a[j]) tmp[w++] = a[i++];
-    else            tmp[w++] = a[j++];
-  }
-  while(i &lt;= mid) tmp[w++] = a[i++];
-  while(j &lt;= hi)  tmp[w++] = a[j++];
-  for(int k = lo; k &lt;= hi; k++) a[k] = tmp[k];
-  return cnt;
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(n log n)</b></div><div>Space <b>O(n)</b></div></div>
-</article>
-
 <!-- ================= Q4 ================= -->
-<article class="q" id="q4">
-  <div class="head"><h2><span class="num">04</span>Max Consecutive Ones <span class="pill easy">Easy</span></h2></div>
-  <div class="topic">Section · Arrays Part-IV</div>
-  <div class="links">
-    <a href="https://leetcode.com/problems/max-consecutive-ones/" target="_blank">LeetCode</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">In an array of 0s and 1s, find the length of the longest run of adjacent 1s.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input:</b> <code>nums=[1,1,0,1,1,1]</code> &nbsp;·&nbsp; <b>Output:</b> <code>3</code></p>
-    <ol>
-      <li><code>1</code> &rarr; <code>currentRunLength=1</code>, <code>longestRunLength=1</code>.</li>
-      <li><code>1</code> &rarr; <code>currentRunLength=2</code>, <code>longestRunLength=2</code>.</li>
-      <li><code>0</code> &rarr; <code>currentRunLength=0</code> (reset).</li>
-      <li><code>1,1,1</code> &rarr; <code>currentRunLength</code> climbs to <code>3</code>; <code>longestRunLength=3</code>.</li>
-      <li>Return <code>3</code>.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Running counter that resets on 0.</b> Track the best.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Two-pointer</b> Sliding window of length-of-current-run.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li>run = 0; best = 0.</li>
-    <li>For each x: if x == 1 → run++; best = max(best, run). Else run = 0.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart LR
-  S["run = 0, best = 0"] --> L["for each x"]
-  L --> C{"x == 1?"}
-  C -- yes --> R["run++; best = max(best, run)"]
-  C -- no --> Z["run = 0"]
-  R --> L
-  Z --> L
-  </pre></div>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Longest run of consecutive 1s in a binary array.
- * Trick: maintain a running counter that resets on every 0; track the maximum seen.
- */
-int findMaxConsecutiveOnes(int[] nums){
-  int cur = 0;
-  int best = 0;
-
-  for(int x : nums){
-    if(x == 1){
-      cur++;
-      best = Math.max(best, cur);
-    } else {
-      cur = 0;
-    }
-  }
-  return best;
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
-</article>
-
 <!-- ================= Q5 ================= -->
-<article class="q" id="q5">
-  <div class="head"><h2><span class="num">05</span>Delete Node in LL (Only Reference Given) <span class="pill easy">Easy</span></h2></div>
-  <div class="topic">Section · Linked List</div>
-  <div class="links">
-    <a href="https://leetcode.com/problems/delete-node-in-a-linked-list/" target="_blank">LeetCode</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">You receive a direct reference to some node (never the head) within a singly linked list and must remove it; the referenced node is guaranteed to have a successor.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input:</b> list <code>4 → 5 → 1 → 9</code>, given <code>node</code> points at value <code>5</code>. &nbsp;·&nbsp; <b>Output:</b> <code>4 → 1 → 9</code>.</p>
-    <ol>
-      <li><code>node.val = node.next.val</code> &rarr; copy <code>1</code> into the <code>5</code>-cell &rArr; list now <code>4 → 1 → 1 → 9</code>.</li>
-      <li><code>node.next = node.next.next</code> &rarr; skip the original next cell &rArr; list now <code>4 → 1 → 9</code>.</li>
-      <li>Original <code>5</code> node is effectively deleted in <code>O(1)</code>.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Since you can't reach the previous node, copy the NEXT node's value into the current node and skip the next.</b> Net effect = the original node is removed.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Standard</b> Requires the head and a traversal to find the predecessor → O(n).</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li><code>node.val = node.next.val</code>.</li>
-    <li><code>node.next = node.next.next</code>.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart LR
-  A["A"] --> B["B (to delete)"] --> C["C"] --> D["D"]
-  B2["copy C.val into B"] --> N["B.next = D"]
-  </pre></div>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Delete a node from a singly linked list given only that node (not the head).
- * Trick: we can't change what points TO this node, so we overwrite its value with the
- * next node's value and detach the next node — semantically identical to "deleting".
- */
-void deleteNode(ListNode node){
-  node.val  = node.next.val;       // become a clone of the next node
-  node.next = node.next.next;      // skip the original next
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(1)</b></div><div>Space <b>O(1)</b></div></div>
-</article>
-
 <!-- ================= Q6 ================= -->
 <article class="q" id="q6">
-  <div class="head"><h2><span class="num">06</span>Reverse LL in Groups of K <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">03</span>Reverse LL in Groups of K <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Linked List Part-II</div>
   <div class="links">
     <a href="https://leetcode.com/problems/reverse-nodes-in-k-group/" target="_blank">LeetCode</a>
@@ -619,7 +395,7 @@ private ListNode kthNode(ListNode node, int k){
 
 <!-- ================= Q7 ================= -->
 <article class="q" id="q7">
-  <div class="head"><h2><span class="num">07</span>Container With Most Water <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">04</span>Container With Most Water <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · LL &amp; Arrays</div>
   <div class="links">
     <a href="https://leetcode.com/problems/container-with-most-water/" target="_blank">LeetCode</a>
@@ -690,7 +466,7 @@ int maxArea(int[] heights){
 
 <!-- ================= Q8 ================= -->
 <article class="q" id="q8">
-  <div class="head"><h2><span class="num">08</span>Gas Station <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">05</span>Gas Station <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Greedy</div>
   <div class="links">
     <a href="https://leetcode.com/problems/gas-station/" target="_blank">LeetCode</a>
@@ -770,7 +546,7 @@ int canCompleteCircuit(int[] gas, int[] cost){
 
 <!-- ================= Q9 ================= -->
 <article class="q" id="q9">
-  <div class="head"><h2><span class="num">09</span>K-th Permutation Sequence <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">06</span>K-th Permutation Sequence <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Recursion</div>
   <div class="links">
     <a href="https://leetcode.com/problems/permutation-sequence/" target="_blank">LeetCode</a>
@@ -849,7 +625,7 @@ String getPermutation(int n, int k){
 
 <!-- ================= Q10 ================= -->
 <article class="q" id="q10">
-  <div class="head"><h2><span class="num">10</span>Word Break (Print All Ways) <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">07</span>Word Break (Print All Ways) <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Recursion &amp; Backtracking</div>
   <div class="links">
     <a href="https://leetcode.com/problems/word-break-ii/" target="_blank">LeetCode</a>
@@ -977,7 +753,7 @@ collectSentencesFrom(10)       // empty suffix — base case
 
 <!-- ================= Q11 ================= -->
 <article class="q" id="q11">
-  <div class="head"><h2><span class="num">11</span>Find Peak Element <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">08</span>Find Peak Element <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Binary Search</div>
   <div class="links">
     <a href="https://leetcode.com/problems/find-peak-element/" target="_blank">LeetCode</a>
@@ -1042,7 +818,7 @@ int findPeakElement(int[] nums){
 
 <!-- ================= Q12 ================= -->
 <article class="q" id="q12">
-  <div class="head"><h2><span class="num">12</span>Maximum Sum Combinations <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">09</span>Maximum Sum Combinations <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Heaps</div>
   <div class="links">
     <a href="https://www.interviewbit.com/problems/maximum-sum-combinations/" target="_blank">InterviewBit</a>
@@ -1130,7 +906,7 @@ private void reverse(int[] a){
 
 <!-- ================= Q13 ================= -->
 <article class="q" id="q13">
-  <div class="head"><h2><span class="num">13</span>Next Greater Element <span class="pill easy">Easy</span></h2></div>
+  <div class="head"><h2><span class="num">10</span>Next Greater Element <span class="pill easy">Easy</span></h2></div>
   <div class="topic">Section · Stack &amp; Queue</div>
   <div class="links">
     <a href="https://leetcode.com/problems/next-greater-element-i/" target="_blank">LeetCode</a>
@@ -1196,78 +972,9 @@ int[] nextGreaterElements(int[] nums){
 </article>
 
 <!-- ================= Q14 ================= -->
-<article class="q" id="q14">
-  <div class="head"><h2><span class="num">14</span>Stock Span Problem <span class="pill med">Medium</span></h2></div>
-  <div class="topic">Section · Stack &amp; Queue II</div>
-  <div class="links">
-    <a href="https://leetcode.com/problems/online-stock-span/" target="_blank">LeetCode</a>
-    <a href="https://www.geeksforgeeks.org/the-stock-span-problem/" target="_blank">GFG</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">For every day, compute its span, defined as the count of consecutive prior days (today included) whose price is ≤ today's price.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input:</b> stream <code>[100,80,60,70,60,75,85]</code> &nbsp;·&nbsp; <b>Output:</b> spans <code>[1,1,1,2,1,4,6]</code></p>
-    <ol>
-      <li><code>100</code>: stack empty &rarr; span <code>1</code>; stack <code>[(100,1)]</code>.</li>
-      <li><code>80,60</code>: each smaller than top &rarr; span <code>1,1</code>; stack <code>[(100,1),(80,1),(60,1)]</code>.</li>
-      <li><code>70</code>: pop <code>(60,1)</code> &rarr; <code>span=1+1=2</code>; top <code>80&gt;70</code> stop; push <code>(70,2)</code>.</li>
-      <li><code>60</code>: top <code>70&gt;60</code> &rarr; span <code>1</code>; push <code>(60,1)</code>.</li>
-      <li><code>75</code>: absorb <code>(60,1)</code> and <code>(70,2)</code> &rarr; span <code>4</code>. <code>85</code>: absorb <code>(75,4)</code> and <code>(80,1)</code> &rarr; span <code>6</code>.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Monotonic decreasing stack of (price, accumulatedSpan).</b> While top.price ≤ today: absorb top's span into today's running span; push (today, span).</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Brute</b> Re-scan history each day → O(n²).</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li>Stack of (price, span).</li>
-    <li>span = 1; while !empty and top.price ≤ price → span += top.span; pop.</li>
-    <li>push (price, span); return span.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart LR
-  T["today price"] --> A["span = 1"]
-  A --> L{"top.price &lt;= today?"}
-  L -- yes --> M["span += top.span; pop"]
-  M --> L
-  L -- no --> P["push (today, span); return span"]
-  </pre></div>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Online stock span using a decreasing-price stack of (price, accumulatedSpan).
- * Trick: any older day with price ≤ today can never be the answer for any FUTURE day
- * (today already dominates it). So fold its span into today's span and drop it.
- */
-class StockSpanner {
-  private Deque&lt;int[]&gt; st = new ArrayDeque&lt;&gt;();   // [price, span]
-
-  public int next(int price){
-    int span = 1;
-    while(!st.isEmpty() &amp;&amp; st.peek()[0] &lt;= price){
-      span += st.pop()[1];           // absorb older day's span
-    }
-    st.push(new int[]{ price, span });
-    return span;
-  }
-}</code></pre>
-  <div class="complexity"><div>Time <b>Amortized O(1) per call</b></div><div>Space <b>O(n)</b></div></div>
-</article>
-
 <!-- ================= Q15 ================= -->
 <article class="q" id="q15">
-  <div class="head"><h2><span class="num">15</span>Longest Common Prefix <span class="pill easy">Easy</span></h2></div>
+  <div class="head"><h2><span class="num">11</span>Longest Common Prefix <span class="pill easy">Easy</span></h2></div>
   <div class="topic">Section · String</div>
   <div class="links">
     <a href="https://leetcode.com/problems/longest-common-prefix/" target="_blank">LeetCode</a>
@@ -1338,7 +1045,7 @@ String longestCommonPrefix(String[] strs){
 
 <!-- ================= Q16 ================= -->
 <article class="q" id="q16">
-  <div class="head"><h2><span class="num">16</span>Compare Version Numbers <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">12</span>Compare Version Numbers <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · String Part-II</div>
   <div class="links">
     <a href="https://leetcode.com/problems/compare-version-numbers/" target="_blank">LeetCode</a>
@@ -1411,7 +1118,7 @@ int compareVersion(String v1, String v2){
 
 <!-- ================= Q17 ================= -->
 <article class="q" id="q17">
-  <div class="head"><h2><span class="num">17</span>Vertical Order Traversal of Binary Tree <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">13</span>Vertical Order Traversal of Binary Tree <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Binary Tree</div>
   <div class="links">
     <a href="https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree/" target="_blank">LeetCode</a>
@@ -1490,180 +1197,10 @@ List&lt;List&lt;Integer&gt;&gt; verticalTraversal(TreeNode root){
 </article>
 
 <!-- ================= Q18 ================= -->
-<article class="q" id="q18">
-  <div class="head"><h2><span class="num">18</span>Boundary Traversal of Binary Tree <span class="pill hard">Hard</span></h2></div>
-  <div class="topic">Section · Binary Tree Part-II</div>
-  <div class="links">
-    <a href="https://leetcode.com/problems/boundary-of-binary-tree/" target="_blank">LeetCode</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">Trace the boundary counter-clockwise: begin with the root, follow the left boundary skipping leaves, then all leaves in left→right order, and finally the right boundary in reverse while skipping leaves.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input:</b> tree <code>[1,2,3,4,5,6,7]</code> &nbsp;·&nbsp; <b>Output:</b> <code>[1,2,4,5,6,7,3]</code></p>
-    <ol>
-      <li>Root <code>1</code> is non-leaf &rarr; add <code>1</code>.</li>
-      <li>Left boundary (exclude leaves): <code>2</code> &rarr; add <code>2</code> (child <code>4</code> is a leaf, stop).</li>
-      <li>Leaves left-to-right: <code>4, 5, 6, 7</code>.</li>
-      <li>Right boundary into stack (exclude leaves): <code>3</code> (its right child <code>7</code> is a leaf). Pop &rarr; <code>3</code>.</li>
-      <li>Concatenate &rarr; <code>[1,2,4,5,6,7,3]</code>.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Three independent walks plus the root.</b> 1) Left boundary going down, 2) all leaves left-to-right, 3) right boundary going down collected then reversed.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Single DFS</b> Pass a flag (left-boundary, leaf, right-boundary) to avoid two traversals — trickier to write correctly.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li>If root is not leaf → add root.</li>
-    <li>Left boundary: walk left children (else right) skipping leaves.</li>
-    <li>Leaves: DFS, append at leaves.</li>
-    <li>Right boundary: walk right children (else left) skipping leaves into a stack; pop into result.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart TD
-  R["root"] --> L["left boundary (down, no leaves)"]
-  R --> LV["all leaves (DFS L→R)"]
-  R --> RB["right boundary (down, no leaves) → reverse"]
-  </pre></div>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Anti-clockwise boundary = root + left spine + leaves + reversed right spine.
- * Trick: traverse the three sections independently with leaf-exclusion to avoid double
- * counting; collect right spine into a stack so popping yields the reversed order.
- */
-List&lt;Integer&gt; boundaryTraversal(TreeNode root){
-  List&lt;Integer&gt; res = new ArrayList&lt;&gt;();
-  if(root == null) return res;
-  if(!isLeaf(root)) res.add(root.val);
-
-  // --- left boundary (top → bottom, exclude leaves) ---
-  TreeNode cur = root.left;
-  while(cur != null){
-    if(!isLeaf(cur)) res.add(cur.val);
-    cur = (cur.left != null) ? cur.left : cur.right;
-  }
-
-  leaves(root, res);
-
-  // --- right boundary (bottom ← top, exclude leaves) ---
-  Deque&lt;Integer&gt; st = new ArrayDeque&lt;&gt;();
-  cur = root.right;
-  while(cur != null){
-    if(!isLeaf(cur)) st.push(cur.val);
-    cur = (cur.right != null) ? cur.right : cur.left;
-  }
-  while(!st.isEmpty()) res.add(st.pop());
-  return res;
-}
-
-private boolean isLeaf(TreeNode n){ return n.left == null &amp;&amp; n.right == null; }
-
-private void leaves(TreeNode node, List&lt;Integer&gt; out){
-  if(node == null) return;
-  if(isLeaf(node)){ out.add(node.val); return; }
-  leaves(node.left,  out);
-  leaves(node.right, out);
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b></div></div>
-</article>
-
 <!-- ================= Q19 ================= -->
-<article class="q" id="q19">
-  <div class="head"><h2><span class="num">19</span>Children Sum Property in Binary Tree <span class="pill med">Medium</span></h2></div>
-  <div class="topic">Section · Binary Tree Part-III</div>
-  <div class="links">
-    <a href="https://www.geeksforgeeks.org/check-for-children-sum-property-in-a-binary-tree/" target="_blank">GFG</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">Adjust the tree so that each internal node holds the total of its children's values, with the restriction that values may only be raised, never lowered.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input:</b> root=<code>35</code>, left=<code>20</code> (leaves <code>8,12</code>), right=<code>15</code> (leaves <code>5,10</code>) &nbsp;·&nbsp; <b>Output:</b> tree already satisfies the property (post-traversal values unchanged).</p>
-    <ol>
-      <li>At node <code>20</code>: <code>sumOfKids = 8+12 = 20</code>; <code>20 &gt; 20</code> is false &rarr; no push-down. Recurse into leaves (no-op). Post-order: <code>20.val = 20</code>.</li>
-      <li>At node <code>15</code>: <code>sumOfKids = 5+10 = 15</code>; no push-down. Post-order: <code>15.val = 15</code>.</li>
-      <li>At root <code>35</code>: <code>sumOfKids = 20+15 = 35</code>; no push-down. Post-order: <code>35.val = 35</code>.</li>
-      <li>Every non-leaf equals the sum of its children &rarr; children-sum property holds.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Two-pass recursion.</b> Top-down: push the parent's value down to bring children up first (set each child to max(child, parent)). Bottom-up: on the return, set node.val = sum of children's new values.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Naive</b> Just sum on the way up — fails the "only increase" constraint when children are smaller.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li>Recurse: compute child sum; if child sum ≥ node.val → node.val = child sum.</li>
-    <li>Else → push node.val into both children (whichever exists).</li>
-    <li>Recurse on children; then set node.val = sum of children.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart TD
-  D["DFS at node"] --> S["childSum = (left? + right?)"]
-  S --> C{"childSum &gt;= node.val?"}
-  C -- yes --> U["node.val = childSum"]
-  C -- no --> P["push node.val into children"]
-  U --> RE["recurse on children"]
-  P --> RE
-  RE --> F["on return: node.val = left.val + right.val"]
-  </pre></div>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Make every non-leaf equal to the sum of its children — but only by INCREASING values.
- * Trick: if children together are too small, push the parent's value down to ONE child
- * (the other branch picks it up on its own recursion), then re-aggregate sum on the way up.
- * Manager / worker analogy: when the team's total can't fund the manager's headcount,
- * give the workload to the available worker first — recursion will keep cascading until
- * a leaf absorbs it. On the way back up, the manager's value becomes the team's sum.
- */
-void changeTree(TreeNode root){
-  if(root == null) return;
-
-  if(root.val &gt; sumOfKids(root)){                              // children too small — push down
-    if(root.left  != null) root.left.val  = root.val;
-    else if(root.right != null) root.right.val = root.val;
-  }
-
-  changeTree(root.left);
-  changeTree(root.right);
-
-  if(root.left != null || root.right != null){                 // post-order: aggregate up
-    root.val = sumOfKids(root);
-  }
-}
-
-private int sumOfKids(TreeNode node){
-  int sum = 0;
-  if(node.left  != null) sum += node.left.val;
-  if(node.right != null) sum += node.right.val;
-  return sum;
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b></div></div>
-</article>
-
 <!-- ================= Q20 ================= -->
 <article class="q" id="q20">
-  <div class="head"><h2><span class="num">20</span>Delete a Node in BST <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">14</span>Delete a Node in BST <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · BST</div>
   <div class="links">
     <a href="https://leetcode.com/problems/delete-node-in-a-bst/" target="_blank">LeetCode</a>
@@ -1741,7 +1278,7 @@ private TreeNode min(TreeNode node){
 
 <!-- ================= Q21 ================= -->
 <article class="q" id="q21">
-  <div class="head"><h2><span class="num">21</span>Convert BST to Sorted Doubly Linked List <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">15</span>Convert BST to Sorted Doubly Linked List <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · BST Part-II</div>
   <div class="links">
     <a href="https://leetcode.com/problems/convert-binary-search-tree-to-sorted-doubly-linked-list/" target="_blank">LeetCode</a>
@@ -1821,7 +1358,7 @@ class BstToDllConverter {
 
 <!-- ================= Q22 ================= -->
 <article class="q" id="q22">
-  <div class="head"><h2><span class="num">22</span>Maximum Sum BST in Binary Tree <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">16</span>Maximum Sum BST in Binary Tree <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · BT &amp; BST Misc</div>
   <div class="links">
     <a href="https://leetcode.com/problems/maximum-sum-bst-in-binary-tree/" target="_blank">LeetCode</a>
@@ -1919,7 +1456,7 @@ class MaximumSumBstFinder {
 
 <!-- ================= Q23 ================= -->
 <article class="q" id="q23">
-  <div class="head"><h2><span class="num">23</span>Number of Islands <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">17</span>Number of Islands <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Graph</div>
   <div class="links">
     <a href="https://leetcode.com/problems/number-of-islands/" target="_blank">LeetCode</a>
@@ -2000,7 +1537,7 @@ int numIslands(char[][] grid){
 
 <!-- ================= Q24 ================= -->
 <article class="q" id="q24">
-  <div class="head"><h2><span class="num">24</span>Bridges in Graph (Tarjan) <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">18</span>Bridges in Graph (Tarjan) <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Graph Part-II</div>
   <div class="links">
     <a href="https://leetcode.com/problems/critical-connections-in-a-network/" target="_blank">LeetCode</a>
@@ -2093,74 +1630,9 @@ class BridgeFinder {
 </article>
 
 <!-- ================= Q25 ================= -->
-<article class="q" id="q25">
-  <div class="head"><h2><span class="num">25</span>Maximum Sum Increasing Subsequence <span class="pill med">Medium</span></h2></div>
-  <div class="topic">Section · DP</div>
-  <div class="links">
-    <a href="https://www.geeksforgeeks.org/maximum-sum-increasing-subsequence-dp-14/" target="_blank">GFG</a>
-  </div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">Within the given array, locate a subsequence whose elements strictly increase and whose sum is as large as possible.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input:</b> <code>a=[1,101,2,3,100,4,5]</code> &nbsp;·&nbsp; <b>Output:</b> <code>106</code> (subsequence <code>1+2+3+100</code>)</p>
-    <ol>
-      <li>Init <code>dp = [1,101,2,3,100,4,5]</code>.</li>
-      <li><code>i=1</code>: <code>1&lt;101</code> &rarr; <code>dp[1] = 1+101 = 102</code>.</li>
-      <li><code>i=2,3</code>: <code>dp[2]=1+2=3</code>, <code>dp[3]=dp[2]+3=6</code>.</li>
-      <li><code>i=4</code> (val 100): best predecessor is <code>dp[3]=6</code> &rarr; <code>dp[4] = 6+100 = 106</code>.</li>
-      <li><code>dp[5]=10</code>, <code>dp[6]=15</code>; <code>max(dp) = 106</code>.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>LIS variant where dp tracks SUM, not length.</b> <code>dp[i]</code> = max sum of any strictly-increasing subseq ending at <code>i</code>. <code>dp[i] = a[i] + max(dp[j] for j&lt;i with a[j]&lt;a[i])</code>, or just <code>a[i]</code> if no such j.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Brute</b> Enumerate all 2ⁿ subsequences.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li>dp[i] = a[i] initially.</li>
-    <li>For each i, for each j &lt; i: if a[j] &lt; a[i] → dp[i] = max(dp[i], dp[j] + a[i]).</li>
-    <li>Return max(dp).</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart LR
-  S["dp[i] = a[i]"] --> L["for j &lt; i with a[j] &lt; a[i]"]
-  L --> U["dp[i] = max(dp[i], dp[j] + a[i])"]
-  U --> A["answer = max(dp)"]
-  </pre></div>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Max-sum strictly-increasing subsequence — LIS variant where the dp value is the SUM
- * (not the length). dp[i] = best sum of an increasing subseq ending at i. O(n^2) classic.
- */
-int maxSumIncreasingSubseq(int[] a){
-  int n = a.length;
-  int[] dp = a.clone();
-  int  best = a[0];
-  for(int i = 1; i &lt; n; i++){
-    for(int j = 0; j &lt; i; j++){
-      if(a[j] &lt; a[i] &amp;&amp; dp[j] + a[i] &gt; dp[i]) dp[i] = dp[j] + a[i];
-    }
-    best = Math.max(best, dp[i]);
-  }
-  return best;
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(n²)</b></div><div>Space <b>O(n)</b></div></div>
-</article>
-
 <!-- ================= Q26 ================= -->
 <article class="q" id="q26">
-  <div class="head"><h2><span class="num">26</span>Coin Change (Minimum Coins) <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">19</span>Coin Change (Minimum Coins) <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · DP Part-II</div>
   <div class="links">
     <a href="https://leetcode.com/problems/coin-change/" target="_blank">LeetCode</a>
@@ -2231,7 +1703,7 @@ int coinChange(int[] coins, int amount){
 
 <!-- ================= Q27 ================= -->
 <article class="q" id="q27">
-  <div class="head"><h2><span class="num">27</span>Word Search II (Trie + DFS) <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">20</span>Word Search II (Trie + DFS) <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Trie</div>
   <div class="links">
     <a href="https://leetcode.com/problems/word-search-ii/" target="_blank">LeetCode</a>

@@ -131,7 +131,7 @@
   <span class="badge">Day 1 · BuildLikeASenior</span>
   <h1 class="title">BLAS DSA Blueprint — <span>Day 1</span></h1>
   <p class="sub">First question from every section. One pass. Mental models, optimal approaches, code, and visuals — engineered for rapid recall.</p>
-  <div class="meta"><span><b>27</b> questions</span><span><b>27</b> sections</span><span><b>~3-4 hrs</b> deep work</span></div>
+  <div class="meta"><span><b>22</b> questions</span><span><b>22</b> sections</span><span><b>~3-4 hrs</b> deep work</span></div>
 </header>
 
 <div class="wrap">
@@ -151,11 +151,7 @@
     <li><a href="#q4">Two Sum</a></li>
     <li><a href="#q5">Reverse a Linked List</a></li>
     <li><a href="#q6">Intersection of Two LL</a></li>
-    <li><a href="#q7">Rotate a Linked List</a></li>
-    <li><a href="#q8">N Meetings in One Room</a></li>
-    <li><a href="#q9">Subset Sums</a></li>
     <li><a href="#q10">All Permutations of String/Array</a></li>
-    <li><a href="#q11">Nth Root of M (Binary Search)</a></li>
     <li><a href="#q12">Implement Max Heap</a></li>
     <li><a href="#q13">Implement Stack using Arrays</a></li>
     <li><a href="#q14">Next Smaller Element</a></li>
@@ -164,7 +160,6 @@
     <li><a href="#q17">Inorder Traversal</a></li>
     <li><a href="#q18">Level Order Traversal</a></li>
     <li><a href="#q19">Maximum Path Sum (Binary Tree)</a></li>
-    <li><a href="#q20">Populate Next Right Pointers</a></li>
     <li><a href="#q21">Floor in a BST</a></li>
     <li><a href="#q22">Binary Tree to DLL</a></li>
     <li><a href="#q23">Clone a Graph</a></li>
@@ -1072,513 +1067,11 @@ ListNode getIntersectionNode(ListNode headA, ListNode headB){
 </article>
 
 <!-- ================= Q7 ================= -->
-<article class="q" id="q7">
-  <div class="head"><h2><span class="num">07</span>Rotate a Linked List by k <span class="pill med">Medium</span></h2></div>
-  <div class="topic">Section · Linked List & Arrays</div>
-  <div class="links"><a href="https://leetcode.com/problems/rotate-list/" target="_blank">LeetCode</a></div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">Shift every node of a linked list <code>k</code> positions to the right and return the new head.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input A:</b> <code>1→2→3→4→5, k=2</code>&nbsp;·&nbsp;<b>Output:</b> <code>4→5→1→2→3</code></p>
-    <ol>
-      <li>Compute length <code>n=5</code>; close into a ring (tail.next = head).</li>
-      <li>New tail is at position <code>n - k%n - 1 = 5-2-1 = 2</code> (0-indexed) → node <code>3</code>.</li>
-      <li>New head = <code>3.next = 4</code>; cut <code>3.next=null</code> → <code>4→5→1→2→3</code>.</li>
-    </ol>
-    <p><b>Input B (edge — k &gt; length):</b> <code>1→2→3, k=4</code> → effective <code>k%n=1</code>&nbsp;·&nbsp;<b>Output:</b> <code>3→1→2</code></p>
-    <ol>
-      <li>New tail at index <code>3-1-1=1</code> → node <code>2</code>; new head = <code>3</code>; cut → <code>3→1→2</code>.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Make it a circle, then cut.</b> Connect tail to head, walk to the new tail at <code>len − k%len − 1</code>, and break the circle there.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Brute</b> Rotate by 1 in a loop, k times. — <code>O(n·k)</code>.</div>
-    <div class="alt"><b>Better</b> Same idea but reduce <code>k = k % L</code> first. — <code>O(n + k%L)</code>.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li>Compute length <code>L</code>; connect tail to head (cycle).</li>
-    <li><code>k %= L</code>; new tail at index <code>L - k - 1</code>.</li>
-    <li>New head = newTail.next; <code>newTail.next = null</code>.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart LR
-  H[head] --> N1 --> N2 --> N3 --> T[tail]
-  T --> H
-  Cut[Cut at L - k - 1] --> NewH[New head & tail]
-  </pre></div>
-
-  <div class="section-title">Animation</div>
-  <div class="anim">
-    <canvas id="animc-7" class="anim-canvas" width="720" height="240"></canvas>
-    <div class="anim-controls">
-      <button class="anim-btn" onclick="ANIM7.reset()">⟲ Reset</button>
-      <button class="anim-btn sec" onclick="ANIM7.step()">▶ Step</button>
-      <button class="anim-btn sec" onclick="ANIM7.auto()">⏩ Auto</button>
-    </div>
-    <div class="anim-note" id="anim-note-7">List 1→2→3→4→5, k=2. Find new tail at index L−k−1 = 2, then cut.</div>
-  </div>
-  <script>
-  const ANIM7 = (function(){
-    const cv=document.getElementById('animc-7');
-    const note=document.getElementById('anim-note-7');
-    const vals=[1,2,3,4,5], k=2, L=5, newTail=L-k-1; // index 2 (node 3)
-    let phase,walk,timer;
-    function reset(){ phase=0; walk=0; stop();
-      note.innerHTML='List 1\u21922\u21923\u21924\u21925, k=2. Find new tail at index L\u2212k\u22121 = 2, then cut.';
-      draw(); }
-    function draw(){
-      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
-      const n=vals.length, r=24, gap=(W-100)/(n-1), oy=H/2, ox=50;
-      // arrows
-      for(let i=0;i<n-1;i++){
-        const x1=ox+i*gap, x2=ox+(i+1)*gap;
-        const cut = phase>=2 && i===newTail;
-        ctx.save();
-        if(cut){ ctx.setLineDash([5,4]); ctx.strokeStyle='#ff6b6b'; }
-        else { ctx.strokeStyle='#3a4d72'; }
-        ctx.lineWidth=2.5; ctx.lineCap='round';
-        ctx.beginPath(); ctx.moveTo(x1+r,oy); ctx.lineTo(x2-r,oy); ctx.stroke();
-        if(!cut){ ctx.beginPath(); ctx.moveTo(x2-r,oy); ctx.lineTo(x2-r-9,oy-5); ctx.lineTo(x2-r-9,oy+5); ctx.closePath(); ctx.fillStyle='#3a4d72'; ctx.fill(); }
-        ctx.restore();
-      }
-      // ring arrow tail->head when phase>=1
-      if(phase>=1 && phase<3){
-        const xT=ox+(n-1)*gap, xH=ox;
-        ctx.save(); ctx.strokeStyle='#5b8dee'; ctx.lineWidth=2; ctx.setLineDash([4,3]);
-        ctx.beginPath(); ctx.moveTo(xT,oy+r); ctx.bezierCurveTo(xT,oy+70,xH,oy+70,xH,oy+r); ctx.stroke();
-        ctx.restore();
-      }
-      // nodes
-      for(let i=0;i<n;i++){
-        const x=ox+i*gap;
-        ctx.save();
-        const isNT=phase>=1&&i===newTail, isNH=phase>=2&&i===newTail+1;
-        if(isNT){ ctx.shadowColor='rgba(255,107,107,.6)'; ctx.shadowBlur=18; }
-        else if(isNH){ ctx.shadowColor='rgba(0,212,170,.6)'; ctx.shadowBlur=18; }
-        const g=ctx.createLinearGradient(x,oy-r,x,oy+r);
-        if(isNT){ g.addColorStop(0,'#ff7b7b'); g.addColorStop(1,'#d44545'); }
-        else if(isNH){ g.addColorStop(0,'#1ad9b0'); g.addColorStop(1,'#0aa37e'); }
-        else { g.addColorStop(0,'#15294e'); g.addColorStop(1,'#0f1f3d'); }
-        ctx.beginPath(); ctx.arc(x,oy,r,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
-        ctx.restore();
-        ctx.beginPath(); ctx.arc(x,oy,r,0,Math.PI*2);
-        ctx.strokeStyle=isNT?'rgba(255,107,107,.85)':isNH?'rgba(0,212,170,.85)':'rgba(255,255,255,.15)'; ctx.lineWidth=1.6; ctx.stroke();
-        AnimKit.text(ctx,vals[i],x,oy,{color:(isNT||isNH)?'#0a1428':'#e6edf7',font:'bold 19px JetBrains Mono'});
-        if(isNT) AnimKit.text(ctx,'new tail',x,oy-r-13,{color:'#ff6b6b',font:'bold 11px Inter'});
-        if(isNH) AnimKit.text(ctx,'new head',x,oy-r-13,{color:'#00d4aa',font:'bold 11px Inter'});
-      }
-    }
-    function step(){
-      if(phase===0){ phase=1; note.innerHTML='Close the list into a <b>ring</b> (tail → head), and count length L=5.'; draw(); return; }
-      if(phase===1){ phase=2; note.innerHTML=`New tail at index L\u2212k\u22121 = <b>2</b> (node 3). Node after it (node 4) becomes the <b>new head</b>.`; draw(); return; }
-      if(phase===2){ phase=3; note.innerHTML='Cut the ring after the new tail \u2192 result <b>4\u21925\u21921\u21922\u21923</b> \u2713'; draw(); return; }
-    }
-    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(phase>=3){stop();return;} step(); },900); }
-    function stop(){ if(timer){clearInterval(timer);timer=null;} }
-    reset();
-    return {reset,step,auto};
-  })();
-  </script>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Rotates a singly-linked list to the RIGHT by k positions.
- * Strategy: turn the list into a circle, find the new tail, then break the circle.
- */
-ListNode rotateRight(ListNode head, int k){
-  if(head == null || head.next == null || k == 0) return head;
-
-  // ---- 1) Walk to the tail and count length along the way ----
-  int n = 1;
-  ListNode tail = head;
-  while(tail.next != null){
-    tail = tail.next;
-    n++;
-  }
-
-  // ---- 2) Close the loop into a circle ----
-  tail.next = head;
-
-  // ---- 3) The new tail is at position (length - k%length - 1) from the original head ----
-  int steps        = n - k % n - 1;
-  ListNode newTail = head;
-  while(steps-- &gt; 0) newTail = newTail.next;
-
-  // ---- 4) The node after the new tail is the new head; cut the circle there ----
-  ListNode newHead = newTail.next;
-  newTail.next     = null;
-  return newHead;
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
-</article>
-
 <!-- ================= Q8 ================= -->
-<article class="q" id="q8">
-  <div class="head"><h2><span class="num">08</span>N Meetings in One Room <span class="pill easy">Easy</span></h2></div>
-  <div class="topic">Section · Greedy Algorithm</div>
-  <div class="links"><a href="https://www.geeksforgeeks.org/n-meetings-in-one-room/" target="_blank">GFG</a></div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">Given meetings described by start[] and end[], select the largest set that never overlap.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input A:</b> <code>start=[1,3,0,5,8,5], end=[2,4,6,7,9,9]</code>&nbsp;·&nbsp;<b>Output:</b> <code>4</code></p>
-    <ol>
-      <li>Sort by end: <code>(1,2), (3,4), (0,6), (5,7), (8,9), (5,9)</code>.</li>
-      <li>Pick <code>(1,2)</code>; <code>last=2</code>. <code>(3,4)</code>: 3&gt;2 ✓ pick; <code>last=4</code>.</li>
-      <li><code>(0,6)</code>: 0&lt;4 ✗. <code>(5,7)</code>: 5&gt;4 ✓ pick; <code>last=7</code>. <code>(8,9)</code>: 8&gt;7 ✓ pick; <code>last=9</code>. <code>(5,9)</code>: 5&lt;9 ✗.</li>
-      <li>Total picked = <b>4</b>.</li>
-    </ol>
-    <p><b>Input B (edge — all overlap):</b> <code>start=[1,2,3], end=[10,10,10]</code>&nbsp;·&nbsp;<b>Output:</b> <code>1</code></p>
-    <ol>
-      <li>After sorting by end, pick the first; every subsequent meeting starts before <code>last=10</code> → only <b>1</b>.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Always pick the meeting that ends first.</b> Earliest finish time leaves the most room for the rest. Classic exchange-argument greedy.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Brute</b> Try every subset, keep the largest non-overlapping one. — <code>O(2ⁿ)</code>.</div>
-    <div class="alt"><b>Better</b> Sorting by <i>start</i> time fails (counter-examples exist) — only <i>end</i>-time greedy is correct.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li>Pair (start, end, idx); sort by <code>end</code> ascending.</li>
-    <li>Track <code>lastEnd</code>. If <code>start &gt; lastEnd</code>, take it; update <code>lastEnd</code>.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart TD
-  S[Sort meetings by end time] --> L[Iterate sorted]
-  L --> C{start &gt; lastEnd?}
-  C -- yes --> P[Pick · update lastEnd · count++]
-  C -- no --> K[Skip]
-  P --> L
-  K --> L
-  </pre></div>
-
-  <div class="section-title">Animation</div>
-  <div class="anim">
-    <canvas id="animc-8" class="anim-canvas" width="720" height="300"></canvas>
-    <div class="anim-controls">
-      <button class="anim-btn" onclick="ANIM8.reset()">⟲ Reset</button>
-      <button class="anim-btn sec" onclick="ANIM8.step()">▶ Step</button>
-      <button class="anim-btn sec" onclick="ANIM8.auto()">⏩ Auto</button>
-    </div>
-    <div class="anim-stats">Picked <b id="a8count">0</b> · lastEnd <b id="a8last">−∞</b></div>
-    <div class="anim-note" id="anim-note-8">Meetings sorted by end time. Greedily pick each one that starts after the last picked end.</div>
-  </div>
-  <script>
-  const ANIM8 = (function(){
-    const cv=document.getElementById('animc-8');
-    const note=document.getElementById('anim-note-8');
-    // sorted by end: (1,2)(3,4)(0,6)(5,7)(8,9)(5,9)
-    const mtg=[[1,2],[3,4],[0,6],[5,7],[8,9],[5,9]];
-    const maxT=10;
-    let i,lastEnd,count,states,done,timer;
-    function reset(){ i=0;lastEnd=-1;count=0;done=false;
-      states=mtg.map(()=>0); stop();
-      document.getElementById('a8count').textContent='0';
-      document.getElementById('a8last').textContent='−∞';
-      note.innerHTML='Meetings sorted by end time. Greedily pick each one that starts after the last picked end.';
-      draw(); }
-    function draw(active){
-      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
-      const ox=50, ow=W-90, rowH=34, oy=24;
-      // axis
-      ctx.strokeStyle='rgba(255,255,255,.12)'; ctx.lineWidth=1;
-      for(let t=0;t<=maxT;t++){ const x=ox+ow*t/maxT;
-        ctx.beginPath(); ctx.moveTo(x,oy); ctx.lineTo(x,oy+mtg.length*rowH+6); ctx.stroke();
-        AnimKit.text(ctx,t,x,oy+mtg.length*rowH+18,{color:'#5a6e92',font:'11px JetBrains Mono'});
-      }
-      // lastEnd marker
-      if(lastEnd>=0){ const x=ox+ow*lastEnd/maxT;
-        ctx.save(); ctx.strokeStyle='rgba(0,212,170,.7)'; ctx.lineWidth=2; ctx.setLineDash([4,3]);
-        ctx.beginPath(); ctx.moveTo(x,oy-2); ctx.lineTo(x,oy+mtg.length*rowH+6); ctx.stroke(); ctx.restore();
-      }
-      // bars
-      mtg.forEach((m,k)=>{
-        const x1=ox+ow*m[0]/maxT, x2=ox+ow*m[1]/maxT, y=oy+k*rowH+4, h=rowH-12;
-        let opt,dark=false;
-        if(states[k]===1){opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.5)',border:'rgba(0,212,170,.8)'};dark=true;}
-        else if(states[k]===2)opt={grad:['#3a2540','#2a1a30'],border:'rgba(255,107,107,.4)'};
-        else if(k===active){opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.8)'};dark=true;}
-        else opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.4)'};
-        AnimKit.cell(ctx,x1,y,Math.max(x2-x1,26),h,opt);
-        AnimKit.text(ctx,`(${m[0]},${m[1]})`,(x1+Math.max(x2,x1+26))/2,y+h/2,{color:dark?'#0a1428':'#cfe0ff',font:'bold 12px JetBrains Mono'});
-      });
-    }
-    function step(){
-      if(done) return;
-      if(i>=mtg.length){ done=true; note.innerHTML=`All processed. Maximum non-overlapping meetings = <b>${count}</b> \u2713`; draw(); return; }
-      const m=mtg[i];
-      if(m[0]>lastEnd){ states[i]=1; count++; lastEnd=m[1];
-        note.innerHTML=`Meeting (${m[0]},${m[1]}): starts after lastEnd \u2192 <b>PICK</b> (count=${count}).`;
-        document.getElementById('a8count').textContent=count;
-        document.getElementById('a8last').textContent=lastEnd;
-      } else { states[i]=2;
-        note.innerHTML=`Meeting (${m[0]},${m[1]}): starts before lastEnd=${lastEnd} \u2192 <b>SKIP</b>.`;
-      }
-      draw(i); i++;
-    }
-    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(done){stop();return;} step(); },850); }
-    function stop(){ if(timer){clearInterval(timer);timer=null;} }
-    reset();
-    return {reset,step,auto};
-  })();
-  </script>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Returns the maximum number of non-overlapping meetings that fit in one room.
- * Greedy proof: among all valid choices for the FIRST meeting, picking the one
- * that ends earliest leaves the largest possible suffix for the rest -- so always
- * take the meeting that finishes soonest.
- */
-int maxMeetings(int[] start, int[] end){
-  int n = start.length;
-
-  // We sort INDICES (not times) so we can still look up matching start/end pairs.
-  Integer[] order = new Integer[n];
-  for(int i = 0; i &lt; n; i++) order[i] = i;
-  Arrays.sort(order, (a, b) -&gt; end[a] - end[b]);
-
-  // The earliest-ending meeting is always part of an optimal answer.
-  int cnt = 1;
-  int last = end[order[0]];
-
-  for(int i = 1; i &lt; n; i++){
-    int j = order[i];
-    if(start[j] &gt; last){                                    // strictly after previous end
-      cnt++;
-      last = end[j];
-    }
-  }
-  return cnt;
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(n log n)</b></div><div>Space <b>O(n)</b></div></div>
-
-  <div class="section-title">Deep Dive · How the Comparator Lambda Actually Works</div>
-  <div class="mental"><b>Parameter names are just labels.</b> The sort algorithm always hands your lambda two elements in a fixed order — call them <i>slot&nbsp;1</i> (first arg) and <i>slot&nbsp;2</i> (second arg). What controls ascending vs descending is <b>which slot ends up as the first argument to <code>Integer.compare(...)</code></b>, not what you named them.</div>
-
-  <div class="section-title">The Contract</div>
-  <p style="color:#cdd9ee;margin:6px 0">The sort calls your comparator and reads only the <b>sign</b> of the returned number:</p>
-  <ul style="color:#cdd9ee;margin:6px 0 10px 0;padding-left:22px">
-    <li><b style="color:var(--easy)">negative</b> → "the FIRST argument I gave you should come first"</li>
-    <li><b style="color:var(--hard)">positive</b> → "the SECOND argument I gave you should come first"</li>
-    <li><b style="color:var(--muted)">zero</b> → equal, doesn't matter</li>
-  </ul>
-  <p style="color:#cdd9ee;margin:6px 0"><code>Integer.compare(x, y)</code> is conceptually just <code>x - y</code>:</p>
-  <ul style="color:#cdd9ee;margin:6px 0 10px 0;padding-left:22px">
-    <li><code>Integer.compare(3, 7)</code> → <code>-4</code> (negative)</li>
-    <li><code>Integer.compare(7, 3)</code> → <code>+4</code> (positive)</li>
-  </ul>
-
-  <div class="section-title">Why Swapping Inputs Flips The Order</div>
-  <p style="color:#cdd9ee;margin:6px 0">Suppose sort hands your lambda <code>3</code> (slot&nbsp;1) and <code>7</code> (slot&nbsp;2):</p>
-  <div class="alts">
-    <div class="alt"><b>Case A</b> <code>(a,b) -&gt; Integer.compare(a, b)</code> → returns <code>-4</code> → sort keeps <code>3</code> before <code>7</code> → <b style="color:var(--easy)">ascending</b></div>
-    <div class="alt"><b>Case B</b> <code>(a,b) -&gt; Integer.compare(b, a)</code> → returns <code>+4</code> → sort puts <code>7</code> before <code>3</code> → <b style="color:var(--hard)">descending</b></div>
-  </div>
-  <p style="color:#cdd9ee;margin:10px 0 6px 0">Sort doesn't know you swapped anything. It only knows it gave you <code>(3, 7)</code> and you returned <code>+4</code>, so it dutifully swaps the pair. Computing the comparison of the <i>wrong pair</i> from sort's perspective inverts the sign of every answer → reverses the whole order.</p>
-
-  <div class="section-title">All Four Variations Side-by-Side</div>
-  <div style="overflow-x:auto;margin:8px 0">
-  <table style="width:100%;border-collapse:collapse;font-size:13px;color:#cdd9ee">
-    <thead>
-      <tr style="background:rgba(91,141,238,.12);text-align:left">
-        <th style="padding:10px 12px;border-bottom:1px solid var(--line);font-family:'JetBrains Mono',monospace">Lambda</th>
-        <th style="padding:10px 12px;border-bottom:1px solid var(--line)">Slot 1 named</th>
-        <th style="padding:10px 12px;border-bottom:1px solid var(--line)">First arg to <code>compare</code></th>
-        <th style="padding:10px 12px;border-bottom:1px solid var(--line)">Result</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td style="padding:10px 12px;border-bottom:1px solid var(--line);font-family:'JetBrains Mono',monospace">(a, b) -&gt; compare(a[0], b[0])</td><td style="padding:10px 12px;border-bottom:1px solid var(--line)">a</td><td style="padding:10px 12px;border-bottom:1px solid var(--line)">slot 1</td><td style="padding:10px 12px;border-bottom:1px solid var(--line);color:var(--easy);font-weight:600">ascending</td></tr>
-      <tr><td style="padding:10px 12px;border-bottom:1px solid var(--line);font-family:'JetBrains Mono',monospace">(a, b) -&gt; compare(b[0], a[0])</td><td style="padding:10px 12px;border-bottom:1px solid var(--line)">a</td><td style="padding:10px 12px;border-bottom:1px solid var(--line)">slot 2</td><td style="padding:10px 12px;border-bottom:1px solid var(--line);color:var(--hard);font-weight:600">descending</td></tr>
-      <tr><td style="padding:10px 12px;border-bottom:1px solid var(--line);font-family:'JetBrains Mono',monospace">(b, a) -&gt; compare(a[0], b[0])</td><td style="padding:10px 12px;border-bottom:1px solid var(--line)">b</td><td style="padding:10px 12px;border-bottom:1px solid var(--line)">slot 2</td><td style="padding:10px 12px;border-bottom:1px solid var(--line);color:var(--hard);font-weight:600">descending</td></tr>
-      <tr><td style="padding:10px 12px;font-family:'JetBrains Mono',monospace">(b, a) -&gt; compare(b[0], a[0])</td><td style="padding:10px 12px">b</td><td style="padding:10px 12px">slot 1</td><td style="padding:10px 12px;color:var(--easy);font-weight:600">ascending</td></tr>
-    </tbody>
-  </table>
-  </div>
-
-  <div class="mental"><b>Mental shortcut.</b> Ignore the names entirely. Compare the order of arguments inside <code>compare(...)</code> against the order in the lambda's parameter list:<br>
-  &nbsp;&nbsp;• <b style="color:var(--easy)">Same order</b> → ascending<br>
-  &nbsp;&nbsp;• <b style="color:var(--hard)">Flipped order</b> → descending</div>
-</article>
-
 <!-- ================= Q9 ================= -->
-<article class="q" id="q9">
-  <div class="head"><h2><span class="num">09</span>Subset Sums <span class="pill easy">Easy</span></h2></div>
-  <div class="topic">Section · Recursion</div>
-  <div class="links"><a href="https://www.geeksforgeeks.org/problems/subset-sums2234/1" target="_blank">GFG</a></div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">For an array of size n, output the sum of each of its <code>2ⁿ</code> subsets.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input A:</b> <code>[1,2,3]</code>&nbsp;·&nbsp;<b>Output (sorted):</b> <code>[0,1,2,3,3,4,5,6]</code></p>
-    <ol>
-      <li>Recurse <code>(idx, sum)</code>; at each step branch <i>take</i> vs <i>skip</i>.</li>
-      <li>Leaves at <code>idx=3</code>: 0, 3, 2, 5, 1, 4, 3, 6 → 8 = 2³ values.</li>
-    </ol>
-    <p><b>Input B (edge — empty):</b> <code>[]</code>&nbsp;·&nbsp;<b>Output:</b> <code>[0]</code></p>
-    <ol>
-      <li>Single recursion path ends with <code>sum=0</code> immediately → result has just the empty-subset sum.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>At each index: pick or not-pick.</b> A binary recursion tree of depth <code>n</code> generates every subset exactly once. Carry the running sum down.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Brute</b> Bitmask iterate <code>0..2ⁿ-1</code>; for each mask, sum the chosen elements. — <code>O(2ⁿ · n)</code>.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li>DFS(i, sum): if i==n add sum.</li>
-    <li>Recurse with <code>sum + a[i]</code> (pick) and with <code>sum</code> (not pick).</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart TD
-  R["i=0 sum=0"] --> P["pick a 0"]
-  R --> NP["skip a 0"]
-  P --> P1["pick a 1"]
-  P --> P2["skip a 1"]
-  NP --> P3["pick a 1"]
-  NP --> P4["skip a 1"]
-  </pre></div>
-
-  <div class="section-title">Animation</div>
-  <div class="anim">
-    <canvas id="animc-9" class="anim-canvas" width="720" height="320"></canvas>
-    <div class="anim-controls">
-      <button class="anim-btn" onclick="ANIM9.reset()">⟲ Reset</button>
-      <button class="anim-btn sec" onclick="ANIM9.step()">▶ Step</button>
-      <button class="anim-btn sec" onclick="ANIM9.auto()">⏩ Auto</button>
-    </div>
-    <div class="anim-note" id="anim-note-9">Array [1,2,3]. Each level decides pick/skip. Leaves collect the 2³ = 8 subset sums.</div>
-  </div>
-  <script>
-  const ANIM9 = (function(){
-    const cv=document.getElementById('animc-9');
-    const note=document.getElementById('anim-note-9');
-    const arr=[1,2,3];
-    // build binary tree: node {sum, depth, x, y, children}
-    let nodes,order,leaves;
-    function build(){
-      nodes=[]; const levelY=[40,120,200,285];
-      function rec(depth,sum,xL,xR){
-        const x=(xL+xR)/2, id=nodes.length;
-        const node={id,depth,sum,x,y:levelY[depth],children:[]};
-        nodes.push(node);
-        if(depth<arr.length){
-          node.children.push(rec(depth+1,sum+arr[depth],xL,(xL+xR)/2));
-          node.children.push(rec(depth+1,sum,(xL+xR)/2,xR));
-        }
-        return id;
-      }
-      rec(0,0,30,690);
-      // preorder DFS visiting order
-      order=[]; (function dfs(id){ order.push(id); nodes[id].children.forEach(dfs); })(0);
-      leaves=[];
-    }
-    let step_i,done,visited,timer;
-    function reset(){ build(); step_i=0; done=false; visited=new Set(); leaves=[]; stop();
-      note.innerHTML='Array [1,2,3]. Each level decides pick/skip. Leaves collect the 2\u00b3 = 8 subset sums.';
-      draw(); }
-    function draw(cur){
-      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
-      // edges
-      nodes.forEach(nd=>{
-        nd.children.forEach((cid,ci)=>{
-          const c=nodes[cid];
-          const on=visited.has(cid);
-          ctx.strokeStyle=on?(ci===0?'rgba(0,212,170,.7)':'rgba(91,141,238,.6)'):'rgba(255,255,255,.08)';
-          ctx.lineWidth=on?2.2:1.2;
-          ctx.beginPath(); ctx.moveTo(nd.x,nd.y); ctx.lineTo(c.x,c.y); ctx.stroke();
-          const mx=(nd.x+c.x)/2, my=(nd.y+c.y)/2;
-          if(on){ AnimKit.text(ctx,ci===0?'+'+arr[nd.depth]:'skip',mx,my,{color:ci===0?'#00d4aa':'#8aa0c4',font:'10px Inter'}); }
-        });
-      });
-      // nodes
-      nodes.forEach(nd=>{
-        const isLeaf=nd.depth===arr.length, isCur=nd.id===cur, on=visited.has(nd.id);
-        const r=isLeaf?17:15;
-        ctx.save();
-        if(isCur){ ctx.shadowColor='rgba(245,200,66,.6)'; ctx.shadowBlur=16; }
-        const g=ctx.createLinearGradient(nd.x,nd.y-r,nd.x,nd.y+r);
-        if(isCur){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
-        else if(isLeaf&&on){ g.addColorStop(0,'#1ad9b0'); g.addColorStop(1,'#0aa37e'); }
-        else if(on){ g.addColorStop(0,'#1b3566'); g.addColorStop(1,'#152a52'); }
-        else { g.addColorStop(0,'#13213d'); g.addColorStop(1,'#0e1a30'); }
-        ctx.beginPath(); ctx.arc(nd.x,nd.y,r,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
-        ctx.restore();
-        ctx.beginPath(); ctx.arc(nd.x,nd.y,r,0,Math.PI*2);
-        ctx.strokeStyle=isCur?'rgba(245,200,66,.9)':on?'rgba(91,141,238,.5)':'rgba(255,255,255,.10)'; ctx.lineWidth=1.4; ctx.stroke();
-        AnimKit.text(ctx,nd.sum,nd.x,nd.y,{color:(isCur||(isLeaf&&on))?'#0a1428':'#cfe0ff',font:'bold 13px JetBrains Mono'});
-      });
-      // collected sums
-      AnimKit.text(ctx,'subset sums: ['+leaves.join(', ')+']',W/2,H-8,{color:'#f5c842',font:'bold 13px JetBrains Mono'});
-    }
-    function step(){
-      if(done) return;
-      if(step_i>=order.length){ done=true; note.innerHTML=`Done \u2713 All 8 subset sums collected: [${leaves.join(', ')}]`; draw(); return; }
-      const id=order[step_i]; visited.add(id); const nd=nodes[id];
-      if(nd.depth===arr.length){ leaves.push(nd.sum);
-        note.innerHTML=`Leaf reached \u2192 record subset sum <b>${nd.sum}</b>.`; }
-      else note.innerHTML=`At depth ${nd.depth}, running sum ${nd.sum}: branch <b>pick</b> (+${arr[nd.depth]}) then <b>skip</b>.`;
-      draw(id); step_i++;
-    }
-    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(done){stop();return;} step(); },550); }
-    function stop(){ if(timer){clearInterval(timer);timer=null;} }
-    reset();
-    return {reset,step,auto};
-  })();
-  </script>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Generates the sums of every one of the 2^n subsets of `nums`.
- * Pure pick / skip recursion: at each index decide whether to include `nums[index]`.
- */
-void collectSubsetSums(int i, int sum, int[] nums, List&lt;Integer&gt; res){
-  if(i == nums.length){                 // leaf: every element decided
-    res.add(sum);
-    return;
-  }
-  // Branch 1: PICK nums[i]  -- add it to the running sum
-  collectSubsetSums(i + 1, sum + nums[i], nums, res);
-  // Branch 2: SKIP nums[i]  -- leave the running sum unchanged
-  collectSubsetSums(i + 1, sum,               nums, res);
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(2ⁿ)</b></div><div>Space <b>O(n) recursion</b></div></div>
-</article>
-
 <!-- ================= Q10 ================= -->
 <article class="q" id="q10">
-  <div class="head"><h2><span class="num">10</span>All Permutations of an Array <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">07</span>All Permutations of an Array <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Recursion & Backtracking</div>
   <div class="links"><a href="https://leetcode.com/problems/permutations/" target="_blank">LeetCode</a></div>
 
@@ -1729,154 +1222,9 @@ void swap(int[] arr, int i, int j){
 </article>
 
 <!-- ================= Q11 ================= -->
-<article class="q" id="q11">
-  <div class="head"><h2><span class="num">11</span>Nth Root of M <span class="pill med">Medium</span></h2></div>
-  <div class="topic">Section · Binary Search</div>
-  <div class="links"><a href="https://www.geeksforgeeks.org/n-th-root-number/" target="_blank">GFG</a></div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">Given <code>n</code> and <code>m</code>, return an integer <code>x</code> with <code>x^n = m</code>, or -1 when none exists.</p>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Binary search the answer space.</b> The function <code>f(x) = xⁿ</code> is monotonic, so the candidate range <code>[1, m]</code> is searchable. Use a "multiply with overflow guard" instead of pow.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Brute</b> Try <code>x = 1..m</code> and check <code>xⁿ == m</code>. — <code>O(m · n)</code>.</div>
-    <div class="alt"><b>Better</b> Same linear scan but stop early once <code>xⁿ &gt; m</code>. — still <code>O(m^(1/n) · n)</code>.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li><code>lo=1, hi=m</code>; while <code>lo ≤ hi</code> compute <code>mid</code>.</li>
-    <li>Compute <code>midⁿ</code> with early break if it exceeds m.</li>
-    <li>Shrink: equal → answer; less → <code>lo=mid+1</code>; greater → <code>hi=mid-1</code>.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart TD
-  S["lo=1, hi=m"] --> L{"lo &lt;= hi?"}
-  L -- yes --> M["mid · compute mid^n with cap"]
-  M --> C{"compare with m"}
-  C -- "==" --> A["Return mid"]
-  C -- "&lt;" --> R["lo = mid+1"]
-  C -- "&gt;" --> H["hi = mid-1"]
-  R --> L
-  H --> L
-  L -- no --> N["Return -1"]
-  </pre></div>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input:</b> <code>n = 3, m = 27</code> &nbsp;·&nbsp; <b>Output:</b> <code>3</code> (since 3³ = 27)</p>
-    <ol>
-      <li><code>lo=1, hi=27</code> &rarr; <code>mid=14</code>, 14³ exceeds cap &rarr; too big &rarr; <code>hi=13</code>.</li>
-      <li><code>lo=1, hi=13</code> &rarr; <code>mid=7</code>, 7³=343 &gt; 27 &rarr; <code>hi=6</code>.</li>
-      <li><code>lo=1, hi=6</code> &rarr; <code>mid=3</code>, 3³=27 == m &rarr; <b>return 3</b>.</li>
-      <li>Counter-case <code>n=2, m=15</code>: search converges with <code>lo=4, hi=3</code> &rarr; loop exits &rarr; return <code>-1</code>.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Animation</div>
-  <div class="anim">
-    <canvas id="animc-11" class="anim-canvas" width="720" height="180"></canvas>
-    <div class="anim-controls">
-      <button class="anim-btn" onclick="ANIM11.reset()">⟲ Reset</button>
-      <button class="anim-btn sec" onclick="ANIM11.step()">▶ Step</button>
-      <button class="anim-btn sec" onclick="ANIM11.auto()">⏩ Auto</button>
-    </div>
-    <div class="anim-stats">lo <b id="a11lo">1</b> · hi <b id="a11hi">27</b> · mid <b id="a11mid">–</b> · mid³ <b id="a11pow">–</b></div>
-    <div class="anim-note" id="anim-note-11">n=3, m=27. Binary-search the answer range [1,27]; the function x³ is monotonic.</div>
-  </div>
-  <script>
-  const ANIM11 = (function(){
-    const cv=document.getElementById('animc-11');
-    const note=document.getElementById('anim-note-11');
-    const n=3,m=27;
-    let lo,hi,mid,found,done,timer;
-    function powCap(x){ let r=1; for(let i=0;i<n;i++){ r*=x; if(r>m) return m+1; } return r; }
-    function reset(){ lo=1;hi=m;mid=null;found=null;done=false; stop();
-      setStats();
-      note.innerHTML='n=3, m=27. Binary-search the answer range [1,27]; the function x\u00b3 is monotonic.';
-      draw(); }
-    function setStats(){
-      document.getElementById('a11lo').textContent=lo;
-      document.getElementById('a11hi').textContent=hi;
-      document.getElementById('a11mid').textContent=mid??'–';
-      document.getElementById('a11pow').textContent=mid?(powCap(mid)>m?'>m':powCap(mid)):'–';
-    }
-    function draw(){
-      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
-      const N=m, ox=24, gap=(W-48)/N, cw=gap-3, y=54, h=42;
-      for(let v=1;v<=N;v++){
-        const x=ox+(v-1)*gap;
-        const inWin=v>=lo&&v<=hi, isMid=v===mid, isFound=found===v;
-        let opt,dark=false;
-        if(isFound){opt={grad:['#1ad9b0','#0aa37e'],glow:'rgba(0,212,170,.55)',border:'rgba(0,212,170,.85)'};dark=true;}
-        else if(isMid){opt={grad:['#f6d04a','#e0a91e'],glow:'rgba(245,200,66,.5)',border:'rgba(245,200,66,.85)'};dark=true;}
-        else if(inWin)opt={grad:['#1b3566','#152a52'],border:'rgba(91,141,238,.5)'};
-        else opt={grad:['#101c33','#0c1626'],border:'rgba(255,255,255,.06)'};
-        AnimKit.cell(ctx,x,y,cw,h,opt);
-        AnimKit.text(ctx,v,x+cw/2,y+h/2,{color:dark?'#0a1428':(inWin?'#cfe0ff':'#4a5a78'),font:'bold 11px JetBrains Mono'});
-      }
-      if(lo<=hi){
-        AnimKit.text(ctx,'lo',ox+(lo-1)*gap+cw/2,y-12,{color:'#5b8dee',font:'bold 11px Inter'});
-        AnimKit.text(ctx,'hi',ox+(hi-1)*gap+cw/2,y+h+14,{color:'#5b8dee',font:'bold 11px Inter'});
-      }
-    }
-    function step(){
-      if(done) return;
-      if(lo>hi){ done=true; note.innerHTML='lo &gt; hi \u2192 no integer root \u2192 return <b>-1</b>'; draw(); return; }
-      mid=Math.floor((lo+hi)/2); const p=powCap(mid); setStats();
-      if(p===m){ found=mid; done=true; note.innerHTML=`mid=${mid}, ${mid}\u00b3=${mid*mid*mid} == m \u2192 <b>return ${mid}</b> \u2713`; draw(); return; }
-      if(p<m){ note.innerHTML=`mid=${mid}, ${mid}\u00b3=${p} &lt; 27 \u2192 go right, lo=${mid+1}`; lo=mid+1; }
-      else { note.innerHTML=`mid=${mid}, ${mid}\u00b3 ${powCap(mid)>m?'overflows cap ':''}&gt; 27 \u2192 go left, hi=${mid-1}`; hi=mid-1; }
-      draw();
-    }
-    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(done){stop();return;} step(); },900); }
-    function stop(){ if(timer){clearInterval(timer);timer=null;} }
-    reset();
-    return {reset,step,auto};
-  })();
-  </script>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Computes base^exponent but caps the result at (cap + 1) once the cap is exceeded.
- * Lets us compare big powers against `cap` without ever overflowing.
- */
-long powerWithCap(long base, int exp, long cap){
-  long res = 1;
-  for(int i = 0; i &lt; exp; i++){
-    res *= base;
-    if(res &gt; cap) return cap + 1;       // early break -- we only care if it exceeded cap
-  }
-  return res;
-}
-
-/**
- * Returns the integer x such that x^n == m, or -1 if no such integer exists.
- * Binary searches the answer range [1..m] because x -&gt; x^n is monotonically increasing.
- */
-int nthRoot(int n, int m){
-  long lo = 1, hi = m;
-  while(lo &lt;= hi){
-    long mid = (lo + hi) / 2;
-    long p   = powerWithCap(mid, n, m);
-
-    if(p == m)       return (int) mid;
-    else if(p &lt; m)   lo  = mid + 1;
-    else             hi = mid - 1;
-  }
-  return -1;
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(n · log m)</b></div><div>Space <b>O(1)</b></div></div>
-</article>
-
 <!-- ================= Q12 ================= -->
 <article class="q" id="q12">
-  <div class="head"><h2><span class="num">12</span>Implement Max Heap <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">08</span>Implement Max Heap <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Heaps</div>
   <div class="links"><a href="https://www.geeksforgeeks.org/binary-heap/" target="_blank">GFG</a></div>
 
@@ -2056,7 +1404,7 @@ flowchart TD
 
 <!-- ================= Q13 ================= -->
 <article class="q" id="q13">
-  <div class="head"><h2><span class="num">13</span>Implement Stack using Arrays <span class="pill easy">Easy</span></h2></div>
+  <div class="head"><h2><span class="num">09</span>Implement Stack using Arrays <span class="pill easy">Easy</span></h2></div>
   <div class="topic">Section · Stack and Queue</div>
   <div class="links"><a href="https://www.geeksforgeeks.org/implement-stack-using-array/" target="_blank">GFG</a></div>
 
@@ -2190,7 +1538,7 @@ class ArrayStack{
 
 <!-- ================= Q14 ================= -->
 <article class="q" id="q14">
-  <div class="head"><h2><span class="num">14</span>Next Smaller Element <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">10</span>Next Smaller Element <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Stack and Queue Part-II</div>
   <div class="links"><a href="https://www.geeksforgeeks.org/next-smaller-element/" target="_blank">GFG</a></div>
 
@@ -2351,7 +1699,7 @@ int[] nextSmallerElement(int[] nums){
 
 <!-- ================= Q15 ================= -->
 <article class="q" id="q15">
-  <div class="head"><h2><span class="num">15</span>Reverse Words in a String <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">11</span>Reverse Words in a String <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · String</div>
   <div class="links"><a href="https://leetcode.com/problems/reverse-words-in-a-string/" target="_blank">LeetCode</a></div>
 
@@ -2479,7 +1827,7 @@ String reverseWords(String s){
 
 <!-- ================= Q16 ================= -->
 <article class="q" id="q16">
-  <div class="head"><h2><span class="num">16</span>Z-Function (Pattern Matching) <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">12</span>Z-Function (Pattern Matching) <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · String Part-II</div>
   <div class="links"><a href="https://cp-algorithms.com/string/z-function.html" target="_blank">CP-Algorithms</a></div>
 
@@ -2645,7 +1993,7 @@ int[] zFunction(String s){
 
 <!-- ================= Q17 ================= -->
 <article class="q" id="q17">
-  <div class="head"><h2><span class="num">17</span>Inorder Traversal (Iterative) <span class="pill easy">Easy</span></h2></div>
+  <div class="head"><h2><span class="num">13</span>Inorder Traversal (Iterative) <span class="pill easy">Easy</span></h2></div>
   <div class="topic">Section · Binary Tree</div>
   <div class="links"><a href="https://leetcode.com/problems/binary-tree-inorder-traversal/" target="_blank">LeetCode</a></div>
 
@@ -2809,7 +2157,7 @@ List&lt;Integer&gt; inorderTraversal(TreeNode root){
 
 <!-- ================= Q18 ================= -->
 <article class="q" id="q18">
-  <div class="head"><h2><span class="num">18</span>Level Order Traversal <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">14</span>Level Order Traversal <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Binary Tree Part-II</div>
   <div class="links"><a href="https://leetcode.com/problems/binary-tree-level-order-traversal/" target="_blank">LeetCode</a></div>
 
@@ -2961,7 +2309,7 @@ List&lt;List&lt;Integer&gt;&gt; levelOrder(TreeNode root){
 
 <!-- ================= Q19 ================= -->
 <article class="q" id="q19">
-  <div class="head"><h2><span class="num">19</span>Maximum Path Sum (Binary Tree) <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">15</span>Maximum Path Sum (Binary Tree) <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Binary Tree Part-III</div>
   <div class="links"><a href="https://leetcode.com/problems/binary-tree-maximum-path-sum/" target="_blank">LeetCode</a></div>
 
@@ -3122,214 +2470,9 @@ private int dfs(TreeNode node){
 </article>
 
 <!-- ================= Q20 ================= -->
-<article class="q" id="q20">
-  <div class="head"><h2><span class="num">20</span>Populate Next Right Pointers <span class="pill med">Medium</span></h2></div>
-  <div class="topic">Section · Binary Search Tree</div>
-  <div class="links"><a href="https://leetcode.com/problems/populating-next-right-pointers-in-each-node/" target="_blank">LeetCode</a></div>
-
-  <div class="section-title">Problem</div>
-  <p class="problem">In a perfect binary tree, connect every node's <code>next</code> pointer to the node on its right at the same depth, using <code>O(1)</code> extra space.</p>
-
-  <div class="section-title">Example</div>
-  <div class="approach">
-    <p><b>Input A:</b> perfect tree <code>[1,2,3,4,5,6,7]</code>&nbsp;·&nbsp;<b>Output:</b> level-pointer chains <code>1→null</code>; <code>2→3→null</code>; <code>4→5→6→7→null</code></p>
-    <ol>
-      <li>Use the parent's <code>next</code> chain at level <code>L</code> to wire children at level <code>L+1</code> — no queue needed.</li>
-      <li>From 1: <code>2.next = 3</code>, <code>3.next = null</code>.</li>
-      <li>Walk level <code>2→3</code>: <code>4.next=5</code>, <code>5.next=6</code> (using <code>2.next=3</code> to bridge), <code>6.next=7</code>, <code>7.next=null</code>.</li>
-    </ol>
-    <p><b>Input B (edge — only root):</b> <code>[1]</code>&nbsp;·&nbsp;<b>Output:</b> <code>1.next = null</code></p>
-    <ol>
-      <li>Outer loop sees no children → nothing wired; root's <code>next</code> remains <code>null</code> by default.</li>
-    </ol>
-  </div>
-
-  <div class="section-title">Mental Model</div>
-  <div class="mental"><b>Build level <code>k+1</code> using level <code>k</code>'s already-wired <code>next</code> chain.</b> A "level head" pointer walks down-left; a "current" sweeps along the chain at the parent level, wiring the children below: <code>cur.left.next = cur.right</code>; <code>cur.right.next = cur.next?.left</code>.</div>
-
-  <div class="section-title">Other Approaches</div>
-  <div class="alts">
-    <div class="alt"><b>Brute</b> Standard BFS by level using a queue, link adjacent nodes within each level. — <code>O(n)</code> time, <code>O(width)</code> space.</div>
-  </div>
-
-  <div class="section-title">Optimal Approach</div>
-  <div class="approach"><ol>
-    <li><code>levelHead = root</code>; while <code>levelHead.left != null</code>:</li>
-    <li><code>curr = levelHead</code>; while <code>curr != null</code>: wire <code>curr.left.next = curr.right</code> and <code>curr.right.next = curr.next != null ? curr.next.left : null</code>; advance <code>curr = curr.next</code>.</li>
-    <li>Descend: <code>levelHead = levelHead.left</code>.</li>
-  </ol></div>
-
-  <div class="section-title">Visual</div>
-  <div class="mermaid-wrap"><pre class="mermaid">
-flowchart LR
-  P1["Parent"] -->|next| P2["Parent2"]
-  P1 --> CL1["L1"]
-  P1 --> CR1["R1"]
-  P2 --> CL2["L2"]
-  P2 --> CR2["R2"]
-  CL1 -->|wire| CR1 -->|wire| CL2 -->|wire| CR2
-  </pre></div>
-
-  <div class="section-title">Animation</div>
-  <div class="anim">
-    <canvas id="animc-20" class="anim-canvas" width="720" height="290"></canvas>
-    <div class="anim-controls">
-      <button class="anim-btn" onclick="ANIM20.reset()">⟲ Reset</button>
-      <button class="anim-btn sec" onclick="ANIM20.step()">▶ Step</button>
-      <button class="anim-btn sec" onclick="ANIM20.auto()">⏩ Auto</button>
-    </div>
-    <div class="anim-note" id="anim-note-20">Perfect tree [1..7]. Use level k's already-wired next chain to wire level k+1.</div>
-  </div>
-  <script>
-  const ANIM20 = (function(){
-    const cv=document.getElementById('animc-20');
-    const note=document.getElementById('anim-note-20');
-    const T={0:{v:1,l:1,r:2},1:{v:2,l:3,r:4},2:{v:3,l:5,r:6},3:{v:4,l:-1,r:-1},4:{v:5,l:-1,r:-1},5:{v:6,l:-1,r:-1},6:{v:7,l:-1,r:-1}};
-    const POS={0:{x:360,y:50},1:{x:200,y:130},2:{x:520,y:130},3:{x:120,y:210},4:{x:280,y:210},5:{x:440,y:210},6:{x:600,y:210}};
-    function build(){
-      const f=[], next={};
-      f.push({next:{...next},cur:-1,wire:null,msg:'Start: levelHead = root(1). All next pointers null.'});
-      // level 0 -> level 1
-      let head=0;
-      while(T[head].l!==-1){
-        let cur=head;
-        while(cur!==-1){
-          f.push({next:{...next},cur,wire:null,msg:`At parent ${T[cur].v}: wire its two children.`});
-          next[T[cur].l]=T[cur].r;
-          f.push({next:{...next},cur,wire:[T[cur].l,T[cur].r],msg:`${T[T[cur].l].v}.next = ${T[T[cur].r].v} (same parent).`});
-          const nxt = next[cur]!==undefined ? next[cur] : -1;
-          if(nxt!==-1){
-            // find parent id by value (we stored values as next, but to draw we need ids — keep both maps)
-          }
-          // Build by id-next instead
-          const nxtParent = nextId[cur] ?? -1;
-          if(nxtParent!==-1){ nextId[T[cur].r]=T[nxtParent].l;
-            f.push({next:{...next},cur,wire:[T[cur].r,T[nxtParent].l],msg:`${T[T[cur].r].v}.next = ${T[T[nxtParent].l].v} (bridge across parents).`}); }
-          else f.push({next:{...next},cur,wire:null,msg:`${T[T[cur].r].v}.next = null (rightmost on this level).`});
-          nextId[T[cur].l]=T[cur].r;
-          cur = nextId[cur] ?? -1;
-        }
-        head=T[head].l;
-        f.push({next:{...next},cur:-1,wire:null,msg:`Descend: levelHead = ${T[head].v}.`});
-      }
-      f.push({next:{...next},cur:-1,done:true,msg:'Done \u2713 every node now points to its right neighbor on its level.'});
-      return f;
-    }
-    // need id-based next map; refactor cleaner
-    let nextId;
-    function buildSafe(){
-      const f=[]; nextId={}; const nextVal=()=>{};
-      f.push({next:{...nextId},cur:-1,wire:null,msg:'Start: levelHead = root(1). All next pointers null.'});
-      let head=0;
-      while(T[head].l!==-1){
-        let cur=head;
-        while(cur!==-1){
-          f.push({next:{...nextId},cur,wire:null,msg:`At parent ${T[cur].v}: wire its two children.`});
-          nextId[T[cur].l]=T[cur].r;
-          f.push({next:{...nextId},cur,wire:[T[cur].l,T[cur].r],msg:`${T[T[cur].l].v}.next = ${T[T[cur].r].v} (same parent).`});
-          const np=nextId[cur];
-          if(np!==undefined){
-            nextId[T[cur].r]=T[np].l;
-            f.push({next:{...nextId},cur,wire:[T[cur].r,T[np].l],msg:`${T[T[cur].r].v}.next = ${T[T[np].l].v} (bridge across parents).`});
-          } else {
-            f.push({next:{...nextId},cur,wire:null,msg:`${T[T[cur].r].v}.next = null (rightmost on this level).`});
-          }
-          cur = nextId[cur] ?? -1;
-        }
-        head=T[head].l;
-        f.push({next:{...nextId},cur:-1,wire:null,msg:`Descend: levelHead = ${T[head].v}.`});
-      }
-      f.push({next:{...nextId},cur:-1,done:true,msg:'Done \u2713 every node now points to its right neighbor on its level.'});
-      return f;
-    }
-    let frames,idx,timer;
-    function reset(){ frames=buildSafe(); idx=0; stop();
-      note.innerHTML='Perfect tree [1..7]. Use level k\u0027s already-wired next chain to wire level k+1.';
-      draw(); }
-    function draw(){
-      const {ctx,W,H}=AnimKit.setup(cv); ctx.clearRect(0,0,W,H);
-      const fr=frames[idx];
-      // tree edges
-      Object.entries(T).forEach(([id,nd])=>{ const p=POS[id]; [nd.l,nd.r].forEach(c=>{ if(c<0)return; const cp=POS[c];
-        ctx.strokeStyle='rgba(255,255,255,.08)'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(cp.x,cp.y); ctx.stroke(); });});
-      // next pointers (curved arrows)
-      Object.entries(fr.next).forEach(([from,to])=>{
-        const a=POS[from], b=POS[to];
-        const justWired=fr.wire && fr.wire[0]==+from && fr.wire[1]==to;
-        ctx.save();
-        ctx.strokeStyle=justWired?'rgba(0,212,170,.95)':'rgba(91,141,238,.6)';
-        ctx.lineWidth=justWired?2.6:1.6;
-        if(justWired){ ctx.shadowColor='rgba(0,212,170,.5)'; ctx.shadowBlur=10; }
-        ctx.beginPath(); ctx.moveTo(a.x+18,a.y-4);
-        const mx=(a.x+b.x)/2, my=Math.min(a.y,b.y)-22;
-        ctx.quadraticCurveTo(mx,my,b.x-18,b.y-4); ctx.stroke();
-        // arrow head
-        ctx.fillStyle=justWired?'#00d4aa':'#5b8dee';
-        ctx.beginPath(); ctx.moveTo(b.x-18,b.y-4); ctx.lineTo(b.x-26,b.y-10); ctx.lineTo(b.x-26,b.y+2); ctx.closePath(); ctx.fill();
-        ctx.restore();
-      });
-      // nodes
-      Object.entries(T).forEach(([id,nd])=>{ const p=POS[id], idn=+id;
-        const isCur=fr.cur===idn, wired=fr.next[idn]!==undefined||Object.values(fr.next).includes(idn);
-        ctx.save();
-        if(isCur){ ctx.shadowColor='rgba(245,200,66,.55)'; ctx.shadowBlur=14; }
-        const g=ctx.createLinearGradient(p.x,p.y-20,p.x,p.y+20);
-        if(isCur){ g.addColorStop(0,'#f6d04a'); g.addColorStop(1,'#e0a91e'); }
-        else if(wired){ g.addColorStop(0,'#0f3a33'); g.addColorStop(1,'#0c2b27'); }
-        else { g.addColorStop(0,'#13213d'); g.addColorStop(1,'#0e1a30'); }
-        ctx.beginPath(); ctx.arc(p.x,p.y,20,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
-        ctx.restore();
-        ctx.beginPath(); ctx.arc(p.x,p.y,20,0,Math.PI*2);
-        ctx.strokeStyle=isCur?'rgba(255,255,255,.55)':wired?'rgba(0,212,170,.55)':'rgba(255,255,255,.1)';
-        ctx.lineWidth=1.4; ctx.stroke();
-        AnimKit.text(ctx,nd.v,p.x,p.y,{color:isCur?'#0a1428':'#e6edf7',font:'bold 14px JetBrains Mono'});
-      });
-    }
-    function step(){ if(idx>=frames.length-1){ draw(); return; } idx++; note.innerHTML=frames[idx].msg; draw(); }
-    function auto(){ if(timer){stop();return;} timer=setInterval(()=>{ if(idx>=frames.length-1){stop();return;} step(); },800); }
-    function stop(){ if(timer){clearInterval(timer);timer=null;} }
-    reset();
-    return {reset,step,auto};
-  })();
-  </script>
-
-  <div class="section-title">Code (Java)</div>
-<pre><code class="language-java">/**
- * Wires `next` pointers so each node points to its right neighbor on the same level.
- * Works in O(1) extra space by using already-wired `next` pointers on level k
- * to traverse and wire level k+1.
- */
-Node connect(Node root){
-  if(root == null) return null;
-
-  Node head = root;
-
-  // Stop when we reach the leaves -- they have no children to wire.
-  while(head.left != null){
-
-    // Sweep across the current level using the next-chain that's already there.
-    Node cur = head;
-    while(cur != null){
-      // Wire the two children of THIS parent.
-      cur.left.next  = cur.right;
-
-      // Wire across siblings: rightChild -&gt; leftChildOfNextParent (if any).
-      cur.right.next = (cur.next != null) ? cur.next.left : null;
-
-      cur = cur.next;
-    }
-
-    // Drop down one level (perfect tree, so leftmost is always reachable via .left).
-    head = head.left;
-  }
-  return root;
-}</code></pre>
-  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
-</article>
-
 <!-- ================= Q21 ================= -->
 <article class="q" id="q21">
-  <div class="head"><h2><span class="num">21</span>Floor in a BST <span class="pill easy">Easy</span></h2></div>
+  <div class="head"><h2><span class="num">16</span>Floor in a BST <span class="pill easy">Easy</span></h2></div>
   <div class="topic">Section · Binary Search Tree Part-II</div>
   <div class="links"><a href="https://www.geeksforgeeks.org/floor-in-binary-search-tree-bst/" target="_blank">GFG</a></div>
 
@@ -3478,7 +2621,7 @@ int floor(TreeNode root, int key){
 
 <!-- ================= Q22 ================= -->
 <article class="q" id="q22">
-  <div class="head"><h2><span class="num">22</span>Binary Tree to Doubly Linked List <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">17</span>Binary Tree to Doubly Linked List <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Binary Trees [Miscellaneous]</div>
   <div class="links"><a href="https://leetcode.com/problems/convert-binary-search-tree-to-sorted-doubly-linked-list/" target="_blank">LeetCode</a></div>
 
@@ -3663,7 +2806,7 @@ Node treeToDoublyLinkedList(Node root){
 
 <!-- ================= Q23 ================= -->
 <article class="q" id="q23">
-  <div class="head"><h2><span class="num">23</span>Clone a Graph <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">18</span>Clone a Graph <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Graph</div>
   <div class="links"><a href="https://leetcode.com/problems/clone-graph/" target="_blank">LeetCode</a></div>
 
@@ -3826,7 +2969,7 @@ Node cloneGraph(Node node){
 
 <!-- ================= Q24 ================= -->
 <article class="q" id="q24">
-  <div class="head"><h2><span class="num">24</span>Strongly Connected Components (Kosaraju) <span class="pill hard">Hard</span></h2></div>
+  <div class="head"><h2><span class="num">19</span>Strongly Connected Components (Kosaraju) <span class="pill hard">Hard</span></h2></div>
   <div class="topic">Section · Graph Part-II</div>
   <div class="links"><a href="https://www.geeksforgeeks.org/strongly-connected-components/" target="_blank">GFG</a></div>
 
@@ -4015,7 +3158,7 @@ private void dfsCollect(int u, List&lt;Integer&gt;[] transpose, boolean[] visite
 
 <!-- ================= Q25 ================= -->
 <article class="q" id="q25">
-  <div class="head"><h2><span class="num">25</span>Maximum Product Subarray <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">20</span>Maximum Product Subarray <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Dynamic Programming</div>
   <div class="links"><a href="https://leetcode.com/problems/maximum-product-subarray/" target="_blank">LeetCode</a></div>
 
@@ -4172,7 +3315,7 @@ int maxProduct(int[] nums){
 
 <!-- ================= Q26 ================= -->
 <article class="q" id="q26">
-  <div class="head"><h2><span class="num">26</span>Minimum Path Sum in a Grid <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">21</span>Minimum Path Sum in a Grid <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Dynamic Programming Part-II</div>
   <div class="links"><a href="https://leetcode.com/problems/minimum-path-sum/" target="_blank">LeetCode</a></div>
 
@@ -4326,7 +3469,7 @@ int minPathSum(int[][] grid){
 
 <!-- ================= Q27 ================= -->
 <article class="q" id="q27">
-  <div class="head"><h2><span class="num">27</span>Implement Trie (Prefix Tree) <span class="pill med">Medium</span></h2></div>
+  <div class="head"><h2><span class="num">22</span>Implement Trie (Prefix Tree) <span class="pill med">Medium</span></h2></div>
   <div class="topic">Section · Trie</div>
   <div class="links"><a href="https://leetcode.com/problems/implement-trie-prefix-tree/" target="_blank">LeetCode</a></div>
 
