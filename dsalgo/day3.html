@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Day 3 · Ankit's SDE Sheet · BuildLikeASenior</title>
+<title>Day 3 · BLAS DSA Blueprint · BuildLikeASenior</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -91,18 +91,31 @@
   .top.show{opacity:1}
   footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
   footer b{color:var(--teal)}
+  .page-nav{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:20px 0;flex-wrap:wrap}
+  .nav-btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--line);color:var(--muted);background:linear-gradient(180deg,var(--card),var(--card2));transition:border-color .2s,color .2s;text-decoration:none;font-family:'JetBrains Mono',monospace}
+  .nav-btn:hover{border-color:var(--teal);color:var(--teal);text-decoration:none}
+  .nav-btn.home{background:rgba(0,212,170,.08);border-color:rgba(0,212,170,.25);color:var(--teal)}
+  .nav-btn.spacer{visibility:hidden}
+  .crumb{position:absolute;left:20px;top:20px;font-size:13px;font-family:'JetBrains Mono',monospace}
 </style>
 </head>
 <body>
 
 <header class="hero">
+  <a class="crumb" href="../index.html">← Home</a>
   <span class="badge">Day 3 · BuildLikeASenior</span>
-  <h1 class="title">Ankit's SDE Sheet — <span>Day 3</span></h1>
+  <h1 class="title">BLAS DSA Blueprint — <span>Day 3</span></h1>
   <p class="sub">Third question from every section. Patterns get deeper — cycle detection, sliding windows, DP grids, Bellman-Ford, BST balance.</p>
   <div class="meta"><span><b>27</b> questions</span><span><b>27</b> sections</span><span><b>~3-4 hrs</b> deep work</span></div>
 </header>
 
 <div class="wrap">
+
+<nav class="page-nav">
+  <a class="nav-btn" href="day2.html">← Prev: Day 2</a>
+  <a class="nav-btn home" href="index.html">⌂ DSA Index</a>
+  <a class="nav-btn" href="day4.html">Next: Day 4 →</a>
+</nav>
 
 <nav class="toc">
   <h3>Today's Run-list</h3>
@@ -146,7 +159,7 @@
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Rearrange numbers into the <b>lexicographically next greater</b> permutation. If no such permutation, rearrange to the lowest (sorted ascending). Do it <b>in place</b>.</p>
+  <p class="problem">Rearrange the numbers into their <b>next lexicographically greater</b> permutation; if none exists, reset to the smallest (ascending) order. Do it <b>in place</b>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -230,7 +243,7 @@ private void reverseRange(int[] a, int left, int right){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Two sorted arrays <code>A[n]</code>, <code>B[m]</code>. Modify them so that <code>A</code> contains the smaller <code>n</code> and <code>B</code> the larger <code>m</code>, each sorted.</p>
+  <p class="problem">You have two sorted arrays <code>A[n]</code> and <code>B[m]</code>. Rearrange them so <code>A</code> holds the smallest <code>n</code> values and <code>B</code> the largest <code>m</code>, each still sorted.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -320,7 +333,7 @@ private void swapAt(int i, int j, int[] a, int[] b, int n){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Find the element appearing more than <code>⌊n/2⌋</code> times. Assume one always exists.</p>
+  <p class="problem">Return the value that occurs more than <code>⌊n/2⌋</code> times (assume such a majority element always exists).</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -397,7 +410,7 @@ int majorityElement(int[] nums){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given an unsorted array of integers, return the length of the longest sequence of consecutive integers (e.g., <code>{100,4,200,1,3,2}</code> → <code>4</code> for <code>1,2,3,4</code>).</p>
+  <p class="problem">In an unsorted integer array, return the length of the longest run of consecutive integers (e.g., <code>{100,4,200,1,3,2}</code> → <code>4</code> for <code>1,2,3,4</code>).</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -478,7 +491,7 @@ int longestConsecutive(int[] nums){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Merge two sorted singly linked lists into one sorted list. Reuse the existing nodes (no copies).</p>
+  <p class="problem">Combine two sorted singly linked lists into one sorted list, reusing the original nodes rather than copying.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -557,7 +570,7 @@ ListNode mergeTwoLists(ListNode a, ListNode b){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">If a linked list has a cycle, return the node where the cycle begins. Else return null.</p>
+  <p class="problem">When a linked list has a cycle, return the node at which the cycle starts; otherwise return null.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -633,7 +646,7 @@ ListNode detectCycle(ListNode head){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return all <b>unique</b> triplets <code>(a, b, c)</code> in the array such that <code>a + b + c = 0</code>.</p>
+  <p class="problem">Return every <b>distinct</b> triplet <code>(a, b, c)</code> from the array with <code>a + b + c = 0</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -725,7 +738,7 @@ List&lt;List&lt;Integer&gt;&gt; threeSum(int[] nums){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Each job has a deadline <code>d</code> and profit <code>p</code>. Schedule at most one job per time-slot to maximize total profit; every job takes 1 unit of time.</p>
+  <p class="problem">Every job has a deadline <code>d</code> and profit <code>p</code> and takes one unit of time; pick at most one job per slot to maximize total profit.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -816,7 +829,7 @@ int[] jobSequencing(int[][] jobs){      // jobs[i] = {jobId, deadline, profit}
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a set of <b>distinct</b> positive integers and a target, return every unique combination summing to target. The same number can be picked unlimited times.</p>
+  <p class="problem">From a set of <b>distinct</b> positive integers and a target, list every unique combination that sums to target, where each number may be reused any number of times.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -905,7 +918,7 @@ private void exploreCombinations(int i, int rem,
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Solve a partially-filled 9×9 Sudoku in place. Each digit 1-9 appears exactly once per row, column, and 3×3 sub-grid.</p>
+  <p class="problem">Fill a partially-completed 9×9 Sudoku in place so each digit 1-9 appears exactly once in every row, column, and 3×3 box.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -998,7 +1011,7 @@ private boolean isPlacementValid(char[][] board, int row, int col, char d){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Sorted array where every element appears exactly twice except one. Find the lone element in <code>O(log n)</code>.</p>
+  <p class="problem">In a sorted array where all elements appear exactly twice except one, find that single element in <code>O(log n)</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1101,7 +1114,7 @@ int singleNonDuplicate(int[] nums){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return the <code>k</code> most frequent elements in the array, in any order.</p>
+  <p class="problem">Return the <code>k</code> elements with the highest frequency, in any order.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1180,7 +1193,7 @@ int[] topKFrequent(int[] nums, int k){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Implement <code>push</code>, <code>pop</code>, <code>top</code>, <code>empty</code> for a stack using only standard queue operations.</p>
+  <p class="problem">Build a stack's <code>push</code>, <code>pop</code>, <code>top</code>, and <code>empty</code> using only ordinary queue operations.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1252,7 +1265,7 @@ class StackUsingQueue {
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given array <code>nums</code> and window size <code>k</code>, return the max within every window of size <code>k</code>.</p>
+  <p class="problem">For array <code>nums</code> and a window of size <code>k</code>, return the maximum of each size-<code>k</code> window.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1346,7 +1359,7 @@ int[] maxSlidingWindow(int[] nums, int k){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a string, return the length of the longest substring containing only distinct characters.</p>
+  <p class="problem">Return the length of the longest substring of a string whose characters are all distinct.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1428,7 +1441,7 @@ int lengthOfLongestSubstring(String s){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return the minimum number of characters to insert at the front of <code>s</code> so the result is a palindrome.</p>
+  <p class="problem">Return the fewest characters that must be prepended to <code>s</code> to make it a palindrome.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1509,7 +1522,7 @@ private int[] buildLps(String p){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return the postorder (left → right → root) traversal of a binary tree, iteratively.</p>
+  <p class="problem">Produce the postorder sequence (left → right → root) of a binary tree iteratively.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1603,7 +1616,7 @@ List&lt;Integer&gt; postorderTraversal(TreeNode root){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return the diameter — the length (in edges) of the longest path between any two nodes in the tree.</p>
+  <p class="problem">Return the tree's diameter — the number of edges on the longest path connecting any two nodes.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1688,7 +1701,7 @@ private int measureHeight(TreeNode node){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given inorder and postorder traversals of a binary tree (unique values), reconstruct the tree.</p>
+  <p class="problem">From a binary tree's inorder and postorder traversals (values unique), rebuild the tree.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1777,7 +1790,7 @@ private TreeNode constructSubtree(int[] postorder, int postStart, int postEnd,
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a sorted array, build a height-balanced BST.</p>
+  <p class="problem">From a sorted array, construct a height-balanced BST.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1847,7 +1860,7 @@ private TreeNode buildBalanced(int[] nums, int lo, int hi){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Find the k-th smallest value in a BST (1-indexed).</p>
+  <p class="problem">Return the k-th smallest value in a BST (counting from 1).</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1927,7 +1940,7 @@ int kthSmallest(TreeNode root, int k){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Design a class with <code>add(val)</code> that returns the k-th largest element seen so far.</p>
+  <p class="problem">Design a class whose <code>add(val)</code> returns the k-th largest value observed so far.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2000,7 +2013,7 @@ class KthLargest {
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given adjacency list, return BFS traversal order starting from vertex 0.</p>
+  <p class="problem">From an adjacency list, return the BFS visiting order starting at vertex 0.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2079,7 +2092,7 @@ List&lt;Integer&gt; bfsOfGraph(int n, List&lt;List&lt;Integer&gt;&gt; adj){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Shortest paths from a source in a directed weighted graph that may have <b>negative</b> edge weights. Detect negative cycles.</p>
+  <p class="problem">Compute shortest paths from a source in a directed weighted graph that may contain <b>negative</b> edges, and report any negative cycle.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2170,7 +2183,7 @@ int[] bellmanFord(int n, int[][] edges, int src){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given two strings <code>a</code> and <code>b</code>, return the length of their longest common subsequence.</p>
+  <p class="problem">For two strings <code>a</code> and <code>b</code>, return the length of the longest subsequence common to both.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2272,7 +2285,7 @@ int longestCommonSubsequence(String a, String b){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given <code>n</code> items with weights and values and a knapsack capacity <code>W</code>, maximize total value carried (each item used at most once).</p>
+  <p class="problem">With <code>n</code> items (each having a weight and value) and a knapsack of capacity <code>W</code>, maximize the value carried when each item can be taken at most once.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2377,7 +2390,7 @@ int knapsack01(int[] wt, int[] val, int cap){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Count the number of distinct non-empty substrings of <code>s</code>.</p>
+  <p class="problem">Count how many distinct non-empty substrings <code>s</code> has.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2451,12 +2464,18 @@ private static class TrieNode { TrieNode[] children = new TrieNode[26]; }</code>
 </article>
 
 
+<nav class="page-nav">
+  <a class="nav-btn" href="day2.html">← Prev: Day 2</a>
+  <a class="nav-btn home" href="index.html">⌂ DSA Index</a>
+  <a class="nav-btn" href="day4.html">Next: Day 4 →</a>
+</nav>
+
 </div>
 
 <button class="top" id="top" title="Back to top">↑</button>
 
 <footer>
-  Built with <b>BuildLikeASenior</b> · Day 3 of Ankit's SDE Sheet · Think · Design · Grow Like a Senior Engineer
+  Built with <b>BuildLikeASenior</b> · Day 3 of the BLAS DSA Blueprint · Think · Design · Grow Like a Senior Engineer
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Day 6 · Ankit's SDE Sheet · BuildLikeASenior</title>
+<title>Day 6 · BLAS DSA Blueprint · BuildLikeASenior</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -91,18 +91,31 @@
   .top.show{opacity:1}
   footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
   footer b{color:var(--teal)}
+  .page-nav{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:20px 0;flex-wrap:wrap}
+  .nav-btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--line);color:var(--muted);background:linear-gradient(180deg,var(--card),var(--card2));transition:border-color .2s,color .2s;text-decoration:none;font-family:'JetBrains Mono',monospace}
+  .nav-btn:hover{border-color:var(--teal);color:var(--teal);text-decoration:none}
+  .nav-btn.home{background:rgba(0,212,170,.08);border-color:rgba(0,212,170,.25);color:var(--teal)}
+  .nav-btn.spacer{visibility:hidden}
+  .crumb{position:absolute;left:20px;top:20px;font-size:13px;font-family:'JetBrains Mono',monospace}
 </style>
 </head>
 <body>
 
 <header class="hero">
+  <a class="crumb" href="../index.html">← Home</a>
   <span class="badge">Day 6 · BuildLikeASenior</span>
-  <h1 class="title">Ankit's SDE Sheet — <span>Day 6</span></h1>
+  <h1 class="title">BLAS DSA Blueprint — <span>Day 6</span></h1>
   <p class="sub">Sixth question per section. Inversions, Reverse Pairs, Reverse-in-K-Groups, Word Search II, Kosaraju SCC — the senior-engineer round.</p>
   <div class="meta"><span><b>27</b> questions</span><span><b>27</b> sections</span><span><b>~4 hrs</b> deep work</span></div>
 </header>
 
 <div class="wrap">
+
+<nav class="page-nav">
+  <a class="nav-btn" href="day5.html">← Prev: Day 5</a>
+  <a class="nav-btn home" href="index.html">⌂ DSA Index</a>
+  <a class="nav-btn" href="day7.html">Next: Day 7 →</a>
+</nav>
 
 <nav class="toc">
   <h3>Today's Run-list</h3>
@@ -146,7 +159,7 @@
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given daily prices, return the max profit from a single buy + later sell (or 0).</p>
+  <p class="problem">From an array of daily prices, compute the largest profit achievable by buying on one day and selling on a later day (return 0 if no profit is possible).</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -212,7 +225,7 @@ int maxProfit(int[] prices){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Count pairs <code>(i, j)</code> with <code>i &lt; j</code> and <code>a[i] &gt; a[j]</code>.</p>
+  <p class="problem">Determine how many index pairs <code>(i, j)</code> satisfy both <code>i &lt; j</code> and <code>a[i] &gt; a[j]</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -305,7 +318,7 @@ private long merge(int[] a, int[] tmp, int lo, int mid, int hi){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Count pairs <code>(i, j)</code> with <code>i &lt; j</code> and <code>a[i] &gt; 2 · a[j]</code>.</p>
+  <p class="problem">Find the total number of index pairs <code>(i, j)</code> for which <code>i &lt; j</code> holds while <code>a[i] &gt; 2 · a[j]</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -400,7 +413,7 @@ private int merge(int[] a, int[] tmp, int lo, int mid, int hi){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a binary array, return the maximum number of consecutive 1s.</p>
+  <p class="problem">In an array of 0s and 1s, find the length of the longest run of adjacent 1s.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -470,7 +483,7 @@ int findMaxConsecutiveOnes(int[] nums){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">You are given a reference to a node (not the head) to delete from a singly linked list. The node is guaranteed not to be the tail.</p>
+  <p class="problem">You receive a direct reference to some node (never the head) within a singly linked list and must remove it; the referenced node is guaranteed to have a successor.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -525,7 +538,7 @@ void deleteNode(ListNode node){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Reverse the nodes of a linked list <code>k</code> at a time. If a trailing group has fewer than <code>k</code> nodes, leave it as-is.</p>
+  <p class="problem">Flip the linked list in consecutive blocks of <code>k</code> nodes each; any final block with fewer than <code>k</code> nodes should stay in its original order.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -613,7 +626,7 @@ private ListNode kthNode(ListNode node, int k){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given heights[] of vertical lines on the x-axis, pick two lines that, with the x-axis, form a container holding the most water. Return the max area.</p>
+  <p class="problem">Each entry of heights[] marks a vertical line standing on the x-axis; choose the pair of lines that together with the x-axis traps the greatest volume of water, and report that maximum area.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -685,7 +698,7 @@ int maxArea(int[] heights){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Circular route of n stations with <code>gas[i]</code> and <code>cost[i]</code> to travel to the next. Return the starting index of a station from which you can complete one full loop, or -1.</p>
+  <p class="problem">Along a circular loop of n stations, each station provides <code>gas[i]</code> fuel and requires <code>cost[i]</code> to reach the following one. Identify a station index where you may begin and still finish the entire circuit, or return -1 if none works.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -764,7 +777,7 @@ int canCompleteCircuit(int[] gas, int[] cost){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return the k-th permutation of <code>[1..n]</code> in lexicographic order.</p>
+  <p class="problem">When all arrangements of <code>[1..n]</code> are listed in lexicographic order, produce the one at position k.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -844,7 +857,7 @@ String getPermutation(int n, int k){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a string <code>s</code> and a dictionary, return ALL sentences formed by adding spaces such that each word is in the dictionary.</p>
+  <p class="problem">Using a string <code>s</code> and a word list, produce EVERY possible sentence obtained by inserting spaces so that each resulting word belongs to the dictionary.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -971,7 +984,7 @@ collectSentencesFrom(10)       // empty suffix — base case
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return any index <code>i</code> with <code>a[i] &gt; a[i-1]</code> and <code>a[i] &gt; a[i+1]</code> (boundaries treated as -∞). O(log n).</p>
+  <p class="problem">Locate any position <code>i</code> such that <code>a[i] &gt; a[i-1]</code> together with <code>a[i] &gt; a[i+1]</code>, where out-of-range neighbors count as -∞. O(log n).</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1036,7 +1049,7 @@ int findPeakElement(int[] nums){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given arrays A and B of size n, return the top K largest values of <code>A[i] + B[j]</code>.</p>
+  <p class="problem">With two length-n arrays A and B, output the K greatest sums of the form <code>A[i] + B[j]</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1124,7 +1137,7 @@ private void reverse(int[] a){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">For each element, return the next greater element on the right (or -1).</p>
+  <p class="problem">Scanning to the right of every element, report the first value that exceeds it, or -1 when none exists.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1192,7 +1205,7 @@ int[] nextGreaterElements(int[] nums){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">For each day's price, return the span = number of consecutive previous days (including today) with price ≤ today's.</p>
+  <p class="problem">For every day, compute its span, defined as the count of consecutive prior days (today included) whose price is ≤ today's price.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1261,7 +1274,7 @@ class StockSpanner {
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Find the longest string that is a prefix of every string in the input array.</p>
+  <p class="problem">Identify the longest string that appears at the start of every string in the given array.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1332,7 +1345,7 @@ String longestCommonPrefix(String[] strs){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given two version strings like <code>"1.01"</code> and <code>"1.001.0"</code>, return -1/0/1 comparing them. Trailing zero-only segments are equal to missing ones.</p>
+  <p class="problem">Compare two version strings such as <code>"1.01"</code> and <code>"1.001.0"</code> and output -1/0/1; segments consisting only of trailing zeros are treated the same as absent segments.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1405,7 +1418,7 @@ int compareVersion(String v1, String v2){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return groups of node values column-by-column (left to right). Within a column, sort by row, then by value.</p>
+  <p class="problem">Produce the node values grouped by column from leftmost to rightmost; entries sharing a column are ordered by row first and then by value.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1485,7 +1498,7 @@ List&lt;List&lt;Integer&gt;&gt; verticalTraversal(TreeNode root){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return the anti-clockwise boundary: root, left boundary (excluding leaves), all leaves left→right, right boundary reversed (excluding leaves).</p>
+  <p class="problem">Trace the boundary counter-clockwise: begin with the root, follow the left boundary skipping leaves, then all leaves in left→right order, and finally the right boundary in reverse while skipping leaves.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1574,7 +1587,7 @@ private void leaves(TreeNode node, List&lt;Integer&gt; out){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Modify a tree so every non-leaf node's value equals the sum of its children. You may only INCREASE values (never decrease).</p>
+  <p class="problem">Adjust the tree so that each internal node holds the total of its children's values, with the restriction that values may only be raised, never lowered.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1657,7 +1670,7 @@ private int sumOfKids(TreeNode node){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Delete a target key from a BST and return the root. Tree must remain a valid BST.</p>
+  <p class="problem">Remove the node matching a given key from a BST and hand back the root, keeping the tree a valid BST afterward.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1735,7 +1748,7 @@ private TreeNode min(TreeNode node){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">In-place transform a BST into a circular sorted doubly linked list using left = prev, right = next. Return the head.</p>
+  <p class="problem">Convert a BST in place into a circular sorted doubly linked list where left points to prev and right points to next, then return the head.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1815,7 +1828,7 @@ class BstToDllConverter {
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Find the maximum sum among all subtrees that form a valid BST (any node inside, not necessarily the root).</p>
+  <p class="problem">Among every subtree that is itself a valid BST (rooted at any node, not just the overall root), determine the largest possible sum of values.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1913,7 +1926,7 @@ class MaximumSumBstFinder {
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given an m×n grid of '1' (land) and '0' (water), return the number of 4-connected island components.</p>
+  <p class="problem">In an m×n grid where '1' denotes land and '0' denotes water, count how many islands exist under 4-directional connectivity.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1994,7 +2007,7 @@ int numIslands(char[][] grid){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">An edge in an undirected graph is a <b>bridge</b> if removing it disconnects the graph (increases the number of connected components). Return all bridges.</p>
+  <p class="problem">In an undirected graph, an edge counts as a <b>bridge</b> when its removal splits the graph into more connected components. List all such bridges.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2088,7 +2101,7 @@ class BridgeFinder {
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given an array, find a STRICTLY INCREASING subsequence with the maximum possible sum.</p>
+  <p class="problem">Within the given array, locate a subsequence whose elements strictly increase and whose sum is as large as possible.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2154,7 +2167,7 @@ int maxSumIncreasingSubseq(int[] a){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given coin denominations and an amount, return the minimum number of coins to form the amount (or -1).</p>
+  <p class="problem">Using the supplied coin denominations, determine the fewest coins needed to total a target amount, or -1 if it cannot be made.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2225,7 +2238,7 @@ int coinChange(int[] coins, int amount){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a 2D grid of letters and a list of words, return all words that appear via 4-connected paths (no cell reuse).</p>
+  <p class="problem">On a 2D board of letters together with a word list, report every word that can be traced along 4-connected paths where no cell is used twice.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2326,12 +2339,18 @@ class WordSearchII {
 </article>
 
 
+<nav class="page-nav">
+  <a class="nav-btn" href="day5.html">← Prev: Day 5</a>
+  <a class="nav-btn home" href="index.html">⌂ DSA Index</a>
+  <a class="nav-btn" href="day7.html">Next: Day 7 →</a>
+</nav>
+
 </div>
 
 <button class="top" id="top" title="Back to top">↑</button>
 
 <footer>
-  Built with <b>BuildLikeASenior</b> · Day 6 of Ankit's SDE Sheet · Think · Design · Grow Like a Senior Engineer
+  Built with <b>BuildLikeASenior</b> · Day 6 of the BLAS DSA Blueprint · Think · Design · Grow Like a Senior Engineer
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>

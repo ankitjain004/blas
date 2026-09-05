@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Day 1 · Ankit's SDE Sheet · BuildLikeASenior</title>
+<title>Day 1 · BLAS DSA Blueprint · BuildLikeASenior</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -116,18 +116,31 @@
   .anim-stats b{color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:15px}
   .anim-note{background:linear-gradient(90deg,rgba(91,141,238,.12),rgba(91,141,238,.04));border-left:3px solid var(--blue);padding:11px 15px;border-radius:8px;margin-top:12px;font-size:13.5px;color:#dbe6f7;min-height:20px;transition:all .2s}
   .anim-note b{color:var(--teal)}
+  .page-nav{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:20px 0;flex-wrap:wrap}
+  .nav-btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--line);color:var(--muted);background:linear-gradient(180deg,var(--card),var(--card2));transition:border-color .2s,color .2s;text-decoration:none;font-family:'JetBrains Mono',monospace}
+  .nav-btn:hover{border-color:var(--teal);color:var(--teal);text-decoration:none}
+  .nav-btn.home{background:rgba(0,212,170,.08);border-color:rgba(0,212,170,.25);color:var(--teal)}
+  .nav-btn.spacer{visibility:hidden}
+  .crumb{position:absolute;left:20px;top:20px;font-size:13px;font-family:'JetBrains Mono',monospace}
 </style>
 </head>
 <body>
 
 <header class="hero">
+  <a class="crumb" href="../index.html">← Home</a>
   <span class="badge">Day 1 · BuildLikeASenior</span>
-  <h1 class="title">Ankit's SDE Sheet — <span>Day 1</span></h1>
+  <h1 class="title">BLAS DSA Blueprint — <span>Day 1</span></h1>
   <p class="sub">First question from every section. One pass. Mental models, optimal approaches, code, and visuals — engineered for rapid recall.</p>
   <div class="meta"><span><b>27</b> questions</span><span><b>27</b> sections</span><span><b>~3-4 hrs</b> deep work</span></div>
 </header>
 
 <div class="wrap">
+
+<nav class="page-nav">
+  <span class="nav-btn spacer">← Prev</span>
+  <a class="nav-btn home" href="index.html">⌂ DSA Index</a>
+  <a class="nav-btn" href="day2.html">Next: Day 2 →</a>
+</nav>
 
 <nav class="toc">
   <h3>Today's Run-list</h3>
@@ -174,7 +187,7 @@
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given an <code>m × n</code> matrix, if any element is 0, set its entire row and column to 0. Do it <b>in-place</b> with O(1) extra space.</p>
+  <p class="problem">You're given an <code>m × n</code> matrix. Whenever a cell holds 0, blank out that cell's entire row and column. Modify the matrix <b>in place</b> using only O(1) extra space.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -368,7 +381,7 @@ void setZeroes(int[][] matrix){
   <div class="links"><a href="https://leetcode.com/problems/rotate-image/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Rotate an <code>n × n</code> matrix clockwise by 90° in-place.</p>
+  <p class="problem">Turn an <code>n × n</code> matrix a quarter-turn clockwise (90°), modifying it in place.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -510,7 +523,7 @@ void rotate(int[][] matrix){
   <div class="links"><a href="https://leetcode.com/problems/search-a-2d-matrix/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Each row sorted, first integer of each row &gt; last integer of previous row. Search for <code>target</code>.</p>
+  <p class="problem">Every row is sorted and each row's first integer &gt; the previous row's last integer. Determine whether <code>target</code> is present.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -644,7 +657,7 @@ boolean searchInSortedMatrix(int[][] matrix, int target){
   <div class="links"><a href="https://leetcode.com/problems/two-sum/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return indices <code>i, j</code> such that <code>a[i] + a[j] == target</code>.</p>
+  <p class="problem">Find two indices <code>i, j</code> whose values satisfy <code>a[i] + a[j] == target</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -778,7 +791,7 @@ int[] twoSum(int[] nums, int target){
   <div class="links"><a href="https://leetcode.com/problems/reverse-linked-list/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given <code>head</code> of a singly linked list, return the reversed list.</p>
+  <p class="problem">Given the <code>head</code> of a singly linked list, reverse its links and return the new head.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -940,7 +953,7 @@ ListNode reverseListRecursive(ListNode head){
   <div class="links"><a href="https://leetcode.com/problems/intersection-of-two-linked-lists/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Find the node where two singly-linked lists merge (or null).</p>
+  <p class="problem">Given two singly linked lists that may join, return their first shared node, or null if they never meet.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1065,7 +1078,7 @@ ListNode getIntersectionNode(ListNode headA, ListNode headB){
   <div class="links"><a href="https://leetcode.com/problems/rotate-list/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Rotate a linked list to the right by <code>k</code> places.</p>
+  <p class="problem">Shift every node of a linked list <code>k</code> positions to the right and return the new head.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1217,7 +1230,7 @@ ListNode rotateRight(ListNode head, int k){
   <div class="links"><a href="https://www.geeksforgeeks.org/n-meetings-in-one-room/" target="_blank">GFG</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Maximum number of non-overlapping meetings, given start[] and end[].</p>
+  <p class="problem">Given meetings described by start[] and end[], select the largest set that never overlap.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1417,7 +1430,7 @@ int maxMeetings(int[] start, int[] end){
   <div class="links"><a href="https://www.geeksforgeeks.org/problems/subset-sums2234/1" target="_blank">GFG</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return sums of all <code>2ⁿ</code> subsets of an array.</p>
+  <p class="problem">For an array of size n, output the sum of each of its <code>2ⁿ</code> subsets.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1570,7 +1583,7 @@ void collectSubsetSums(int i, int sum, int[] nums, List&lt;Integer&gt; res){
   <div class="links"><a href="https://leetcode.com/problems/permutations/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return all <code>n!</code> permutations of distinct integers.</p>
+  <p class="problem">Given distinct integers, generate every one of the <code>n!</code> orderings.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1722,7 +1735,7 @@ void swap(int[] arr, int i, int j){
   <div class="links"><a href="https://www.geeksforgeeks.org/n-th-root-number/" target="_blank">GFG</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Find an integer <code>x</code> such that <code>x^n = m</code>, else -1.</p>
+  <p class="problem">Given <code>n</code> and <code>m</code>, return an integer <code>x</code> with <code>x^n = m</code>, or -1 when none exists.</p>
 
   <div class="section-title">Mental Model</div>
   <div class="mental"><b>Binary search the answer space.</b> The function <code>f(x) = xⁿ</code> is monotonic, so the candidate range <code>[1, m]</code> is searchable. Use a "multiply with overflow guard" instead of pow.</div>
@@ -1868,7 +1881,7 @@ int nthRoot(int n, int m){
   <div class="links"><a href="https://www.geeksforgeeks.org/binary-heap/" target="_blank">GFG</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Implement a binary max-heap supporting <code>insert(x)</code>, <code>extractMax()</code>, and <code>peek()</code> on a fixed-capacity array.</p>
+  <p class="problem">Build a fixed-capacity binary max-heap that exposes <code>insert(x)</code>, <code>extractMax()</code>, and <code>peek()</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2048,7 +2061,7 @@ flowchart TD
   <div class="links"><a href="https://www.geeksforgeeks.org/implement-stack-using-array/" target="_blank">GFG</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Implement push, pop, top, size in O(1).</p>
+  <p class="problem">Back a stack with a plain array, supporting push, pop, top, and size — each in O(1).</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2182,7 +2195,7 @@ class ArrayStack{
   <div class="links"><a href="https://www.geeksforgeeks.org/next-smaller-element/" target="_blank">GFG</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">For each element, find the first <i>smaller</i> element to its right (or <code>-1</code> if none).</p>
+  <p class="problem">Scanning rightward from each element, report the nearest <i>smaller</i> value (or <code>-1</code> when there is none).</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2343,7 +2356,7 @@ int[] nextSmallerElement(int[] nums){
   <div class="links"><a href="https://leetcode.com/problems/reverse-words-in-a-string/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Reverse word order, collapse extra spaces.</p>
+  <p class="problem">Given a sentence, reverse the order of its words while squeezing out any extra spaces.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2471,7 +2484,7 @@ String reverseWords(String s){
   <div class="links"><a href="https://cp-algorithms.com/string/z-function.html" target="_blank">CP-Algorithms</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">For string <code>s</code>, compute <code>z[i]</code> = longest substring starting at <code>i</code> that matches a prefix of <code>s</code>. Use <code>p + "$" + t</code> for pattern matching.</p>
+  <p class="problem">For a string <code>s</code>, compute <code>z[i]</code> = the length of the longest prefix of <code>s</code> that also begins at index <code>i</code>; apply it to <code>p + "$" + t</code> to match a pattern.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2637,7 +2650,7 @@ int[] zFunction(String s){
   <div class="links"><a href="https://leetcode.com/problems/binary-tree-inorder-traversal/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return inorder (Left → Root → Right) traversal without recursion.</p>
+  <p class="problem">Produce the inorder sequence (Left → Root → Right) of a binary tree iteratively, without recursion.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2801,7 +2814,7 @@ List&lt;Integer&gt; inorderTraversal(TreeNode root){
   <div class="links"><a href="https://leetcode.com/problems/binary-tree-level-order-traversal/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return nodes grouped by level (BFS).</p>
+  <p class="problem">Traverse a binary tree breadth-first and return its nodes bucketed level by level.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2953,7 +2966,7 @@ List&lt;List&lt;Integer&gt;&gt; levelOrder(TreeNode root){
   <div class="links"><a href="https://leetcode.com/problems/binary-tree-maximum-path-sum/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">A path is any sequence of nodes connected by parent-child edges (need not pass through the root). Return the maximum sum among all paths. Node values can be negative.</p>
+  <p class="problem">A path follows parent-child edges and may start and end anywhere (the root is optional). With node values that can be negative, return the largest achievable path sum.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -3115,7 +3128,7 @@ private int dfs(TreeNode node){
   <div class="links"><a href="https://leetcode.com/problems/populating-next-right-pointers-in-each-node/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Perfect binary tree — link each node's <code>next</code> to its right neighbor on the same level. Use <code>O(1)</code> extra space.</p>
+  <p class="problem">In a perfect binary tree, connect every node's <code>next</code> pointer to the node on its right at the same depth, using <code>O(1)</code> extra space.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -3321,7 +3334,7 @@ Node connect(Node root){
   <div class="links"><a href="https://www.geeksforgeeks.org/floor-in-binary-search-tree-bst/" target="_blank">GFG</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Largest value ≤ <code>key</code> in a BST.</p>
+  <p class="problem">In a BST, return the greatest value that is still ≤ <code>key</code> (its floor).</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -3470,7 +3483,7 @@ int floor(TreeNode root, int key){
   <div class="links"><a href="https://leetcode.com/problems/convert-binary-search-tree-to-sorted-doubly-linked-list/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Convert a BST to a sorted circular doubly-linked list, in place.</p>
+  <p class="problem">Transform a BST into a sorted circular doubly linked list in place, without new nodes.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -3655,7 +3668,7 @@ Node treeToDoublyLinkedList(Node root){
   <div class="links"><a href="https://leetcode.com/problems/clone-graph/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Deep copy an undirected connected graph.</p>
+  <p class="problem">Produce a deep copy of a connected, undirected graph.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -3818,7 +3831,7 @@ Node cloneGraph(Node node){
   <div class="links"><a href="https://www.geeksforgeeks.org/strongly-connected-components/" target="_blank">GFG</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">In a directed graph, find all <i>strongly connected components</i> — maximal sets of vertices where every pair is mutually reachable.</p>
+  <p class="problem">Within a directed graph, list every <i>strongly connected component</i> — the largest vertex groups in which each pair can reach the other.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -4007,7 +4020,7 @@ private void dfsCollect(int u, List&lt;Integer&gt;[] transpose, boolean[] visite
   <div class="links"><a href="https://leetcode.com/problems/maximum-product-subarray/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Find the contiguous subarray with the largest product.</p>
+  <p class="problem">Locate the contiguous subarray whose elements multiply to the greatest product.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -4164,7 +4177,7 @@ int maxProduct(int[] nums){
   <div class="links"><a href="https://leetcode.com/problems/minimum-path-sum/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given an <code>m × n</code> non-negative grid, find the path from top-left to bottom-right with minimum sum, moving only right or down.</p>
+  <p class="problem">On an <code>m × n</code> grid of non-negative numbers, moving only right or down, find the minimum-sum route from the top-left corner to the bottom-right.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -4318,7 +4331,7 @@ int minPathSum(int[][] grid){
   <div class="links"><a href="https://leetcode.com/problems/implement-trie-prefix-tree/" target="_blank">LeetCode</a></div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Insert, search, startsWith — all on lowercase strings.</p>
+  <p class="problem">Support insert, search, and startsWith over lowercase-letter strings (a trie).</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -4492,12 +4505,18 @@ flowchart TD
   <div class="complexity"><div>Time <b>O(L)</b> per op</div><div>Space <b>O(N·L)</b></div></div>
 </article>
 
+<nav class="page-nav">
+  <span class="nav-btn spacer">← Prev</span>
+  <a class="nav-btn home" href="index.html">⌂ DSA Index</a>
+  <a class="nav-btn" href="day2.html">Next: Day 2 →</a>
+</nav>
+
 </div>
 
 <button class="top" id="top" title="Back to top">↑</button>
 
 <footer>
-  Built with <b>BuildLikeASenior</b> · Day 1 of Ankit's SDE Sheet · Think · Design · Grow Like a Senior Engineer
+  Built with <b>BuildLikeASenior</b> · Day 1 of the BLAS DSA Blueprint · Think · Design · Grow Like a Senior Engineer
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Day 4 · Ankit's SDE Sheet · BuildLikeASenior</title>
+<title>Day 4 · BLAS DSA Blueprint · BuildLikeASenior</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -91,18 +91,31 @@
   .top.show{opacity:1}
   footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
   footer b{color:var(--teal)}
+  .page-nav{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:20px 0;flex-wrap:wrap}
+  .nav-btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--line);color:var(--muted);background:linear-gradient(180deg,var(--card),var(--card2));transition:border-color .2s,color .2s;text-decoration:none;font-family:'JetBrains Mono',monospace}
+  .nav-btn:hover{border-color:var(--teal);color:var(--teal);text-decoration:none}
+  .nav-btn.home{background:rgba(0,212,170,.08);border-color:rgba(0,212,170,.25);color:var(--teal)}
+  .nav-btn.spacer{visibility:hidden}
+  .crumb{position:absolute;left:20px;top:20px;font-size:13px;font-family:'JetBrains Mono',monospace}
 </style>
 </head>
 <body>
 
 <header class="hero">
+  <a class="crumb" href="../index.html">← Home</a>
   <span class="badge">Day 4 · BuildLikeASenior</span>
-  <h1 class="title">Ankit's SDE Sheet — <span>Day 4</span></h1>
+  <h1 class="title">BLAS DSA Blueprint — <span>Day 4</span></h1>
   <p class="sub">Fourth question from every section. The "classic interview" round — Kadane, Trapping Rain Water, Edit Distance, Floyd-Warshall, Morris, Max Path Sum.</p>
   <div class="meta"><span><b>27</b> questions</span><span><b>27</b> sections</span><span><b>~4 hrs</b> deep work</span></div>
 </header>
 
 <div class="wrap">
+
+<nav class="page-nav">
+  <a class="nav-btn" href="day3.html">← Prev: Day 3</a>
+  <a class="nav-btn home" href="index.html">⌂ DSA Index</a>
+  <a class="nav-btn" href="day5.html">Next: Day 5 →</a>
+</nav>
 
 <nav class="toc">
   <h3>Today's Run-list</h3>
@@ -146,7 +159,7 @@
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Find the contiguous subarray with the largest sum and return that sum.</p>
+  <p class="problem">Return the largest sum obtainable from any contiguous subarray.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -289,7 +302,7 @@ int maxSubArray(int[] nums){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Array of <code>n + 1</code> integers, each in <code>[1, n]</code>. Exactly one number repeats. Find it without modifying the array, in O(1) extra space.</p>
+  <p class="problem">You have <code>n + 1</code> integers, each in <code>[1, n]</code>, with exactly one repeated value. Identify it using O(1) extra space and without altering the array.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -364,7 +377,7 @@ int findDuplicate(int[] nums){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return all elements that appear strictly more than <code>⌊n/3⌋</code> times.</p>
+  <p class="problem">Return every element that occurs strictly more than <code>⌊n/3⌋</code> times.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -454,7 +467,7 @@ List&lt;Integer&gt; majorityElementOverNBy3(int[] nums){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given an array (may contain negatives) and target <code>k</code>, return length of the longest contiguous subarray whose sum equals <code>k</code>.</p>
+  <p class="problem">For an array that may include negatives and a target <code>k</code>, return the length of the longest contiguous subarray summing to <code>k</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -540,7 +553,7 @@ int longestSubarrayWithSumK(int[] nums, int k){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given the head of a singly linked list, remove the <code>n</code>-th node from the end and return the head.</p>
+  <p class="problem">Given the head of a singly linked list, delete the <code>n</code>-th node counted from the end and return the head.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -618,7 +631,7 @@ ListNode removeNthFromEnd(ListNode head, int n){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return <code>true</code> if the linked list reads the same forward and backward. Do it in O(n) time, O(1) extra space.</p>
+  <p class="problem">Decide whether a linked list is a palindrome, using O(n) time and O(1) extra space.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -711,7 +724,7 @@ private ListNode reverseList(ListNode node){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given <code>n</code> non-negative heights representing an elevation map, compute the amount of water that can be trapped after raining.</p>
+  <p class="problem">Given <code>n</code> non-negative bar heights forming an elevation map, compute how much rainwater is trapped between them.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -806,7 +819,7 @@ int trap(int[] h){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Maximise value carried in a knapsack of capacity <code>W</code> when you may take <i>fractions</i> of items.</p>
+  <p class="problem">Maximise the value packed into a knapsack of capacity <code>W</code> when <i>fractional</i> items are allowed.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -889,7 +902,7 @@ double fractionalKnapsack(int W, int[] wt, int[] val){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given <code>candidates</code> (may contain duplicates) and a <code>target</code>, return all <b>unique</b> combinations that sum to target. Each number may be used <b>at most once</b>.</p>
+  <p class="problem">Given <code>candidates</code> that may repeat and a <code>target</code>, return all <b>distinct</b> combinations summing to target where each element is used <b>at most once</b>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -975,7 +988,7 @@ private void backtrack(int[] nums, int start, int target,
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given an undirected graph and <code>m</code> colors, decide whether you can color every vertex such that no two adjacent vertices share a color.</p>
+  <p class="problem">Given an undirected graph and <code>m</code> colors, decide whether the vertices can be colored so no edge joins two same-colored vertices.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1063,7 +1076,7 @@ private boolean isSafe(int u, int c, boolean[][] adj, int[] col){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Sorted unique array rotated at some pivot. Find target index in O(log n) or return -1.</p>
+  <p class="problem">In a rotated sorted array of unique values, return the index of target in O(log n), or -1 if absent.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1159,7 +1172,7 @@ int searchInRotatedSortedArray(int[] nums, int target){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given <code>k</code> sorted arrays, merge them into one sorted array.</p>
+  <p class="problem">Merge <code>k</code> individually sorted arrays into a single sorted array.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1249,7 +1262,7 @@ int[] mergeKSortedArrays(int[][] arrs){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Implement a FIFO queue using only stacks. Operations: <code>push</code>, <code>pop</code>, <code>peek</code>, <code>empty</code>.</p>
+  <p class="problem">Build a FIFO queue backed only by stacks, supporting <code>push</code>, <code>pop</code>, <code>peek</code>, and <code>empty</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1330,7 +1343,7 @@ class QueueUsingTwoStacks {
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Design <code>get</code>/<code>put</code> in O(1). Evict the <b>least frequently used</b> key; break ties by least recently used.</p>
+  <p class="problem">Design O(1) <code>get</code>/<code>put</code> that evicts the <b>least frequently used</b> key, breaking ties by least-recently-used.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1444,7 +1457,7 @@ class LFUCache {
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Convert an integer in <code>[1, 3999]</code> to its Roman numeral representation.</p>
+  <p class="problem">Convert an integer in the range <code>[1, 3999]</code> into its Roman-numeral form.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1515,7 +1528,7 @@ String intToRoman(int num){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given two strings, return true iff one is an anagram of the other (same characters, same counts).</p>
+  <p class="problem">Given two strings, return true when they are anagrams (identical characters with identical counts).</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1588,7 +1601,7 @@ boolean isAnagram(String s, String t){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Inorder traversal in <b>O(1)</b> extra space (no stack, no recursion).</p>
+  <p class="problem">Perform an inorder traversal using <b>O(1)</b> extra space — no stack and no recursion.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1728,7 +1741,7 @@ List&lt;Integer&gt; morrisPreorder(TreeNode root){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">A binary tree is height-balanced iff for every node <code>abs(height(left) - height(right)) &le; 1</code>. Return true/false.</p>
+  <p class="problem">A binary tree is height-balanced when every node satisfies <code>abs(height(left) - height(right)) &le; 1</code>; return whether it holds.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1804,7 +1817,7 @@ private int heightOrMinusOne(TreeNode node){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return the sequence of node values from the root to a target node in a binary tree.</p>
+  <p class="problem">Return the list of node values along the path from the root to a given target node.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1881,7 +1894,7 @@ private boolean dfsBuildPath(TreeNode node, int target, List&lt;Integer&gt; path
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Determine if a binary tree is a valid BST (left subtree strictly less, right subtree strictly greater, recursive).</p>
+  <p class="problem">Check whether a binary tree is a valid BST — every left subtree strictly smaller and every right subtree strictly larger — recursively.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1966,7 +1979,7 @@ private boolean validateWithinRange(TreeNode node, long lo, long hi){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a BST and two nodes <code>p</code> and <code>q</code>, return their lowest common ancestor.</p>
+  <p class="problem">For a BST and two of its nodes <code>p</code> and <code>q</code>, return their lowest common ancestor.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2036,7 +2049,7 @@ TreeNode lowestCommonAncestorBST(TreeNode root, TreeNode p, TreeNode q){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a BST and a target <code>k</code>, return true if there exist two distinct nodes whose values sum to <code>k</code>.</p>
+  <p class="problem">Given a BST and a target <code>k</code>, decide whether two distinct nodes have values adding up to <code>k</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2131,7 +2144,7 @@ class BSTIterator {
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Decide whether an undirected graph contains a cycle.</p>
+  <p class="problem">Determine whether an undirected graph has a cycle.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2222,7 +2235,7 @@ private boolean bfs(int s, List&lt;List&lt;Integer&gt;&gt; adj, boolean[] visite
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Compute the shortest path between every pair of vertices in a weighted directed graph (no negative cycles).</p>
+  <p class="problem">Find the shortest distance between every pair of vertices in a weighted directed graph with no negative cycles.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2298,7 +2311,7 @@ void floydWarshall(int[][] dist){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Minimum operations (insert, delete, replace — each cost 1) to convert <code>word1</code> into <code>word2</code>.</p>
+  <p class="problem">Return the minimum number of single-cost edits (insert, delete, or replace) that turn <code>word1</code> into <code>word2</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2407,7 +2420,7 @@ int minEditDistance(String word1, String word2){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given prices for rod lengths <code>1..n</code>, maximise total revenue by cutting a rod of length <code>n</code> into pieces (any number of cuts, any sizes).</p>
+  <p class="problem">Given prices for rod lengths <code>1..n</code>, cut a rod of length <code>n</code> (any cuts, any sizes) to maximise total revenue.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2495,7 +2508,7 @@ int rodCuttingMaxRevenue(int[] price){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a list of strings, return the longest string such that <b>every prefix</b> of it is also present in the list. Tie-break: lexicographically smallest. Return "" if none.</p>
+  <p class="problem">From a list of strings, return the longest one whose <b>every prefix</b> also appears in the list; on ties choose the lexicographically smallest, or "" if none qualifies.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2579,12 +2592,18 @@ private static class TrieNode { TrieNode[] children = new TrieNode[26]; boolean 
 </article>
 
 
+<nav class="page-nav">
+  <a class="nav-btn" href="day3.html">← Prev: Day 3</a>
+  <a class="nav-btn home" href="index.html">⌂ DSA Index</a>
+  <a class="nav-btn" href="day5.html">Next: Day 5 →</a>
+</nav>
+
 </div>
 
 <button class="top" id="top" title="Back to top">↑</button>
 
 <footer>
-  Built with <b>BuildLikeASenior</b> · Day 4 of Ankit's SDE Sheet · Think · Design · Grow Like a Senior Engineer
+  Built with <b>BuildLikeASenior</b> · Day 4 of the BLAS DSA Blueprint · Think · Design · Grow Like a Senior Engineer
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>

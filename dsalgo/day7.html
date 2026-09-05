@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Day 7 · Ankit's SDE Sheet · BuildLikeASenior</title>
+<title>Day 7 · BLAS DSA Blueprint · BuildLikeASenior</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -91,18 +91,31 @@
   .top.show{opacity:1}
   footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
   footer b{color:var(--teal)}
+  .page-nav{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:20px 0;flex-wrap:wrap}
+  .nav-btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--line);color:var(--muted);background:linear-gradient(180deg,var(--card),var(--card2));transition:border-color .2s,color .2s;text-decoration:none;font-family:'JetBrains Mono',monospace}
+  .nav-btn:hover{border-color:var(--teal);color:var(--teal);text-decoration:none}
+  .nav-btn.home{background:rgba(0,212,170,.08);border-color:rgba(0,212,170,.25);color:var(--teal)}
+  .nav-btn.spacer{visibility:hidden}
+  .crumb{position:absolute;left:20px;top:20px;font-size:13px;font-family:'JetBrains Mono',monospace}
 </style>
 </head>
 <body>
 
 <header class="hero">
+  <a class="crumb" href="../index.html">← Home</a>
   <span class="badge">Day 7 · Final Day · The Long Tail</span>
-  <h1 class="title">Ankit's SDE Sheet — <span>Day 7</span></h1>
+  <h1 class="title">BLAS DSA Blueprint — <span>Day 7</span></h1>
   <p class="sub">Every problem that survived past the 6-per-section sweep. Allocate Pages, Aggressive Cows, Rotten Oranges, Celebrity, Top &amp; Bottom View, Largest BST, Serialize BT, Clone Graph, Kahn's, Bipartite, Egg Drop, Job Scheduling, MCM, Pal-Part-II.</p>
   <div class="meta"><span><b>25</b> questions</span><span><b>11</b> deep sections</span><span><b>~4 hrs</b> closing sprint</span></div>
 </header>
 
 <div class="wrap">
+
+<nav class="page-nav">
+  <a class="nav-btn" href="day6.html">← Prev: Day 6</a>
+  <a class="nav-btn home" href="index.html">⌂ DSA Index</a>
+  <span class="nav-btn spacer">Next →</span>
+</nav>
 
 <nav class="toc">
   <h3>Today's Run-list — The Long Tail</h3>
@@ -144,7 +157,7 @@
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Books with page counts <code>pages[]</code> must be split contiguously among <code>m</code> students. Each student gets ≥1 book. Minimize the maximum pages any student carries.</p>
+  <p class="problem">You are handed an array <code>pages[]</code> of book page counts that must be distributed as contiguous chunks to <code>m</code> students, with no student left empty-handed (≥1 book each). Your task: make the heaviest student's total page load as small as possible.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -238,7 +251,7 @@ private boolean canSplitWithinCap(int[] pages, int k, int cap){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Place <code>k</code> cows into stalls at positions <code>stalls[]</code> so the MINIMUM distance between any two cows is MAXIMIZED. Return that maximum-of-minimums.</p>
+  <p class="problem">Assign <code>k</code> cows to stalls located at coordinates <code>stalls[]</code> such that the SMALLEST gap between any pair of cows becomes as LARGE as it can be. Report that best-possible minimum spacing.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -324,7 +337,7 @@ private boolean canPlaceAllCowsWithGap(int[] stalls, int k, int gap){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Sort a stack in ascending order (largest on top) using only stack operations and recursion / one auxiliary stack.</p>
+  <p class="problem">Arrange the elements of a stack into ascending order (largest element ending up on top), relying solely on stack operations plus recursion or a single helper stack.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -399,7 +412,7 @@ private void insertInSortedOrder(Deque&lt;Integer&gt; st, int x){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Grid cells: 0 empty, 1 fresh orange, 2 rotten. Every minute, rot spreads 4-directionally to adjacent fresh oranges. Return the minimum minutes to rot ALL fresh oranges, or -1 if some remain unreachable.</p>
+  <p class="problem">In a grid where 0 marks an empty cell, 1 a fresh orange, and 2 a rotten one, decay passes each minute from a rotten orange to its 4-directionally adjacent fresh neighbors. Compute how few minutes are needed until EVERY fresh orange has rotted, returning -1 when some can never be reached.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -493,7 +506,7 @@ int orangesRotting(int[][] grid){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Design a stack supporting <code>push, pop, top, getMin</code> all in O(1).</p>
+  <p class="problem">Build a stack in which <code>push, pop, top, getMin</code> each complete in constant O(1) time.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -601,7 +614,7 @@ class MinStack {
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">For every window size k = 1..n, return the maximum over all windows of size k of the window's MINIMUM.</p>
+  <p class="problem">Across each window length k from 1 up to n, take the MINIMUM inside every size-k window and report the largest such minimum for that length.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -743,7 +756,7 @@ final answer (window sizes 1..7) = [70, 70, 20, 10, 10, 10, 10]</code></pre>
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">In a party of n people, a celebrity is known by everyone but knows no one. Using <code>knows(a, b)</code>, find the celebrity (or -1) in O(n) calls.</p>
+  <p class="problem">At a gathering of n guests, one celebrity is recognized by all others yet recognizes nobody in return. Leveraging <code>knows(a, b)</code>, identify who the celebrity is (or -1 if none) within O(n) queries.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -820,7 +833,7 @@ private boolean knows(int a, int b){ /* provided by problem harness */ return fa
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return the bottom view of a binary tree — for each horizontal distance column, the LAST node seen during a level-order traversal.</p>
+  <p class="problem">Produce the bottom view of a binary tree: within each horizontal-distance column, keep the LAST node encountered as you sweep the tree level by level.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -901,7 +914,7 @@ List&lt;Integer&gt; bottomView(TreeNode root){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return the top view of a binary tree — for each horizontal distance column, the FIRST node seen during a level-order traversal.</p>
+  <p class="problem">Produce the top view of a binary tree: within each horizontal-distance column, keep the FIRST node encountered as you sweep the tree level by level.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -981,7 +994,7 @@ List&lt;Integer&gt; topView(TreeNode root){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return all three traversals (pre, in, post) of a binary tree using ONE iterative pass with a single stack.</p>
+  <p class="problem">Compute all three orderings (pre-order, in-order, post-order) of a binary tree together in a SINGLE iterative sweep backed by just one stack.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1068,7 +1081,7 @@ List&lt;List&lt;Integer&gt;&gt; allThreeTraversals(TreeNode root){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return true iff two binary trees have identical structure AND identical node values at every position.</p>
+  <p class="problem">Decide whether two binary trees match exactly — same shape AND the same value at every corresponding node — returning true only in that case.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1132,7 +1145,7 @@ boolean isSameTree(TreeNode p, TreeNode q){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a BST and a key, return the in-order predecessor (largest key strictly less than the given key), or null.</p>
+  <p class="problem">For a supplied BST and target key, locate its in-order predecessor — the greatest key that is strictly smaller than the target — or null when none exists.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1207,7 +1220,7 @@ TreeNode inorderPredecessor(TreeNode root, int key){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a binary tree, return the size (node count) of the LARGEST subtree that is itself a valid BST.</p>
+  <p class="problem">Within a given binary tree, find the LARGEST subtree that qualifies as a valid BST and report how many nodes it contains.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1300,7 +1313,7 @@ private NodeInfo postOrderInfo(TreeNode node, int[] best){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Design serialize(root) → String and deserialize(String) → root so that the result tree is identical to the original.</p>
+  <p class="problem">Implement serialize(root) → String together with deserialize(String) → root so that reconstructing from the string yields a tree identical to the one you started with.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1395,7 +1408,7 @@ TreeNode deserialize(String data){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given <code>beginWord</code>, <code>endWord</code>, and a dictionary, return the length of the shortest transformation sequence beginWord → endWord where each step changes exactly one letter and every intermediate word is in the dictionary. Return 0 if impossible.</p>
+  <p class="problem">You are given <code>beginWord</code>, <code>endWord</code>, and a word list. Compute the length of the shortest ladder beginWord → endWord in which consecutive words differ by exactly one letter and every intermediate word belongs to the dictionary; answer 0 when no such ladder exists.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1491,7 +1504,7 @@ int ladderLength(String beginWord, String endWord, List&lt;String&gt; wordList){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a directed graph, return true iff it contains at least one cycle.</p>
+  <p class="problem">Determine whether a given directed graph harbors at least one cycle, returning true precisely when it does.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1571,7 +1584,7 @@ boolean hasCycleDirected(int n, List&lt;List&lt;Integer&gt;&gt; adj){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a DAG, return any topological ordering — a linear ordering of vertices such that for every edge u→v, u appears before v.</p>
+  <p class="problem">For a given DAG, output any valid topological order — an arrangement of the vertices in which, for each edge u→v, u comes before v.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1648,7 +1661,7 @@ int[] topologicalSort(int n, List&lt;List&lt;Integer&gt;&gt; adj){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">A graph is bipartite iff its vertices can be 2-colored so that no edge connects same-colored vertices. Return true/false using BFS.</p>
+  <p class="problem">A graph counts as bipartite when its vertices admit a 2-coloring in which no edge joins two vertices of the same color. Decide this using BFS and return true or false.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1734,7 +1747,7 @@ boolean isBipartiteBFS(int n, List&lt;List&lt;Integer&gt;&gt; adj){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Same bipartite question, but solve via DFS instead of BFS.</p>
+  <p class="problem">Answer the identical bipartite-check question, this time using a DFS-based approach rather than BFS.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1813,7 +1826,7 @@ private boolean dfsTwoColor(int u, int c, int[] color, List&lt;List&lt;Integer&g
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return the length of the longest subsequence of <code>s</code> that reads the same forwards and backwards.</p>
+  <p class="problem">Find how long the longest subsequence of <code>s</code> is that remains unchanged whether read left-to-right or right-to-left.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1887,7 +1900,7 @@ int longestPalindromeSubseq(String s){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given dims[] of n matrices (matrix i has size dims[i-1] × dims[i]), find the minimum number of scalar multiplications needed to multiply the chain.</p>
+  <p class="problem">You are given dims[] describing n matrices, where matrix i has dimensions dims[i-1] × dims[i]. Determine the fewest scalar multiplications required to evaluate the entire product chain.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1961,7 +1974,7 @@ int matrixChainMultiplication(int[] dims){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given <code>e</code> identical eggs and <code>f</code> floors, find the minimum number of trials in the WORST case to determine the critical floor (highest floor an egg can survive).</p>
+  <p class="problem">With <code>e</code> indistinguishable eggs and a building of <code>f</code> floors, determine the fewest WORST-case drops required to pinpoint the critical floor (the topmost floor from which an egg survives).</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2030,7 +2043,7 @@ int eggDropMinTrials(int eggs, int floors){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given jobs with (start, end, profit), select a subset of mutually non-overlapping jobs to maximize total profit.</p>
+  <p class="problem">From a set of jobs each described by (start, end, profit), pick a collection that never overlaps in time so as to maximize the combined profit.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2125,7 +2138,7 @@ private int upperBoundLE(int[] a, int target, int hi){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a string s, return the MINIMUM number of cuts to partition s such that every part is a palindrome.</p>
+  <p class="problem">For a given string s, determine the FEWEST cuts required to break it into pieces where each piece is a palindrome.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2206,7 +2219,7 @@ int minPalindromeCuts(String s){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given <code>nums[]</code> and queries <code>(x, m)</code>, for each query return max(x XOR nums[i]) over all nums[i] ≤ m, or -1 if none.</p>
+  <p class="problem">You are given <code>nums[]</code> along with queries <code>(x, m)</code>; for each one, report the maximum value of x XOR nums[i] taken over every nums[i] ≤ m, or -1 when no element qualifies.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2304,12 +2317,18 @@ private int queryMaxXor(BitTrieNode root, int x){
   <div class="complexity"><div>Time <b>O((n + q) · 30)</b></div><div>Space <b>O(n · 30)</b></div></div>
 </article>
 
+<nav class="page-nav">
+  <a class="nav-btn" href="day6.html">← Prev: Day 6</a>
+  <a class="nav-btn home" href="index.html">⌂ DSA Index</a>
+  <span class="nav-btn spacer">Next →</span>
+</nav>
+
 </div>
 
 <button class="top" id="top" title="Back to top">↑</button>
 
 <footer>
-  Built with <b>BuildLikeASenior</b> · Day 7 · <b>Full Ankit's SDE Sheet drained.</b> Think · Design · Grow Like a Senior Engineer
+  Built with <b>BuildLikeASenior</b> · Day 7 · <b>Full BLAS DSA Blueprint complete.</b> Think · Design · Grow Like a Senior Engineer
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>

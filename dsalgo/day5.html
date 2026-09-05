@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Day 5 · Ankit's SDE Sheet · BuildLikeASenior</title>
+<title>Day 5 · BLAS DSA Blueprint · BuildLikeASenior</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -104,6 +104,12 @@
   .top.show{opacity:1}
   footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
   footer b{color:var(--teal)}
+  .page-nav{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:20px 0;flex-wrap:wrap}
+  .nav-btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--line);color:var(--muted);background:linear-gradient(180deg,var(--card),var(--card2));transition:border-color .2s,color .2s;text-decoration:none;font-family:'JetBrains Mono',monospace}
+  .nav-btn:hover{border-color:var(--teal);color:var(--teal);text-decoration:none}
+  .nav-btn.home{background:rgba(0,212,170,.08);border-color:rgba(0,212,170,.25);color:var(--teal)}
+  .nav-btn.spacer{visibility:hidden}
+  .crumb{position:absolute;left:20px;top:20px;font-size:13px;font-family:'JetBrains Mono',monospace}
 </style>
 </head>
 <body>
@@ -150,13 +156,20 @@ const AnimKit = {
 </script>
 
 <header class="hero">
+  <a class="crumb" href="../index.html">← Home</a>
   <span class="badge">Day 5 · BuildLikeASenior</span>
-  <h1 class="title">Ankit's SDE Sheet — <span>Day 5</span></h1>
+  <h1 class="title">BLAS DSA Blueprint — <span>Day 5</span></h1>
   <p class="sub">Fifth question per section. Median of Two Sorted Arrays, Largest Rectangle, Prim's MST, Maximum XOR via Trie — the heavy artillery.</p>
   <div class="meta"><span><b>27</b> questions</span><span><b>27</b> sections</span><span><b>~4 hrs</b> deep work</span></div>
 </header>
 
 <div class="wrap">
+
+<nav class="page-nav">
+  <a class="nav-btn" href="day4.html">← Prev: Day 4</a>
+  <a class="nav-btn home" href="index.html">⌂ DSA Index</a>
+  <a class="nav-btn" href="day6.html">Next: Day 6 →</a>
+</nav>
 
 <nav class="toc">
   <h3>Today's Run-list</h3>
@@ -200,7 +213,7 @@ const AnimKit = {
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Sort an array of <code>0</code>, <code>1</code>, <code>2</code> in place in a single pass with O(1) extra space.</p>
+  <p class="problem">Sort an array containing only <code>0</code>, <code>1</code>, and <code>2</code> in one pass, in place, using O(1) extra space.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -343,7 +356,7 @@ void sortColors(int[] nums){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Array of <code>n</code> numbers in <code>[1, n]</code> with one repeated and one missing. Find both in O(n) / O(1).</p>
+  <p class="problem">An array holds <code>n</code> numbers from <code>[1, n]</code> where one value repeats and one is missing; find both in O(n) time and O(1) space.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -524,7 +537,7 @@ int[] findRepeatedAndMissing(int[] nums){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">On an <code>m × n</code> grid, count paths from top-left to bottom-right moving only right or down.</p>
+  <p class="problem">Count how many paths lead from the top-left to the bottom-right of an <code>m × n</code> grid when you may move only right or down.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -667,7 +680,7 @@ int uniquePaths(int m, int n){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Count subarrays whose XOR equals a target <code>k</code>.</p>
+  <p class="problem">Count the subarrays whose XOR equals a given target <code>k</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -819,7 +832,7 @@ int countSubarraysWithXorEqualsK(int[] nums, int k){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Two non-empty LLs represent integers in <b>reverse</b> order (one digit per node). Return their sum as a LL in the same form.</p>
+  <p class="problem">Two non-empty linked lists store integers with digits in <b>reverse</b> order (one digit per node); return their sum as a list in the same layout.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -967,7 +980,7 @@ ListNode addTwoNumbers(ListNode l1, ListNode l2){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Each node has <code>next</code> and <code>bottom</code> pointers; sub-lists via <code>bottom</code> are sorted. Flatten into one sorted <code>bottom</code>-linked list.</p>
+  <p class="problem">Each node carries <code>next</code> and <code>bottom</code> pointers, and the <code>bottom</code> sub-lists are sorted; flatten everything into a single sorted <code>bottom</code>-linked list.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1119,7 +1132,7 @@ private Node merge(Node a, Node b){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a sorted array, remove duplicates in place. Return the new length; the first <code>k</code> elements should hold the unique values.</p>
+  <p class="problem">In a sorted array, drop duplicates in place and return the new length, with the first <code>k</code> slots holding the unique values.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1249,7 +1262,7 @@ int removeDuplicatesFromSortedArray(int[] nums){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given Indian-currency denominations (canonical), return the minimum count of coins/notes that sum to <code>amount</code>.</p>
+  <p class="problem">Using canonical Indian-currency denominations, return the fewest coins/notes that total <code>amount</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1381,7 +1394,7 @@ int minimumCoinsCanonical(int amount){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Partition string <code>s</code> such that every substring of the partition is a palindrome. Return all possible partitionings.</p>
+  <p class="problem">Split string <code>s</code> so that every piece is a palindrome, and return all such partitionings.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1546,7 +1559,7 @@ private boolean isPal(String s, int lo, int hi){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">An <code>n × n</code> grid (0=blocked, 1=open). Starting at (0,0), reach (n-1,n-1) moving D, L, R, U. Return all unique paths in lexicographic move order.</p>
+  <p class="problem">In an <code>n × n</code> grid (0 = blocked, 1 = open), travel from (0,0) to (n-1,n-1) using moves D, L, R, U; return every distinct path in lexicographic order of moves.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1713,7 +1726,7 @@ private void dfs(int r, int c, int[][] grid, int n,
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given two sorted arrays of sizes <code>m</code> and <code>n</code>, return the median of the combined sorted array in <code>O(log(min(m,n)))</code>.</p>
+  <p class="problem">Given two sorted arrays of sizes <code>m</code> and <code>n</code>, return the median of their merged order in <code>O(log(min(m,n)))</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -1891,7 +1904,7 @@ double findMedianSortedArrays(int[] a, int[] b){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return the <code>k</code> most frequent values in an array.</p>
+  <p class="problem">Return the <code>k</code> values that occur most often in an array.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2050,7 +2063,7 @@ int[] topKFrequent(int[] nums, int k){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a string of <code>()</code>, <code>[]</code>, <code>{}</code>, return true iff brackets are properly closed in correct order.</p>
+  <p class="problem">For a string of <code>()</code>, <code>[]</code>, and <code>{}</code>, return true when every bracket is closed in the proper order.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2186,7 +2199,7 @@ boolean isValidParentheses(String s){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given bar heights of a histogram, return the area of the largest rectangle that can be formed within it.</p>
+  <p class="problem">Given a histogram's bar heights, return the area of the largest rectangle that fits inside it.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2339,7 +2352,7 @@ int largestRectangleArea(int[] heights){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Convert a string to a 32-bit signed integer, skipping leading whitespace, handling optional sign, reading digits until non-digit, clamping to <code>Integer.MIN/MAX</code>.</p>
+  <p class="problem">Parse a string into a 32-bit signed integer: skip leading spaces, accept an optional sign, read digits until a non-digit, and clamp to <code>Integer.MIN/MAX</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2492,7 +2505,7 @@ int myAtoi(String s){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Sequence: 1 → 11 → 21 → 1211 → 111221 → … Each term describes the previous (run-length encoding read aloud). Return the n-th term.</p>
+  <p class="problem">For the look-and-say sequence 1 → 11 → 21 → 1211 → 111221 → … where each term reads the previous aloud (run-length encoding), return the n-th term.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2631,7 +2644,7 @@ String countAndSay(int n){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return the first node value seen at every level when looking at the tree from its left side.</p>
+  <p class="problem">Viewing the tree from its left side, return the first node value encountered at each level.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2771,7 +2784,7 @@ private void dfs(TreeNode node, int d, List&lt;Integer&gt; res){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return level-order traversal alternating left→right and right→left at each level.</p>
+  <p class="problem">Return a level-order traversal that zig-zags: left→right on one level, right→left on the next.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -2928,7 +2941,7 @@ List&lt;List&lt;Integer&gt;&gt; zigzagLevelOrder(TreeNode root){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return the maximum width of the tree, counting nulls between the outermost non-null nodes at each level.</p>
+  <p class="problem">Return the tree's maximum width, counting the null gaps between the outermost non-null nodes on each level.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -3143,7 +3156,7 @@ Level 2: queue=[(4,0),(5,3)], first=0
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a BST and a node <code>p</code>, return the node with the smallest key strictly greater than <code>p.val</code>.</p>
+  <p class="problem">Given a BST and one of its nodes <code>p</code>, return the node holding the smallest key strictly larger than <code>p.val</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -3285,7 +3298,7 @@ TreeNode inorderSuccessorBST(TreeNode root, TreeNode p){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">For a target <code>x</code>: <b>floor</b> = greatest value &le; x in the BST. <b>ceil</b> = smallest value &ge; x. Return -1 if none.</p>
+  <p class="problem">For a target <code>x</code>, return its <b>floor</b> (greatest BST value &le; x) and <b>ceil</b> (smallest BST value &ge; x), using -1 when none exists.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -3370,7 +3383,7 @@ int ceilInBST(TreeNode root, int target){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Design <code>next()</code> and <code>hasNext()</code> that traverse a BST in inorder. <code>next()</code> in average O(1), space O(h).</p>
+  <p class="problem">Implement a BST iterator with <code>next()</code> and <code>hasNext()</code> yielding inorder values, with <code>next()</code> averaging O(1) and O(h) space.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -3447,7 +3460,7 @@ class BSTIterator {
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given a DAG, return any topological ordering — every edge <code>u → v</code> has u before v.</p>
+  <p class="problem">For a DAG, return any topological order in which every edge <code>u → v</code> places u ahead of v.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -3525,7 +3538,7 @@ private void dfs(int u, List&lt;List&lt;Integer&gt;&gt; adj,
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given an undirected weighted connected graph, return the total weight of its Minimum Spanning Tree.</p>
+  <p class="problem">For a connected, weighted, undirected graph, return the total weight of its minimum spanning tree.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -3607,7 +3620,7 @@ int primMSTWeight(int n, List&lt;int[]&gt;[] adj){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Decide whether some subset of the array sums to <code>k</code>.</p>
+  <p class="problem">Decide whether any subset of the array adds up to <code>k</code>.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -3679,7 +3692,7 @@ boolean canPartitionToSum(int[] nums, int target){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Given items with weights and values and capacity <code>W</code>, maximise total value if each item can be picked an <b>unlimited</b> number of times.</p>
+  <p class="problem">Given items with weights and values and a capacity <code>W</code>, maximise the total value when each item may be chosen an <b>unlimited</b> number of times.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -3753,7 +3766,7 @@ int unboundedKnapsack(int[] wt, int[] val, int W){
   </div>
 
   <div class="section-title">Problem</div>
-  <p class="problem">Return the maximum XOR value of any two numbers in an array.</p>
+  <p class="problem">Return the largest XOR achievable from any pair of numbers in the array.</p>
 
   <div class="section-title">Example</div>
   <div class="approach">
@@ -3843,12 +3856,18 @@ private static class Node { Node[] children = new Node[2]; }</code></pre>
 </article>
 
 
+<nav class="page-nav">
+  <a class="nav-btn" href="day4.html">← Prev: Day 4</a>
+  <a class="nav-btn home" href="index.html">⌂ DSA Index</a>
+  <a class="nav-btn" href="day6.html">Next: Day 6 →</a>
+</nav>
+
 </div>
 
 <button class="top" id="top" title="Back to top">↑</button>
 
 <footer>
-  Built with <b>BuildLikeASenior</b> · Day 5 of Ankit's SDE Sheet · Think · Design · Grow Like a Senior Engineer
+  Built with <b>BuildLikeASenior</b> · Day 5 of the BLAS DSA Blueprint · Think · Design · Grow Like a Senior Engineer
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
