@@ -144,6 +144,45 @@
     </div>
   </div>
 
+  <!-- ============ LEARNING PATH ============ -->
+  <div class="section-title">Your Learning Path · How This Unfolds</div>
+  <p class="section-sub">Don't jump straight to problem #1. Build the base, then let each problem add exactly one new muscle. Total: about two focused days.</p>
+  <style>
+  .path{list-style:none;margin:0;padding:0}
+  .path>li{display:flex;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)}
+  .path>li:last-child{border-bottom:none}
+  .path .ph{flex:0 0 auto;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#062018;background:var(--teal);border-radius:6px;padding:4px 9px;height:fit-content}
+  .path b{color:var(--text)}
+  .path .goal{color:var(--gold);display:block;margin-top:3px;font-size:13px}
+  .path-sub{margin:8px 0 0;padding-left:18px}
+  .path-sub li{margin:5px 0;font-size:14px;color:#cfdcf2}
+  </style>
+  <div class="panel">
+    <ol class="path">
+      <li><span class="ph">Phase 1</span><div><b>Foundations</b> — OOP pillars, SOLID, and the 7 patterns above. <span class="goal">Goal: hear a requirement and instantly know which pattern it wants.</span></div></li>
+      <li><span class="ph">Phase 2</span><div><b>The Method</b> — internalize the 8-step flow; narrate it out loud on a trivial example (a TODO app) until it's automatic.</div></li>
+      <li><span class="ph">Phase 3</span><div><b>Work the 6 problems in order</b> — each one adds a single new skill:
+        <ol class="path-sub">
+          <li><b>Parking Lot</b> — entities &amp; relationships + Strategy/Factory. Your first full model.</li>
+          <li><b>Vending Machine</b> — the State machine (lifecycle transitions).</li>
+          <li><b>Elevator</b> — State + a scheduling Strategy + concurrency. Harder state.</li>
+          <li><b>LRU Cache</b> — pure data-structure design (HashMap + doubly linked list, O(1)).</li>
+          <li><b>Splitwise</b> — money modeling + Strategy (split types) + Observer (notifications).</li>
+          <li><b>Snake &amp; Ladder</b> — Observer + Command + a game loop. Ties it all together.</li>
+        </ol></div></li>
+      <li><span class="ph">Phase 4</span><div><b>Mock &amp; extend</b> — re-solve one problem cold on a 35-minute timer, have someone add a live requirement, then run the Interview-Day Checklist below.</div></li>
+    </ol>
+  </div>
+
+  <div class="panel">
+    <h2>How to work each problem — every time</h2>
+    <ul class="minilist">
+      <li><span class="k">1</span> <b>Attempt first</b> — spend 30–40 min designing classes on paper or a whiteboard <i>before</i> opening the solution.</li>
+      <li><span class="k">2</span> <b>Compare</b> — open the deep-dive page and diff your class design against it; note what you missed and why.</li>
+      <li><span class="k">3</span> <b>Extend</b> — implement one “Extend” idea from the card to prove your design is Open/Closed.</li>
+    </ul>
+  </div>
+
   <!-- ============ PROBLEMS ============ -->
   <div class="section-title">Your 6 Target Problems · Deep-Dive Pages</div>
   <p class="section-sub">Six problems covering every pattern LLD rounds test: Strategy, State, Factory, Observer, Command, concurrency, and core data structures. Each card links to a full deep-dive page.</p>
