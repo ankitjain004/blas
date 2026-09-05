@@ -1,0 +1,1925 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Day 9 · BLAS DSA Blueprint · BuildLikeASenior</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" />
+<style>
+  :root{
+    --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+    --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+    --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+    --easy:#22c55e; --med:#f59e0b; --hard:#ef4444;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.6;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  header.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,212,170,.06),rgba(245,200,66,.04));pointer-events:none}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(245,107,157,.12);color:var(--rose);border:1px solid rgba(255,107,157,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--rose),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:760px;margin:0 auto;font-size:15px}
+  .meta{display:flex;gap:18px;justify-content:center;margin-top:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+  .meta b{color:var(--text)}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px}
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+  .q{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;box-shadow:0 10px 40px -20px rgba(0,0,0,.6);scroll-margin-top:20px}
+  .q .head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:6px}
+  .q h2{margin:0;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  .q h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .q .topic{color:var(--muted);font-size:12px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-left:8px;vertical-align:middle}
+  .pill.easy{background:rgba(34,197,94,.15);color:var(--easy);border:1px solid rgba(34,197,94,.3)}
+  .pill.med{background:rgba(245,158,11,.15);color:var(--med);border:1px solid rgba(245,158,11,.3)}
+  .pill.hard{background:rgba(239,68,68,.15);color:var(--hard);border:1px solid rgba(239,68,68,.3)}
+  .links{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .links a{font-size:12px;padding:5px 10px;border:1px solid var(--line);border-radius:8px;color:var(--muted)}
+  .links a:hover{border-color:var(--teal);color:var(--teal);text-decoration:none}
+  .section-title{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin:22px 0 8px;font-weight:700}
+  .problem{color:#cdd9ee}
+  .mental{background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:14px 18px;border-radius:8px;margin:6px 0}
+  .mental b{color:var(--gold)}
+  .alts{display:grid;gap:8px;margin:6px 0}
+  .alt{background:rgba(91,141,238,.06);border-left:3px solid var(--blue);padding:10px 14px;border-radius:8px;font-size:14px;color:#cfdcf2}
+  .alt b{color:var(--blue);margin-right:8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+  .approach ol{padding-left:20px}
+  .approach li{margin:6px 0}
+  .complexity{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px}
+  .complexity div{background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.2);border-radius:10px;padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:13px}
+  .complexity b{color:var(--teal)}
+  pre[class*="language-"]{border-radius:10px;font-size:13px;border:1px solid var(--line);background:#0a1428 !important;margin:8px 0}
+  .mermaid-wrap{
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(91,141,238,.10), transparent 60%),
+      radial-gradient(ellipse at 100% 100%, rgba(0,212,170,.08), transparent 55%),
+      linear-gradient(180deg, #0e1a33 0%, #0b1428 100%);
+    border-radius:14px;padding:22px;margin:10px 0;overflow-x:auto;
+    border:1px solid rgba(91,141,238,.18);
+    box-shadow: 0 2px 14px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  .mermaid-wrap .mermaid{display:flex;justify-content:center}
+  .mermaid-wrap svg{max-width:100%;height:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
+  .mermaid-wrap .node rect,
+  .mermaid-wrap .node polygon,
+  .mermaid-wrap .node circle,
+  .mermaid-wrap .node ellipse,
+  .mermaid-wrap .node path{
+    rx:10; ry:10;
+    stroke-width:1.4px !important;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,.35));
+  }
+  .mermaid-wrap .edgePath .path{stroke-width:1.6px !important; opacity:.85}
+  .mermaid-wrap .edgeLabel{background-color:transparent !important; color:#cfe0ff !important; font-size:12px !important}
+  .mermaid-wrap .edgeLabel rect{fill:#0e1a33 !important; opacity:.9}
+  .mermaid-wrap .cluster rect{fill:rgba(91,141,238,.06) !important; stroke:rgba(91,141,238,.25) !important; rx:14; ry:14}
+  .mermaid{display:flex;justify-content:center}
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+  .page-nav{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:20px 0;flex-wrap:wrap}
+  .nav-btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--line);color:var(--muted);background:linear-gradient(180deg,var(--card),var(--card2));transition:border-color .2s,color .2s;text-decoration:none;font-family:'JetBrains Mono',monospace}
+  .nav-btn:hover{border-color:var(--teal);color:var(--teal);text-decoration:none}
+  .nav-btn.home{background:rgba(0,212,170,.08);border-color:rgba(0,212,170,.25);color:var(--teal)}
+  .nav-btn.spacer{visibility:hidden}
+  .crumb{position:absolute;left:20px;top:20px;font-size:13px;font-family:'JetBrains Mono',monospace}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <a class="crumb" href="../index.html">← Home</a>
+  <span class="badge">Day 9 · Most-Asked in Interviews</span>
+  <h1 class="title">BLAS DSA Blueprint — <span>Day 9</span></h1>
+  <p class="sub">The highest-frequency interview questions, two per topic. From string sliding-windows to tries, these are the patterns that show up again and again on real onsite loops — practiced deliberately, not memorized.</p>
+  <div class="meta"><span><b>26</b> questions</span><span><b>13</b> topics</span><span><b>~4 hrs</b> focused reps</span></div>
+</header>
+
+<div class="wrap">
+
+<nav class="page-nav">
+  <a class="nav-btn" href="day8.html">← Prev: Day 8</a>
+  <a class="nav-btn home" href="index.html">⌂ DSA Index</a>
+  <span class="nav-btn spacer">Next →</span>
+</nav>
+
+<nav class="toc">
+  <h3>Today's Run-list — Most-Asked, Part 2</h3>
+  <ol>
+    <li><a href="#q1">Group Anagrams</a></li>
+    <li><a href="#q2">Minimum Window Substring</a></li>
+    <li><a href="#q3">Longest Repeating Character Replacement</a></li>
+    <li><a href="#q4">String Compression</a></li>
+    <li><a href="#q5">Right View of Binary Tree</a></li>
+    <li><a href="#q6">Symmetric Tree</a></li>
+    <li><a href="#q7">Lowest Common Ancestor of a Binary Tree</a></li>
+    <li><a href="#q8">Path Sum II</a></li>
+    <li><a href="#q9">Flatten Binary Tree to Linked List</a></li>
+    <li><a href="#q10">Count Complete Tree Nodes</a></li>
+    <li><a href="#q11">Recover Binary Search Tree</a></li>
+    <li><a href="#q12">Convert Sorted List to BST</a></li>
+    <li><a href="#q13">Range Sum of BST</a></li>
+    <li><a href="#q14">Trim a Binary Search Tree</a></li>
+    <li><a href="#q15">Count Good Nodes in Binary Tree</a></li>
+    <li><a href="#q16">All Nodes Distance K in Binary Tree</a></li>
+    <li><a href="#q17">Course Schedule</a></li>
+    <li><a href="#q18">Surrounded Regions</a></li>
+    <li><a href="#q19">Number of Provinces (Union-Find)</a></li>
+    <li><a href="#q20">Cheapest Flights Within K Stops</a></li>
+    <li><a href="#q21">House Robber</a></li>
+    <li><a href="#q22">Partition Equal Subset Sum</a></li>
+    <li><a href="#q23">Unique Paths II (with obstacles)</a></li>
+    <li><a href="#q24">Best Time to Buy and Sell Stock with Cooldown</a></li>
+    <li><a href="#q25">Add and Search Word (Word Dictionary)</a></li>
+    <li><a href="#q26">Search Suggestions System</a></li>
+  </ol>
+</nav>
+
+<!-- ================= Q1 ================= -->
+<article class="q" id="q1">
+  <div class="head"><h2><span class="num">01</span>Group Anagrams <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · String</div>
+  <div class="links"><a href="https://leetcode.com/problems/group-anagrams/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given a list of words, cluster together the ones that are anagrams of each other (same letters, any order). Return the groups in any order.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>["eat","tea","tan","ate","nat","bat"]</code> &nbsp;·&nbsp; <b>Output:</b> <code>[["eat","tea","ate"],["tan","nat"],["bat"]]</code></p>
+    <ol>
+      <li>Sort each word: <code>eat→aet</code>, <code>tea→aet</code>, <code>ate→aet</code> share a key.</li>
+      <li><code>tan→ant</code>, <code>nat→ant</code> share a key; <code>bat→abt</code> is alone.</li>
+      <li>Collect the map's values as the answer.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>A canonical signature is the group id.</b> Any two anagrams reduce to the same sorted string (or the same 26-letter count vector), so bucket words by that signature in a hash map.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Compare every pair for anagram-ness — <code>O(n² · k)</code>.</div>
+    <div class="alt"><b>Better</b> Sorted-string key in a hash map — <code>O(n · k log k)</code>.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>For each word, build a 26-length count array and turn it into a string key.</li>
+    <li>Append the word to the map bucket for that key.</li>
+    <li>Return all buckets — key build is O(k), so total is O(n·k).</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  W["word"] --> K["count signature"]
+  K --> M{"key seen?"}
+  M -- yes --> A["append to bucket"]
+  M -- no --> N["new bucket"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">List&lt;List&lt;String&gt;&gt; groupAnagrams(String[] strs){
+  Map&lt;String, List&lt;String&gt;&gt; groups = new HashMap&lt;&gt;();
+  for(String s : strs){
+    int[] count = new int[26];
+    for(int i = 0; i &lt; s.length(); i++) count[s.charAt(i) - 'a']++;
+
+    StringBuilder key = new StringBuilder();
+    for(int c : count){ key.append('#'); key.append(c); }
+
+    groups.computeIfAbsent(key.toString(), k -&gt; new ArrayList&lt;&gt;()).add(s);
+  }
+  return new ArrayList&lt;&gt;(groups.values());
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n · k)</b></div><div>Space <b>O(n · k)</b></div></div>
+</article>
+
+<!-- ================= Q2 ================= -->
+<article class="q" id="q2">
+  <div class="head"><h2><span class="num">02</span>Minimum Window Substring <span class="pill hard">Hard</span></h2></div>
+  <div class="topic">Section · String</div>
+  <div class="links"><a href="https://leetcode.com/problems/minimum-window-substring/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given strings <code>s</code> and <code>t</code>, find the shortest contiguous slice of <code>s</code> that contains every character of <code>t</code> (counting duplicates). Return the empty string if none exists.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>s = "ADOBECODEBANC", t = "ABC"</code> &nbsp;·&nbsp; <b>Output:</b> <code>"BANC"</code></p>
+    <ol>
+      <li>Expand right until the window covers A, B, C — first hit is <code>"ADOBEC"</code>.</li>
+      <li>Shrink from the left while still valid, recording the smallest.</li>
+      <li>Continue sliding; the final tightest valid window is <code>"BANC"</code>.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Grow to become valid, shrink to stay minimal.</b> A <code>have == need</code> counter tells you when all required characters are present so you can contract the left edge without a full recount.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Check every substring for coverage — <code>O(n² · m)</code>.</div>
+    <div class="alt"><b>Better</b> Two-pointer window with a frequency map — <code>O(n + m)</code>.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Count needed chars; track how many distinct requirements are satisfied.</li>
+    <li>Move <code>right</code>, decrementing the need; when a char's need hits zero, bump <code>have</code>.</li>
+    <li>While <code>have == need</code>, record window if smaller, then advance <code>left</code>.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  R["move right"] --> V{"window valid?"}
+  V -- no --> R
+  V -- yes --> S["record best; move left"]
+  S --> V
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">String minWindow(String s, String t){
+  if(s.length() &lt; t.length()) return "";
+
+  int[] need = new int[128];
+  for(char c : t.toCharArray()) need[c]++;
+  int required = t.length();
+
+  int left = 0, bestLen = Integer.MAX_VALUE, bestStart = 0;
+  for(int right = 0; right &lt; s.length(); right++){
+    if(need[s.charAt(right)]-- &gt; 0) required--;          // consumed a needed char
+
+    while(required == 0){                                 // window covers all of t
+      if(right - left + 1 &lt; bestLen){
+        bestLen = right - left + 1;
+        bestStart = left;
+      }
+      if(need[s.charAt(left)]++ == 0) required++;         // giving back a needed char
+      left++;
+    }
+  }
+  return bestLen == Integer.MAX_VALUE ? "" : s.substring(bestStart, bestStart + bestLen);
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n + m)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q3 ================= -->
+<article class="q" id="q3">
+  <div class="head"><h2><span class="num">03</span>Longest Repeating Character Replacement <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · String Part-II</div>
+  <div class="links"><a href="https://leetcode.com/problems/longest-repeating-character-replacement/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given a string of uppercase letters and a budget <code>k</code>, you may replace up to <code>k</code> characters with any letters. Return the length of the longest run you can make identical.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>s = "AABABBA", k = 1</code> &nbsp;·&nbsp; <b>Output:</b> <code>4</code></p>
+    <ol>
+      <li>Window <code>"AABA"</code> has 3 A's; one replacement fixes the B → length 4.</li>
+      <li>Extending further needs 2 replacements, exceeding <code>k</code>.</li>
+      <li>Best achievable window length is 4.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>A window is valid when (length − maxFreq) ≤ k.</b> That leftover count is exactly the number of characters you'd have to overwrite; keep the window as wide as this rule allows.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Try every substring and count replacements — <code>O(n²)</code>.</div>
+    <div class="alt"><b>Better</b> Sliding window tracking the most frequent letter — <code>O(n)</code>.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Expand <code>right</code>, updating the frequency of the incoming char and <code>maxFreq</code>.</li>
+    <li>If <code>windowLen − maxFreq &gt; k</code>, slide <code>left</code> once to shrink.</li>
+    <li>The answer is the maximum window width ever reached.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  E["expand right"] --> C{"len minus maxFreq over k?"}
+  C -- yes --> L["move left once"]
+  C -- no --> U["update best length"]
+  L --> U
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">int characterReplacement(String s, int k){
+  int[] freq = new int[26];
+  int left = 0, maxFreq = 0, best = 0;
+
+  for(int right = 0; right &lt; s.length(); right++){
+    int idx = s.charAt(right) - 'A';
+    freq[idx]++;
+    maxFreq = Math.max(maxFreq, freq[idx]);
+
+    while((right - left + 1) - maxFreq &gt; k){              // too many chars to replace
+      freq[s.charAt(left) - 'A']--;
+      left++;
+    }
+    best = Math.max(best, right - left + 1);
+  }
+  return best;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q4 ================= -->
+<article class="q" id="q4">
+  <div class="head"><h2><span class="num">04</span>String Compression <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · String Part-II</div>
+  <div class="links"><a href="https://leetcode.com/problems/string-compression/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Compress a character array in place: each run of a repeated char becomes the char followed by its count (counts &gt; 1 only). Return the new length; the first that-many slots must hold the compressed form.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>['a','a','b','b','c','c','c']</code> &nbsp;·&nbsp; <b>Output:</b> <code>6</code>, array starts <code>['a','2','b','2','c','3']</code></p>
+    <ol>
+      <li>Run of 2 a's → write <code>a2</code>.</li>
+      <li>Run of 2 b's → write <code>b2</code>.</li>
+      <li>Run of 3 c's → write <code>c3</code>; total written is 6.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Read pointer scans runs; write pointer lays down results.</b> Because compressed output never overtakes the read cursor, you can overwrite the same array safely in one pass.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Build a separate StringBuilder then copy back — <code>O(n)</code> time but <code>O(n)</code> space.</div>
+    <div class="alt"><b>Better</b> Two-pointer in-place write — <code>O(1)</code> extra space.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Let <code>read</code> find the end of each equal run; compute its length.</li>
+    <li>Write the char, then each digit of the count when the length exceeds 1.</li>
+    <li>Return the final <code>write</code> index as the compressed length.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  R["read a run"] --> C["count length"]
+  C --> W["write char"]
+  W --> D{"count over 1?"}
+  D -- yes --> N["write digits"]
+  D -- no --> R
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">int compress(char[] chars){
+  int write = 0, read = 0, n = chars.length;
+
+  while(read &lt; n){
+    char cur = chars[read];
+    int count = 0;
+    while(read &lt; n &amp;&amp; chars[read] == cur){                 // measure the run
+      read++;
+      count++;
+    }
+    chars[write++] = cur;
+    if(count &gt; 1){
+      for(char digit : String.valueOf(count).toCharArray())
+        chars[write++] = digit;
+    }
+  }
+  return write;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q5 ================= -->
+<article class="q" id="q5">
+  <div class="head"><h2><span class="num">05</span>Right View of Binary Tree <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Binary Tree</div>
+  <div class="links"><a href="https://leetcode.com/problems/binary-tree-right-side-view/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Standing to the right of a binary tree, return the values you can see top to bottom — that is, the last node encountered on each level.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>[1,2,3,null,5,null,4]</code> &nbsp;·&nbsp; <b>Output:</b> <code>[1,3,4]</code></p>
+    <ol>
+      <li>Level 0: only node 1 is visible.</li>
+      <li>Level 1: rightmost is 3.</li>
+      <li>Level 2: rightmost is 4.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Level-order, keep the last per level.</b> A BFS that processes each level as a batch lets you grab the final node of the batch as the right-side view.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Compute full level order, then take last of each level — <code>O(n)</code> with extra lists.</div>
+    <div class="alt"><b>Better</b> DFS visiting right child first, record first node per depth — <code>O(n)</code>.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>BFS with a queue; for each level, note its size.</li>
+    <li>Iterate that many nodes; when you reach the last, add its value.</li>
+    <li>Push children left-to-right so the last dequeued is the rightmost.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  Q["queue level"] --> L["process size nodes"]
+  L --> E{"last in level?"}
+  E -- yes --> A["add to view"]
+  E -- no --> L
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">List&lt;Integer&gt; rightSideView(TreeNode root){
+  List&lt;Integer&gt; view = new ArrayList&lt;&gt;();
+  if(root == null) return view;
+
+  Queue&lt;TreeNode&gt; queue = new LinkedList&lt;&gt;();
+  queue.offer(root);
+  while(!queue.isEmpty()){
+    int size = queue.size();
+    for(int i = 0; i &lt; size; i++){
+      TreeNode node = queue.poll();
+      if(i == size - 1) view.add(node.val);             // last node of this level
+      if(node.left != null)  queue.offer(node.left);
+      if(node.right != null) queue.offer(node.right);
+    }
+  }
+  return view;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(w)</b></div></div>
+</article>
+
+<!-- ================= Q6 ================= -->
+<article class="q" id="q6">
+  <div class="head"><h2><span class="num">06</span>Symmetric Tree <span class="pill easy">Easy</span></h2></div>
+  <div class="topic">Section · Binary Tree</div>
+  <div class="links"><a href="https://leetcode.com/problems/symmetric-tree/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Decide whether a binary tree is a mirror image of itself around the center — the left subtree reflected equals the right subtree.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>[1,2,2,3,4,4,3]</code> &nbsp;·&nbsp; <b>Output:</b> <code>true</code></p>
+    <ol>
+      <li>Compare left.left with right.right → 3 vs 3.</li>
+      <li>Compare left.right with right.left → 4 vs 4.</li>
+      <li>All mirrored pairs match, so the tree is symmetric.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Mirror check on two pointers.</b> Two subtrees mirror if their roots match and, crucially, the outer child of one lines up with the outer child of the other (left.left vs right.right).</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Serialize the tree and compare with its reversed form — awkward with nulls.</div>
+    <div class="alt"><b>Better</b> Iterative BFS pushing mirror pairs into a queue — <code>O(n)</code>.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Recurse on a pair <code>(a, b)</code>; both null → symmetric, one null → not.</li>
+    <li>Values must be equal to continue.</li>
+    <li>Recurse on <code>(a.left, b.right)</code> and <code>(a.right, b.left)</code>.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  P["compare a and b"] --> V{"values equal?"}
+  V -- no --> F["not symmetric"]
+  V -- yes --> O["check a.left vs b.right"]
+  O --> I["check a.right vs b.left"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">boolean isSymmetric(TreeNode root){
+  return root == null || isMirror(root.left, root.right);
+}
+
+private boolean isMirror(TreeNode a, TreeNode b){
+  if(a == null &amp;&amp; b == null) return true;
+  if(a == null || b == null) return false;
+  if(a.val != b.val) return false;
+  return isMirror(a.left, b.right) &amp;&amp; isMirror(a.right, b.left);
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b></div></div>
+</article>
+
+<!-- ================= Q7 ================= -->
+<article class="q" id="q7">
+  <div class="head"><h2><span class="num">07</span>Lowest Common Ancestor of a Binary Tree <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Binary Tree Part-II</div>
+  <div class="links"><a href="https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given two nodes <code>p</code> and <code>q</code> in a binary tree (no BST ordering, no parent links), find their lowest common ancestor — the deepest node that has both in its subtree.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>root = [3,5,1,6,2,0,8], p = 5, q = 1</code> &nbsp;·&nbsp; <b>Output:</b> <code>3</code></p>
+    <ol>
+      <li>5 lives in the left subtree of 3; 1 lives in the right subtree.</li>
+      <li>The split happens at node 3.</li>
+      <li>So 3 is the lowest common ancestor.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Post-order returns "who did I find below me."</b> If a node sees <code>p</code> on one side and <code>q</code> on the other, it is the LCA; otherwise it bubbles up whichever it found.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Record root-to-node paths for both, compare — <code>O(n)</code> time and space.</div>
+    <div class="alt"><b>Better</b> Parent map + set of ancestors — <code>O(n)</code> but two passes.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Recurse; if the node is null or equals <code>p</code>/<code>q</code>, return it.</li>
+    <li>Collect results from left and right subtrees.</li>
+    <li>If both are non-null, this node is the LCA; else return the non-null one.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  N["node"] --> B{"both sides found?"}
+  B -- yes --> A["node is LCA"]
+  B -- no --> U["return found side"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q){
+  if(root == null || root == p || root == q) return root;
+
+  TreeNode left  = lowestCommonAncestor(root.left,  p, q);
+  TreeNode right = lowestCommonAncestor(root.right, p, q);
+
+  if(left != null &amp;&amp; right != null) return root;         // p and q split here
+  return left != null ? left : right;                    // both on one side (or none)
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b></div></div>
+</article>
+
+<!-- ================= Q8 ================= -->
+<article class="q" id="q8">
+  <div class="head"><h2><span class="num">08</span>Path Sum II <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Binary Tree Part-II</div>
+  <div class="links"><a href="https://leetcode.com/problems/path-sum-ii/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Return every root-to-leaf path whose node values add up to a given target sum. Each path is the ordered list of values from the root down to a leaf.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>root = [5,4,8,11,null,13,4,7,2,null,null,5,1], target = 22</code> &nbsp;·&nbsp; <b>Output:</b> <code>[[5,4,11,2],[5,8,4,5]]</code></p>
+    <ol>
+      <li>Path 5→4→11→2 sums to 22 at a leaf.</li>
+      <li>Path 5→8→4→5 also sums to 22 at a leaf.</li>
+      <li>Both complete paths are collected.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>DFS with backtracking.</b> Push the node onto the current path and subtract from the remaining target; at a leaf check for zero; always pop the node on the way out to restore state.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Enumerate all root-to-leaf paths, then filter by sum — same cost, messier.</div>
+    <div class="alt"><b>Better</b> Single DFS carrying the running remainder — <code>O(n)</code> visits.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>DFS carrying the current path list and remaining sum.</li>
+    <li>At a leaf, if remaining equals the node value, snapshot the path.</li>
+    <li>Recurse into children, then backtrack by removing the last node.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  N["add node; subtract value"] --> L{"leaf and sum zero?"}
+  L -- yes --> S["save path copy"]
+  L -- no --> R["recurse children"]
+  R --> B["remove node; backtrack"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">List&lt;List&lt;Integer&gt;&gt; pathSum(TreeNode root, int target){
+  List&lt;List&lt;Integer&gt;&gt; result = new ArrayList&lt;&gt;();
+  dfs(root, target, new ArrayList&lt;&gt;(), result);
+  return result;
+}
+
+private void dfs(TreeNode node, int remain, List&lt;Integer&gt; path, List&lt;List&lt;Integer&gt;&gt; result){
+  if(node == null) return;
+
+  path.add(node.val);
+  if(node.left == null &amp;&amp; node.right == null &amp;&amp; remain == node.val){
+    result.add(new ArrayList&lt;&gt;(path));                   // leaf that hits the target
+  } else {
+    dfs(node.left,  remain - node.val, path, result);
+    dfs(node.right, remain - node.val, path, result);
+  }
+  path.remove(path.size() - 1);                          // backtrack
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n²)</b></div><div>Space <b>O(h)</b></div></div>
+</article>
+
+<!-- ================= Q9 ================= -->
+<article class="q" id="q9">
+  <div class="head"><h2><span class="num">09</span>Flatten Binary Tree to Linked List <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Binary Tree Part-III</div>
+  <div class="links"><a href="https://leetcode.com/problems/flatten-binary-tree-to-linked-list/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Rearrange a binary tree in place into a "linked list" that follows pre-order: every node's left child becomes null and its right child points to the next pre-order node.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>[1,2,5,3,4,null,6]</code> &nbsp;·&nbsp; <b>Output:</b> <code>[1,null,2,null,3,null,4,null,5,null,6]</code></p>
+    <ol>
+      <li>Pre-order is 1,2,3,4,5,6.</li>
+      <li>Each node keeps only a right pointer to the next.</li>
+      <li>All left pointers become null.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Rewire using the predecessor.</b> For each node with a left child, splice the whole left subtree between the node and its right subtree by attaching the right subtree to the left subtree's rightmost node.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Collect pre-order into a list, then relink — <code>O(n)</code> time and space.</div>
+    <div class="alt"><b>Better</b> Reverse pre-order recursion with a running <code>prev</code> — <code>O(h)</code> stack.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Walk with <code>cur</code>; whenever it has a left child, find that subtree's rightmost node.</li>
+    <li>Attach <code>cur.right</code> under that rightmost node, move left subtree to the right.</li>
+    <li>Null out <code>cur.left</code> and advance <code>cur</code> — pure O(1) space.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  C["cur has left?"] --> F["find left's rightmost"]
+  F --> A["attach cur.right there"]
+  A --> M["move left to right; left null"]
+  M --> N["cur = cur.right"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">void flatten(TreeNode root){
+  TreeNode cur = root;
+  while(cur != null){
+    if(cur.left != null){
+      TreeNode rightmost = cur.left;
+      while(rightmost.right != null) rightmost = rightmost.right;
+
+      rightmost.right = cur.right;                        // splice right subtree after left
+      cur.right = cur.left;
+      cur.left = null;
+    }
+    cur = cur.right;
+  }
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q10 ================= -->
+<article class="q" id="q10">
+  <div class="head"><h2><span class="num">10</span>Count Complete Tree Nodes <span class="pill easy">Easy</span></h2></div>
+  <div class="topic">Section · Binary Tree Part-III</div>
+  <div class="links"><a href="https://leetcode.com/problems/count-complete-tree-nodes/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Count the nodes of a complete binary tree (every level full except possibly the last, which fills left to right) in better than linear time.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>[1,2,3,4,5,6]</code> &nbsp;·&nbsp; <b>Output:</b> <code>6</code></p>
+    <ol>
+      <li>Left height from root is 3; right height is 3.</li>
+      <li>Unequal for a subtree means recurse; here the last level is partial.</li>
+      <li>Summing full subtrees plus recursion yields 6.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Left-spine and right-spine heights collapse the work.</b> If they match, the subtree is perfect and holds <code>2^h − 1</code> nodes instantly; otherwise recurse — only one side is ever imperfect.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Plain traversal counting every node — <code>O(n)</code>.</div>
+    <div class="alt"><b>Better</b> Height-comparison recursion — <code>O(log² n)</code>.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Measure leftmost depth and rightmost depth.</li>
+    <li>If equal, return <code>2^depth − 1</code> without recursing.</li>
+    <li>Otherwise return <code>1 + count(left) + count(right)</code>.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  H["measure left and right height"] --> E{"heights equal?"}
+  E -- yes --> P["return 2^h minus 1"]
+  E -- no --> R["1 plus recurse both sides"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">int countNodes(TreeNode root){
+  if(root == null) return 0;
+
+  int leftH = leftHeight(root);
+  int rightH = rightHeight(root);
+  if(leftH == rightH) return (1 &lt;&lt; leftH) - 1;            // perfect subtree
+
+  return 1 + countNodes(root.left) + countNodes(root.right);
+}
+
+private int leftHeight(TreeNode node){
+  int h = 0;
+  while(node != null){ h++; node = node.left; }
+  return h;
+}
+
+private int rightHeight(TreeNode node){
+  int h = 0;
+  while(node != null){ h++; node = node.right; }
+  return h;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(log² n)</b></div><div>Space <b>O(log n)</b></div></div>
+</article>
+
+<!-- ================= Q11 ================= -->
+<article class="q" id="q11">
+  <div class="head"><h2><span class="num">11</span>Recover Binary Search Tree <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Binary Search Tree</div>
+  <div class="links"><a href="https://leetcode.com/problems/recover-binary-search-tree/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Exactly two nodes of a BST were swapped by mistake. Restore the tree by putting their values back, without changing the tree's structure.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>[3,1,4,null,null,2]</code> &nbsp;·&nbsp; <b>Output:</b> <code>[2,1,4,null,null,3]</code></p>
+    <ol>
+      <li>In-order should be increasing: here it reads 1,3,2,4.</li>
+      <li>Two dips: 3&gt;2 flags 3 (first) and 2 (second).</li>
+      <li>Swap 3 and 2 to fix the tree.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>In-order of a valid BST is strictly increasing.</b> The two swapped nodes create one or two descents; the first offender is the earlier dip's high value, the second is the later dip's low value.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Copy in-order to an array, sort, find mismatches — <code>O(n)</code> space.</div>
+    <div class="alt"><b>Better</b> In-order traversal tracking <code>prev</code> — <code>O(h)</code> space.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Traverse in-order keeping the previous node.</li>
+    <li>On each descent (<code>prev.val &gt; cur.val</code>), record <code>first = prev</code> once and always <code>second = cur</code>.</li>
+    <li>After traversal, swap the values of <code>first</code> and <code>second</code>.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  I["inorder walk"] --> D{"prev over cur?"}
+  D -- yes --> M["mark first and second"]
+  D -- no --> I
+  M --> S["swap values"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">private TreeNode first, second, prev;
+
+void recoverTree(TreeNode root){
+  inorder(root);
+  int tmp = first.val;                                    // swap the two offenders back
+  first.val = second.val;
+  second.val = tmp;
+}
+
+private void inorder(TreeNode node){
+  if(node == null) return;
+  inorder(node.left);
+  if(prev != null &amp;&amp; prev.val &gt; node.val){
+    if(first == null) first = prev;                       // earlier dip's high value
+    second = node;                                        // later dip's low value
+  }
+  prev = node;
+  inorder(node.right);
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b></div></div>
+</article>
+
+<!-- ================= Q12 ================= -->
+<article class="q" id="q12">
+  <div class="head"><h2><span class="num">12</span>Convert Sorted List to BST <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Binary Search Tree</div>
+  <div class="links"><a href="https://leetcode.com/problems/convert-sorted-list-to-binary-search-tree/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Turn a singly linked list sorted in ascending order into a height-balanced binary search tree.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>[-10,-3,0,5,9]</code> &nbsp;·&nbsp; <b>Output:</b> a balanced BST rooted at <code>0</code></p>
+    <ol>
+      <li>Middle element 0 becomes the root.</li>
+      <li>Left half [-10,-3] builds the left subtree.</li>
+      <li>Right half [5,9] builds the right subtree.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>The middle is always the root.</b> Using in-order simulation, build left subtree first, consume the current list node as the root, then build the right — this maps a sorted sequence to a balanced BST in linear time.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Copy to an array, then index the middle recursively — <code>O(n)</code> space.</div>
+    <div class="alt"><b>Better</b> Slow/fast pointer to find middle each recursion — <code>O(n log n)</code>.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Count the list length once.</li>
+    <li>Recurse over an index range; build left subtree, then take the current head as the node.</li>
+    <li>Advance the shared head pointer and build the right subtree — in-order alignment.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  R["range lo..hi"] --> L["build left half"]
+  L --> M["take head as root"]
+  M --> A["advance head"]
+  A --> RR["build right half"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">private ListNode head;
+
+TreeNode sortedListToBST(ListNode node){
+  int n = 0;
+  for(ListNode p = node; p != null; p = p.next) n++;
+  head = node;
+  return build(0, n - 1);
+}
+
+private TreeNode build(int lo, int hi){
+  if(lo &gt; hi) return null;
+  int mid = (lo + hi) / 2;
+
+  TreeNode left = build(lo, mid - 1);                     // build left first (in-order)
+  TreeNode root = new TreeNode(head.val);
+  root.left = left;
+  head = head.next;                                       // consume middle
+  root.right = build(mid + 1, hi);
+  return root;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(log n)</b></div></div>
+</article>
+
+<!-- ================= Q13 ================= -->
+<article class="q" id="q13">
+  <div class="head"><h2><span class="num">13</span>Range Sum of BST <span class="pill easy">Easy</span></h2></div>
+  <div class="topic">Section · Binary Search Tree Part-II</div>
+  <div class="links"><a href="https://leetcode.com/problems/range-sum-of-bst/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given the root of a BST and an inclusive range <code>[low, high]</code>, add up the values of every node whose value lies within that range.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>root = [10,5,15,3,7,null,18], low = 7, high = 15</code> &nbsp;·&nbsp; <b>Output:</b> <code>32</code></p>
+    <ol>
+      <li>Nodes in range: 10, 7, 15.</li>
+      <li>3 is below low; 18 is above high — both pruned.</li>
+      <li>Sum is 10 + 7 + 15 = 32.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Use BST ordering to prune whole subtrees.</b> If a node is below <code>low</code>, skip its left; if above <code>high</code>, skip its right — you never visit branches that cannot contribute.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Visit every node, add those in range — <code>O(n)</code> ignoring order.</div>
+    <div class="alt"><b>Better</b> Pruned DFS honoring BST bounds — visits only relevant nodes.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>If node is null, contribute 0.</li>
+    <li>If <code>val &lt; low</code>, recurse right only; if <code>val &gt; high</code>, recurse left only.</li>
+    <li>Otherwise add <code>val</code> and recurse both sides.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  N["node"] --> B{"val below low?"}
+  B -- yes --> R["go right only"]
+  B -- no --> H{"val above high?"}
+  H -- yes --> L["go left only"]
+  H -- no --> A["add val; go both"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">int rangeSumBST(TreeNode root, int low, int high){
+  if(root == null) return 0;
+  if(root.val &lt; low)  return rangeSumBST(root.right, low, high);
+  if(root.val &gt; high) return rangeSumBST(root.left,  low, high);
+
+  return root.val
+       + rangeSumBST(root.left,  low, high)
+       + rangeSumBST(root.right, low, high);
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b></div></div>
+</article>
+
+<!-- ================= Q14 ================= -->
+<article class="q" id="q14">
+  <div class="head"><h2><span class="num">14</span>Trim a Binary Search Tree <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Binary Search Tree Part-II</div>
+  <div class="links"><a href="https://leetcode.com/problems/trim-a-binary-search-tree/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given a BST and bounds <code>[low, high]</code>, remove all nodes whose values fall outside the range so that every remaining value is within bounds, while preserving the BST's relative structure.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>root = [3,0,4,null,2,null,null,1], low = 1, high = 3</code> &nbsp;·&nbsp; <b>Output:</b> <code>[3,2,null,1]</code></p>
+    <ol>
+      <li>0 is below low → drop it, keep its right subtree.</li>
+      <li>4 is above high → drop it, keep its left subtree.</li>
+      <li>Result keeps 1, 2, 3 in valid BST shape.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Return the trimmed subtree upward.</b> When a node is out of range, it hands back the one side that could still hold in-range values; when in range, it trims both children and returns itself.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Collect valid values and rebuild a BST — loses original shape, more work.</div>
+    <div class="alt"><b>Better</b> Single recursive trim reusing existing nodes — <code>O(n)</code>.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Null node returns null.</li>
+    <li>If <code>val &lt; low</code>, return trimmed right subtree; if <code>val &gt; high</code>, return trimmed left subtree.</li>
+    <li>Otherwise trim both children in place and return the node.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  N["node"] --> B{"val below low?"}
+  B -- yes --> R["return trim right"]
+  B -- no --> H{"val above high?"}
+  H -- yes --> L["return trim left"]
+  H -- no --> K["trim both; keep node"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">TreeNode trimBST(TreeNode root, int low, int high){
+  if(root == null) return null;
+
+  if(root.val &lt; low)  return trimBST(root.right, low, high);
+  if(root.val &gt; high) return trimBST(root.left,  low, high);
+
+  root.left  = trimBST(root.left,  low, high);
+  root.right = trimBST(root.right, low, high);
+  return root;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b></div></div>
+</article>
+
+<!-- ================= Q15 ================= -->
+<article class="q" id="q15">
+  <div class="head"><h2><span class="num">15</span>Count Good Nodes in Binary Tree <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Binary Trees (Misc)</div>
+  <div class="links"><a href="https://leetcode.com/problems/count-good-nodes-in-binary-tree/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">A node is "good" if no node on the path from the root to it has a strictly greater value. Count how many good nodes the tree contains.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>[3,1,4,3,null,1,5]</code> &nbsp;·&nbsp; <b>Output:</b> <code>4</code></p>
+    <ol>
+      <li>Root 3 is always good.</li>
+      <li>4, then 5 on its path, and the deeper 3 are good.</li>
+      <li>The 1's are dominated by 3, so they are not good.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Carry the max-so-far down the path.</b> A node is good exactly when its value is at least the largest value seen from the root; update that running max as you descend.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> For each node recompute its root path max — <code>O(n²)</code>.</div>
+    <div class="alt"><b>Better</b> Single DFS threading the path maximum — <code>O(n)</code>.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>DFS carrying <code>maxSoFar</code>, starting at the root value.</li>
+    <li>Count the node if <code>val &gt;= maxSoFar</code>; update the max for children.</li>
+    <li>Sum counts from both subtrees.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  N["node with maxSoFar"] --> C{"val at least max?"}
+  C -- yes --> G["count plus one"]
+  C -- no --> D["descend"]
+  G --> D
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">int goodNodes(TreeNode root){
+  return dfs(root, Integer.MIN_VALUE);
+}
+
+private int dfs(TreeNode node, int maxSoFar){
+  if(node == null) return 0;
+
+  int good = node.val &gt;= maxSoFar ? 1 : 0;                // nothing bigger above it
+  int nextMax = Math.max(maxSoFar, node.val);
+  return good + dfs(node.left, nextMax) + dfs(node.right, nextMax);
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(h)</b></div></div>
+</article>
+
+<!-- ================= Q16 ================= -->
+<article class="q" id="q16">
+  <div class="head"><h2><span class="num">16</span>All Nodes Distance K in Binary Tree <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Binary Trees (Misc)</div>
+  <div class="links"><a href="https://leetcode.com/problems/all-nodes-distance-k-in-binary-tree/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given a binary tree, a target node, and an integer <code>k</code>, return the values of all nodes exactly <code>k</code> edges away from the target, in any order.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>root = [3,5,1,6,2,0,8,null,null,7,4], target = 5, k = 2</code> &nbsp;·&nbsp; <b>Output:</b> <code>[7,4,1]</code></p>
+    <ol>
+      <li>From 5, distance 2 downward reaches 7 and 4.</li>
+      <li>Going up to 3 then down to 1 is also distance 2.</li>
+      <li>Answer set is {7, 4, 1}.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Add parent links, then BFS from the target.</b> Once each node knows its parent, the tree behaves like an undirected graph and a level-by-level BFS of depth <code>k</code> gives the answer.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> For each node compute its distance to target via path search — <code>O(n²)</code>.</div>
+    <div class="alt"><b>Better</b> DFS returning depth plus upward propagation — <code>O(n)</code> but trickier.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Map every node to its parent with one DFS.</li>
+    <li>BFS from target over left, right, and parent, marking visited.</li>
+    <li>After <code>k</code> levels, the queue holds all distance-k nodes.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  P["record parents"] --> Q["BFS from target"]
+  Q --> N["visit left right parent"]
+  N --> D{"reached depth k?"}
+  D -- yes --> R["collect queue"]
+  D -- no --> Q
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">List&lt;Integer&gt; distanceK(TreeNode root, TreeNode target, int k){
+  Map&lt;TreeNode, TreeNode&gt; parent = new HashMap&lt;&gt;();
+  mapParents(root, null, parent);
+
+  Queue&lt;TreeNode&gt; queue = new LinkedList&lt;&gt;();
+  Set&lt;TreeNode&gt; seen = new HashSet&lt;&gt;();
+  queue.offer(target);
+  seen.add(target);
+
+  int dist = 0;
+  while(!queue.isEmpty()){
+    if(dist == k){
+      List&lt;Integer&gt; res = new ArrayList&lt;&gt;();
+      for(TreeNode node : queue) res.add(node.val);
+      return res;
+    }
+    int size = queue.size();
+    for(int i = 0; i &lt; size; i++){
+      TreeNode node = queue.poll();
+      for(TreeNode next : new TreeNode[]{ node.left, node.right, parent.get(node) }){
+        if(next != null &amp;&amp; seen.add(next)) queue.offer(next);
+      }
+    }
+    dist++;
+  }
+  return new ArrayList&lt;&gt;();
+}
+
+private void mapParents(TreeNode node, TreeNode par, Map&lt;TreeNode, TreeNode&gt; parent){
+  if(node == null) return;
+  parent.put(node, par);
+  mapParents(node.left,  node, parent);
+  mapParents(node.right, node, parent);
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(n)</b></div></div>
+</article>
+
+<!-- ================= Q17 ================= -->
+<article class="q" id="q17">
+  <div class="head"><h2><span class="num">17</span>Course Schedule <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Graph</div>
+  <div class="links"><a href="https://leetcode.com/problems/course-schedule/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">You have <code>numCourses</code> courses and a list of prerequisite pairs <code>[a, b]</code> meaning <code>b</code> must come before <code>a</code>. Decide whether it is possible to finish all courses.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>numCourses = 2, prerequisites = [[1,0]]</code> &nbsp;·&nbsp; <b>Output:</b> <code>true</code></p>
+    <ol>
+      <li>Course 0 has no prerequisites → take it first.</li>
+      <li>Course 1 depends only on 0 → take it next.</li>
+      <li>No cycle exists, so all courses finish.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Feasible iff the dependency graph is acyclic.</b> Kahn's algorithm repeatedly removes zero-indegree nodes; if you can remove all of them, there is no cycle.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Try permutations of course order — factorial blowup.</div>
+    <div class="alt"><b>Better</b> DFS cycle detection with a recursion-stack color — <code>O(V + E)</code>.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Build adjacency list and indegree counts.</li>
+    <li>Queue all zero-indegree nodes; pop one, decrement neighbors, enqueue new zeros.</li>
+    <li>If the number processed equals <code>numCourses</code>, return true.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  I["compute indegrees"] --> Q["queue zero indegree"]
+  Q --> P["pop; drop edges"]
+  P --> N{"neighbor indegree zero?"}
+  N -- yes --> Q
+  P --> C["count processed"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">boolean canFinish(int numCourses, int[][] prerequisites){
+  List&lt;List&lt;Integer&gt;&gt; graph = new ArrayList&lt;&gt;();
+  for(int i = 0; i &lt; numCourses; i++) graph.add(new ArrayList&lt;&gt;());
+  int[] indegree = new int[numCourses];
+
+  for(int[] pre : prerequisites){
+    graph.get(pre[1]).add(pre[0]);                        // pre[1] -&gt; pre[0]
+    indegree[pre[0]]++;
+  }
+
+  Queue&lt;Integer&gt; queue = new LinkedList&lt;&gt;();
+  for(int i = 0; i &lt; numCourses; i++) if(indegree[i] == 0) queue.offer(i);
+
+  int done = 0;
+  while(!queue.isEmpty()){
+    int course = queue.poll();
+    done++;
+    for(int next : graph.get(course)){
+      if(--indegree[next] == 0) queue.offer(next);
+    }
+  }
+  return done == numCourses;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(V + E)</b></div><div>Space <b>O(V + E)</b></div></div>
+</article>
+
+<!-- ================= Q18 ================= -->
+<article class="q" id="q18">
+  <div class="head"><h2><span class="num">18</span>Surrounded Regions <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Graph</div>
+  <div class="links"><a href="https://leetcode.com/problems/surrounded-regions/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">On a board of <code>'X'</code> and <code>'O'</code>, flip every <code>'O'</code> that is completely surrounded by <code>'X'</code> to <code>'X'</code>. Any <code>'O'</code> connected to the border survives.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>[["X","X","X"],["X","O","X"],["X","X","X"]]</code> &nbsp;·&nbsp; <b>Output:</b> the center O flipped to X</p>
+    <ol>
+      <li>The lone O is not connected to any border.</li>
+      <li>So it is fully surrounded.</li>
+      <li>It flips to X.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Solve the complement: mark the survivors first.</b> Flood-fill from every border <code>'O'</code> to protect connected regions, then flip all remaining interior <code>'O'</code>s.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> For each O, search whether it can reach the border — <code>O((mn)²)</code>.</div>
+    <div class="alt"><b>Better</b> Union-Find binding border O's to a virtual node — <code>O(mn·α)</code>.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>DFS from each border <code>'O'</code>, temporarily marking safe cells as <code>'#'</code>.</li>
+    <li>Scan the whole board: turn <code>'O'</code> into <code>'X'</code> (surrounded).</li>
+    <li>Turn every <code>'#'</code> back to <code>'O'</code> (was border-connected).</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  B["flood fill border O"] --> M["mark safe as hash"]
+  M --> S["scan board"]
+  S --> F["O to X; hash to O"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">void solve(char[][] board){
+  if(board.length == 0) return;
+  int m = board.length, n = board[0].length;
+
+  for(int i = 0; i &lt; m; i++){
+    mark(board, i, 0, m, n);
+    mark(board, i, n - 1, m, n);
+  }
+  for(int j = 0; j &lt; n; j++){
+    mark(board, 0, j, m, n);
+    mark(board, m - 1, j, m, n);
+  }
+
+  for(int i = 0; i &lt; m; i++){
+    for(int j = 0; j &lt; n; j++){
+      if(board[i][j] == 'O') board[i][j] = 'X';           // truly surrounded
+      else if(board[i][j] == '#') board[i][j] = 'O';      // border-connected
+    }
+  }
+}
+
+private void mark(char[][] board, int i, int j, int m, int n){
+  if(i &lt; 0 || j &lt; 0 || i &gt;= m || j &gt;= n || board[i][j] != 'O') return;
+  board[i][j] = '#';
+  mark(board, i + 1, j, m, n);
+  mark(board, i - 1, j, m, n);
+  mark(board, i, j + 1, m, n);
+  mark(board, i, j - 1, m, n);
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(m · n)</b></div><div>Space <b>O(m · n)</b></div></div>
+</article>
+
+<!-- ================= Q19 ================= -->
+<article class="q" id="q19">
+  <div class="head"><h2><span class="num">19</span>Number of Provinces (Union-Find) <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Graph Part-II</div>
+  <div class="links"><a href="https://leetcode.com/problems/number-of-provinces/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given an <code>n × n</code> matrix where <code>isConnected[i][j] = 1</code> means cities <code>i</code> and <code>j</code> are directly linked, count the number of provinces (connected groups of cities).</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>[[1,1,0],[1,1,0],[0,0,1]]</code> &nbsp;·&nbsp; <b>Output:</b> <code>2</code></p>
+    <ol>
+      <li>Cities 0 and 1 are linked → one province.</li>
+      <li>City 2 stands alone → second province.</li>
+      <li>Total distinct roots = 2.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Union each direct link, then count roots.</b> Disjoint Set Union merges connected cities; the number of provinces equals the number of unique set representatives at the end.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> DFS/BFS from each unvisited city — <code>O(n²)</code>.</div>
+    <div class="alt"><b>Better</b> Union-Find with path compression and rank — near <code>O(n²·α)</code>.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Initialize each city as its own parent; start count at <code>n</code>.</li>
+    <li>For every linked pair <code>i &lt; j</code>, union them and decrement count on a real merge.</li>
+    <li>Return the final count.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  I["each city own set"] --> U["union linked pairs"]
+  U --> M{"different roots?"}
+  M -- yes --> D["merge; count minus one"]
+  M -- no --> U
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">private int[] parent;
+
+int findCircleNum(int[][] isConnected){
+  int n = isConnected.length;
+  parent = new int[n];
+  for(int i = 0; i &lt; n; i++) parent[i] = i;
+
+  int provinces = n;
+  for(int i = 0; i &lt; n; i++){
+    for(int j = i + 1; j &lt; n; j++){
+      if(isConnected[i][j] == 1 &amp;&amp; union(i, j)) provinces--;
+    }
+  }
+  return provinces;
+}
+
+private int find(int x){
+  while(parent[x] != x){
+    parent[x] = parent[parent[x]];                        // path compression
+    x = parent[x];
+  }
+  return x;
+}
+
+private boolean union(int a, int b){
+  int ra = find(a), rb = find(b);
+  if(ra == rb) return false;
+  parent[ra] = rb;
+  return true;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n² · α)</b></div><div>Space <b>O(n)</b></div></div>
+</article>
+
+<!-- ================= Q20 ================= -->
+<article class="q" id="q20">
+  <div class="head"><h2><span class="num">20</span>Cheapest Flights Within K Stops <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Graph Part-II</div>
+  <div class="links"><a href="https://leetcode.com/problems/cheapest-flights-within-k-stops/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given flights <code>[from, to, price]</code>, find the cheapest fare from <code>src</code> to <code>dst</code> using at most <code>k</code> intermediate stops, or <code>-1</code> if unreachable within that limit.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1</code> &nbsp;·&nbsp; <b>Output:</b> <code>200</code></p>
+    <ol>
+      <li>Direct 0→2 costs 500.</li>
+      <li>0→1→2 costs 200 and uses exactly 1 stop.</li>
+      <li>Cheapest within the stop limit is 200.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Bellman-Ford bounded by k+1 relaxations.</b> Each round relaxes edges using only the previous round's distances, so after <code>k+1</code> rounds you have the cheapest cost using at most <code>k</code> stops.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> DFS all paths under the stop limit — exponential.</div>
+    <div class="alt"><b>Better</b> Dijkstra with a (cost, node, stops) state — <code>O(E log V)</code>-ish.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Init dist[src] = 0, others infinity.</li>
+    <li>Repeat <code>k+1</code> times: relax all edges using a snapshot of the previous distances.</li>
+    <li>Return dist[dst] or -1 if still infinite.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  I["dist src = 0"] --> R["repeat k plus 1 rounds"]
+  R --> E["relax edges from snapshot"]
+  E --> C{"more rounds?"}
+  C -- yes --> R
+  C -- no --> A["answer dist dst"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">int findCheapestPrice(int n, int[][] flights, int src, int dst, int k){
+  int[] dist = new int[n];
+  Arrays.fill(dist, Integer.MAX_VALUE);
+  dist[src] = 0;
+
+  for(int round = 0; round &lt;= k; round++){
+    int[] snapshot = dist.clone();                        // only use last round's values
+    for(int[] f : flights){
+      int u = f[0], v = f[1], price = f[2];
+      if(snapshot[u] != Integer.MAX_VALUE &amp;&amp; snapshot[u] + price &lt; dist[v]){
+        dist[v] = snapshot[u] + price;
+      }
+    }
+  }
+  return dist[dst] == Integer.MAX_VALUE ? -1 : dist[dst];
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(k · E)</b></div><div>Space <b>O(n)</b></div></div>
+</article>
+
+<!-- ================= Q21 ================= -->
+<article class="q" id="q21">
+  <div class="head"><h2><span class="num">21</span>House Robber <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Dynamic Programming</div>
+  <div class="links"><a href="https://leetcode.com/problems/house-robber/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given house values in a row, rob to maximize loot with the constraint that you cannot rob two adjacent houses (adjacent alarms link up).</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>[2,7,9,3,1]</code> &nbsp;·&nbsp; <b>Output:</b> <code>12</code></p>
+    <ol>
+      <li>Rob house 0 (2), skip 1, rob 2 (9), skip 3, rob 4 (1) → 12.</li>
+      <li>Robbing 7 + 3 = 10 is worse.</li>
+      <li>Best total is 12.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>At each house: skip or take.</b> The best up to house <code>i</code> is <code>max(best[i-1], best[i-2] + val[i])</code> — two rolling variables capture everything.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Try every subset with no adjacency — <code>O(2^n)</code>.</div>
+    <div class="alt"><b>Better</b> DP array of size n — <code>O(n)</code> time and space.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Keep <code>prev2</code> (best two houses back) and <code>prev1</code> (best one back).</li>
+    <li>For each value, <code>cur = max(prev1, prev2 + val)</code>.</li>
+    <li>Shift the window; final <code>prev1</code> is the answer.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  H["house i"] --> C["cur = max(prev1, prev2 plus val)"]
+  C --> S["shift prev2 and prev1"]
+  S --> H
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">int rob(int[] nums){
+  int prev2 = 0;                                          // best up to i-2
+  int prev1 = 0;                                          // best up to i-1
+
+  for(int val : nums){
+    int cur = Math.max(prev1, prev2 + val);               // skip or rob this house
+    prev2 = prev1;
+    prev1 = cur;
+  }
+  return prev1;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q22 ================= -->
+<article class="q" id="q22">
+  <div class="head"><h2><span class="num">22</span>Partition Equal Subset Sum <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Dynamic Programming</div>
+  <div class="links"><a href="https://leetcode.com/problems/partition-equal-subset-sum/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Decide whether an array of positive integers can be split into two subsets whose sums are equal.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>[1,5,11,5]</code> &nbsp;·&nbsp; <b>Output:</b> <code>true</code></p>
+    <ol>
+      <li>Total is 22, so each side must sum to 11.</li>
+      <li>{11} and {1,5,5} both reach 11.</li>
+      <li>A valid equal partition exists.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Reduce to subset-sum of total/2.</b> If the total is odd it is impossible; otherwise a 1-D boolean DP tracks which target sums are reachable using a subset of the numbers.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Enumerate all subsets checking for half-sum — <code>O(2^n)</code>.</div>
+    <div class="alt"><b>Better</b> 2-D DP over items and sums — <code>O(n · sum)</code> space.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>If total is odd, return false; target = total / 2.</li>
+    <li>Boolean <code>dp[s]</code> = can we reach sum <code>s</code>; iterate sums downward per number.</li>
+    <li>Return <code>dp[target]</code>.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  T{"total odd?"} -- yes --> F["return false"]
+  T -- no --> D["dp reach half"]
+  D --> N["for each num update dp downward"]
+  N --> A["answer dp target"]
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">boolean canPartition(int[] nums){
+  int total = 0;
+  for(int x : nums) total += x;
+  if(total % 2 != 0) return false;
+
+  int target = total / 2;
+  boolean[] dp = new boolean[target + 1];
+  dp[0] = true;
+
+  for(int num : nums){
+    for(int s = target; s &gt;= num; s--){                   // downward avoids reuse
+      dp[s] = dp[s] || dp[s - num];
+    }
+  }
+  return dp[target];
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n · sum)</b></div><div>Space <b>O(sum)</b></div></div>
+</article>
+
+<!-- ================= Q23 ================= -->
+<article class="q" id="q23">
+  <div class="head"><h2><span class="num">23</span>Unique Paths II (with obstacles) <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Dynamic Programming Part-II</div>
+  <div class="links"><a href="https://leetcode.com/problems/unique-paths-ii/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Count the paths from the top-left to the bottom-right of a grid, moving only right or down, where cells marked <code>1</code> are obstacles you cannot enter.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>[[0,0,0],[0,1,0],[0,0,0]]</code> &nbsp;·&nbsp; <b>Output:</b> <code>2</code></p>
+    <ol>
+      <li>The center obstacle blocks the straight diagonal route.</li>
+      <li>Two ways skirt around it (top-right corner or bottom-left corner).</li>
+      <li>So there are 2 paths.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Ways into a cell = ways from above + ways from left.</b> Obstacles contribute zero, and a single rolling row keeps space linear.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Recursive branching at each cell — exponential.</div>
+    <div class="alt"><b>Better</b> Full 2-D DP grid — <code>O(m · n)</code> space.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Use a 1-D <code>dp</code> row; seed <code>dp[0] = 1</code> if the start is clear.</li>
+    <li>For each cell, zero it if it is an obstacle; else add the left value.</li>
+    <li>After the last row, <code>dp[n-1]</code> holds the answer.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  C["cell"] --> O{"obstacle?"}
+  O -- yes --> Z["dp = 0"]
+  O -- no --> A["dp += dp left"]
+  Z --> N["next cell"]
+  A --> N
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">int uniquePathsWithObstacles(int[][] grid){
+  int n = grid[0].length;
+  int[] dp = new int[n];
+  dp[0] = grid[0][0] == 1 ? 0 : 1;
+
+  for(int[] row : grid){
+    for(int j = 0; j &lt; n; j++){
+      if(row[j] == 1){
+        dp[j] = 0;                                        // blocked cell
+      } else if(j &gt; 0){
+        dp[j] += dp[j - 1];                               // from above (dp[j]) + from left
+      }
+    }
+  }
+  return dp[n - 1];
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(m · n)</b></div><div>Space <b>O(n)</b></div></div>
+</article>
+
+<!-- ================= Q24 ================= -->
+<article class="q" id="q24">
+  <div class="head"><h2><span class="num">24</span>Best Time to Buy and Sell Stock with Cooldown <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Dynamic Programming Part-II</div>
+  <div class="links"><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given daily prices, maximize profit from multiple buy/sell transactions, but after any sell you must rest one day (cooldown) before buying again.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>[1,2,3,0,2]</code> &nbsp;·&nbsp; <b>Output:</b> <code>3</code></p>
+    <ol>
+      <li>Buy at 1, sell at 3 → profit 2, then cooldown on day 3.</li>
+      <li>Buy at 0, sell at 2 → profit 1.</li>
+      <li>Total profit is 3.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Three states per day: hold, sold, rest.</b> You can only buy from a rest day, and selling forces the next day into rest — the transitions between these states give the recurrence.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Recurse over buy/sell/cooldown choices — exponential.</div>
+    <div class="alt"><b>Better</b> Memoized (day, holding) recursion — <code>O(n)</code> states.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Track <code>hold</code>, <code>sold</code>, <code>rest</code> profits, initialized for day 0.</li>
+    <li>Each day: <code>hold = max(hold, rest − price)</code>, <code>sold = hold + price</code>, <code>rest = max(rest, prevSold)</code>.</li>
+    <li>Answer is <code>max(sold, rest)</code> on the last day.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  R["rest"] --> H["hold buy"]
+  H --> S["sold sell"]
+  S --> R2["rest cooldown"]
+  R2 --> H
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">int maxProfit(int[] prices){
+  int hold = Integer.MIN_VALUE;                           // best profit while holding a share
+  int sold = 0;                                           // just sold today
+  int rest = 0;                                           // idle / cooled down
+
+  for(int price : prices){
+    int prevSold = sold;
+    sold = hold + price;                                  // sell what we held
+    hold = Math.max(hold, rest - price);                 // keep holding or buy from rest
+    rest = Math.max(rest, prevSold);                      // stay resting or cool down
+  }
+  return Math.max(sold, rest);
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<!-- ================= Q25 ================= -->
+<article class="q" id="q25">
+  <div class="head"><h2><span class="num">25</span>Add and Search Word (Word Dictionary) <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Trie</div>
+  <div class="links"><a href="https://leetcode.com/problems/design-add-and-search-words-data-structure/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Design a data structure that supports <code>addWord</code> and <code>search</code>, where a search query may contain <code>'.'</code> as a wildcard matching any single letter.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> add <code>"bad","dad","mad"</code>, then search <code>".ad"</code>, <code>"b.."</code> &nbsp;·&nbsp; <b>Output:</b> <code>true, true</code></p>
+    <ol>
+      <li><code>".ad"</code> matches bad/dad/mad via the wildcard.</li>
+      <li><code>"b.."</code> matches bad.</li>
+      <li>Both searches succeed.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Trie plus DFS branching on dots.</b> Normal letters follow a single child; a <code>'.'</code> forks into every existing child, so wildcard search is a bounded depth-first exploration.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Store words in a list and regex-match each search — <code>O(N · L)</code> per query.</div>
+    <div class="alt"><b>Better</b> Bucket words by length, then compare — still linear per query.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Insert words into a trie of 26-way children with an <code>isEnd</code> flag.</li>
+    <li>Search recursively: on a letter descend that child; on <code>'.'</code> try all children.</li>
+    <li>At string end, succeed only if the current node is a word end.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart TD
+  C["current node and index"] --> D{"char is dot?"}
+  D -- yes --> A["recurse all children"]
+  D -- no --> L["descend matching child"]
+  A --> E{"end reached and isEnd?"}
+  L --> E
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">class WordDictionary {
+  private final WordDictionary[] children = new WordDictionary[26];
+  private boolean isEnd = false;
+
+  void addWord(String word){
+    WordDictionary node = this;
+    for(char c : word.toCharArray()){
+      int idx = c - 'a';
+      if(node.children[idx] == null) node.children[idx] = new WordDictionary();
+      node = node.children[idx];
+    }
+    node.isEnd = true;
+  }
+
+  boolean search(String word){
+    return dfs(word, 0, this);
+  }
+
+  private boolean dfs(String word, int i, WordDictionary node){
+    if(i == word.length()) return node.isEnd;
+
+    char c = word.charAt(i);
+    if(c == '.'){
+      for(WordDictionary child : node.children){
+        if(child != null &amp;&amp; dfs(word, i + 1, child)) return true;
+      }
+      return false;
+    }
+    WordDictionary next = node.children[c - 'a'];
+    return next != null &amp;&amp; dfs(word, i + 1, next);
+  }
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(26^d · L)</b></div><div>Space <b>O(N · L)</b></div></div>
+</article>
+
+<!-- ================= Q26 ================= -->
+<article class="q" id="q26">
+  <div class="head"><h2><span class="num">26</span>Search Suggestions System <span class="pill med">Medium</span></h2></div>
+  <div class="topic">Section · Trie</div>
+  <div class="links"><a href="https://leetcode.com/problems/search-suggestions-system/" target="_blank">LeetCode</a></div>
+
+  <div class="section-title">Problem</div>
+  <p class="problem">Given a list of products and a search word typed one letter at a time, after each character return up to three lexicographically smallest product names that share the current prefix.</p>
+
+  <div class="section-title">Example</div>
+  <div class="approach">
+    <p><b>Input:</b> <code>products = ["mobile","mouse","moneypot","monitor","mousepad"], word = "mouse"</code> &nbsp;·&nbsp; <b>Output:</b> suggestions per prefix of "mouse"</p>
+    <ol>
+      <li>Prefix "m" → mobile, moneypot, monitor.</li>
+      <li>Prefix "mou" → mouse, mousepad.</li>
+      <li>Prefix "mouse" → mouse, mousepad.</li>
+    </ol>
+  </div>
+
+  <div class="section-title">Mental Model</div>
+  <div class="mental"><b>Sort once, then two-pointer narrow the window.</b> With products sorted, each new prefix character only tightens the matching band; take the first three matches at each step.</div>
+
+  <div class="section-title">Other Approaches</div>
+  <div class="alts">
+    <div class="alt"><b>Brute</b> Re-scan and filter all products for every prefix — <code>O(n · L)</code> per step.</div>
+    <div class="alt"><b>Better</b> Trie storing up to three suggestions per node — <code>O(L)</code> per step.</div>
+  </div>
+
+  <div class="section-title">Optimal Approach</div>
+  <div class="approach"><ol>
+    <li>Sort products lexicographically; set two pointers to the full range.</li>
+    <li>For each prefix char, advance <code>left</code> past non-matches and pull <code>right</code> in past non-matches.</li>
+    <li>Collect up to three names in <code>[left, right]</code> for that prefix.</li>
+  </ol></div>
+
+  <div class="section-title">Visual</div>
+  <div class="mermaid-wrap"><pre class="mermaid">
+flowchart LR
+  S["sort products"] --> P["add prefix char"]
+  P --> N["narrow left and right"]
+  N --> T["take first three"]
+  T --> P
+  </pre></div>
+
+  <div class="section-title">Code (Java)</div>
+<pre><code class="language-java">List&lt;List&lt;String&gt;&gt; suggestedProducts(String[] products, String searchWord){
+  Arrays.sort(products);
+  List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();
+  int left = 0, right = products.length - 1;
+
+  for(int i = 0; i &lt; searchWord.length(); i++){
+    char c = searchWord.charAt(i);
+    while(left &lt;= right &amp;&amp; (products[left].length() &lt;= i || products[left].charAt(i) != c)) left++;
+    while(left &lt;= right &amp;&amp; (products[right].length() &lt;= i || products[right].charAt(i) != c)) right--;
+
+    List&lt;String&gt; suggestions = new ArrayList&lt;&gt;();
+    for(int j = left; j &lt; Math.min(left + 3, right + 1); j++) suggestions.add(products[j]);
+    result.add(suggestions);
+  }
+  return result;
+}</code></pre>
+  <div class="complexity"><div>Time <b>O(n log n + L)</b></div><div>Space <b>O(1)</b></div></div>
+</article>
+
+<nav class="page-nav">
+  <a class="nav-btn" href="day8.html">← Prev: Day 8</a>
+  <a class="nav-btn home" href="index.html">⌂ DSA Index</a>
+  <span class="nav-btn spacer">Next →</span>
+</nav>
+
+</div>
+
+<button class="top" id="top" title="Back to top">↑</button>
+
+<footer>
+  Built with <b>BuildLikeASenior</b> · Day 9 · <b>Most-Asked in Interviews, Part 2</b> · Think · Design · Grow Like a Senior Engineer
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      background: 'transparent',
+      primaryColor: '#16294e',
+      primaryTextColor: '#e6edf7',
+      primaryBorderColor: '#5b8dee',
+      secondaryColor: '#0f3a33',
+      secondaryTextColor: '#e6edf7',
+      secondaryBorderColor: '#00d4aa',
+      tertiaryColor: '#1f3b6e',
+      tertiaryTextColor: '#e6edf7',
+      tertiaryBorderColor: '#7aa6ff',
+      lineColor: '#7aa6ff',
+      textColor: '#cfe0ff',
+      mainBkg: '#16294e',
+      nodeBorder: '#5b8dee',
+      clusterBkg: 'rgba(91,141,238,.06)',
+      clusterBorder: 'rgba(91,141,238,.25)',
+      defaultLinkColor: '#7aa6ff',
+      titleColor: '#f5c842',
+      edgeLabelBackground: '#0e1a33',
+      nodeTextColor: '#e6edf7',
+      fontFamily: 'Inter, sans-serif',
+      fontSize: '14px'
+    },
+    flowchart:{ htmlLabels:true, curve:'basis', padding:14, nodeSpacing:42, rankSpacing:48 }
+  });
+</script>
+<script>
+  const top = document.getElementById('top');
+  window.addEventListener('scroll',()=>{
+    top.classList.toggle('show', window.scrollY > 600);
+  });
+  top.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+</script>
+
+</body>
+</html>
