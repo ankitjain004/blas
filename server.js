@@ -18,6 +18,12 @@ const coursePrices = Object.freeze({
   architecture: 1799
 });
 
+// Only these signed-in emails may view /api/admin/stats.
+const adminEmails = (process.env.ADMIN_EMAILS || "ankitjain1064@gmail.com")
+  .split(",")
+  .map(value => value.trim().toLowerCase())
+  .filter(Boolean);
+
 const hasRazorpayConfig = Boolean(
   process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET
 );
@@ -178,6 +184,43 @@ app.get("/api/me/courses", async (request, response) => {
     return response.status(500).json({ error: "Unable to load your courses." });
   }
   return response.json({ courseIds: data.map(row => row.course_id) });
+});
+
+app.get("/api/admin/stats", async (request, response) => {
+  const user = await requireUser(request, response);
+  if (!user) return undefined;
+  if (!adminEmails.includes((user.email || "").toLowerCase())) {
+    return response.status(403).json({ error: "Not authorized." });
+  }
+  if (!supabaseAdmin) {
+    return response.json({ totalUsers: 0, sales: 0, revenue: 0, perCourse: {} });
+  }
+
+  let totalUsers = 0;
+  for (let page = 1; page <= 50; page += 1) {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error) break;
+    totalUsers += data.users.length;
+    if (data.users.length < 1000) break;
+  }
+
+  const { data: purchases, error: purchaseError } = await supabaseAdmin
+    .from("purchases")
+    .select("course_id, amount");
+  if (purchaseError) {
+    console.error("Unable to load stats:", purchaseError.message);
+    return response.status(500).json({ error: "Unable to load stats." });
+  }
+
+  const perCourse = {};
+  let revenue = 0;
+  (purchases || []).forEach(row => {
+    revenue += row.amount || 0;
+    if (!perCourse[row.course_id]) perCourse[row.course_id] = { sales: 0, revenue: 0 };
+    perCourse[row.course_id].sales += 1;
+    perCourse[row.course_id].revenue += row.amount || 0;
+  });
+  return response.json({ totalUsers, sales: (purchases || []).length, revenue, perCourse });
 });
 
 // Course content is gated: only buyers of the matching course (or the bundle) may load these folders.

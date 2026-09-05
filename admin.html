@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Owner Dashboard | BuildLikeASenior</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--navy:#0b1729;--ink:#12213b;--teal:#087f72;--gold:#e5a91f;--line:#e3e8ee;--muted:#5b6675}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:"Segoe UI",system-ui,sans-serif;background:#f5f7fa;color:var(--navy);min-height:100vh}
+    header{background:var(--navy);color:#fff;padding:20px 26px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    header h1{font-size:19px;font-weight:800;letter-spacing:.3px}
+    header .who{font-size:13px;color:#aeb9c7}
+    .wrap{max-width:1000px;margin:0 auto;padding:30px 22px}
+    .state{background:#fff;border:1px solid var(--line);border-radius:12px;padding:34px;text-align:center}
+    .state h2{font-size:20px;margin-bottom:8px}
+    .state p{color:var(--muted);line-height:1.6}
+    .state a{display:inline-block;margin-top:16px;padding:11px 20px;background:var(--teal);color:#fff;text-decoration:none;border-radius:8px;font-weight:700}
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:26px}
+    .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px}
+    .card .label{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+    .card .value{font-size:34px;font-weight:800;margin-top:8px;color:var(--navy)}
+    .card.accent .value{color:var(--teal)}
+    .card.gold .value{color:var(--gold)}
+    .panel{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+    .panel h3{padding:18px 22px;font-size:15px;border-bottom:1px solid var(--line)}
+    table{width:100%;border-collapse:collapse}
+    th,td{text-align:left;padding:13px 22px;font-size:14px;border-bottom:1px solid var(--line)}
+    th{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);background:#fafbfc}
+    tr:last-child td{border-bottom:none}
+    td.num{font-weight:700;text-align:right}
+    th.num{text-align:right}
+    .muted{color:var(--muted)}
+    .bar{margin-top:14px;font-size:13px;color:var(--muted)}
+    .refresh{background:transparent;border:1px solid #33465f;color:#fff;padding:8px 14px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px}
+    .hidden{display:none}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>BuildLikeASenior · Owner Dashboard</h1>
+    <div style="display:flex;align-items:center;gap:14px">
+      <span class="who" id="whoami"></span>
+      <button class="refresh" id="refreshBtn">Refresh</button>
+    </div>
+  </header>
+  <div class="wrap">
+    <div id="loading" class="state"><p>Loading your dashboard…</p></div>
+
+    <div id="signedOut" class="state hidden">
+      <h2>Sign in required</h2>
+      <p>Please sign in with your owner account to view the dashboard.</p>
+      <a href="/index.html">Go to sign in</a>
+    </div>
+
+    <div id="denied" class="state hidden">
+      <h2>Not authorized</h2>
+      <p>This dashboard is restricted to the site owner.</p>
+      <a href="/index.html">Back to site</a>
+    </div>
+
+    <div id="dashboard" class="hidden">
+      <div class="cards">
+        <div class="card"><div class="label">Total users</div><div class="value" id="statUsers">–</div></div>
+        <div class="card accent"><div class="label">Courses sold</div><div class="value" id="statSales">–</div></div>
+        <div class="card gold"><div class="label">Revenue</div><div class="value" id="statRevenue">–</div></div>
+      </div>
+      <div class="panel">
+        <h3>Sales by course</h3>
+        <table>
+          <thead><tr><th>Course</th><th class="num">Sales</th><th class="num">Revenue</th></tr></thead>
+          <tbody id="perCourse"></tbody>
+        </table>
+      </div>
+      <div class="bar" id="updatedAt"></div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const el = id => document.getElementById(id);
+      const inr = n => new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(n||0);
+      const COURSE_NAMES = {
+        dsa:"DSA Patterns", system:"System Design", lld:"Low-Level Design",
+        career:"Senior Engineer Playbook", bundle:"Interview Bundle", architecture:"Architecture Stories"
+      };
+      function show(id){ ["loading","signedOut","denied","dashboard"].forEach(s => el(s).classList.toggle("hidden", s !== id)); }
+
+      let sbClient = null;
+
+      async function loadStats(){
+        if(!sbClient){ show("signedOut"); return; }
+        const { data:sessionData } = await sbClient.auth.getSession();
+        const session = sessionData ? sessionData.session : null;
+        if(!session){ show("signedOut"); return; }
+        el("whoami").textContent = session.user.email || "";
+        try{
+          const res = await fetch("/api/admin/stats", { headers: { Authorization: "Bearer " + session.access_token } });
+          if(res.status === 403){ show("denied"); return; }
+          if(!res.ok) throw new Error("Request failed");
+          const stats = await res.json();
+          el("statUsers").textContent = (stats.totalUsers || 0).toLocaleString("en-IN");
+          el("statSales").textContent = (stats.sales || 0).toLocaleString("en-IN");
+          el("statRevenue").textContent = inr(stats.revenue);
+          const rows = Object.keys(stats.perCourse || {});
+          el("perCourse").innerHTML = rows.length
+            ? rows.map(id => `<tr><td>${COURSE_NAMES[id] || id}</td><td class="num">${stats.perCourse[id].sales}</td><td class="num">${inr(stats.perCourse[id].revenue)}</td></tr>`).join("")
+            : `<tr><td colspan="3" class="muted">No sales yet.</td></tr>`;
+          el("updatedAt").textContent = "Updated " + new Date().toLocaleString("en-IN");
+          show("dashboard");
+        }catch(e){
+          el("perCourse").innerHTML = "";
+          show("dashboard");
+          el("updatedAt").textContent = "Could not load stats. Try Refresh.";
+        }
+      }
+
+      el("refreshBtn").addEventListener("click", loadStats);
+
+      fetch("/api/config").then(r => r.json()).then(cfg => {
+        if(!cfg.authEnabled || !cfg.supabaseUrl || !cfg.supabaseAnonKey || !window.supabase){ show("signedOut"); return; }
+        sbClient = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+        loadStats();
+      }).catch(() => show("signedOut"));
+    })();
+  </script>
+</body>
+</html>
