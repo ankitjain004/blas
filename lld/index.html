@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Low-Level Design · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+    --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+    --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.6;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{font-family:'JetBrains Mono',monospace}
+
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:760px;margin:0 auto;font-size:15px}
+  .crumb{position:absolute;left:20px;top:20px;font-size:13px;font-family:'JetBrains Mono',monospace}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:24px}
+
+  .section-title{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin:34px 0 4px;font-weight:700}
+  .section-sub{color:var(--muted);font-size:14px;margin:0 0 8px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px;margin:18px 0}
+  .card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:22px;transition:transform .2s,border-color .2s;text-decoration:none;color:var(--text);display:block;position:relative}
+  .card:hover{transform:translateY(-3px);border-color:var(--teal);text-decoration:none}
+  .card .num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--blue);letter-spacing:.18em}
+  .card h3{margin:8px 0 10px;font-size:18px;font-weight:700}
+  .card .desc{color:var(--muted);font-size:14px;line-height:1.55}
+  .card .tags{margin-top:14px;display:flex;gap:6px;flex-wrap:wrap}
+  .card .tag{font-size:10px;padding:3px 8px;border-radius:999px;background:rgba(91,141,238,.12);color:var(--blue);border:1px solid rgba(91,141,238,.3);letter-spacing:.08em;text-transform:uppercase}
+  .card .freq{position:absolute;top:18px;right:18px;font-size:10px;font-family:'JetBrains Mono',monospace;padding:3px 8px;border-radius:999px;letter-spacing:.06em}
+  .freq.high{background:rgba(0,212,170,.14);color:var(--teal);border:1px solid rgba(0,212,170,.35)}
+  .freq.med{background:rgba(245,200,66,.12);color:var(--gold);border:1px solid rgba(245,200,66,.30)}
+
+  .panel{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:26px;margin:18px 0}
+  .panel h2{margin:0 0 6px;font-size:22px;font-weight:800;letter-spacing:-.01em}
+  .panel p.lead{color:var(--muted);font-size:14px;margin:0 0 18px}
+  .steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+  .step{background:rgba(255,255,255,.03);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:10px;padding:14px 16px}
+  .step .n{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal);letter-spacing:.12em}
+  .step h4{margin:6px 0 6px;font-size:15px;font-weight:700}
+  .step p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .minilist{list-style:none;margin:0;padding:0}
+  .minilist li{padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;color:var(--text)}
+  .minilist li:last-child{border-bottom:none}
+  .minilist b{color:var(--teal)}
+  .minilist .k{font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:12px}
+  .pill{display:inline-block;font-size:11px;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:6px;background:rgba(91,141,238,.12);color:var(--blue);border:1px solid rgba(91,141,238,.25);margin-left:6px}
+
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <a class="crumb" href="../index.html">← Home</a>
+  <span class="badge">Low-Level Design · BuildLikeASenior</span>
+  <h1 class="title">Master <span>LLD / OOD</span> Interviews</h1>
+  <p class="sub">The most-asked low-level / object-oriented design problems in senior engineering interviews — with a repeatable framework, SOLID applied, design patterns, and a per-problem cheat sheet.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ FRAMEWORK ============ -->
+  <div class="section-title">The Method · Use This Every Time</div>
+  <p class="section-sub">LLD is one repeatable motion. Learn it once, apply it to any problem they throw at you.</p>
+  <div class="panel">
+    <h2>The 8-Step LLD Flow</h2>
+    <p class="lead">Talk through every step out loud — interviewers score your reasoning, not just the final classes.</p>
+    <div class="steps">
+      <div class="step"><div class="n">01</div><h4>Clarify Requirements</h4><p>Ask 4–6 questions. Functional scope, scale, who uses it, what varies. Never code first.</p></div>
+      <div class="step"><div class="n">02</div><h4>Define Scope</h4><p>State what's in and out loud. "I'll handle X and Y, skip payments for now." Bound the problem.</p></div>
+      <div class="step"><div class="n">03</div><h4>Identify Entities</h4><p>Pull the nouns → candidate classes. Vehicle, Slot, Ticket, Floor, Account.</p></div>
+      <div class="step"><div class="n">04</div><h4>Define Relationships</h4><p>has-a vs is-a. Composition over inheritance. Draw associations & multiplicity.</p></div>
+      <div class="step"><div class="n">05</div><h4>Assign Behaviors</h4><p>Methods on the right class. Who owns each responsibility? One reason to change each.</p></div>
+      <div class="step"><div class="n">06</div><h4>Abstract What Varies</h4><p>Pricing? Allocation? Notifications? Pull into an interface + Strategy/State/Factory.</p></div>
+      <div class="step"><div class="n">07</div><h4>Walk a Core Flow</h4><p>Trace one end-to-end use case through your classes to prove the design works.</p></div>
+      <div class="step"><div class="n">08</div><h4>Extend & Edge Cases</h4><p>They WILL add a requirement live. Add a class/interface — never rewrite. Show Open/Closed.</p></div>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="panel">
+      <h2>SOLID — Applied</h2>
+      <p class="lead">Don't name them. Show them in your class choices.</p>
+      <ul class="minilist">
+        <li><span class="k">S</span> <b>Single Responsibility</b> — one reason to change per class. Split <code>Order</code> from <code>OrderPrinter</code>.</li>
+        <li><span class="k">O</span> <b>Open/Closed</b> — add new <code>PricingStrategy</code>, don't edit existing. The senior-engineer signal.</li>
+        <li><span class="k">L</span> <b>Liskov</b> — a subtype must work anywhere its base does. No surprise exceptions.</li>
+        <li><span class="k">I</span> <b>Interface Segregation</b> — small focused interfaces over one fat one.</li>
+        <li><span class="k">D</span> <b>Dependency Inversion</b> — depend on interfaces, inject concretes.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h2>Patterns That Cover 90%</h2>
+      <p class="lead">Know when each one earns its place.</p>
+      <ul class="minilist">
+        <li><b>Strategy</b> <span class="pill">behavior varies</span> pricing, parking-fee, payment</li>
+        <li><b>State</b> <span class="pill">lifecycle</span> vending machine, order, elevator</li>
+        <li><b>Factory</b> <span class="pill">object creation</span> create Vehicle/Notification by type</li>
+        <li><b>Observer</b> <span class="pill">notify many</span> alerts, pub-sub, stock watchers</li>
+        <li><b>Singleton</b> <span class="pill">one instance</span> config, registry — mention thread-safety</li>
+        <li><b>Decorator</b> <span class="pill">add-on behavior</span> pizza toppings, coffee add-ins</li>
+        <li><b>Builder</b> <span class="pill">complex object</span> assemble Pizza / Request step by step</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ PROBLEMS ============ -->
+  <div class="section-title">Your 6 Target Problems · Deep-Dive Pages</div>
+  <p class="section-sub">Six problems covering every pattern LLD rounds test: Strategy, State, Factory, Observer, Command, concurrency, and core data structures. Each card links to a full deep-dive page.</p>
+
+  <div class="grid">
+
+    <a class="card" href="parking-lot.html">
+      <span class="freq high">PICK 1</span>
+      <div class="num">01 / OOD CORE · STRATEGY + FACTORY</div>
+      <h3>Parking Lot</h3>
+      <div class="desc"><b>Entities:</b> ParkingLot, Floor, Slot, Vehicle (Car/Bike/Truck), Ticket, Gate. <b>Pattern:</b> Strategy for slot-allocation &amp; fee, Factory for vehicle. <b>Extend:</b> EV slots, valet, multi-floor pricing.</div>
+      <div class="tags"><span class="tag">Strategy</span><span class="tag">Factory</span><span class="tag">Allocation</span><span class="tag">Concurrency</span></div>
+    </a>
+
+    <a class="card" href="vending-machine.html">
+      <span class="freq high">PICK 2</span>
+      <div class="num">02 / STATE MACHINE</div>
+      <h3>Vending Machine</h3>
+      <div class="desc"><b>Entities:</b> Machine, Inventory, Product, Coin/Note, State. <b>Pattern:</b> State (Idle→HasMoney→Dispensing→OutOfStock). <b>Extend:</b> card payment, refunds, multiple products.</div>
+      <div class="tags"><span class="tag">State</span><span class="tag">Inventory</span><span class="tag">Transitions</span></div>
+    </a>
+
+    <a class="card" href="elevator-system.html">
+      <span class="freq high">PICK 3</span>
+      <div class="num">03 / STATE + STRATEGY · CONCURRENCY</div>
+      <h3>Elevator System</h3>
+      <div class="desc"><b>Entities:</b> ElevatorController, Elevator, State, Request (Internal/External), Door. <b>Pattern:</b> State for direction + Strategy for scheduling (SCAN/Nearest). <b>Extend:</b> fire mode, VIP floors.</div>
+      <div class="tags"><span class="tag">State</span><span class="tag">Strategy</span><span class="tag">SCAN</span><span class="tag">ReentrantLock</span></div>
+    </a>
+
+    <a class="card" href="lru-cache.html">
+      <span class="freq high">PICK 4</span>
+      <div class="num">04 / DATA STRUCTURE · CONCURRENCY</div>
+      <h3>LRU Cache</h3>
+      <div class="desc"><b>Entities:</b> Cache, Node, DoublyLinkedList, HashMap. <b>Win:</b> O(1) get/put via map + DLL. <b>Extend:</b> TTL, thread-safe, eviction-policy as Strategy.</div>
+      <div class="tags"><span class="tag">HashMap+DLL</span><span class="tag">O(1)</span><span class="tag">Eviction</span></div>
+    </a>
+
+    <a class="card" href="splitwise.html">
+      <span class="freq high">PICK 5</span>
+      <div class="num">05 / STRATEGY · MONEY</div>
+      <h3>Splitwise</h3>
+      <div class="desc"><b>Entities:</b> User, Group, Expense, Split (Equal/Exact/Percent), Balance. <b>Pattern:</b> Strategy for split type. <b>Extend:</b> debt simplification, settle-up, currencies.</div>
+      <div class="tags"><span class="tag">Strategy</span><span class="tag">Balances</span><span class="tag">Debt Simplification</span></div>
+    </a>
+
+    <a class="card" href="snake-ladder.html">
+      <span class="freq med">PICK 6</span>
+      <div class="num">06 / GAME DESIGN · PATTERNS</div>
+      <h3>Snake &amp; Ladder</h3>
+      <div class="desc"><b>Entities:</b> Game, Board, Player, Dice, Jump (Snake/Ladder), GameObserver. <b>Pattern:</b> Observer for events, Command for turns/undo. <b>Extend:</b> power-ups, replay, AI player.</div>
+      <div class="tags"><span class="tag">Observer</span><span class="tag">Command</span><span class="tag">Game Loop</span></div>
+    </a>
+
+  </div>
+
+  <!-- ============ 1-DAY PLAN ============ -->
+  <div class="section-title">Interview-Day Checklist</div>
+  <div class="panel">
+      <ul class="minilist">
+        <li>✅ Ask clarifying questions <b>before</b> any code</li>
+        <li>✅ State assumptions out loud</li>
+        <li>✅ Nouns → classes, verbs → methods</li>
+        <li>✅ Composition over inheritance by default</li>
+        <li>✅ Pull what varies behind an interface</li>
+        <li>✅ Walk one flow end-to-end</li>
+        <li>✅ When they add a requirement → add a class, don't rewrite</li>
+        <li>✅ Mention thread-safety where shared state exists</li>
+      </ul>
+  </div>
+
+</div>
+
+<footer>
+  Built with <b>BuildLikeASenior</b> · <code>file://C:/Connect/LocalFile/lld/</code> · 6 Deep-Dive Problems · Think · Design · Grow Like a Senior Engineer
+</footer>
+</body>
+</html>

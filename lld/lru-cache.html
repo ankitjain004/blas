@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Design an LRU Cache – LLD Interview Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+<style>
+:root{
+  --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+  --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+  --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+code,pre{font-family:'JetBrains Mono',monospace}
+a{color:var(--teal);text-decoration:none}
+a:hover{text-decoration:underline}
+header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+header.hero .crumb a{color:var(--muted)}
+.badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+.meta{margin-top:14px;color:var(--muted);font-size:13px;font-family:'JetBrains Mono',monospace}
+.meta b{color:var(--gold)}
+.wrap{max-width:1100px;margin:0 auto;padding:24px}
+.toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+.toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+.toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+.toc li:hover{background:rgba(0,212,170,.08)}
+.toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+.toc a{color:var(--text)}
+section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+section.step h2{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+.label{color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 8px;font-weight:700}
+.label.gold{color:var(--gold)}
+.define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+.define b{color:var(--gold)}
+.define em{color:var(--muted);font-style:normal;display:block;font-size:13px;margin-top:4px}
+.callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+.callout b{color:var(--teal)}
+.warn{background:rgba(239,68,68,.06);border-left:3px solid #ef4444;padding:14px 18px;border-radius:8px;margin:10px 0}
+.warn b{color:#ef4444}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+tr:last-child td{border-bottom:none}
+td code,th code{background:rgba(0,212,170,.10);padding:1px 6px;border-radius:4px;color:var(--teal);font-size:12px}
+pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto}
+ul.bullets{padding-left:22px}
+ul.bullets li{margin:6px 0}
+ol.steps{padding-left:22px}
+ol.steps li{margin:8px 0}
+.top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+.top.show{opacity:1}
+footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+footer b{color:var(--teal)}
+.page-nav{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:20px 0;flex-wrap:wrap}
+.nav-btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--line);color:var(--muted);background:linear-gradient(180deg,var(--card),var(--card2));transition:border-color .2s,color .2s;text-decoration:none;font-family:'JetBrains Mono',monospace}
+.nav-btn:hover{border-color:var(--teal);color:var(--teal);text-decoration:none}
+.nav-btn.home{background:rgba(0,212,170,.08);border-color:rgba(0,212,170,.25);color:var(--teal)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="crumb"><a href="index.html">LLD Index</a> · <a href="../index.html">Home</a></div>
+  <div class="badge">HashMap + DLL · Data Structures + OOD</div>
+  <h1 class="title">Design an <span>LRU Cache</span></h1>
+  <p class="sub">O(1) get and put using a doubly-linked list + hash map — the data structure problem that tests both coding depth and design thinking.</p>
+  <div class="meta"><b>Patterns:</b> Strategy · Decorator &nbsp;|&nbsp; <b>Difficulty:</b> Medium–Hard &nbsp;|&nbsp; <b>Language:</b> Java</div>
+</header>
+
+<div class="wrap">
+
+  <nav class="page-nav">
+    <a class="nav-btn prev" href="elevator-system.html">← Prev: Elevator System</a>
+    <a class="nav-btn home" href="index.html">⌂ LLD Index</a>
+    <a class="nav-btn next" href="splitwise.html">Next: Splitwise →</a>
+  </nav>
+
+  <div class="toc">
+    <h3>Table of Contents</h3>
+    <ol>
+      <li><a href="#s01">Requirements &amp; Scope</a></li>
+      <li><a href="#s02">Why HashMap + DLL</a></li>
+      <li><a href="#s03">Node Class</a></li>
+      <li><a href="#s04">DoublyLinkedList Class</a></li>
+      <li><a href="#s05">LRUCache Class</a></li>
+      <li><a href="#s06">Thread-Safe LRUCache</a></li>
+      <li><a href="#s07">Common Mistakes</a></li>
+      <li><a href="#s08">Extending: TTL Support</a></li>
+      <li><a href="#s09">Extending: Eviction Policy as Strategy</a></li>
+      <li><a href="#s10">Walking a Flow</a></li>
+      <li><a href="#s11">Interview Talking Points</a></li>
+    </ol>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ S01 -->
+  <section class="step" id="s01">
+    <h2><span class="num">01</span> Requirements &amp; Scope</h2>
+
+    <p class="label gold">Core API Contract</p>
+    <table>
+      <thead><tr><th>Method</th><th>Behaviour</th><th>Time Complexity</th></tr></thead>
+      <tbody>
+        <tr><td><code>get(key)</code></td><td>Return value if found; <code>-1</code> if absent. Mark key as most-recently-used.</td><td>O(1)</td></tr>
+        <tr><td><code>put(key, value)</code></td><td>Insert or update. If at capacity, evict the LRU entry first, then insert. Mark new key as MRU.</td><td>O(1)</td></tr>
+      </tbody>
+    </table>
+
+    <p class="label gold">Constraints</p>
+    <ul class="bullets">
+      <li>Capacity is a fixed positive integer set at construction time.</li>
+      <li>Keys and values are generic types (not just <code>int</code>).</li>
+      <li><code>put</code> on an existing key updates the value and promotes to MRU — <strong>no capacity change</strong>.</li>
+    </ul>
+
+    <p class="label gold">Clarifying Questions — Ask These First</p>
+    <table>
+      <thead><tr><th>Question</th><th>Why It Matters</th></tr></thead>
+      <tbody>
+        <tr><td>TTL per entry?</td><td>Need <code>expiryTime</code> field in Node; get() must check expiry</td></tr>
+        <tr><td>LRU or LFU eviction?</td><td>LFU needs frequency counters; design changes significantly</td></tr>
+        <tr><td>Thread-safe?</td><td>Determines whether to use locks or concurrent structures</td></tr>
+        <tr><td>Distributed cache?</td><td>Single-node vs Redis-backed changes the entire architecture</td></tr>
+        <tr><td>Eviction callback?</td><td>Notify caller on eviction — adds Observer pattern</td></tr>
+        <tr><td>Max entry size limit?</td><td>Weighted eviction (e.g., Caffeine's weigher) — significant complexity</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout"><b>Critical framing for the interview:</b> This is a data structures problem wrapped in OOD. The interviewer wants you to build HashMap+DLL from scratch, not use <code>LinkedHashMap</code>. Acknowledge that <code>LinkedHashMap</code> solves this in 10 lines, then say: "I'll implement the underlying structure to demonstrate the O(1) mechanics."</div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S02 -->
+  <section class="step" id="s02">
+    <h2><span class="num">02</span> Why HashMap + DLL</h2>
+
+    <table>
+      <thead><tr><th>Structure Alone</th><th>get(key)</th><th>Find LRU</th><th>Combined verdict</th></tr></thead>
+      <tbody>
+        <tr><td>HashMap only</td><td>O(1) ✅</td><td>O(n) — must scan all entries for LRU ❌</td><td>Insufficient</td></tr>
+        <tr><td>DLL only</td><td>O(n) — must traverse to find key ❌</td><td>O(1) — tail is always LRU ✅</td><td>Insufficient</td></tr>
+        <tr><td><strong>HashMap + DLL</strong></td><td>O(1) via map lookup ✅</td><td>O(1) via tail.prev ✅</td><td><strong>✅ Perfect fit</strong></td></tr>
+      </tbody>
+    </table>
+
+    <p class="label">The Insight</p>
+    <ul class="bullets">
+      <li><strong>HashMap</strong>: <code>key → Node pointer</code>. Gives us the node in O(1) — no list traversal.</li>
+      <li><strong>DLL</strong>: Maintains insertion order by recency. O(1) node removal and insertion <em>anywhere</em> given a pointer.</li>
+      <li><strong>Together</strong>: HashMap finds the node in O(1), DLL repositions it in O(1). Both operations are O(1) total.</li>
+    </ul>
+
+    <p class="label">ASCII: Structure at a Glance</p>
+    <pre class="ascii">
+HashMap:                          Doubly Linked List (head=MRU side, tail=LRU side):
+┌──────────────────────┐          ┌───────┐    ┌───────┐    ┌───────┐    ┌───────┐
+│ "alice"  →  ●────────┼─────────▶│ dummy │◀──▶│ alice │◀──▶│  bob  │◀──▶│ dummy │
+│  "bob"   →  ●────────┼──────┐   │ head  │    │  25   │    │  30   │    │ tail  │
+│ "carol"  →  ●────────┼───┐  │   └───────┘    └───────┘    └───────┘    └───────┘
+└──────────────────────┘   │  │
+                           │  └──────────── "bob"  is at position 2 from MRU
+                           └─────────────── "carol" is tail.prev = LRU → evicted next
+
+  head.next  =  MRU  (most recently used)
+  tail.prev  =  LRU  (least recently used — evicted when capacity exceeded)
+
+  On get("alice"):  removeNode(alice_node)  →  addToFront(alice_node)
+  Result:    head ↔ alice ↔ bob ↔ carol ↔ tail   (alice now MRU)
+    </pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S03 -->
+  <section class="step" id="s03">
+    <h2><span class="num">03</span> Node Class</h2>
+
+    <pre><code class="language-java">/**
+ * Doubly-linked list node. Stores both key AND value.
+ * Generic K, V for type safety — no raw types.
+ */
+public class Node&lt;K, V&gt; {
+    K key;
+    V value;
+    Node&lt;K, V&gt; prev;
+    Node&lt;K, V&gt; next;
+
+    // Sentinel constructor (no key/value needed for dummy head/tail)
+    Node() {}
+
+    Node(K key, V value) {
+        this.key   = key;
+        this.value = value;
+    }
+}</code></pre>
+
+    <p class="label gold">Why Does the Node Store the Key?</p>
+    <div class="callout">
+      <b>Critical non-obvious insight:</b> When we evict the LRU node (<code>tail.prev</code>), we must also remove it from the HashMap — otherwise the map grows unbounded and the evicted entry returns on <code>get()</code>. Without the key in the node, we'd have to scan the <em>entire</em> HashMap to find the entry — O(n). With <code>key</code> stored in the node, eviction is <code>map.remove(node.key)</code> — O(1).
+    </div>
+
+    <pre><code class="language-java">// Eviction with key in Node — O(1):
+Node&lt;K, V&gt; lru = dll.removeTail();   // O(1) pointer operation
+map.remove(lru.key);                  // O(1) HashMap remove — key is RIGHT HERE
+
+// Without key in Node — O(n) disaster:
+Node&lt;K, V&gt; lru = dll.removeTail();
+// Now we must find which map entry points to this node...
+for (Map.Entry&lt;K, Node&lt;K,V&gt;&gt; entry : map.entrySet()) {  // O(n) scan!
+    if (entry.getValue() == lru) {
+        map.remove(entry.getKey());
+        break;
+    }
+}</code></pre>
+
+    <p>The generic type parameters <code>K</code> and <code>V</code> provide compile-time type safety, eliminating the <code>ClassCastException</code> that plagues raw-type <code>Object</code> implementations.</p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S04 -->
+  <section class="step" id="s04">
+    <h2><span class="num">04</span> DoublyLinkedList Class</h2>
+
+    <p>Uses two <strong>sentinel (dummy) nodes</strong> — <code>head</code> and <code>tail</code> — to eliminate null checks in every operation. Every real node always has a non-null <code>prev</code> and <code>next</code>.</p>
+
+    <pre><code class="language-java">public class DoublyLinkedList&lt;K, V&gt; {
+
+    private final Node&lt;K, V&gt; head; // sentinel — head.next = MRU real node
+    private final Node&lt;K, V&gt; tail; // sentinel — tail.prev = LRU real node
+
+    public DoublyLinkedList() {
+        head = new Node&lt;&gt;();
+        tail = new Node&lt;&gt;();
+        head.next = tail;
+        tail.prev = head;
+    }
+
+    /** Insert node immediately after head (MRU position). O(1). */
+    public void addToFront(Node&lt;K, V&gt; node) {
+        node.prev      = head;
+        node.next      = head.next;
+        head.next.prev = node;
+        head.next      = node;
+    }
+
+    /** Unlink node from wherever it currently sits. O(1). */
+    public void removeNode(Node&lt;K, V&gt; node) {
+        node.prev.next = node.next;
+        node.next.prev = node.prev;
+        // Help GC — clear dangling pointers
+        node.prev = null;
+        node.next = null;
+    }
+
+    /**
+     * Remove and return the LRU node (tail.prev).
+     * Called when capacity exceeded.
+     * Returns the node so caller can extract the key for map.remove().
+     */
+    public Node&lt;K, V&gt; removeTail() {
+        if (head.next == tail) return null; // empty list
+        Node&lt;K, V&gt; lru = tail.prev;
+        removeNode(lru);
+        return lru;
+    }
+
+    public boolean isEmpty() { return head.next == tail; }
+}</code></pre>
+
+    <p class="label">addToFront: Before &amp; After</p>
+    <pre class="ascii">
+Before addToFront(X):
+  head ↔ A ↔ B ↔ tail
+
+Step-by-step pointer updates:
+  1. X.prev      = head          →  head ← X        B ↔ tail   (A still attached to head)
+  2. X.next      = head.next(=A) →  head ← X → A ↔ B ↔ tail
+  3. head.next.prev (= A.prev)   →  head ← X ↔ A ↔ B ↔ tail   (A now points back to X)
+  4. head.next   = X             →  head ↔ X ↔ A ↔ B ↔ tail   ✅
+
+After addToFront(X):
+  head ↔ X ↔ A ↔ B ↔ tail
+    </pre>
+
+    <p class="label">removeNode: Before &amp; After</p>
+    <pre class="ascii">
+Before removeNode(A)  where list is:  head ↔ X ↔ A ↔ B ↔ tail
+
+  1. A.prev.next = A.next  →  X.next = B   (X now skips A going forward)
+  2. A.next.prev = A.prev  →  B.prev = X   (B now skips A going backward)
+
+After removeNode(A):
+  head ↔ X ↔ B ↔ tail       (A is detached, eligible for GC)
+    </pre>
+
+    <div class="callout"><b>Sentinel benefit in practice:</b> Without sentinels, <code>addToFront</code> must check <code>if (head.next == null)</code>. <code>removeNode</code> must check <code>if (node == firstRealNode)</code> and <code>if (node == lastRealNode)</code>. Sentinels make every case uniform — the same 4-line <code>addToFront</code> works whether the list has 0 or 1000 real nodes.</div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S05 -->
+  <section class="step" id="s05">
+    <h2><span class="num">05</span> LRUCache Class</h2>
+
+    <pre><code class="language-java">import java.util.HashMap;
+import java.util.Map;
+
+public class LRUCache&lt;K, V&gt; {
+
+    private final int capacity;
+    private final Map&lt;K, Node&lt;K, V&gt;&gt; map;
+    private final DoublyLinkedList&lt;K, V&gt; dll;
+
+    public LRUCache(int capacity) {
+        if (capacity &lt;= 0) throw new IllegalArgumentException("Capacity must be positive");
+        this.capacity = capacity;
+        this.map      = new HashMap&lt;&gt;(capacity * 2); // pre-size to avoid rehashing
+        this.dll      = new DoublyLinkedList&lt;&gt;();
+    }
+
+    /**
+     * Return value for key, or -1 if absent.
+     * Promotes the accessed node to MRU position.
+     * Time: O(1)
+     */
+    public V get(K key) {
+        if (!map.containsKey(key)) return null; // return -1 for int caches
+
+        Node&lt;K, V&gt; node = map.get(key);
+        // Promote to MRU
+        dll.removeNode(node);
+        dll.addToFront(node);
+        return node.value;
+    }
+
+    /**
+     * Insert or update key-value pair.
+     * If key exists: update value in-place, promote to MRU.
+     * If new key and at capacity: evict LRU first, then insert.
+     * Time: O(1)
+     */
+    public void put(K key, V value) {
+        if (map.containsKey(key)) {
+            // Update existing — no capacity change
+            Node&lt;K, V&gt; node = map.get(key);
+            node.value = value;
+            dll.removeNode(node);
+            dll.addToFront(node);
+        } else {
+            // New entry — check capacity
+            if (map.size() == capacity) {
+                Node&lt;K, V&gt; evicted = dll.removeTail();
+                if (evicted != null) {
+                    map.remove(evicted.key); // CRITICAL: remove from map too
+                    System.out.println("[LRUCache] Evicted key: " + evicted.key);
+                }
+            }
+            Node&lt;K, V&gt; newNode = new Node&lt;&gt;(key, value);
+            dll.addToFront(newNode);
+            map.put(key, newNode);
+        }
+    }
+
+    /** Convenience: check if key exists without updating recency */
+    public boolean containsKey(K key) { return map.containsKey(key); }
+
+    /** Current number of entries */
+    public int size() { return map.size(); }
+
+    public int getCapacity() { return capacity; }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("LRUCache[MRU→LRU]: ");
+        Node&lt;K, V&gt; cur = dll.getHead().next;
+        while (cur != dll.getTail()) {
+            sb.append(cur.key).append(":").append(cur.value).append(" → ");
+            cur = cur.next;
+        }
+        sb.append("(LRU end)");
+        return sb.toString();
+    }
+}</code></pre>
+
+    <p class="label">Complexity Summary</p>
+    <table>
+      <thead><tr><th>Operation</th><th>Time</th><th>Space</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><code>get(key)</code></td><td>O(1)</td><td>O(1)</td><td>HashMap lookup + DLL pointer ops</td></tr>
+        <tr><td><code>put(key, val)</code></td><td>O(1)</td><td>O(1)</td><td>HashMap insert + DLL addToFront + optional removeTail</td></tr>
+        <tr><td>Total space</td><td>—</td><td>O(capacity)</td><td>HashMap and DLL each hold at most <em>capacity</em> entries</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S06 -->
+  <section class="step" id="s06">
+    <h2><span class="num">06</span> Thread-Safe LRUCache</h2>
+
+    <table>
+      <thead><tr><th>Approach</th><th>Mechanism</th><th>Throughput</th><th>When to Use</th></tr></thead>
+      <tbody>
+        <tr><td><strong>synchronized</strong></td><td>Intrinsic lock on get/put</td><td>Single-threaded effective throughput</td><td>Simple, low concurrency</td></tr>
+        <tr><td><strong>ReentrantReadWriteLock</strong></td><td>Shared reads, exclusive writes</td><td>High read throughput (in theory)</td><td>Read-heavy; see caveat below</td></tr>
+        <tr><td><strong>ConcurrentHashMap + Deque</strong></td><td>Lock striping + approximate LRU</td><td>Highest overall</td><td>When exact LRU ordering not required</td></tr>
+      </tbody>
+    </table>
+
+    <p class="label">Approach 1: Synchronized Wrapper</p>
+    <pre><code class="language-java">public class SynchronizedLRUCache&lt;K, V&gt; extends LRUCache&lt;K, V&gt; {
+
+    public SynchronizedLRUCache(int capacity) { super(capacity); }
+
+    @Override
+    public synchronized V get(K key) { return super.get(key); }
+
+    @Override
+    public synchronized void put(K key, V value) { super.put(key, value); }
+}</code></pre>
+
+    <p class="label">Approach 2: ReadWriteLock Version</p>
+    <pre><code class="language-java">import java.util.concurrent.locks.*;
+
+public class RWLockLRUCache&lt;K, V&gt; extends LRUCache&lt;K, V&gt; {
+
+    private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
+    private final Lock readLock  = rwLock.readLock();
+    private final Lock writeLock = rwLock.writeLock();
+
+    public RWLockLRUCache(int capacity) { super(capacity); }
+
+    /**
+     * NOTE: get() uses writeLock, NOT readLock.
+     * get() mutates the DLL (move-to-front), so it is NOT a read-only operation.
+     */
+    @Override
+    public V get(K key) {
+        writeLock.lock(); // ← writeLock, not readLock!
+        try {
+            return super.get(key);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    @Override
+    public void put(K key, V value) {
+        writeLock.lock();
+        try {
+            super.put(key, value);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+}</code></pre>
+
+    <div class="warn">
+      <b>The subtle trap most candidates miss:</b> <code>get()</code> is NOT read-only — it moves the accessed node to the front of the DLL (mutation). If you use <code>readLock</code> for <code>get()</code>, two concurrent gets on different keys will simultaneously mutate the DLL, causing pointer corruption. <strong>Both <code>get()</code> and <code>put()</code> require the write lock.</strong> ReadWriteLock only helps if you separate "read value" from "update recency" into two distinct operations with eventual consistency.
+    </div>
+
+    <p class="label">Approach 3: Approximate LRU (Highest Throughput)</p>
+    <pre><code class="language-java">import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class ApproximateLRUCache&lt;K, V&gt; {
+    // ConcurrentHashMap for lock-free reads
+    private final ConcurrentHashMap&lt;K, V&gt; map;
+    // Bounded queue tracks access order (approximate — not strictly LRU)
+    private final ConcurrentLinkedDeque&lt;K&gt; accessOrder;
+    private final int capacity;
+
+    public ApproximateLRUCache(int capacity) {
+        this.capacity    = capacity;
+        this.map         = new ConcurrentHashMap&lt;&gt;(capacity * 2);
+        this.accessOrder = new ConcurrentLinkedDeque&lt;&gt;();
+    }
+
+    public V get(K key) {
+        V value = map.get(key);
+        if (value != null) {
+            // Record access — approximate recency (best-effort, not exact)
+            accessOrder.remove(key); // O(n) — trade accuracy for concurrency
+            accessOrder.addFirst(key);
+        }
+        return value;
+    }
+
+    public void put(K key, V value) {
+        if (map.size() &gt;= capacity &amp;&amp; !map.containsKey(key)) {
+            K lru = accessOrder.pollLast(); // approximate LRU
+            if (lru != null) map.remove(lru);
+        }
+        map.put(key, value);
+        accessOrder.remove(key);
+        accessOrder.addFirst(key);
+    }
+}
+// Note: Caffeine library uses a more sophisticated "Window TinyLFU" approach
+// for near-optimal hit rates at high concurrency — reference it in interviews.</code></pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S07 -->
+  <section class="step" id="s07">
+    <h2><span class="num">07</span> Common Mistakes</h2>
+
+    <div class="warn"><b>Mistake 1 — Not storing key in Node:</b> You evict <code>tail.prev</code> but cannot remove it from the HashMap without an O(n) scan. Always store the key in the Node so eviction is <code>map.remove(node.key)</code> — O(1).</div>
+
+    <div class="warn"><b>Mistake 2 — Using LinkedHashMap:</b> <code>LinkedHashMap(capacity, 0.75f, true)</code> with <code>removeEldestEntry</code> override solves this in ~10 lines. The interviewer will follow up: "Now implement the underlying structure." Show them you understand why by building it from scratch.</div>
+
+    <div class="warn"><b>Mistake 3 — Forgetting to update map on eviction:</b> <pre><code class="language-java">// WRONG — memory leak: map grows without bound
+Node&lt;K, V&gt; evicted = dll.removeTail(); // removes from DLL
+// map.remove(evicted.key) MISSING ← evicted key still in map!
+// Next put of same key: map finds stale node, returns wrong value</code></pre></div>
+
+    <div class="warn"><b>Mistake 4 — No sentinel nodes:</b> Without sentinels, <code>addToFront()</code> on an empty list throws NullPointerException (<code>head.next.prev = node</code> where <code>head.next = null</code>). Sentinels eliminate ALL null checks.</div>
+
+    <div class="warn"><b>Mistake 5 — Thread-safety ignored:</b> In concurrent use, two threads calling <code>put()</code> simultaneously can corrupt the HashMap (resize race) and the DLL (interleaved pointer updates). Both methods need the write lock.</div>
+
+    <div class="callout"><b>Edge cases to test explicitly:</b>
+      <ul class="bullets">
+        <li><code>get()</code> on empty cache → returns -1/null, no exception</li>
+        <li><code>put()</code> when <code>capacity=1</code>: second put evicts first, map size stays 1</li>
+        <li><code>put(key, newValue)</code> for existing key: value updates, no eviction, no capacity change</li>
+        <li><code>get(key)</code> after that key was evicted → returns -1/null (not stale value)</li>
+        <li>Capacity=0: constructor throws <code>IllegalArgumentException</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S08 -->
+  <section class="step" id="s08">
+    <h2><span class="num">08</span> Extending: TTL Support</h2>
+
+    <p class="label gold">Approach 1 — Lazy Expiry (simpler, no background thread)</p>
+    <pre><code class="language-java">public class NodeWithTTL&lt;K, V&gt; extends Node&lt;K, V&gt; {
+    long expiryTimeMs; // System.currentTimeMillis() + ttlMs at insertion
+
+    NodeWithTTL(K key, V value, long ttlMs) {
+        super(key, value);
+        this.expiryTimeMs = (ttlMs &gt; 0) ? System.currentTimeMillis() + ttlMs : Long.MAX_VALUE;
+    }
+
+    boolean isExpired() { return System.currentTimeMillis() &gt; expiryTimeMs; }
+}
+
+// Modified get() with lazy expiry check:
+public V get(K key) {
+    if (!map.containsKey(key)) return null;
+
+    NodeWithTTL&lt;K, V&gt; node = (NodeWithTTL&lt;K, V&gt;) map.get(key);
+
+    if (node.isExpired()) {
+        // Lazy eviction: remove on access
+        dll.removeNode(node);
+        map.remove(key);
+        System.out.println("[TTL] Key '" + key + "' expired and removed on access");
+        return null;
+    }
+
+    dll.removeNode(node);
+    dll.addToFront(node);
+    return node.value;
+}</code></pre>
+
+    <p class="label gold">Approach 2 — Background Cleaner Thread (proactive, immediate memory reclaim)</p>
+    <pre><code class="language-java">import java.util.concurrent.*;
+
+public class TTLLRUCache&lt;K, V&gt; extends LRUCache&lt;K, V&gt; {
+
+    private final ScheduledExecutorService cleaner = Executors.newSingleThreadScheduledExecutor(r -&gt; {
+        Thread t = new Thread(r, "lru-ttl-cleaner");
+        t.setDaemon(true); // don't prevent JVM shutdown
+        return t;
+    });
+
+    public TTLLRUCache(int capacity, long cleanupIntervalMs) {
+        super(capacity);
+        cleaner.scheduleAtFixedRate(this::removeExpiredEntries,
+            cleanupIntervalMs, cleanupIntervalMs, TimeUnit.MILLISECONDS);
+    }
+
+    private void removeExpiredEntries() {
+        long now = System.currentTimeMillis();
+        // Snapshot keys to avoid ConcurrentModificationException
+        new java.util.HashSet&lt;&gt;(getMap().keySet()).forEach(key -&gt; {
+            Node&lt;K, V&gt; node = getMap().get(key);
+            if (node instanceof NodeWithTTL &amp;&amp; ((NodeWithTTL&lt;?,?&gt;)node).isExpired()) {
+                synchronized (this) {
+                    getDll().removeNode(node);
+                    getMap().remove(key);
+                    System.out.println("[TTL Cleaner] Expired: " + key);
+                }
+            }
+        });
+    }
+
+    public void shutdown() { cleaner.shutdown(); }
+}</code></pre>
+
+    <table>
+      <thead><tr><th>Approach</th><th>Memory</th><th>Implementation</th><th>Latency Impact</th></tr></thead>
+      <tbody>
+        <tr><td>Lazy expiry</td><td>Stale keys occupy space until accessed</td><td>Simple — 5 extra lines in get()</td><td>None on put(); tiny check on get()</td></tr>
+        <tr><td>Background cleaner</td><td>Freed promptly on schedule</td><td>Needs ScheduledExecutorService + sync</td><td>Periodic CPU spike (negligible at scale)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S09 -->
+  <section class="step" id="s09">
+    <h2><span class="num">09</span> Extending: Eviction Policy as Strategy</h2>
+
+    <div class="callout"><b>Open/Closed Principle in action:</b> Adding LFU requires zero changes to <code>LRUCache</code> core logic — only a new <code>EvictionPolicy</code> implementation.</div>
+
+    <p class="label">EvictionPolicy Interface</p>
+    <pre><code class="language-java">public interface EvictionPolicy&lt;K, V&gt; {
+    /** Called on every get() or put() that accesses an existing key */
+    void recordAccess(Node&lt;K, V&gt; node);
+
+    /** Return the node that should be evicted next */
+    Node&lt;K, V&gt; getEvictionCandidate();
+
+    /** Remove node from policy data structures (called after eviction) */
+    void remove(Node&lt;K, V&gt; node);
+}</code></pre>
+
+    <p class="label">LRUEvictionPolicy — DLL-based</p>
+    <pre><code class="language-java">public class LRUEvictionPolicy&lt;K, V&gt; implements EvictionPolicy&lt;K, V&gt; {
+    private final DoublyLinkedList&lt;K, V&gt; dll = new DoublyLinkedList&lt;&gt;();
+
+    @Override
+    public void recordAccess(Node&lt;K, V&gt; node) {
+        dll.removeNode(node);
+        dll.addToFront(node); // MRU position
+    }
+
+    @Override
+    public Node&lt;K, V&gt; getEvictionCandidate() {
+        return dll.getTail().prev; // LRU = tail.prev
+    }
+
+    @Override
+    public void remove(Node&lt;K, V&gt; node) { dll.removeNode(node); }
+}</code></pre>
+
+    <p class="label">LFUEvictionPolicy — Frequency Map-based</p>
+    <pre><code class="language-java">import java.util.*;
+
+public class LFUEvictionPolicy&lt;K, V&gt; implements EvictionPolicy&lt;K, V&gt; {
+    private final Map&lt;Node&lt;K,V&gt;, Integer&gt; freq = new HashMap&lt;&gt;();
+
+    @Override
+    public void recordAccess(Node&lt;K, V&gt; node) {
+        freq.merge(node, 1, Integer::sum); // increment frequency
+    }
+
+    @Override
+    public Node&lt;K, V&gt; getEvictionCandidate() {
+        return freq.entrySet().stream()
+            .min(Map.Entry.comparingByValue())
+            .map(Map.Entry::getKey)
+            .orElse(null);
+    }
+
+    @Override
+    public void remove(Node&lt;K, V&gt; node) { freq.remove(node); }
+}</code></pre>
+
+    <p class="label">RandomEvictionPolicy</p>
+    <pre><code class="language-java">public class RandomEvictionPolicy&lt;K, V&gt; implements EvictionPolicy&lt;K, V&gt; {
+    private final List&lt;Node&lt;K, V&gt;&gt; nodes = new ArrayList&lt;&gt;();
+    private final Random rng = new Random();
+
+    @Override public void recordAccess(Node&lt;K, V&gt; node) { /* no-op */ }
+
+    @Override public Node&lt;K, V&gt; getEvictionCandidate() {
+        if (nodes.isEmpty()) return null;
+        return nodes.get(rng.nextInt(nodes.size()));
+    }
+
+    @Override public void remove(Node&lt;K, V&gt; node) { nodes.remove(node); }
+    public void add(Node&lt;K, V&gt; node) { nodes.add(node); }
+}</code></pre>
+
+    <p class="label">LRUCache with Pluggable Policy</p>
+    <pre><code class="language-java">public class PolicyDrivenCache&lt;K, V&gt; {
+    private final int capacity;
+    private final Map&lt;K, Node&lt;K, V&gt;&gt; map;
+    private final EvictionPolicy&lt;K, V&gt; policy;
+
+    public PolicyDrivenCache(int capacity, EvictionPolicy&lt;K, V&gt; policy) {
+        this.capacity = capacity;
+        this.map      = new HashMap&lt;&gt;(capacity * 2);
+        this.policy   = policy;
+    }
+
+    public V get(K key) {
+        if (!map.containsKey(key)) return null;
+        Node&lt;K, V&gt; node = map.get(key);
+        policy.recordAccess(node); // delegate recency/frequency tracking
+        return node.value;
+    }
+
+    public void put(K key, V value) {
+        if (map.containsKey(key)) {
+            Node&lt;K, V&gt; node = map.get(key);
+            node.value = value;
+            policy.recordAccess(node);
+        } else {
+            if (map.size() == capacity) {
+                Node&lt;K, V&gt; victim = policy.getEvictionCandidate();
+                if (victim != null) {
+                    policy.remove(victim);
+                    map.remove(victim.key);
+                }
+            }
+            Node&lt;K, V&gt; newNode = new Node&lt;&gt;(key, value);
+            policy.recordAccess(newNode);
+            map.put(key, newNode);
+        }
+    }
+}</code></pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S10 -->
+  <section class="step" id="s10">
+    <h2><span class="num">10</span> Walking a Flow (capacity = 3)</h2>
+
+    <pre class="ascii">
+Initial state: empty cache
+  DLL:  [head] ↔ [tail]
+  Map:  {}
+
+──────────────────────────────────────────────────────────────────────────────
+Step 1: put(1, "A")
+  New node. map.size()=0 &lt; capacity=3. No eviction needed.
+  Create node1(key=1, val="A"). addToFront(node1). map.put(1, node1).
+  DLL:  [head] ↔ [1:A] ↔ [tail]
+  Map:  {1→node1}
+
+──────────────────────────────────────────────────────────────────────────────
+Step 2: put(2, "B")
+  New node. map.size()=1 &lt; 3. No eviction.
+  DLL:  [head] ↔ [2:B] ↔ [1:A] ↔ [tail]
+  Map:  {1→node1, 2→node2}
+
+──────────────────────────────────────────────────────────────────────────────
+Step 3: put(3, "C")
+  New node. map.size()=2 &lt; 3. No eviction.
+  DLL:  [head] ↔ [3:C] ↔ [2:B] ↔ [1:A] ↔ [tail]
+  Map:  {1,2,3}
+  LRU = tail.prev = node1 (key=1)
+
+──────────────────────────────────────────────────────────────────────────────
+Step 4: get(1)   ← access key 1 (currently LRU)
+  map.get(1) = node1. Found!
+  removeNode(node1) → DLL: [head] ↔ [3:C] ↔ [2:B] ↔ [tail]
+  addToFront(node1) → DLL: [head] ↔ [1:A] ↔ [3:C] ↔ [2:B] ↔ [tail]
+  Return "A".
+  Map:  {1,2,3}  ← unchanged
+  LRU = tail.prev = node2 (key=2) ← key 2 is now LRU
+
+──────────────────────────────────────────────────────────────────────────────
+Step 5: put(4, "D")   ← cache FULL, eviction required
+  map.size()=3 == capacity=3. Evict LRU.
+  dll.removeTail() → removes node2 (key=2, val="B")
+  map.remove(2)    → Map: {1,3}
+  Create node4. addToFront(node4).
+  DLL:  [head] ↔ [4:D] ↔ [1:A] ↔ [3:C] ↔ [tail]
+  Map:  {1→node1, 3→node3, 4→node4}
+  LRU = tail.prev = node3 (key=3)
+
+──────────────────────────────────────────────────────────────────────────────
+Step 6: get(2)   ← key 2 was evicted in Step 5
+  map.containsKey(2) → false
+  Return null / -1   ✅ correctly reports miss
+
+──────────────────────────────────────────────────────────────────────────────
+Final state:
+  DLL:  [head] ↔ [4:D] ↔ [1:A] ↔ [3:C] ↔ [tail]
+  Map:  {1:"A", 3:"C", 4:"D"}
+  MRU = key 4,  LRU = key 3
+    </pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S11 -->
+  <section class="step" id="s11">
+    <h2><span class="num">11</span> Interview Talking Points</h2>
+
+    <span class="define">
+      <b>1. Building DLL+HashMap manually</b>
+      <em>"I implement the DLL and HashMap from scratch rather than using LinkedHashMap. This demonstrates I understand why O(1) is achievable — the HashMap gives O(1) pointer lookup, the DLL gives O(1) pointer manipulation. LinkedHashMap does exactly this internally, and I can explain every line of how it works."</em>
+    </span>
+    <span class="define">
+      <b>2. Sentinel nodes eliminate null checks</b>
+      <em>"Without sentinels, addToFront on an empty list requires a null guard. removeNode for the first or last element requires special cases. Sentinels make every case structurally identical — the same 4-line addToFront works for a list of 1 or 10,000 elements."</em>
+    </span>
+    <span class="define">
+      <b>3. Key in Node — the non-obvious insight</b>
+      <em>"When evicting tail.prev, I need to call map.remove(). Without the key stored in the node, I'd have to scan the entire HashMap to find which entry points to this node — O(n). Storing key in Node makes it map.remove(node.key) — O(1). This is the most commonly missed detail."</em>
+    </span>
+    <span class="define">
+      <b>4. get() mutates DLL — no read locks</b>
+      <em>"This is the subtle concurrency gotcha: get() isn't read-only. It moves the accessed node to front — a DLL mutation. If I use ReadWriteLock and put get() behind a read lock, two concurrent gets will race on DLL pointer updates and corrupt the list. Both get() and put() need the write lock."</em>
+    </span>
+    <span class="define">
+      <b>5. TTL as zero-impact extension</b>
+      <em>"Adding TTL requires only adding an expiryTime field to Node and a check at the top of get(). The core put() logic, the DLL, and the HashMap are completely unchanged. This is the Open/Closed principle applied to cache design."</em>
+    </span>
+    <span class="define">
+      <b>6. Eviction strategy as Strategy pattern</b>
+      <em>"Wrapping eviction behind EvictionPolicy lets me switch LRU → LFU → Random at construction time. The cache core — HashMap + addToFront + removeTail — never changes. New eviction policies are new classes, not edits to existing ones."</em>
+    </span>
+
+    <div class="callout"><b>Production reference:</b> Mention <strong>Caffeine</strong> (Java) — uses W-TinyLFU (Window Tiny Least Frequently Used) for near-optimal hit rate at high concurrency. It maintains three pools: window cache (recent), protected (frequently accessed), and probation (candidates for eviction). Reference this to show awareness beyond toy implementations.</div>
+  </section>
+
+  <nav class="page-nav">
+    <a class="nav-btn prev" href="elevator-system.html">← Prev: Elevator System</a>
+    <a class="nav-btn home" href="index.html">⌂ LLD Index</a>
+    <a class="nav-btn next" href="splitwise.html">Next: Splitwise →</a>
+  </nav>
+
+</div><!-- /wrap -->
+
+<footer>Built with <b>BuildLikeASenior</b> · LLD Interview Prep</footer>
+
+<a href="#" class="top">↑</a>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script>
+const top=document.querySelector('.top');
+window.addEventListener('scroll',()=>top.classList.toggle('show',scrollY>300));
+</script>
+</body>
+</html>

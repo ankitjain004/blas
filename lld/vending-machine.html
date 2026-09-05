@@ -1,0 +1,1031 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Design a Vending Machine · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" />
+<style>
+  :root{
+    --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+    --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+    --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+  .meta{margin-top:14px;color:var(--muted);font-size:13px;font-family:'JetBrains Mono',monospace}
+  .meta b{color:var(--gold)}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .label{color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 8px;font-weight:700}
+  .label.gold{color:var(--gold)}
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  .define em{color:var(--muted);font-style:normal;display:block;font-size:13px;margin-top:4px}
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .callout b{color:var(--teal)}
+  .warn{background:rgba(239,68,68,.06);border-left:3px solid #ef4444;padding:14px 18px;border-radius:8px;margin:10px 0}
+  .warn b{color:#ef4444}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  td code,th code{background:rgba(0,212,170,.10);padding:1px 6px;border-radius:4px;color:var(--teal);font-size:12px}
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto}
+  ul.bullets{padding-left:22px}
+  ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px}
+  ol.steps li{margin:8px 0}
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+  .page-nav{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:20px 0;flex-wrap:wrap}
+  .nav-btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--line);color:var(--muted);background:linear-gradient(180deg,var(--card),var(--card2));transition:border-color .2s,color .2s;text-decoration:none;font-family:'JetBrains Mono',monospace}
+  .nav-btn:hover{border-color:var(--teal);color:var(--teal);text-decoration:none}
+  .nav-btn.home{background:rgba(0,212,170,.08);border-color:rgba(0,212,170,.25);color:var(--teal)}
+  .nav-btn.prev:empty,.nav-btn.next:empty{visibility:hidden}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="crumb"><a href="index.html">LLD Index</a> · <a href="../index.html">Home</a></div>
+  <span class="badge">State Machine · OOD Classic</span>
+  <h1 class="title">Design a <span>Vending Machine</span></h1>
+  <p class="sub">State transitions, inventory management, and coin handling — the canonical State Pattern problem tested in almost every LLD round.</p>
+  <div class="meta"><b>Patterns:</b> State · Strategy · Factory &nbsp;|&nbsp; <b>Difficulty:</b> Medium &nbsp;|&nbsp; <b>Frequency:</b> ★★★★☆</div>
+</header>
+
+<div class="wrap">
+
+  <nav class="page-nav">
+    <a class="nav-btn prev" href="parking-lot.html">← Prev: Parking Lot</a>
+    <a class="nav-btn home" href="index.html">⌂ LLD Index</a>
+    <a class="nav-btn next" href="elevator-system.html">Next: Elevator System →</a>
+  </nav>
+
+  <div class="toc">
+    <h3>Table of Contents</h3>
+    <ol>
+      <li><a href="#s01">Requirements &amp; Scope</a></li>
+      <li><a href="#s02">Entity Identification</a></li>
+      <li><a href="#s03">State Pattern Deep Dive</a></li>
+      <li><a href="#s04">State Interface &amp; Transitions</a></li>
+      <li><a href="#s05">VendingMachine Class</a></li>
+      <li><a href="#s06">Inventory Management</a></li>
+      <li><a href="#s07">Payment &amp; Change</a></li>
+      <li><a href="#s08">Concurrency</a></li>
+      <li><a href="#s09">Walking a Flow</a></li>
+      <li><a href="#s10">Extensions</a></li>
+      <li><a href="#s11">Interview Talking Points</a></li>
+    </ol>
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 01 ═══════════════════════════════ -->
+  <section class="step" id="s01">
+    <h2><span class="num">01</span> Requirements &amp; Scope</h2>
+
+    <div class="label gold">Functional Requirements</div>
+    <ul class="bullets">
+      <li><b>Insert coin/note</b> — machine accepts monetary input incrementally; running total is tracked.</li>
+      <li><b>Select product by code</b> — user enters product code (e.g., "C01") after inserting money.</li>
+      <li><b>Dispense product</b> — machine physically releases the product once payment is validated.</li>
+      <li><b>Return change</b> — any overpayment is returned as coins using a greedy algorithm.</li>
+      <li><b>Cancel transaction</b> — user can cancel at any time; all inserted money is returned.</li>
+      <li><b>Show out-of-stock</b> — if product quantity is 0, machine declines selection and prompts user.</li>
+    </ul>
+
+    <div class="label gold">Machine States</div>
+    <table>
+      <thead><tr><th>State</th><th>Description</th><th>Valid Actions</th></tr></thead>
+      <tbody>
+        <tr><td><code>IdleState</code></td><td>Waiting for first coin. Default state on startup.</td><td>insertCoin</td></tr>
+        <tr><td><code>HasMoneyState</code></td><td>Money inserted; awaiting product selection.</td><td>insertCoin, selectProduct, cancel</td></tr>
+        <tr><td><code>DispensingState</code></td><td>Product selected and validated; dispensing in progress.</td><td>dispense (internal)</td></tr>
+        <tr><td><code>OutOfStockState</code></td><td>Requested product is unavailable.</td><td>restock (admin only)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="label gold">Clarifying Questions</div>
+    <table>
+      <thead><tr><th>Question</th><th>Why it matters</th><th>Reasonable default</th></tr></thead>
+      <tbody>
+        <tr><td>Coins only, or notes too?</td><td>Affects Payment model — notes have larger denominations.</td><td>Coins only for now; add <code>Note</code> enum as extension.</td></tr>
+        <tr><td>Can a user buy multiple products in one transaction?</td><td>Affects whether DispensingState loops or returns to Idle between items.</td><td>One product per transaction; mention multi-purchase as extension.</td></tr>
+        <tr><td>Can admin restock remotely?</td><td>Implies an AdminState with elevated privileges.</td><td>Local restock only; add AdminState as extension.</td></tr>
+        <tr><td>Is exact change required?</td><td>If machine runs out of change coins, can it still accept overpayment?</td><td>Machine always has change; throw exception if change not available.</td></tr>
+        <tr><td>What if machine jams mid-dispense?</td><td>Implies a JammedState and a recovery flow.</td><td>Out of scope; mention as production concern.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <b>Interviewer signal:</b> Opening with state identification — not class names — shows you recognize this as a behavioral problem, not just a data model. Say: "I see 4 states. Let me define the state machine before writing any classes."
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 02 ═══════════════════════════════ -->
+  <section class="step" id="s02">
+    <h2><span class="num">02</span> Entity Identification</h2>
+
+    <div class="label gold">Entities → Classes</div>
+    <table>
+      <thead><tr><th>Entity</th><th>Role</th><th>Key Fields</th></tr></thead>
+      <tbody>
+        <tr><td><code>VendingMachine</code></td><td>Context class; holds current state and delegates all actions</td><td>currentState, inventory, currentPayment</td></tr>
+        <tr><td><code>State</code></td><td>Interface — defines all user-facing actions</td><td>insertCoin, selectProduct, dispense, cancel</td></tr>
+        <tr><td><code>IdleState</code></td><td>Handles insertCoin; rejects all other actions</td><td>reference to VendingMachine</td></tr>
+        <tr><td><code>HasMoneyState</code></td><td>Handles insertCoin, selectProduct, cancel</td><td>reference to VendingMachine</td></tr>
+        <tr><td><code>DispensingState</code></td><td>Handles dispense; rejects user-facing actions during dispense</td><td>reference to VendingMachine</td></tr>
+        <tr><td><code>OutOfStockState</code></td><td>Rejects everything except admin restock</td><td>reference to VendingMachine</td></tr>
+        <tr><td><code>Inventory</code></td><td>Maps product codes to quantities and Product metadata</td><td>Map&lt;String, Integer&gt; stock, Map&lt;String, Product&gt; products</td></tr>
+        <tr><td><code>Product</code></td><td>Immutable product descriptor</td><td>productCode, name, price</td></tr>
+        <tr><td><code>Coin</code></td><td>Enum of accepted coin denominations</td><td>PENNY, NICKEL, DIME, QUARTER, ONE_DOLLAR</td></tr>
+        <tr><td><code>Payment</code></td><td>Accumulates coins for the current transaction</td><td>List&lt;Coin&gt; insertedCoins, double totalInserted</td></tr>
+      </tbody>
+    </table>
+
+    <div class="label gold">State Machine Diagram</div>
+<pre class="ascii">
+           insertCoin()                  selectProduct()  ──▶ [Dispensing]
+  [Idle] ──────────────▶ [HasMoney] ──────────────────────
+    ▲                        │  │                              │
+    │      cancel()          │  └──(insufficient funds)──      │ dispenseComplete()
+    │◀───────────────────────┘                            ▼    │
+    └──────────────────────────────────────────────────────────┘
+
+    [HasMoney].selectProduct() ──(out of stock)──▶ [OutOfStock]
+    [OutOfStock] ──(admin restock)──▶ [Idle]
+
+    Any state can transition to OutOfStock if selected item goes OOS.
+    Idle is the only stable rest state.
+</pre>
+
+    <div class="define">
+      <b>State Pattern</b> — a behavioral pattern where an object's behavior changes based on its internal state. The object appears to change its class.
+      <em>Gang of Four, Design Patterns (1994) — the textbook definition your interviewer may quote.</em>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 03 ═══════════════════════════════ -->
+  <section class="step" id="s03">
+    <h2><span class="num">03</span> State Pattern Deep Dive</h2>
+
+    <div class="label gold">The Problem Without State Pattern</div>
+<pre><code class="language-java">// ❌ WITHOUT State Pattern — this is what NOT to do
+public class VendingMachineBAD {
+    private enum MachineState { IDLE, HAS_MONEY, DISPENSING, OUT_OF_STOCK }
+    private MachineState state = MachineState.IDLE;
+
+    public void insertCoin(Coin coin) {
+        if (state == MachineState.IDLE) {
+            payment.addCoin(coin);
+            state = MachineState.HAS_MONEY;
+        } else if (state == MachineState.HAS_MONEY) {
+            payment.addCoin(coin);
+        } else if (state == MachineState.DISPENSING) {
+            System.out.println("Cannot insert coin while dispensing");
+        } else if (state == MachineState.OUT_OF_STOCK) {
+            System.out.println("Machine out of stock");
+        }
+    }
+
+    public void selectProduct(String code) {
+        if (state == MachineState.IDLE) {
+            System.out.println("Insert coins first");
+        } else if (state == MachineState.HAS_MONEY) {
+            // check stock, check funds, transition...
+        } else if (state == MachineState.DISPENSING) {
+            System.out.println("Already dispensing");
+        } else if (state == MachineState.OUT_OF_STOCK) {
+            System.out.println("Out of stock");
+        }
+    }
+    // dispense(), cancel() — same 4-branch if-else each.
+    // 4 methods × 4 states = 16 branches.
+    // Add MaintenanceState → touch ALL 4 methods → violates OCP.
+}
+</code></pre>
+
+    <div class="warn">
+      <b>The proliferation problem:</b> With 4 states and 4 actions you have 16 branches. Add a 5th state (Maintenance, Jammed, CardPayment) and you must open every single method. This is the classic symptom that screams "State Pattern needed."
+    </div>
+
+    <div class="label gold">The Solution: State as First-Class Class</div>
+<pre><code class="language-java">// ✅ WITH State Pattern — each state class handles its own branches
+// IdleState only has logic for what Idle does. Zero HAS_MONEY logic here.
+public class IdleState implements State {
+
+    @Override
+    public void insertCoin(VendingMachine machine, Coin coin) {
+        machine.getCurrentPayment().addCoin(coin);
+        System.out.printf("[Idle→HasMoney] Inserted %s. Total: $%.2f%n",
+                coin, machine.getCurrentPayment().getTotal());
+        machine.setCurrentState(machine.getHasMoneyState());
+    }
+
+    @Override
+    public void selectProduct(VendingMachine machine, String productCode) {
+        throw new InvalidStateTransitionException("Insert coins before selecting a product.");
+    }
+
+    @Override
+    public void dispense(VendingMachine machine) {
+        throw new InvalidStateTransitionException("Nothing to dispense in Idle state.");
+    }
+
+    @Override
+    public void cancel(VendingMachine machine) {
+        System.out.println("[Idle] Nothing to cancel.");
+        // No-op — no money inserted yet
+    }
+}
+// Adding MaintenanceState? Create MaintenanceState.java.
+// IdleState, HasMoneyState, DispensingState, OutOfStockState — ZERO changes.
+</code></pre>
+
+    <div class="callout">
+      <b>The key insight to verbalize:</b> "Each state class has one reason to change — when the business rules for that state change. IdleState changes when 'idle behavior' changes. No cross-state contamination. That is Single Responsibility applied to state machine design."
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 04 ═══════════════════════════════ -->
+  <section class="step" id="s04">
+    <h2><span class="num">04</span> State Interface &amp; All Transitions</h2>
+
+    <div class="label gold">Custom Exceptions first</div>
+<pre><code class="language-java">public class InvalidStateTransitionException extends RuntimeException {
+    public InvalidStateTransitionException(String message) {
+        super(message);
+    }
+}
+
+public class InsufficientFundsException extends RuntimeException {
+    public InsufficientFundsException(double required, double inserted) {
+        super(String.format("Insufficient funds: need $%.2f, have $%.2f", required, inserted));
+    }
+}
+
+public class OutOfStockException extends RuntimeException {
+    public OutOfStockException(String productCode) {
+        super("Product out of stock: " + productCode);
+    }
+}
+</code></pre>
+
+    <div class="label gold">State Interface</div>
+<pre><code class="language-java">public interface State {
+    void insertCoin(VendingMachine machine, Coin coin);
+    void selectProduct(VendingMachine machine, String productCode);
+    void dispense(VendingMachine machine);
+    void cancel(VendingMachine machine);
+}
+</code></pre>
+
+    <div class="label gold">IdleState</div>
+<pre><code class="language-java">public class IdleState implements State {
+
+    @Override
+    public void insertCoin(VendingMachine machine, Coin coin) {
+        machine.getCurrentPayment().addCoin(coin);
+        System.out.printf("[Idle→HasMoney] %s inserted. Running total: $%.2f%n",
+                coin.name(), machine.getCurrentPayment().getTotal());
+        machine.setCurrentState(machine.getHasMoneyState());
+    }
+
+    @Override
+    public void selectProduct(VendingMachine machine, String productCode) {
+        throw new InvalidStateTransitionException(
+                "Cannot select product: please insert coins first.");
+    }
+
+    @Override
+    public void dispense(VendingMachine machine) {
+        throw new InvalidStateTransitionException(
+                "Cannot dispense: machine is idle.");
+    }
+
+    @Override
+    public void cancel(VendingMachine machine) {
+        System.out.println("[Idle] No transaction to cancel.");
+    }
+}
+</code></pre>
+
+    <div class="label gold">HasMoneyState</div>
+<pre><code class="language-java">public class HasMoneyState implements State {
+
+    @Override
+    public void insertCoin(VendingMachine machine, Coin coin) {
+        machine.getCurrentPayment().addCoin(coin);
+        System.out.printf("[HasMoney] %s inserted. Running total: $%.2f%n",
+                coin.name(), machine.getCurrentPayment().getTotal());
+        // Stays in HasMoneyState
+    }
+
+    @Override
+    public void selectProduct(VendingMachine machine, String productCode) {
+        Inventory inventory = machine.getInventory();
+
+        // Guard: out of stock?
+        if (!inventory.isAvailable(productCode)) {
+            System.out.printf("[HasMoney] Product %s is out of stock.%n", productCode);
+            machine.setCurrentState(machine.getOutOfStockState());
+            return;
+        }
+
+        Product product = inventory.getProduct(productCode);
+
+        // Guard: insufficient funds?
+        double total = machine.getCurrentPayment().getTotal();
+        if (total < product.getPrice()) {
+            throw new InsufficientFundsException(product.getPrice(), total);
+        }
+
+        // All checks passed — transition to dispensing
+        machine.setSelectedProduct(product);
+        machine.setCurrentState(machine.getDispensingState());
+        System.out.printf("[HasMoney→Dispensing] Selected: %s ($%.2f). Paid: $%.2f%n",
+                product.getName(), product.getPrice(), total);
+        machine.dispense();   // trigger dispense immediately
+    }
+
+    @Override
+    public void dispense(VendingMachine machine) {
+        throw new InvalidStateTransitionException(
+                "Select a product before dispensing.");
+    }
+
+    @Override
+    public void cancel(VendingMachine machine) {
+        double refund = machine.getCurrentPayment().getTotal();
+        machine.resetPayment();
+        machine.setCurrentState(machine.getIdleState());
+        System.out.printf("[HasMoney→Idle] Transaction cancelled. Refunding $%.2f%n", refund);
+    }
+}
+</code></pre>
+
+    <div class="label gold">DispensingState</div>
+<pre><code class="language-java">public class DispensingState implements State {
+
+    @Override
+    public void insertCoin(VendingMachine machine, Coin coin) {
+        throw new InvalidStateTransitionException(
+                "Cannot insert coins: dispensing in progress.");
+    }
+
+    @Override
+    public void selectProduct(VendingMachine machine, String productCode) {
+        throw new InvalidStateTransitionException(
+                "Already dispensing — wait for current transaction to complete.");
+    }
+
+    @Override
+    public void dispense(VendingMachine machine) {
+        Product product = machine.getSelectedProduct();
+        Inventory inventory = machine.getInventory();
+
+        // Atomically decrement inventory
+        inventory.removeProduct(product.getProductCode(), 1);
+
+        // Calculate and return change
+        double paid   = machine.getCurrentPayment().getTotal();
+        double change = paid - product.getPrice();
+        if (change > 0.001) {
+            // Return change as coins
+            machine.returnChange(change);
+            System.out.printf("[Dispensing] Returning change: $%.2f%n", change);
+        }
+
+        System.out.printf("[Dispensing] 🎉 Dispensing: %s. Enjoy!%n", product.getName());
+
+        // Reset state for next customer
+        machine.resetPayment();
+        machine.setSelectedProduct(null);
+        machine.setCurrentState(machine.getIdleState());
+        System.out.println("[Dispensing→Idle] Ready for next customer.");
+    }
+
+    @Override
+    public void cancel(VendingMachine machine) {
+        throw new InvalidStateTransitionException(
+                "Cannot cancel: dispensing already in progress.");
+    }
+}
+</code></pre>
+
+    <div class="label gold">OutOfStockState</div>
+<pre><code class="language-java">public class OutOfStockState implements State {
+
+    @Override
+    public void insertCoin(VendingMachine machine, Coin coin) {
+        throw new OutOfStockException("machine");
+    }
+
+    @Override
+    public void selectProduct(VendingMachine machine, String productCode) {
+        throw new OutOfStockException(productCode);
+    }
+
+    @Override
+    public void dispense(VendingMachine machine) {
+        throw new OutOfStockException("machine");
+    }
+
+    @Override
+    public void cancel(VendingMachine machine) {
+        // Allow cancel even in OOS — return any money the user inserted
+        double refund = machine.getCurrentPayment().getTotal();
+        if (refund > 0) {
+            machine.resetPayment();
+            System.out.printf("[OutOfStock] Refunding $%.2f.%n", refund);
+        }
+        machine.setCurrentState(machine.getIdleState());
+    }
+
+    /**
+     * Called by an admin or automated restock service.
+     * Transitions machine back to Idle after restocking.
+     */
+    public void restock(VendingMachine machine, String productCode, int quantity) {
+        machine.getInventory().addStock(productCode, quantity);
+        machine.setCurrentState(machine.getIdleState());
+        System.out.printf("[OutOfStock→Idle] Restocked %s × %d.%n", productCode, quantity);
+    }
+}
+</code></pre>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 05 ═══════════════════════════════ -->
+  <section class="step" id="s05">
+    <h2><span class="num">05</span> VendingMachine Class</h2>
+
+    <div class="callout">
+      <b>The Context Class:</b> <code>VendingMachine</code> does not know <em>how</em> to handle any action. It only knows <em>which state it's in</em>, and it delegates everything to that state. States hold behavior; the context holds data. This is SRP expressed architecturally.
+    </div>
+
+<pre><code class="language-java">import java.util.List;
+
+public class VendingMachine {
+
+    // ── State instances (all pre-created, reused) ──────────────────────────────
+    private final IdleState        idleState        = new IdleState();
+    private final HasMoneyState    hasMoneyState    = new HasMoneyState();
+    private final DispensingState  dispensingState  = new DispensingState();
+    private final OutOfStockState  outOfStockState  = new OutOfStockState();
+
+    // ── Current state ──────────────────────────────────────────────────────────
+    private State currentState;
+
+    // ── Data ───────────────────────────────────────────────────────────────────
+    private final Inventory inventory;
+    private Payment currentPayment;
+    private Product selectedProduct;
+
+    // ── Constructor ────────────────────────────────────────────────────────────
+    public VendingMachine(Inventory inventory) {
+        this.inventory      = inventory;
+        this.currentPayment = new Payment();
+        this.currentState   = idleState;   // machine starts idle
+    }
+
+    // ── Public API — all delegated to currentState ─────────────────────────────
+
+    public void insertCoin(Coin coin) {
+        currentState.insertCoin(this, coin);
+    }
+
+    public void selectProduct(String productCode) {
+        currentState.selectProduct(this, productCode);
+    }
+
+    public void dispense() {
+        currentState.dispense(this);
+    }
+
+    public void cancel() {
+        currentState.cancel(this);
+    }
+
+    // ── Internal helpers called by State implementations ───────────────────────
+
+    public void returnChange(double amount) {
+        List&lt;Coin&gt; change = ChangeCalculator.calculate(amount);
+        System.out.print("[Change] Returning: ");
+        change.forEach(c -&gt; System.out.print(c.name() + " "));
+        System.out.println();
+    }
+
+    public void resetPayment() {
+        this.currentPayment = new Payment();
+    }
+
+    // ── Getters / Setters for state transitions ────────────────────────────────
+
+    public void    setCurrentState(State state)    { this.currentState = state; }
+    public State   getCurrentState()               { return currentState; }
+
+    public IdleState       getIdleState()          { return idleState; }
+    public HasMoneyState   getHasMoneyState()      { return hasMoneyState; }
+    public DispensingState getDispensingState()    { return dispensingState; }
+    public OutOfStockState getOutOfStockState()    { return outOfStockState; }
+
+    public Inventory getInventory()                { return inventory; }
+    public Payment   getCurrentPayment()           { return currentPayment; }
+
+    public Product   getSelectedProduct()          { return selectedProduct; }
+    public void      setSelectedProduct(Product p) { this.selectedProduct = p; }
+
+    public String getCurrentStateName() {
+        return currentState.getClass().getSimpleName();
+    }
+}
+</code></pre>
+
+    <div class="define">
+      <b>Why pre-create all State instances?</b> States are stateless — they hold no data of their own. All data lives in <code>VendingMachine</code>. Pre-creating them avoids allocating a new object on every transition, and lets states be singletons within the machine lifecycle.
+      <em>This is the standard State Pattern implementation from GoF.</em>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 06 ═══════════════════════════════ -->
+  <section class="step" id="s06">
+    <h2><span class="num">06</span> Inventory Management</h2>
+
+    <div class="label gold">Product Class</div>
+<pre><code class="language-java">public class Product {
+    private final String productCode;
+    private final String name;
+    private final double price;
+
+    public Product(String productCode, String name, double price) {
+        this.productCode = productCode;
+        this.name        = name;
+        this.price       = price;
+    }
+
+    public String getProductCode() { return productCode; }
+    public String getName()        { return name; }
+    public double getPrice()       { return price; }
+
+    @Override
+    public String toString() {
+        return String.format("Product[%s: %s @ $%.2f]", productCode, name, price);
+    }
+}
+</code></pre>
+
+    <div class="label gold">Inventory — with synchronized removeProduct for concurrency safety</div>
+<pre><code class="language-java">import java.util.HashMap;
+import java.util.Map;
+
+public class Inventory {
+    private final Map&lt;String, Product&gt; products = new HashMap&lt;&gt;();
+    private final Map&lt;String, Integer&gt; stock     = new HashMap&lt;&gt;();
+
+    public synchronized void addProduct(Product product, int quantity) {
+        products.put(product.getProductCode(), product);
+        stock.merge(product.getProductCode(), quantity, Integer::sum);
+        System.out.printf("[Inventory] Added %s × %d%n", product.getName(), quantity);
+    }
+
+    public synchronized void addStock(String productCode, int quantity) {
+        if (!products.containsKey(productCode)) {
+            throw new IllegalArgumentException("Unknown product: " + productCode);
+        }
+        stock.merge(productCode, quantity, Integer::sum);
+    }
+
+    /**
+     * Thread-safe decrement. Synchronized to prevent two buyers
+     * simultaneously reading qty=1 and both proceeding to dispense.
+     *
+     * @throws IllegalStateException if stock goes to 0
+     */
+    public synchronized void removeProduct(String productCode, int quantity) {
+        Integer current = stock.get(productCode);
+        if (current == null || current &lt; quantity) {
+            throw new OutOfStockException(productCode);
+        }
+        stock.put(productCode, current - quantity);
+        System.out.printf("[Inventory] %s: qty %d → %d%n",
+                productCode, current, current - quantity);
+    }
+
+    public synchronized boolean isAvailable(String productCode) {
+        return stock.getOrDefault(productCode, 0) &gt; 0;
+    }
+
+    public Product getProduct(String productCode) {
+        Product p = products.get(productCode);
+        if (p == null) throw new IllegalArgumentException("Product not found: " + productCode);
+        return p;
+    }
+
+    public synchronized int getStock(String productCode) {
+        return stock.getOrDefault(productCode, 0);
+    }
+}
+</code></pre>
+
+    <div class="warn">
+      <b>Race condition without synchronization:</b> Two users simultaneously select the last Coke. Both call <code>isAvailable()</code> and both see <code>qty=1</code>. Both proceed to <code>removeProduct()</code>. First decrements to 0. Second tries to decrement 0 → would go to -1 without the guard. <code>synchronized</code> on <code>removeProduct</code> ensures only one thread at a time decrements, and the guard <code>current &lt; quantity</code> rejects the second.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 07 ═══════════════════════════════ -->
+  <section class="step" id="s07">
+    <h2><span class="num">07</span> Payment &amp; Change</h2>
+
+    <div class="label gold">Coin Enum</div>
+<pre><code class="language-java">public enum Coin {
+    PENNY(0.01),
+    NICKEL(0.05),
+    DIME(0.10),
+    QUARTER(0.25),
+    ONE_DOLLAR(1.00);
+
+    private final double value;
+
+    Coin(double value) {
+        this.value = value;
+    }
+
+    public double getValue() { return value; }
+}
+</code></pre>
+
+    <div class="label gold">Payment — accumulates coins for this transaction</div>
+<pre><code class="language-java">import java.util.ArrayList;
+import java.util.List;
+
+public class Payment {
+    private final List&lt;Coin&gt; insertedCoins = new ArrayList&lt;&gt;();
+    private double totalInserted = 0.0;
+
+    public void addCoin(Coin coin) {
+        insertedCoins.add(coin);
+        totalInserted += coin.getValue();
+    }
+
+    public double getTotal()          { return totalInserted; }
+    public List&lt;Coin&gt; getCoins()     { return insertedCoins; }
+
+    public void reset() {
+        insertedCoins.clear();
+        totalInserted = 0.0;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Payment[$%.2f in %d coins]", totalInserted, insertedCoins.size());
+    }
+}
+</code></pre>
+
+    <div class="label gold">ChangeCalculator — greedy largest-coin-first algorithm</div>
+<pre><code class="language-java">import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class ChangeCalculator {
+
+    // Coins in descending order for greedy selection
+    private static final List&lt;Coin&gt; COINS_DESC = Arrays.asList(
+            Coin.ONE_DOLLAR,
+            Coin.QUARTER,
+            Coin.DIME,
+            Coin.NICKEL,
+            Coin.PENNY
+    );
+
+    /**
+     * Returns the fewest coins totaling 'amount' using greedy selection.
+     * Uses integer arithmetic (cents) to avoid floating-point drift.
+     *
+     * @param amount  change amount in dollars (e.g., 0.75)
+     * @return        list of Coin denominations to return
+     */
+    public static List&lt;Coin&gt; calculate(double amount) {
+        List&lt;Coin&gt; result    = new ArrayList&lt;&gt;();
+        // Convert to cents to avoid floating-point precision issues
+        int remaining = (int) Math.round(amount * 100);
+
+        for (Coin coin : COINS_DESC) {
+            int coinCents = (int) Math.round(coin.getValue() * 100);
+            while (remaining &gt;= coinCents) {
+                result.add(coin);
+                remaining -= coinCents;
+            }
+        }
+
+        if (remaining &gt; 0) {
+            // In production: alert operator that exact change is not possible
+            System.out.printf("[ChangeCalculator] WARNING: Cannot make exact change." +
+                    " Remaining: %d cents%n", remaining);
+        }
+
+        return result;
+    }
+
+    /**
+     * Validates that the machine can make the required change
+     * (simplified — production tracks machine's coin inventory).
+     */
+    public static boolean canMakeChange(double amount) {
+        return calculate(amount).stream()
+                .mapToDouble(Coin::getValue)
+                .sum() &gt;= amount - 0.001;
+    }
+}
+</code></pre>
+
+    <div class="callout">
+      <b>Why integer arithmetic for cents?</b> <code>0.1 + 0.2 == 0.30000000000000004</code> in IEEE 754 floating-point. Multiplying by 100 and working in integer cents avoids accumulation of rounding errors that would produce wrong change amounts.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 08 ═══════════════════════════════ -->
+  <section class="step" id="s08">
+    <h2><span class="num">08</span> Concurrency</h2>
+
+    <div class="label gold">The State Transition Race Condition</div>
+<pre class="ascii">
+Thread 1 (User A in HasMoneyState)        Thread 2 (User B — cancel button)
+──────────────────────────────            ──────────────────────────────
+checks: state == HasMoney ✓               cancel() called
+selectProduct("C01") —                    cancel() transitions → IdleState
+         ↓                                        ↓
+continues executing as                    payment reset, state = Idle
+"HasMoneyState.selectProduct"             
+calls inventory.removeProduct()           ← product removed from Idle state!
+calls machine.dispense()                  ← machine now in Idle but dispensing!
+
+                  ↑ INVALID STATE after concurrent cancel
+</pre>
+
+    <div class="label gold">Solution: synchronized state transition block</div>
+<pre><code class="language-java">// In VendingMachine — make state-changing operations synchronized
+public synchronized void insertCoin(Coin coin) {
+    currentState.insertCoin(this, coin);
+}
+
+public synchronized void selectProduct(String productCode) {
+    currentState.selectProduct(this, productCode);
+}
+
+public synchronized void dispense() {
+    currentState.dispense(this);
+}
+
+public synchronized void cancel() {
+    currentState.cancel(this);
+}
+// Each public action is synchronized on the VendingMachine instance.
+// Only one action can execute at a time — serialized state transitions.
+</code></pre>
+
+    <div class="label gold">Alternative: ReentrantLock with tryLock() for responsive cancellation</div>
+<pre><code class="language-java">import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.TimeUnit;
+
+public class VendingMachineConcurrent {
+    private final ReentrantLock stateLock = new ReentrantLock();
+
+    public boolean insertCoin(Coin coin, long timeoutMs) throws InterruptedException {
+        if (stateLock.tryLock(timeoutMs, TimeUnit.MILLISECONDS)) {
+            try {
+                currentState.insertCoin(this, coin);
+                return true;
+            } finally {
+                stateLock.unlock();
+            }
+        }
+        System.out.println("Machine busy — please wait.");
+        return false;
+    }
+
+    /**
+     * Cancel with immediate attempt — don't wait forever.
+     * If lock is held, the user pressed cancel at the exact same time
+     * as another action. Try once and give up gracefully.
+     */
+    public boolean cancel() {
+        if (stateLock.tryLock()) {
+            try {
+                currentState.cancel(this);
+                return true;
+            } finally {
+                stateLock.unlock();
+            }
+        }
+        System.out.println("Cannot cancel right now — operation in progress.");
+        return false;
+    }
+}
+</code></pre>
+
+    <div class="callout">
+      <b>Inventory vs Machine Lock:</b> Note that <code>Inventory.removeProduct()</code> has its own <code>synchronized</code> — it guards the stock count. The machine-level lock guards state transitions. These are two different locks at two different granularities, which is correct and intentional.
+    </div>
+
+    <div class="warn">
+      <b>Deadlock risk:</b> If you hold the machine lock and try to acquire the inventory lock, and another thread holds the inventory lock trying to acquire the machine lock — deadlock. Avoid this by always acquiring locks in the same order, or by using a single lock that covers both.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 09 ═══════════════════════════════ -->
+  <section class="step" id="s09">
+    <h2><span class="num">09</span> Walking a Flow</h2>
+
+    <div class="label gold">Complete Transaction: User buys a Coke for $0.75</div>
+    <ol class="steps">
+      <li><b>Initial state:</b> Machine in <code>IdleState</code>. Inventory: Coke (C01, $0.75) qty=5, Chips (P02, $1.25) qty=3.</li>
+      <li><b>User inserts QUARTER ($0.25)</b> → <code>machine.insertCoin(QUARTER)</code> → <code>IdleState.insertCoin(machine, QUARTER)</code>
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;→ <code>payment.addCoin(QUARTER)</code> → totalInserted=$0.25
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;→ <code>machine.setCurrentState(hasMoneyState)</code>
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;→ Console: "[Idle→HasMoney] QUARTER inserted. Total: $0.25"
+      </li>
+      <li><b>User inserts second QUARTER</b> → <code>machine.insertCoin(QUARTER)</code> → <code>HasMoneyState.insertCoin</code>
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;→ totalInserted=$0.50. Stays in HasMoneyState.
+      </li>
+      <li><b>User inserts third QUARTER</b> → totalInserted=$0.75. Stays in HasMoneyState.</li>
+      <li><b>User selects C01</b> → <code>machine.selectProduct("C01")</code> → <code>HasMoneyState.selectProduct(machine, "C01")</code>
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;→ <code>inventory.isAvailable("C01")</code> → true (qty=5)
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;→ <code>product.getPrice()=$0.75</code>. <code>totalInserted=$0.75 &gt;= 0.75</code> → OK
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;→ <code>machine.setSelectedProduct(coke)</code>
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;→ <code>machine.setCurrentState(dispensingState)</code>
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;→ <code>machine.dispense()</code> triggered immediately
+      </li>
+      <li><b>DispensingState.dispense(machine)</b>:
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;→ <code>inventory.removeProduct("C01", 1)</code> → synchronized → qty: 5→4
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;→ change = $0.75 - $0.75 = $0.00 → no change to return
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;→ Console: "[Dispensing] 🎉 Dispensing: Coke. Enjoy!"
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;→ <code>machine.resetPayment()</code> → new Payment()
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;→ <code>machine.setSelectedProduct(null)</code>
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;→ <code>machine.setCurrentState(idleState)</code>
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;→ Console: "[Dispensing→Idle] Ready for next customer."
+      </li>
+      <li><b>Final state:</b> Machine in <code>IdleState</code>. Coke qty=4. Payment cleared.</li>
+    </ol>
+
+<pre class="ascii">
+[Idle] ──QUARTER──▶ [HasMoney] ──QUARTER──▶ [HasMoney] ──QUARTER──▶ [HasMoney]
+                                                                          │
+                                                                   selectProduct("C01")
+                                                                          │ C01 avail ✓
+                                                                          │ $0.75 >= $0.75 ✓
+                                                                          ▼
+                                                                    [Dispensing]
+                                                                          │ removeStock
+                                                                          │ change=$0.00
+                                                                          │ dispense product
+                                                                          ▼
+                                                                       [Idle]
+</pre>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 10 ═══════════════════════════════ -->
+  <section class="step" id="s10">
+    <h2><span class="num">10</span> Extensions</h2>
+
+    <div class="label gold">Card Payment — State + Strategy combination</div>
+    <ul class="bullets">
+      <li>Add <code>PaymentMethod</code> interface: <code>boolean processPayment(double amount)</code>, <code>boolean refund(double amount)</code>.</li>
+      <li>Implement <code>CoinPayment implements PaymentMethod</code> (current logic) and <code>CardPayment implements PaymentMethod</code> (calls card terminal API).</li>
+      <li>Add <code>CardPaymentState implements State</code>: <code>insertCoin()</code> → "card payment in progress"; <code>selectProduct()</code> → charges card then transitions to Dispensing.</li>
+      <li>Zero changes to <code>IdleState</code>, <code>HasMoneyState</code>, <code>DispensingState</code>.</li>
+    </ul>
+
+<pre><code class="language-java">public interface PaymentMethod {
+    boolean processPayment(double amount);
+    boolean refund(double amount);
+    double getBalance();
+}
+
+public class CardPayment implements PaymentMethod {
+    private final String cardToken;
+
+    public CardPayment(String cardToken) {
+        this.cardToken = cardToken;
+    }
+
+    @Override
+    public boolean processPayment(double amount) {
+        // In production: call card terminal SDK
+        System.out.printf("[Card] Charged $%.2f to card ending %s%n",
+                amount, cardToken.substring(cardToken.length() - 4));
+        return true;
+    }
+
+    @Override
+    public boolean refund(double amount) {
+        System.out.printf("[Card] Refunded $%.2f to card%n", amount);
+        return true;
+    }
+
+    @Override
+    public double getBalance() {
+        return Double.MAX_VALUE;   // card has no pre-defined limit for vending
+    }
+}
+</code></pre>
+
+    <div class="label gold">Temperature Zones — Decorator on Product</div>
+    <ul class="bullets">
+      <li>Add <code>TemperatureZone</code> enum: <code>AMBIENT, REFRIGERATED, FROZEN</code>.</li>
+      <li><code>TemperatureControlledProduct extends Product</code>: adds <code>TemperatureZone zone</code> field.</li>
+      <li>Inventory groups products by zone; each zone has its own dispenser motor.</li>
+      <li>No State changes needed — Dispensing just calls the right motor based on product zone.</li>
+    </ul>
+
+    <div class="label gold">Remote Admin Console — AdminState</div>
+    <ul class="bullets">
+      <li>Add <code>AdminState implements State</code>. Admin actions: restock, price change, clear jams.</li>
+      <li><code>VendingMachine.enterAdminMode(String adminPin)</code> validates PIN and transitions to AdminState.</li>
+      <li>All regular user actions throw <code>InvalidStateTransitionException</code> in AdminState.</li>
+    </ul>
+
+    <div class="callout">
+      <b>The pattern holds for every extension:</b> Adding CardPayment created <code>CardPaymentState</code> and <code>CardPayment</code>. Zero modifications to the four existing state classes. This is the Open/Closed Principle playing out exactly as intended with the State Pattern.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 11 ═══════════════════════════════ -->
+  <section class="step" id="s11">
+    <h2><span class="num">11</span> Interview Talking Points</h2>
+
+    <div class="label gold">Five Lines That Show Senior Depth</div>
+
+    <div class="define">
+      <b>1. On why State Pattern</b>
+      "State pattern eliminates a 4×4=16 branch if-else matrix. Each state class handles exactly its valid transitions and throws <code>InvalidStateTransitionException</code> for invalid ones — this is how I enforce the state machine contract, not just silently ignore invalid inputs."
+    </div>
+
+    <div class="define">
+      <b>2. On exception design</b>
+      "I chose to throw <code>InvalidStateTransitionException</code> instead of silently ignoring invalid actions. Silent failures hide bugs. An exception surfaces the violated contract immediately in tests and in production logs."
+    </div>
+
+    <div class="define">
+      <b>3. On SRP split</b>
+      "The context class, <code>VendingMachine</code>, holds all mutable data — payment, selected product, inventory. State classes are stateless — they only hold a reference to the context. This SRP split means states can be singletons and never need to be re-created."
+    </div>
+
+    <div class="define">
+      <b>4. On inventory concurrency</b>
+      "<code>Inventory.removeProduct</code> is synchronized because it is a compound operation: read stock, check &gt; 0, decrement. Without synchronization, two buyers could both pass the check on qty=1 and both dispense — negative stock. The synchronized keyword makes this check-then-act atomic."
+    </div>
+
+    <div class="define">
+      <b>5. On adding a 5th state</b>
+      "To add a Maintenance state, I create <code>MaintenanceState implements State</code>. It throws <code>InvalidStateTransitionException</code> on all user actions. I add <code>enterMaintenance()</code> and <code>exitMaintenance()</code> to VendingMachine. The four existing state classes — Idle, HasMoney, Dispensing, OutOfStock — are never touched."
+    </div>
+
+    <div class="callout">
+      <b>Bonus point getter:</b> "I use integer arithmetic (cents) in ChangeCalculator to avoid IEEE 754 floating-point errors. <code>0.1 + 0.2 != 0.3</code> in Java. For any financial calculation, convert to the smallest currency unit as an integer, compute, then divide back. This is how payment processors work in production."
+    </div>
+  </section>
+
+  <nav class="page-nav">
+    <a class="nav-btn prev" href="parking-lot.html">← Prev: Parking Lot</a>
+    <a class="nav-btn home" href="index.html">⌂ LLD Index</a>
+    <a class="nav-btn next" href="elevator-system.html">Next: Elevator System →</a>
+  </nav>
+
+</div><!-- /.wrap -->
+
+<a href="#" class="top">↑</a>
+
+<footer>Built with <b>BuildLikeASenior</b> · LLD Interview Prep</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script>
+const top=document.querySelector('.top');
+window.addEventListener('scroll',()=>top.classList.toggle('show',scrollY>300));
+</script>
+</body>
+</html>

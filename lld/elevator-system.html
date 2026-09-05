@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Design an Elevator System – LLD Interview Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+<style>
+:root{
+  --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+  --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+  --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+code,pre{font-family:'JetBrains Mono',monospace}
+a{color:var(--teal);text-decoration:none}
+a:hover{text-decoration:underline}
+header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+header.hero .crumb a{color:var(--muted)}
+.badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+.meta{margin-top:14px;color:var(--muted);font-size:13px;font-family:'JetBrains Mono',monospace}
+.meta b{color:var(--gold)}
+.wrap{max-width:1100px;margin:0 auto;padding:24px}
+.toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+.toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+.toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+.toc li:hover{background:rgba(0,212,170,.08)}
+.toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+.toc a{color:var(--text)}
+section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+section.step h2{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+.label{color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 8px;font-weight:700}
+.label.gold{color:var(--gold)}
+.define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+.define b{color:var(--gold)}
+.define em{color:var(--muted);font-style:normal;display:block;font-size:13px;margin-top:4px}
+.callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+.callout b{color:var(--teal)}
+.warn{background:rgba(239,68,68,.06);border-left:3px solid #ef4444;padding:14px 18px;border-radius:8px;margin:10px 0}
+.warn b{color:#ef4444}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+tr:last-child td{border-bottom:none}
+td code,th code{background:rgba(0,212,170,.10);padding:1px 6px;border-radius:4px;color:var(--teal);font-size:12px}
+pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto}
+ul.bullets{padding-left:22px}
+ul.bullets li{margin:6px 0}
+ol.steps{padding-left:22px}
+ol.steps li{margin:8px 0}
+.top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+.top.show{opacity:1}
+footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+footer b{color:var(--teal)}
+.page-nav{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:20px 0;flex-wrap:wrap}
+.nav-btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--line);color:var(--muted);background:linear-gradient(180deg,var(--card),var(--card2));transition:border-color .2s,color .2s;text-decoration:none;font-family:'JetBrains Mono',monospace}
+.nav-btn:hover{border-color:var(--teal);color:var(--teal);text-decoration:none}
+.nav-btn.home{background:rgba(0,212,170,.08);border-color:rgba(0,212,170,.25);color:var(--teal)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="crumb"><a href="index.html">LLD Index</a> · <a href="../index.html">Home</a></div>
+  <div class="badge">State + Strategy + Concurrency</div>
+  <h1 class="title">Design an <span>Elevator System</span></h1>
+  <p class="sub">Multi-elevator building with floor requests, scheduling algorithms, and thread-safe state transitions — tests State, Strategy, and concurrency in one problem.</p>
+  <div class="meta"><b>Patterns:</b> State · Strategy · Observer · Command &nbsp;|&nbsp; <b>Difficulty:</b> Hard &nbsp;|&nbsp; <b>Language:</b> Java</div>
+</header>
+
+<div class="wrap">
+
+  <nav class="page-nav">
+    <a class="nav-btn prev" href="vending-machine.html">← Prev: Vending Machine</a>
+    <a class="nav-btn home" href="index.html">⌂ LLD Index</a>
+    <a class="nav-btn next" href="lru-cache.html">Next: LRU Cache →</a>
+  </nav>
+
+  <div class="toc">
+    <h3>Table of Contents</h3>
+    <ol>
+      <li><a href="#s01">Requirements &amp; Scope</a></li>
+      <li><a href="#s02">Entity Identification</a></li>
+      <li><a href="#s03">State Pattern: Elevator States</a></li>
+      <li><a href="#s04">Elevator Class</a></li>
+      <li><a href="#s05">Strategy Pattern: Scheduling</a></li>
+      <li><a href="#s06">ElevatorController Class</a></li>
+      <li><a href="#s07">Request Types</a></li>
+      <li><a href="#s08">Concurrency Deep Dive</a></li>
+      <li><a href="#s09">SCAN Algorithm</a></li>
+      <li><a href="#s10">Walking a Flow</a></li>
+      <li><a href="#s11">Edge Cases &amp; Extensions</a></li>
+      <li><a href="#s12">Interview Talking Points</a></li>
+    </ol>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ S01 -->
+  <section class="step" id="s01">
+    <h2><span class="num">01</span> Requirements &amp; Scope</h2>
+
+    <p class="label gold">Functional Requirements</p>
+    <ul class="bullets">
+      <li>Support <strong>N elevators</strong> and <strong>M floors</strong> (configured at startup).</li>
+      <li><strong>Internal requests</strong>: passenger inside cabin presses a destination floor button.</li>
+      <li><strong>External requests</strong>: passenger on a floor presses UP or DOWN on the hall panel.</li>
+      <li>Elevators have three core states: <code>Idle</code>, <code>MovingUp</code>, <code>MovingDown</code>.</li>
+      <li>Door opens automatically on arrival; closes after a configurable dwell time.</li>
+      <li>Display inside and outside shows current floor and direction.</li>
+    </ul>
+
+    <p class="label gold">Non-Functional Requirements</p>
+    <ul class="bullets">
+      <li><strong>Concurrent button presses</strong>: multiple people press buttons simultaneously — no race conditions.</li>
+      <li><strong>Optimal dispatch</strong>: best elevator is selected based on scheduling strategy.</li>
+      <li><strong>Extensible strategy</strong>: swap scheduling algorithm without changing elevator logic.</li>
+      <li>Starvation-free: no floor should wait indefinitely.</li>
+    </ul>
+
+    <p class="label gold">Clarifying Questions — Ask These First</p>
+    <table>
+      <thead><tr><th>Question</th><th>Why It Matters</th><th>Typical Answer</th></tr></thead>
+      <tbody>
+        <tr><td>Max capacity per elevator?</td><td>Need capacity field + occupancy tracking</td><td>10–15 persons</td></tr>
+        <tr><td>Emergency / fire mode?</td><td>Adds EmergencyState, overrides normal dispatch</td><td>Yes, all go to floor 1</td></tr>
+        <tr><td>VIP / express floors?</td><td>Some elevators skip certain floors</td><td>Defer to extension</td></tr>
+        <tr><td>Can one elevator serve multiple pending requests on one trip?</td><td>Affects queue design (SCAN vs single-stop)</td><td>Yes — SCAN sweep</td></tr>
+        <tr><td>Energy saving mode (park at lobby when idle)?</td><td>Idle timeout logic, ScheduledExecutorService</td><td>Nice to have</td></tr>
+        <tr><td>Freight elevator separate fleet?</td><td>Two ElevatorController instances or fleet type filter</td><td>Separate pool</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S02 -->
+  <section class="step" id="s02">
+    <h2><span class="num">02</span> Entity Identification</h2>
+
+    <p class="label">Core Entities</p>
+    <span class="define"><b>ElevatorSystem</b> — top-level entry point; initialises controller and elevators.<em>Singleton or injected via DI</em></span>
+    <span class="define"><b>ElevatorController</b> — receives all requests, applies scheduling strategy, dispatches to an Elevator.<em>The brains of the operation</em></span>
+    <span class="define"><b>Elevator</b> — physical unit; owns state machine, floor queues, door, display.<em>Stateful actor</em></span>
+    <span class="define"><b>ElevatorState (interface)</b> — contract for state-specific behaviour (move, openDoor, addRequest).<em>State pattern root</em></span>
+    <span class="define"><b>IdleState / MovingUpState / MovingDownState</b> — concrete state implementations.<em>Governs what actions are legal</em></span>
+    <span class="define"><b>Request (abstract)</b> — base for all request types; carries timestamp for FIFO tiebreaking.<em>Command object</em></span>
+    <span class="define"><b>InternalRequest</b> — from cabin button; contains destinationFloor only.<em>Created inside elevator</em></span>
+    <span class="define"><b>ExternalRequest</b> — from hall panel; contains floor + Direction.<em>Created outside elevator</em></span>
+    <span class="define"><b>ElevatorSchedulingStrategy (interface)</b> — selectElevator() contract.<em>Strategy pattern root</em></span>
+    <span class="define"><b>NearestElevatorStrategy / ScanStrategy</b> — concrete scheduling algorithms.<em>Hot-swappable at runtime</em></span>
+    <span class="define"><b>Direction (enum)</b> — UP, DOWN.<em>Used by state and strategy</em></span>
+    <span class="define"><b>Door</b> — open(), close(), isOpen().<em>Encapsulates door sensor logic</em></span>
+    <span class="define"><b>Display</b> — showFloor(int), showDirection(Direction).<em>Observer of elevator state</em></span>
+    <span class="define"><b>HallButton</b> — on each floor, UP/DOWN; fires ExternalRequest.<em>Input device</em></span>
+    <span class="define"><b>CabinButton</b> — inside cabin per destination floor; fires InternalRequest.<em>Input device</em></span>
+
+    <p class="label">ASCII Class Diagram</p>
+    <pre class="ascii">
+ElevatorSystem
+  └── has ──▶ ElevatorController
+               ├── manages many ──▶ Elevator
+               │                     ├── state: ElevatorState ◀─── IdleState
+               │                     │                         ◀─── MovingUpState
+               │                     │                         ◀─── MovingDownState
+               │                     ├── upQueue: PriorityQueue&lt;Integer&gt;
+               │                     ├── downQueue: PriorityQueue&lt;Integer&gt;
+               │                     ├── has ──▶ Door
+               │                     └── has ──▶ Display
+               └── uses ──▶ ElevatorSchedulingStrategy ◀─── NearestElevatorStrategy
+                                                        ◀─── ScanStrategy
+
+Request (abstract)
+  ◀─── InternalRequest (elevatorId, destinationFloor)
+  ◀─── ExternalRequest (floor, Direction)
+
+Button (abstract)
+  ◀─── HallButton  (floor, direction)
+  ◀─── CabinButton (destinationFloor)
+    </pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S03 -->
+  <section class="step" id="s03">
+    <h2><span class="num">03</span> State Pattern: Elevator States</h2>
+
+    <div class="callout"><b>Design Insight:</b> State pattern prevents door-open-while-moving bugs at the design level, not just runtime checks. Each state object knows exactly which transitions are legal.</div>
+
+    <p class="label">Direction Enum</p>
+    <pre><code class="language-java">public enum Direction {
+    UP, DOWN
+}</code></pre>
+
+    <p class="label">ElevatorState Interface</p>
+    <pre><code class="language-java">public interface ElevatorState {
+    void moveUp(Elevator elevator);
+    void moveDown(Elevator elevator);
+    void openDoor(Elevator elevator);
+    void closeDoor(Elevator elevator);
+    void addRequest(Elevator elevator, int floor);
+    String getStateName();
+}</code></pre>
+
+    <p class="label">IdleState</p>
+    <pre><code class="language-java">public class IdleState implements ElevatorState {
+
+    @Override
+    public void moveUp(Elevator elevator) {
+        System.out.println("Elevator " + elevator.getElevatorId() + " starting UP from floor " + elevator.getCurrentFloor());
+        elevator.setState(new MovingUpState());
+        elevator.setDirection(Direction.UP);
+    }
+
+    @Override
+    public void moveDown(Elevator elevator) {
+        System.out.println("Elevator " + elevator.getElevatorId() + " starting DOWN from floor " + elevator.getCurrentFloor());
+        elevator.setState(new MovingDownState());
+        elevator.setDirection(Direction.DOWN);
+    }
+
+    @Override
+    public void openDoor(Elevator elevator) {
+        // Idle at a floor — safe to open
+        elevator.getDoor().open();
+        System.out.println("Elevator " + elevator.getElevatorId() + " door OPEN at floor " + elevator.getCurrentFloor());
+    }
+
+    @Override
+    public void closeDoor(Elevator elevator) {
+        elevator.getDoor().close();
+    }
+
+    @Override
+    public void addRequest(Elevator elevator, int floor) {
+        if (floor > elevator.getCurrentFloor()) {
+            elevator.getUpQueue().offer(floor);
+            moveUp(elevator);
+        } else if (floor &lt; elevator.getCurrentFloor()) {
+            elevator.getDownQueue().offer(floor);
+            moveDown(elevator);
+        } else {
+            // Already here — just open the door
+            openDoor(elevator);
+        }
+    }
+
+    @Override
+    public String getStateName() { return "IDLE"; }
+}</code></pre>
+
+    <p class="label">MovingUpState</p>
+    <pre><code class="language-java">public class MovingUpState implements ElevatorState {
+
+    @Override
+    public void moveUp(Elevator elevator) {
+        // Already moving up — no-op, just continue
+        System.out.println("Elevator " + elevator.getElevatorId() + " already moving UP");
+    }
+
+    @Override
+    public void moveDown(Elevator elevator) {
+        // Switch direction only when upQueue is exhausted
+        if (elevator.getUpQueue().isEmpty()) {
+            elevator.setState(new MovingDownState());
+            elevator.setDirection(Direction.DOWN);
+        } else {
+            System.out.println("Cannot switch direction — upQueue still has " + elevator.getUpQueue().size() + " stops");
+        }
+    }
+
+    @Override
+    public void openDoor(Elevator elevator) {
+        throw new IllegalStateException(
+            "Cannot open door while elevator " + elevator.getElevatorId() + " is moving UP. Current floor: " + elevator.getCurrentFloor()
+        );
+    }
+
+    @Override
+    public void closeDoor(Elevator elevator) {
+        // Door should already be closed while moving
+    }
+
+    @Override
+    public void addRequest(Elevator elevator, int floor) {
+        elevator.getLock().lock();
+        try {
+            if (floor &gt; elevator.getCurrentFloor()) {
+                // Same direction — add to upQueue (min-heap, so it's picked up on the way)
+                elevator.getUpQueue().offer(floor);
+                System.out.println("Floor " + floor + " added to upQueue of elevator " + elevator.getElevatorId());
+            } else {
+                // Opposite direction — add to downQueue to serve on return sweep
+                elevator.getDownQueue().offer(floor);
+                System.out.println("Floor " + floor + " added to downQueue (opposite direction) of elevator " + elevator.getElevatorId());
+            }
+        } finally {
+            elevator.getLock().unlock();
+        }
+    }
+
+    @Override
+    public String getStateName() { return "MOVING_UP"; }
+}</code></pre>
+
+    <p class="label">MovingDownState</p>
+    <pre><code class="language-java">public class MovingDownState implements ElevatorState {
+
+    @Override
+    public void moveDown(Elevator elevator) {
+        System.out.println("Elevator " + elevator.getElevatorId() + " already moving DOWN");
+    }
+
+    @Override
+    public void moveUp(Elevator elevator) {
+        if (elevator.getDownQueue().isEmpty()) {
+            elevator.setState(new MovingUpState());
+            elevator.setDirection(Direction.UP);
+        } else {
+            System.out.println("Cannot switch direction — downQueue still has " + elevator.getDownQueue().size() + " stops");
+        }
+    }
+
+    @Override
+    public void openDoor(Elevator elevator) {
+        throw new IllegalStateException(
+            "Cannot open door while elevator " + elevator.getElevatorId() + " is moving DOWN. Current floor: " + elevator.getCurrentFloor()
+        );
+    }
+
+    @Override
+    public void closeDoor(Elevator elevator) {
+        // Already closed while moving
+    }
+
+    @Override
+    public void addRequest(Elevator elevator, int floor) {
+        elevator.getLock().lock();
+        try {
+            if (floor &lt; elevator.getCurrentFloor()) {
+                // Same direction — add to downQueue (max-heap)
+                elevator.getDownQueue().offer(floor);
+                System.out.println("Floor " + floor + " added to downQueue of elevator " + elevator.getElevatorId());
+            } else {
+                // Opposite direction — add to upQueue
+                elevator.getUpQueue().offer(floor);
+                System.out.println("Floor " + floor + " added to upQueue (opposite direction) of elevator " + elevator.getElevatorId());
+            }
+        } finally {
+            elevator.getLock().unlock();
+        }
+    }
+
+    @Override
+    public String getStateName() { return "MOVING_DOWN"; }
+}</code></pre>
+
+    <div class="warn"><b>Anti-pattern:</b> If you use if-else in <code>Elevator.openDoor()</code> to check direction, you will forget a state and create a runtime bug. The State pattern makes illegal transitions <em>structurally impossible</em> — <code>MovingUpState.openDoor()</code> throws at design time.</div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S04 -->
+  <section class="step" id="s04">
+    <h2><span class="num">04</span> Elevator Class</h2>
+
+    <p>The <code>Elevator</code> class is the stateful actor. It delegates all behaviour to the current <code>ElevatorState</code> and uses a <code>ReentrantLock</code> to protect queue mutations from concurrent threads.</p>
+
+    <pre><code class="language-java">import java.util.PriorityQueue;
+import java.util.Collections;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class Elevator {
+
+    private final int elevatorId;
+    private int currentFloor;
+    private Direction direction;
+    private ElevatorState currentState;
+
+    // Min-heap: smallest floor number first (ascending sweep)
+    private final PriorityQueue&lt;Integer&gt; upQueue;
+    // Max-heap: largest floor number first (descending sweep)
+    private final PriorityQueue&lt;Integer&gt; downQueue;
+
+    private final Door door;
+    private final Display display;
+    private final ReentrantLock lock;
+
+    private final int capacity;
+    private int currentOccupancy;
+
+    public Elevator(int elevatorId, int startFloor, int capacity) {
+        this.elevatorId = elevatorId;
+        this.currentFloor = startFloor;
+        this.capacity = capacity;
+        this.currentOccupancy = 0;
+        this.direction = null;
+        this.currentState = new IdleState();
+        this.upQueue = new PriorityQueue&lt;&gt;();                        // natural order
+        this.downQueue = new PriorityQueue&lt;&gt;(Collections.reverseOrder()); // reverse order
+        this.door = new Door(elevatorId);
+        this.display = new Display(elevatorId);
+        this.lock = new ReentrantLock();
+    }
+
+    /** Called by state objects or controller to add a floor stop */
+    public void addRequest(int floor) {
+        currentState.addRequest(this, floor);
+    }
+
+    /** Advance one floor toward next destination */
+    public void move() {
+        lock.lock();
+        try {
+            if (currentState instanceof MovingUpState &amp;&amp; !upQueue.isEmpty()) {
+                currentFloor++;
+                display.showFloor(currentFloor);
+                display.showDirection(Direction.UP);
+                System.out.println("[E" + elevatorId + "] Moving UP → floor " + currentFloor);
+
+                if (upQueue.peek() == currentFloor) {
+                    upQueue.poll();
+                    stop();
+                }
+            } else if (currentState instanceof MovingDownState &amp;&amp; !downQueue.isEmpty()) {
+                currentFloor--;
+                display.showFloor(currentFloor);
+                display.showDirection(Direction.DOWN);
+                System.out.println("[E" + elevatorId + "] Moving DOWN → floor " + currentFloor);
+
+                if (downQueue.peek() == currentFloor) {
+                    downQueue.poll();
+                    stop();
+                }
+            } else {
+                // Nothing left to serve — go idle
+                currentState = new IdleState();
+                direction = null;
+                display.showDirection(null);
+                System.out.println("[E" + elevatorId + "] Now IDLE at floor " + currentFloor);
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /** Arrival at a floor: open door, wait, close */
+    public void stop() {
+        System.out.println("[E" + elevatorId + "] Stopped at floor " + currentFloor);
+        door.open();
+        try { Thread.sleep(3000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        door.close();
+
+        // After servicing this stop, check if more work to do
+        if (!upQueue.isEmpty() &amp;&amp; direction == Direction.UP) {
+            currentState = new MovingUpState();
+        } else if (!downQueue.isEmpty() &amp;&amp; direction == Direction.DOWN) {
+            currentState = new MovingDownState();
+        } else if (!downQueue.isEmpty()) {
+            currentState = new MovingDownState();
+            direction = Direction.DOWN;
+        } else if (!upQueue.isEmpty()) {
+            currentState = new MovingUpState();
+            direction = Direction.UP;
+        } else {
+            currentState = new IdleState();
+            direction = null;
+        }
+    }
+
+    public void openDoor()  { currentState.openDoor(this); }
+    public void closeDoor() { currentState.closeDoor(this); }
+
+    // ── Getters &amp; Setters ──────────────────────────────────────────────────────
+    public int getElevatorId()             { return elevatorId; }
+    public int getCurrentFloor()           { return currentFloor; }
+    public Direction getDirection()        { return direction; }
+    public void setDirection(Direction d)  { this.direction = d; }
+    public ElevatorState getCurrentState() { return currentState; }
+    public void setState(ElevatorState s)  { this.currentState = s; }
+    public PriorityQueue&lt;Integer&gt; getUpQueue()   { return upQueue; }
+    public PriorityQueue&lt;Integer&gt; getDownQueue()  { return downQueue; }
+    public Door getDoor()                  { return door; }
+    public Display getDisplay()            { return display; }
+    public ReentrantLock getLock()         { return lock; }
+    public boolean isIdle()               { return currentState instanceof IdleState; }
+    public boolean isFull()               { return currentOccupancy >= capacity; }
+    public void board()   { if (!isFull()) currentOccupancy++; }
+    public void alight()  { if (currentOccupancy &gt; 0) currentOccupancy--; }
+}</code></pre>
+
+    <p class="label">Door &amp; Display (helper classes)</p>
+    <pre><code class="language-java">public class Door {
+    private final int elevatorId;
+    private boolean open = false;
+    public Door(int id) { this.elevatorId = id; }
+    public void open()  { open = true;  System.out.println("[E" + elevatorId + "] Door OPEN"); }
+    public void close() { open = false; System.out.println("[E" + elevatorId + "] Door CLOSED"); }
+    public boolean isOpen() { return open; }
+}
+
+public class Display {
+    private final int elevatorId;
+    public Display(int id) { this.elevatorId = id; }
+    public void showFloor(int floor)          { System.out.println("[Display E" + elevatorId + "] Floor: " + floor); }
+    public void showDirection(Direction dir)  { System.out.println("[Display E" + elevatorId + "] Direction: " + dir); }
+}</code></pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S05 -->
+  <section class="step" id="s05">
+    <h2><span class="num">05</span> Strategy Pattern: Scheduling</h2>
+
+    <p class="label">ElevatorSchedulingStrategy Interface</p>
+    <pre><code class="language-java">public interface ElevatorSchedulingStrategy {
+    /**
+     * Select the best elevator to serve an external request.
+     * @param elevators  all available elevators
+     * @param request    the external hall-button request
+     * @return           selected Elevator (never null)
+     */
+    Elevator selectElevator(List&lt;Elevator&gt; elevators, ExternalRequest request);
+}</code></pre>
+
+    <p class="label">NearestElevatorStrategy — O(n) scan, simple scoring</p>
+    <pre><code class="language-java">public class NearestElevatorStrategy implements ElevatorSchedulingStrategy {
+
+    private static final int MOVING_PENALTY = 3; // floors of extra cost for a busy elevator
+
+    @Override
+    public Elevator selectElevator(List&lt;Elevator&gt; elevators, ExternalRequest request) {
+        Elevator best = null;
+        int bestScore = Integer.MAX_VALUE;
+
+        for (Elevator e : elevators) {
+            int distance = Math.abs(e.getCurrentFloor() - request.getFloor());
+            int score = distance + (e.isIdle() ? 0 : MOVING_PENALTY);
+            if (score &lt; bestScore) {
+                bestScore = score;
+                best = e;
+            }
+        }
+        return best;
+    }
+}</code></pre>
+
+    <p class="label">ScanStrategy — LOOK algorithm, direction-aware</p>
+    <pre><code class="language-java">public class ScanStrategy implements ElevatorSchedulingStrategy {
+
+    @Override
+    public Elevator selectElevator(List&lt;Elevator&gt; elevators, ExternalRequest request) {
+        int requestFloor = request.getFloor();
+        Direction requestDir = request.getDirection();
+
+        Elevator bestSameDir = null;
+        int bestSameDirDist = Integer.MAX_VALUE;
+
+        Elevator bestIdle = null;
+        int bestIdleDist = Integer.MAX_VALUE;
+
+        Elevator bestAny = null;
+        int bestAnyDist = Integer.MAX_VALUE;
+
+        for (Elevator e : elevators) {
+            int dist = Math.abs(e.getCurrentFloor() - requestFloor);
+
+            // Elevator already on same-direction path and hasn't passed the request floor
+            boolean sameDir = (e.getDirection() == requestDir);
+            boolean enRoute = (requestDir == Direction.UP   &amp;&amp; e.getCurrentFloor() &lt;= requestFloor)
+                           || (requestDir == Direction.DOWN &amp;&amp; e.getCurrentFloor() &gt;= requestFloor);
+
+            if (sameDir &amp;&amp; enRoute &amp;&amp; dist &lt; bestSameDirDist) {
+                bestSameDirDist = dist;
+                bestSameDir = e;
+            }
+            if (e.isIdle() &amp;&amp; dist &lt; bestIdleDist) {
+                bestIdleDist = dist;
+                bestIdle = e;
+            }
+            if (dist &lt; bestAnyDist) {
+                bestAnyDist = dist;
+                bestAny = e;
+            }
+        }
+
+        // Priority: same-direction en-route &gt; nearest idle &gt; nearest any
+        if (bestSameDir != null) return bestSameDir;
+        if (bestIdle    != null) return bestIdle;
+        return bestAny;
+    }
+}</code></pre>
+
+    <div class="callout"><b>Strategy swap at runtime:</b> <code>controller.setStrategy(new ScanStrategy())</code> during peak hours, revert to <code>NearestElevatorStrategy</code> at night — zero restart, zero code change in <code>Elevator</code>.</div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S06 -->
+  <section class="step" id="s06">
+    <h2><span class="num">06</span> ElevatorController Class</h2>
+
+    <pre><code class="language-java">import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class ElevatorController {
+
+    private final List&lt;Elevator&gt; elevators;
+    private volatile ElevatorSchedulingStrategy strategy;
+
+    // Tracks unserviced external requests per floor for retry on elevator failure
+    private final Map&lt;Integer, List&lt;ExternalRequest&gt;&gt; pendingExternalRequests
+        = new ConcurrentHashMap&lt;&gt;();
+
+    public ElevatorController(List&lt;Elevator&gt; elevators, ElevatorSchedulingStrategy strategy) {
+        this.elevators = Collections.unmodifiableList(elevators);
+        this.strategy  = strategy;
+    }
+
+    /**
+     * Called when a hall-button (UP/DOWN) is pressed on a floor.
+     */
+    public void handleExternalRequest(int floor, Direction direction) {
+        ExternalRequest req = new ExternalRequest(floor, direction);
+
+        // Park this request so we can retry if selected elevator fails
+        pendingExternalRequests
+            .computeIfAbsent(floor, k -&gt; Collections.synchronizedList(new ArrayList&lt;&gt;()))
+            .add(req);
+
+        Elevator selected = strategy.selectElevator(elevators, req);
+        System.out.println("[Controller] External request (floor=" + floor + ", dir=" + direction
+            + ") → assigned to Elevator " + selected.getElevatorId());
+
+        selected.addRequest(floor);
+
+        // Remove from pending once dispatched
+        pendingExternalRequests.getOrDefault(floor, Collections.emptyList()).remove(req);
+    }
+
+    /**
+     * Called when a cabin-button is pressed inside an elevator.
+     */
+    public void handleInternalRequest(int elevatorId, int destinationFloor) {
+        Elevator target = findById(elevatorId);
+        if (target == null) throw new IllegalArgumentException("No elevator with id " + elevatorId);
+
+        System.out.println("[Controller] Internal request (elevatorId=" + elevatorId
+            + ", dest=" + destinationFloor + ")");
+        target.addRequest(destinationFloor);
+    }
+
+    /**
+     * Hot-swap the scheduling algorithm — no restart required.
+     */
+    public void setStrategy(ElevatorSchedulingStrategy strategy) {
+        this.strategy = strategy;
+        System.out.println("[Controller] Scheduling strategy switched to: "
+            + strategy.getClass().getSimpleName());
+    }
+
+    public List&lt;Elevator&gt; getElevators() { return elevators; }
+
+    private Elevator findById(int id) {
+        return elevators.stream().filter(e -&gt; e.getElevatorId() == id).findFirst().orElse(null);
+    }
+}</code></pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S07 -->
+  <section class="step" id="s07">
+    <h2><span class="num">07</span> Request Types</h2>
+
+    <pre><code class="language-java">// ── Abstract base ─────────────────────────────────────────────────────────────
+public abstract class Request {
+    private final long timestamp;
+    public Request() { this.timestamp = System.currentTimeMillis(); }
+    public long getTimestamp() { return timestamp; }
+}
+
+// ── Internal: from cabin button ───────────────────────────────────────────────
+public class InternalRequest extends Request {
+    private final int elevatorId;
+    private final int destinationFloor;
+
+    public InternalRequest(int elevatorId, int destinationFloor) {
+        super();
+        this.elevatorId = elevatorId;
+        this.destinationFloor = destinationFloor;
+    }
+    public int getElevatorId()       { return elevatorId; }
+    public int getDestinationFloor() { return destinationFloor; }
+}
+
+// ── External: from hall button ────────────────────────────────────────────────
+public class ExternalRequest extends Request {
+    private final int floor;
+    private final Direction direction;
+
+    public ExternalRequest(int floor, Direction direction) {
+        super();
+        this.floor = floor;
+        this.direction = direction;
+    }
+    public int getFloor()           { return floor; }
+    public Direction getDirection() { return direction; }
+}</code></pre>
+
+    <p class="label gold">Why Direction Matters for Scheduling</p>
+    <p>When an elevator is moving UP and passes floor 4, it should pick up a passenger on floor 4 pressing UP (same direction), but <em>not</em> one pressing DOWN — that passenger will be served on the return sweep. ScanStrategy exploits this to avoid unnecessary stops and direction reversals.</p>
+
+    <pre><code class="language-java">// Inside ScanStrategy — illustrates direction-aware pickup decision:
+boolean shouldPickUp = (e.getDirection() == request.getDirection())      // same direction
+                     &amp;&amp; (request.getDirection() == Direction.UP
+                             ? e.getCurrentFloor() &lt;= request.getFloor()   // haven't passed yet
+                             : e.getCurrentFloor() &gt;= request.getFloor());
+</code></pre>
+
+    <div class="callout"><b>Key insight:</b> Without ExternalRequest carrying direction, the scheduler cannot distinguish a UP request from a DOWN request on the same floor. An elevator would make an unnecessary stop, open the door, and then the passenger wouldn't board because it's going the wrong way — wasting 3 seconds dwell time per floor.</div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S08 -->
+  <section class="step" id="s08">
+    <h2><span class="num">08</span> Concurrency Deep Dive</h2>
+
+    <p class="label gold">Race Condition 1: Duplicate Dispatch</p>
+    <p>Two people on floors 2 and 9 simultaneously press floor 7's UP button. Both threads call <code>handleExternalRequest(7, UP)</code>. Without synchronisation, both could evaluate the strategy and assign two different elevators to floor 7 — double service, wasted trip.</p>
+    <p><strong>Fix:</strong> Synchronise <code>handleExternalRequest</code> or use a <code>ConcurrentHashMap</code> to deduplicate pending external requests before dispatch.</p>
+
+    <p class="label gold">Race Condition 2: PriorityQueue Corruption</p>
+    <p>Elevator is moving UP processing its upQueue. Simultaneously, a new request comes in on another thread and calls <code>upQueue.offer()</code>. <code>PriorityQueue</code> is <strong>not thread-safe</strong> — concurrent structural modification can corrupt the heap invariant, causing wrong floor selections.</p>
+    <p><strong>Fix:</strong> Wrap all queue reads and writes inside <code>ReentrantLock</code>.</p>
+
+    <pre><code class="language-java">// Thread-safe addRequest inside Elevator (called by state objects)
+public void threadSafeAddRequest(int floor) {
+    lock.lock();
+    try {
+        currentState.addRequest(this, floor);
+    } finally {
+        lock.unlock();
+    }
+}
+
+// tryLock variant — non-blocking with retry
+public boolean tryAddRequest(int floor) {
+    try {
+        if (lock.tryLock(50, java.util.concurrent.TimeUnit.MILLISECONDS)) {
+            try {
+                currentState.addRequest(this, floor);
+                return true;
+            } finally {
+                lock.unlock();
+            }
+        } else {
+            System.out.println("[E" + elevatorId + "] Lock contention — request for floor "
+                + floor + " queued for retry");
+            return false;
+        }
+    } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        return false;
+    }
+}</code></pre>
+
+    <p class="label gold">Race Condition 3: State Transition While Moving</p>
+    <p>Elevator thread calls <code>move()</code> and reads <code>currentState</code>. Controller thread simultaneously calls <code>setState(new IdleState())</code>. Without visibility guarantee, the elevator thread sees the old state.</p>
+    <p><strong>Fix:</strong> Declare <code>currentState</code> as <code>volatile</code>, or use the same <code>ReentrantLock</code> for both read and write.</p>
+
+    <pre><code class="language-java">// In Elevator — volatile ensures state changes are visible across threads
+private volatile ElevatorState currentState;
+</code></pre>
+
+    <div class="callout"><b>Why ReentrantLock over <code>synchronized</code>:</b> <code>tryLock(50, MILLISECONDS)</code> lets us detect lock contention and retry or route the request to another elevator. With <code>synchronized</code>, the thread blocks indefinitely — no timeout possible.</div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S09 -->
+  <section class="step" id="s09">
+    <h2><span class="num">09</span> SCAN Algorithm (Disk Scheduling Analogy)</h2>
+
+    <div class="callout"><b>Mental model:</b> Exactly like disk head scheduling — the elevator sweeps in one direction serving all queued floors, then reverses. This gives <strong>bounded wait time</strong>: a floor 1 passenger will be served after at most one full up-sweep, not repeatedly bypassed as floors 5–10 keep requesting.</div>
+
+    <p class="label">Data Structures</p>
+    <table>
+      <thead><tr><th>Queue</th><th>Type</th><th>Heap Property</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>upQueue</code></td><td><code>PriorityQueue&lt;Integer&gt;</code></td><td>Min-heap (lowest first)</td><td>Serve floors in ascending order on UP sweep</td></tr>
+        <tr><td><code>downQueue</code></td><td><code>PriorityQueue&lt;Integer&gt;(reverseOrder)</code></td><td>Max-heap (highest first)</td><td>Serve floors in descending order on DOWN sweep</td></tr>
+      </tbody>
+    </table>
+
+    <p class="label">Complexity</p>
+    <table>
+      <thead><tr><th>Operation</th><th>SCAN</th><th>NearestCar</th></tr></thead>
+      <tbody>
+        <tr><td>Add request</td><td>O(log n) — heap insert</td><td>O(n) — linear scan</td></tr>
+        <tr><td>Get next floor</td><td>O(1) — peek top of heap</td><td>O(n) — rescan all requests</td></tr>
+        <tr><td>Worst-case wait</td><td>Bounded — 2 × floor_range</td><td>Unbounded — starvation possible</td></tr>
+        <tr><td>Fairness</td><td>High — FIFO within direction</td><td>Low — near floors always win</td></tr>
+      </tbody>
+    </table>
+
+    <p class="label">SCAN Move Loop (simplified)</p>
+    <pre><code class="language-java">public void runScan() {
+    while (true) {
+        // ── Phase 1: sweep UP ──────────────────────────────────────────────────
+        while (!upQueue.isEmpty()) {
+            int nextStop = upQueue.peek(); // smallest floor above us
+            while (currentFloor &lt; nextStop) {
+                currentFloor++;
+                display.showFloor(currentFloor);
+            }
+            upQueue.poll();
+            stop(); // open door, dwell, close
+        }
+
+        // ── Phase 2: sweep DOWN ────────────────────────────────────────────────
+        while (!downQueue.isEmpty()) {
+            int nextStop = downQueue.peek(); // largest floor below us
+            while (currentFloor &gt; nextStop) {
+                currentFloor--;
+                display.showFloor(currentFloor);
+            }
+            downQueue.poll();
+            stop();
+        }
+
+        // ── Both empty: go idle ────────────────────────────────────────────────
+        if (upQueue.isEmpty() &amp;&amp; downQueue.isEmpty()) {
+            setState(new IdleState());
+            break;
+        }
+    }
+}</code></pre>
+
+    <div class="callout"><b>LOOK vs SCAN:</b> Classic SCAN goes all the way to the top/bottom floor even if no requests exist there. LOOK reverses as soon as the highest/lowest pending request is served. The implementation above is LOOK (uses <code>peek()</code> as turnaround point), which is more efficient in practice.</div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S10 -->
+  <section class="step" id="s10">
+    <h2><span class="num">10</span> Walking a Flow</h2>
+
+    <p>Building: 3 elevators, 10 floors. Initial state:</p>
+    <table>
+      <thead><tr><th>Elevator</th><th>Floor</th><th>State</th><th>upQueue</th><th>downQueue</th></tr></thead>
+      <tbody>
+        <tr><td>E1</td><td>5</td><td>Idle</td><td>[]</td><td>[]</td></tr>
+        <tr><td>E2</td><td>2</td><td>Idle</td><td>[]</td><td>[]</td></tr>
+        <tr><td>E3</td><td>8</td><td>MovingDown</td><td>[]</td><td>[3]</td></tr>
+      </tbody>
+    </table>
+
+    <ol class="steps">
+      <li><strong>Person on floor 3 presses UP.</strong><br>
+        <code>ElevatorController.handleExternalRequest(3, UP)</code> called.</li>
+      <li><strong>NearestElevatorStrategy evaluates:</strong><br>
+        E1: |5−3| = 2 (Idle, penalty=0) → score <b>2</b><br>
+        E2: |2−3| = 1 (Idle, penalty=0) → score <b>1</b><br>
+        E3: |8−3| = 5 (Moving, penalty=3) → score <b>8</b><br>
+        ✅ <strong>E2 selected</strong> (score=1).</li>
+      <li><strong>E2.addRequest(3)</strong> → lock acquired. IdleState sees queue empty, floor 3 &gt; currentFloor 2. upQueue=[3]. Calls moveUp() → setState(MovingUpState). Lock released.</li>
+      <li><strong>E2 starts moving:</strong> floor 2 → 3. Display shows "Floor 3 | ↑". upQueue.peek()=3, currentFloor=3. Match → upQueue.poll(). <code>stop()</code> called.</li>
+      <li><strong>E2 arrives floor 3:</strong> Door opens. Person boards. <code>board()</code> → occupancy=1. 3-second dwell.</li>
+      <li><strong>Person inside presses floor 8.</strong><br>
+        <code>ElevatorController.handleInternalRequest(elevatorId=2, floor=8)</code><br>
+        E2.addRequest(8) → MovingUpState: 8 &gt; currentFloor(3) → upQueue=[8].</li>
+      <li><strong>Door closes.</strong> E2 resumes: state=MovingUpState. Sweeps: 3→4→5→6→7→8.</li>
+      <li><strong>Arrives floor 8.</strong> upQueue.peek()=8, match → poll. stop() → Door opens. Person alights. occupancy=0.</li>
+      <li><strong>upQueue empty, downQueue empty</strong> → setState(IdleState). E2 now Idle at floor 8.</li>
+      <li><strong>Meanwhile E3</strong> was serving floor 3 on its downward sweep. Arrives floor 3, serves whoever is there (if any remaining DOWN-direction passengers). downQueue=[] → E3 goes Idle at floor 3.</li>
+    </ol>
+
+    <pre class="ascii">
+Timeline:
+t=0  [E2:F2 Idle]   ─── request(3,UP) assigned ──────────────────
+t=1  [E2:F3 MovUp]  ─── arrived, door OPEN, person boards ───────
+t=4  [E2:F3 MovUp]  ─── door CLOSED, request(8) added ───────────
+t=5  [E2:F4→8 MovUp]─── sweeping up ─────────────────────────────
+t=10 [E2:F8 Idle]   ─── door OPEN, person alights, Idle ─────────
+    </pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S11 -->
+  <section class="step" id="s11">
+    <h2><span class="num">11</span> Edge Cases &amp; Extensions</h2>
+
+    <p class="label gold">Emergency / Fire Mode</p>
+    <pre><code class="language-java">public class EmergencyState implements ElevatorState {
+    @Override public void moveDown(Elevator e) {
+        // Force to floor 1 regardless of queue
+        while (e.getCurrentFloor() &gt; 1) {
+            e.setCurrentFloor(e.getCurrentFloor() - 1);
+        }
+        e.getDoor().open(); // Hold open
+    }
+    @Override public void addRequest(Elevator e, int floor) {
+        System.out.println("EMERGENCY MODE — all requests ignored");
+    }
+    @Override public void moveUp(Elevator e)  { /* blocked */ }
+    @Override public void openDoor(Elevator e){ e.getDoor().open(); }
+    @Override public void closeDoor(Elevator e){ /* blocked */ }
+    @Override public String getStateName()   { return "EMERGENCY"; }
+}
+
+// Triggered via controller:
+public void triggerEmergency() {
+    elevators.forEach(e -&gt; e.setState(new EmergencyState()));
+    elevators.forEach(e -&gt; e.getCurrentState().moveDown(e));
+}</code></pre>
+
+    <p class="label gold">Door Obstruction Sensor (Observer Pattern)</p>
+    <pre><code class="language-java">public interface DoorObserver {
+    void onObstructionDetected(int elevatorId);
+}
+
+public class Elevator implements DoorObserver {
+    @Override
+    public void onObstructionDetected(int elevatorId) {
+        System.out.println("[E" + elevatorId + "] Door obstruction — re-opening");
+        door.open();
+        try { Thread.sleep(2000); } catch (InterruptedException ex) { Thread.currentThread().interrupt(); }
+        door.close();
+    }
+}</code></pre>
+
+    <p class="label gold">Capacity Guard</p>
+    <pre><code class="language-java">// In CabinButton handler — refuse internal request if elevator is full
+public void pressFloor(int floor, Elevator elevator) {
+    if (elevator.isFull()) {
+        System.out.println("Elevator full — request ignored. Please wait.");
+        return;
+    }
+    controller.handleInternalRequest(elevator.getElevatorId(), floor);
+}</code></pre>
+
+    <p class="label gold">VIP Floor Filter</p>
+    <pre><code class="language-java">public class VIPElevatorFilter implements ElevatorSchedulingStrategy {
+    private final ElevatorSchedulingStrategy delegate;
+    private final Set&lt;Integer&gt; vipElevatorIds;
+
+    public VIPElevatorFilter(ElevatorSchedulingStrategy delegate, Set&lt;Integer&gt; vipIds) {
+        this.delegate = delegate;
+        this.vipElevatorIds = vipIds;
+    }
+
+    @Override
+    public Elevator selectElevator(List&lt;Elevator&gt; elevators, ExternalRequest request) {
+        boolean isVipFloor = request.getFloor() &gt;= 50; // floors 50+ are VIP
+        List&lt;Elevator&gt; pool = isVipFloor
+            ? elevators.stream().filter(e -&gt; vipElevatorIds.contains(e.getElevatorId())).toList()
+            : elevators.stream().filter(e -&gt; !vipElevatorIds.contains(e.getElevatorId())).toList();
+        return delegate.selectElevator(pool.isEmpty() ? elevators : pool, request);
+    }
+}</code></pre>
+
+    <p class="label gold">Energy Saving (Park at Lobby)</p>
+    <pre><code class="language-java">ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+scheduler.scheduleAtFixedRate(() -&gt; {
+    elevators.stream()
+        .filter(Elevator::isIdle)
+        .filter(e -&gt; e.getCurrentFloor() != 1)
+        .forEach(e -&gt; e.addRequest(1)); // park at lobby
+}, 5, 5, TimeUnit.MINUTES);</code></pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ S12 -->
+  <section class="step" id="s12">
+    <h2><span class="num">12</span> Interview Talking Points</h2>
+
+    <span class="define">
+      <b>1. ReentrantLock vs synchronized</b>
+      <em>"I use ReentrantLock because tryLock(50ms) lets me handle contention gracefully — if a queue can't be locked, I can retry or route to a different elevator. synchronized blocks the thread indefinitely with no fallback."</em>
+    </span>
+    <span class="define">
+      <b>2. PriorityQueue choice</b>
+      <em>"Min-heap for upQueue gives O(log n) insertion and O(1) peek to the next floor above us. Compared to a sorted list, we avoid O(n) re-sort after every insertion."</em>
+    </span>
+    <span class="define">
+      <b>3. State pattern value</b>
+      <em>"MovingUpState.openDoor() throws IllegalStateException — door-open-while-moving is impossible by construction, not just by defensive if-checks. The design enforces correctness."</em>
+    </span>
+    <span class="define">
+      <b>4. SCAN vs NearestCar</b>
+      <em>"NearestCar can starve floor 1 in a high-traffic building where floors 5–10 constantly request. SCAN guarantees bounded wait: at most 2×floor_range ticks before any floor is served."</em>
+    </span>
+    <span class="define">
+      <b>5. Strategy hot-swap</b>
+      <em>"setStrategy() on ElevatorController swaps the algorithm at runtime — NearestCar during off-peak, SCAN during rush hour — with no service interruption and no change to Elevator code. Open/Closed in practice."</em>
+    </span>
+    <span class="define">
+      <b>6. Volatile state field</b>
+      <em>"currentState is volatile because the elevator's run loop and the controller's dispatch thread both read/write it. Without volatile, the JVM may cache the old state in a register and the run loop never sees the EmergencyState update."</em>
+    </span>
+
+    <div class="callout"><b>Bonus depth:</b> Mention that in a real distributed system, each elevator would have its own microservice with a message queue (Kafka/SQS) as the request bus. The <code>ElevatorController</code> becomes a consumer group. State is persisted in Redis for fault tolerance.</div>
+  </section>
+
+  <nav class="page-nav">
+    <a class="nav-btn prev" href="vending-machine.html">← Prev: Vending Machine</a>
+    <a class="nav-btn home" href="index.html">⌂ LLD Index</a>
+    <a class="nav-btn next" href="lru-cache.html">Next: LRU Cache →</a>
+  </nav>
+
+</div><!-- /wrap -->
+
+<footer>Built with <b>BuildLikeASenior</b> · LLD Interview Prep</footer>
+
+<a href="#" class="top">↑</a>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script>
+const top=document.querySelector('.top');
+window.addEventListener('scroll',()=>top.classList.toggle('show',scrollY>300));
+</script>
+</body>
+</html>

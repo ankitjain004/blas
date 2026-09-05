@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Design Snake &amp; Ladder – LLD Interview Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+<style>
+:root{
+  --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+  --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+  --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+code,pre{font-family:'JetBrains Mono',monospace}
+a{color:var(--teal);text-decoration:none}
+a:hover{text-decoration:underline}
+header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+header.hero .crumb a{color:var(--muted)}
+.badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+.meta{margin-top:14px;color:var(--muted);font-size:13px;font-family:'JetBrains Mono',monospace}
+.meta b{color:var(--gold)}
+.wrap{max-width:1100px;margin:0 auto;padding:24px}
+.toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+.toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+.toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+.toc li:hover{background:rgba(0,212,170,.08)}
+.toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+.toc a{color:var(--text)}
+section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+section.step h2{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+.label{color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 8px;font-weight:700}
+.label.gold{color:var(--gold)}
+.define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+.define b{color:var(--gold)}
+.define em{color:var(--muted);font-style:normal;display:block;font-size:13px;margin-top:4px}
+.callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+.callout b{color:var(--teal)}
+.warn{background:rgba(239,68,68,.06);border-left:3px solid #ef4444;padding:14px 18px;border-radius:8px;margin:10px 0}
+.warn b{color:#ef4444}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+tr:last-child td{border-bottom:none}
+td code,th code{background:rgba(0,212,170,.10);padding:1px 6px;border-radius:4px;color:var(--teal);font-size:12px}
+pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto}
+ul.bullets{padding-left:22px}
+ul.bullets li{margin:6px 0}
+ol.steps{padding-left:22px}
+ol.steps li{margin:8px 0}
+.top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+.top.show{opacity:1}
+footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+footer b{color:var(--teal)}
+.page-nav{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:20px 0;flex-wrap:wrap}
+.nav-btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--line);color:var(--muted);background:linear-gradient(180deg,var(--card),var(--card2));transition:border-color .2s,color .2s;text-decoration:none;font-family:'JetBrains Mono',monospace}
+.nav-btn:hover{border-color:var(--teal);color:var(--teal);text-decoration:none}
+.nav-btn.home{background:rgba(0,212,170,.08);border-color:rgba(0,212,170,.25);color:var(--teal)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="crumb"><a href="index.html">LLD Index</a> · <a href="../index.html">Home</a></div>
+  <div class="badge">Observer + Command · Game Design</div>
+  <h1 class="title">Design <span>Snake &amp; Ladder</span></h1>
+  <p class="sub">Turn-based multiplayer board game with snakes, ladders, dice, and win detection — covers game loop design, Command pattern for undo/replay, and Observer for events.</p>
+  <div class="meta"><b>Patterns:</b> Command · Observer · Strategy (Dice) · Factory &nbsp;|&nbsp; <b>Difficulty:</b> Medium</div>
+</header>
+
+<div class="wrap">
+
+  <nav class="page-nav">
+    <a class="nav-btn prev" href="splitwise.html">← Prev: Splitwise</a>
+    <a class="nav-btn home" href="index.html">⌂ LLD Index</a>
+    <span class="nav-btn next" style="visibility:hidden">Next →</span>
+  </nav>
+
+  <div class="toc">
+    <h3>Table of Contents</h3>
+    <ol>
+      <li><a href="#s1">Requirements &amp; Scope</a></li>
+      <li><a href="#s2">Entity Identification</a></li>
+      <li><a href="#s3">Board Design</a></li>
+      <li><a href="#s4">Player &amp; Movement</a></li>
+      <li><a href="#s5">Dice</a></li>
+      <li><a href="#s6">Command Pattern: Turn</a></li>
+      <li><a href="#s7">Observer Pattern: Game Events</a></li>
+      <li><a href="#s8">Game Loop</a></li>
+      <li><a href="#s9">Walking a Flow</a></li>
+      <li><a href="#s10">Extensions</a></li>
+      <li><a href="#s11">Interview Talking Points</a></li>
+    </ol>
+  </div>
+
+  <!-- ─── SECTION 01 ─── -->
+  <section class="step" id="s1">
+    <h2><span class="num">01</span> Requirements &amp; Scope</h2>
+
+    <div class="label gold">Functional Requirements</div>
+    <ul class="bullets">
+      <li><b>2+ players</b> take turns rolling a standard 6-sided die</li>
+      <li><b>100-cell board</b>: players start at position 0 (not on board) and must reach exactly 100</li>
+      <li><b>Snakes:</b> landing on a snake's head moves you backwards to its tail</li>
+      <li><b>Ladders:</b> landing on a ladder's bottom moves you forwards to its top</li>
+      <li><b>Overshoot rule:</b> rolling beyond 100 leaves player in place (no move)</li>
+      <li><b>Win condition:</b> first player to land exactly on 100 wins; game ends immediately</li>
+    </ul>
+
+    <div class="label gold">Variants / Optional Features</div>
+    <ul class="bullets">
+      <li>Multiple dice (sum of two dice per turn)</li>
+      <li>Power-up cells with special effects (freeze, double roll)</li>
+      <li>Safe cells where snake/ladder has no effect</li>
+      <li>Custom board size (not fixed at 100)</li>
+      <li>Undo last turn for debugging or house rules</li>
+    </ul>
+
+    <div class="label gold">Clarifying Questions to Ask the Interviewer</div>
+    <div class="define"><b>Q:</b> Player count range?<em>Bounded? Unlimited? Affects data structures for turn order management.</em></div>
+    <div class="define"><b>Q:</b> Board size fixed at 100 or configurable?<em>If configurable, Board constructor takes size parameter.</em></div>
+    <div class="define"><b>Q:</b> Overshoot rule — bounce back or stay in place?<em>Classic rules say stay; bounce is a variant. Both are easy to implement differently in applyMove().</em></div>
+    <div class="define"><b>Q:</b> Can a snake's head and a ladder's bottom share the same cell?<em>If yes, need precedence rule. Most implementations forbid it.</em></div>
+    <div class="define"><b>Q:</b> Turn order fixed (FIFO) or random?<em>Random turn order requires shuffling the players list at game start.</em></div>
+    <div class="define"><b>Q:</b> Undo last turn — just one level or full undo history?<em>One level is easy with Command pattern; full history needs a deque.</em></div>
+  </section>
+
+  <!-- ─── SECTION 02 ─── -->
+  <section class="step" id="s2">
+    <h2><span class="num">02</span> Entity Identification</h2>
+
+    <table>
+      <thead><tr><th>Entity</th><th>Role</th><th>Key Responsibility</th></tr></thead>
+      <tbody>
+        <tr><td><code>Game</code></td><td>Orchestrator</td><td>Holds board, players, dice, observers, command history; drives game loop</td></tr>
+        <tr><td><code>Board</code></td><td>Static state</td><td>100-cell grid, Map of jumps (snakes + ladders), destination lookup</td></tr>
+        <tr><td><code>Player</code></td><td>Participant</td><td>Name, currentPosition, moveTo(), applyMove()</td></tr>
+        <tr><td><code>Dice</code> (interface)</td><td>Randomness source</td><td>roll() → int; Strategy pattern enables test injection</td></tr>
+        <tr><td><code>StandardDice</code></td><td>Concrete strategy</td><td>Random 1–6</td></tr>
+        <tr><td><code>LoadedDice</code></td><td>Test strategy</td><td>Returns pre-configured sequence deterministically</td></tr>
+        <tr><td><code>MultiDice</code></td><td>Composite strategy</td><td>Aggregates multiple Dice, returns sum</td></tr>
+        <tr><td><code>TurnCommand</code> (interface)</td><td>Command</td><td>execute() → TurnResult; undo() → restores previous state</td></tr>
+        <tr><td><code>PlayerTurnCommand</code></td><td>Concrete command</td><td>Rolls dice, moves player, builds TurnResult</td></tr>
+        <tr><td><code>CommandHistory</code></td><td>Invoker</td><td>Stores executed commands; supports undoLast()</td></tr>
+        <tr><td><code>GameObserver</code> (interface)</td><td>Observer</td><td>Callbacks: onPlayerMoved, onSnakeEncountered, onLadderClimbed, onPlayerWon</td></tr>
+        <tr><td><code>ConsoleLogger</code></td><td>Concrete observer</td><td>Prints events to stdout with emoji</td></tr>
+        <tr><td><code>ScoreTracker</code></td><td>Concrete observer</td><td>Tracks turns per player, snakes hit, ladders climbed</td></tr>
+      </tbody>
+    </table>
+
+    <div class="label gold">Board Layout (Classic)</div>
+    <pre class="ascii">
+  91-92-93-94-95-96-97-98-99-100  ◀── WIN
+  90-89-88-87-86-85-84-83-82- 81
+  71-72-73-74-75-76-77-78-79- 80
+  70-69-68-67-66-65-64-63-62- 61
+  51-52-53-54-55-56-57-58-59- 60
+  50-49-48-47-46-45-44-43-42- 41
+  31-32-33-34-35-36-37-38-39- 40
+  30-29-28-27-26-25-24-23-22- 21
+  11-12-13-14-15-16-17-18-19- 20
+   1- 2- 3- 4- 5- 6- 7- 8- 9- 10  ◀── START (players begin at 0, outside board)
+
+  🐍 Snakes (head → tail, go DOWN):
+     99 → 5   (near-win trap — the cruelest snake)
+     54 → 20
+     35 →  3
+
+  🪜 Ladders (bottom → top, go UP):
+      4 → 14
+      9 → 31
+     20 → 38
+     26 → 60
+     40 → 75
+    </pre>
+
+    <div class="callout"><b>Dual-use Map:</b> Both snakes and ladders are stored in a single <code>Map&lt;Integer, Integer&gt; jumps</code>. A snake adds <code>jumps.put(head, tail)</code> where tail &lt; head. A ladder adds <code>jumps.put(bottom, top)</code> where top &gt; bottom. <code>board.getDestination(pos)</code> handles both with one <code>getOrDefault()</code> call.</div>
+  </section>
+
+  <!-- ─── SECTION 03 ─── -->
+  <section class="step" id="s3">
+    <h2><span class="num">03</span> Board Design</h2>
+
+    <pre><code class="language-java">public class Board {
+    private final int size;
+    // Unified jump map: key=from, value=to (works for both snakes and ladders)
+    private final Map&lt;Integer, Integer&gt; jumps = new HashMap&lt;&gt;();
+
+    public Board(int size) {
+        this.size = size;
+    }
+
+    /** Add a snake: head must be greater than tail (snake goes DOWN). */
+    public void addSnake(int head, int tail) {
+        if (head &lt;= tail) {
+            throw new IllegalArgumentException(
+                "Snake head (" + head + ") must be &gt; tail (" + tail + ")");
+        }
+        if (!isValidPosition(head) || !isValidPosition(tail)) {
+            throw new IllegalArgumentException("Snake positions must be within 1–" + size);
+        }
+        jumps.put(head, tail);
+    }
+
+    /** Add a ladder: bottom must be less than top (ladder goes UP). */
+    public void addLadder(int bottom, int top) {
+        if (top &lt;= bottom) {
+            throw new IllegalArgumentException(
+                "Ladder top (" + top + ") must be &gt; bottom (" + bottom + ")");
+        }
+        if (!isValidPosition(bottom) || !isValidPosition(top)) {
+            throw new IllegalArgumentException("Ladder positions must be within 1–" + size);
+        }
+        if (jumps.containsKey(bottom)) {
+            throw new IllegalArgumentException(
+                "Cell " + bottom + " already has a snake/ladder.");
+        }
+        jumps.put(bottom, top);
+    }
+
+    /**
+     * Given a position a player just landed on, return the final destination.
+     * Returns the same position if no snake/ladder is present.
+     */
+    public int getDestination(int position) {
+        return jumps.getOrDefault(position, position);
+    }
+
+    public boolean isValidPosition(int pos) {
+        return pos &gt;= 1 &amp;&amp; pos &lt;= size;
+    }
+
+    public int getSize() { return size; }
+
+    public boolean hasSnakeAt(int pos) {
+        return jumps.containsKey(pos) &amp;&amp; jumps.get(pos) &lt; pos;
+    }
+
+    public boolean hasLadderAt(int pos) {
+        return jumps.containsKey(pos) &amp;&amp; jumps.get(pos) &gt; pos;
+    }
+
+    /** Factory: classic 100-cell board with standard snakes and ladders. */
+    public static Board createStandardBoard() {
+        Board board = new Board(100);
+        // Classic snakes
+        board.addSnake(99,  5);
+        board.addSnake(54, 20);
+        board.addSnake(35,  3);
+        board.addSnake(70, 55);
+        board.addSnake(82, 44);
+        // Classic ladders
+        board.addLadder( 4, 14);
+        board.addLadder( 9, 31);
+        board.addLadder(20, 38);
+        board.addLadder(26, 60);
+        board.addLadder(40, 75);
+        board.addLadder(85, 95);
+        return board;
+    }
+}</code></pre>
+
+    <div class="callout"><b>O(1) lookup:</b> <code>Map&lt;Integer, Integer&gt;</code> for jumps gives O(1) destination lookup — when a player lands on any cell, one <code>getOrDefault()</code> call tells them where to go. No looping through snake/ladder lists, no type-checking required.</div>
+    <div class="warn"><b>Validate at add time:</b> Checking snake head &gt; tail and ladder top &gt; bottom in <code>addSnake()</code> / <code>addLadder()</code> prevents a snake that points up or a ladder that points down — bugs that would manifest silently at runtime and be extremely hard to debug.</div>
+  </section>
+
+  <!-- ─── SECTION 04 ─── -->
+  <section class="step" id="s4">
+    <h2><span class="num">04</span> Player &amp; Movement</h2>
+
+    <pre><code class="language-java">public class Player {
+    private final String name;
+    private int currentPosition; // 0 = not on board yet
+
+    public Player(String name) {
+        this.name = name;
+        this.currentPosition = 0;
+    }
+
+    public String getName()          { return name; }
+    public int getCurrentPosition()  { return currentPosition; }
+    public boolean isAtStart()       { return currentPosition == 0; }
+
+    /** Raw position update — used by applyMove() and undo(). */
+    public void moveTo(int newPosition) {
+        this.currentPosition = newPosition;
+    }
+
+    /**
+     * Apply a dice roll: compute new position, check overshoot, apply board jump.
+     * Returns the final position after the move.
+     *
+     * @param diceRoll number rolled
+     * @param board    the game board (for snake/ladder lookup)
+     * @return final position after the move
+     */
+    public int applyMove(int diceRoll, Board board) {
+        int rawPosition = currentPosition + diceRoll;
+
+        // Overshoot rule: if beyond winning cell, don't move
+        if (rawPosition &gt; board.getSize()) {
+            return currentPosition; // stay put
+        }
+
+        // Apply board jump (snake or ladder), if any
+        int finalPosition = board.getDestination(rawPosition);
+        moveTo(finalPosition);
+        return finalPosition;
+    }
+}</code></pre>
+
+    <div class="label gold">Overshoot &amp; Snake Examples</div>
+    <pre class="ascii">
+Example 1 — Overshoot (stay in place):
+  Player at 97. Rolls 5.
+  rawPosition = 97 + 5 = 102.
+  102 &gt; 100 → OVERSHOOT → stays at 97. No move recorded.
+
+Example 2 — Exact win:
+  Player at 97. Rolls 3.
+  rawPosition = 97 + 3 = 100.
+  100 == board.size → valid move.
+  board.getDestination(100) = 100 (no jump).
+  moveTo(100) → 🏆 WINS!
+
+Example 3 — Lands on snake head:
+  Player at 95. Rolls 4.
+  rawPosition = 95 + 4 = 99.
+  board.getDestination(99) = 5  ← snake 99→5
+  moveTo(5) → 😱 Moved from 99 back to 5!
+
+Example 4 — Climbs ladder:
+  Player at 22. Rolls 4.
+  rawPosition = 22 + 4 = 26.
+  board.getDestination(26) = 60  ← ladder 26→60
+  moveTo(60) → 🪜 Climbed from 26 to 60!
+    </pre>
+  </section>
+
+  <!-- ─── SECTION 05 ─── -->
+  <section class="step" id="s5">
+    <h2><span class="num">05</span> Dice (Strategy Pattern)</h2>
+
+    <pre><code class="language-java">// ─── Dice interface (Strategy) ───────────────────────────────────────
+public interface Dice {
+    int roll();
+}
+
+// ─── StandardDice ────────────────────────────────────────────────────
+public class StandardDice implements Dice {
+    private final Random random = new Random();
+
+    @Override
+    public int roll() {
+        return random.nextInt(6) + 1; // 1–6 inclusive
+    }
+}
+
+// ─── LoadedDice (for deterministic testing) ──────────────────────────
+public class LoadedDice implements Dice {
+    private final int[] sequence;
+    private int index = 0;
+
+    public LoadedDice(int[] sequence) {
+        this.sequence = sequence;
+    }
+
+    @Override
+    public int roll() {
+        if (index &gt;= sequence.length) {
+            throw new IllegalStateException("LoadedDice sequence exhausted");
+        }
+        return sequence[index++];
+    }
+
+    public void reset() { index = 0; }
+}
+
+// ─── MultiDice (sum of multiple dice per turn) ───────────────────────
+public class MultiDice implements Dice {
+    private final List&lt;Dice&gt; diceList;
+
+    public MultiDice(List&lt;Dice&gt; diceList) {
+        this.diceList = diceList;
+    }
+
+    @Override
+    public int roll() {
+        return diceList.stream().mapToInt(Dice::roll).sum();
+    }
+
+    /** Convenience: create n standard dice. */
+    public static MultiDice ofStandard(int n) {
+        List&lt;Dice&gt; dice = new ArrayList&lt;&gt;();
+        for (int i = 0; i &lt; n; i++) dice.add(new StandardDice());
+        return new MultiDice(dice);
+    }
+}</code></pre>
+
+    <div class="callout"><b>Testability via Strategy:</b> <code>Dice</code> interface makes the game fully deterministic in tests. <code>LoadedDice</code> lets you specify exact roll sequences without randomness.</div>
+
+    <div class="label gold">Example: Test That Wins on Turn 6</div>
+    <pre><code class="language-java">// Player starts at 0. We want them to reach 100 exactly.
+// Rolls: 6, 6, 6, 6, 6, 5+5 (two dice summing 10) but let's use single die.
+// With standard board, ladder at 4→14, 9→31, 40→75:
+// Roll 4 → land 4 → ladder → pos 14
+// Roll 6 → pos 20 → ladder 20→38 → pos 38
+// Roll 2 → pos 40 → ladder 40→75 → pos 75
+// Roll 6 → pos 81
+// Roll 6 → pos 87
+// Roll 6 → pos 93
+// Roll 7 → OVERSHOOT (stay 93)
+// Roll 7 → OVERSHOOT (stay 93)  ... or pick exact sequence:
+// Roll 4 → pos 97, Roll 3 → pos 100 → WIN
+
+Dice loaded = new LoadedDice(new int[]{4, 6, 2, 6, 6, 6, 4, 3});
+// Inject into game: game.setDice(loaded)
+// Assert: Alice wins on turn 8, at position 100.</code></pre>
+  </section>
+
+  <!-- ─── SECTION 06 ─── -->
+  <section class="step" id="s6">
+    <h2><span class="num">06</span> Command Pattern: Turn</h2>
+
+    <div class="define"><b>Why Command here?</b> Each player's turn is a discrete action with a clear execute and a reversible undo. Wrapping it in a Command object enables: (1) undo last move, (2) full game replay, (3) turn logging with rich metadata.<em>Without Command: undo would require storing previous positions manually scattered across the Game class.</em></div>
+
+    <pre><code class="language-java">// ─── TurnResult: rich data about what happened this turn ─────────────
+public class TurnResult {
+    private final Player  player;
+    private final int     fromPosition;
+    private final int     toPosition;
+    private final int     diceRoll;
+    private final boolean snakeEncountered;
+    private final boolean ladderClimbed;
+    private final boolean won;
+
+    public TurnResult(Player player, int from, int to, int roll,
+                      boolean snake, boolean ladder, boolean won) {
+        this.player           = player;
+        this.fromPosition     = from;
+        this.toPosition       = to;
+        this.diceRoll         = roll;
+        this.snakeEncountered = snake;
+        this.ladderClimbed    = ladder;
+        this.won              = won;
+    }
+
+    public Player  getPlayer()          { return player; }
+    public int     getFromPosition()    { return fromPosition; }
+    public int     getToPosition()      { return toPosition; }
+    public int     getDiceRoll()        { return diceRoll; }
+    public boolean isSnakeEncountered() { return snakeEncountered; }
+    public boolean isLadderClimbed()    { return ladderClimbed; }
+    public boolean isWon()              { return won; }
+}
+
+// ─── TurnCommand interface ───────────────────────────────────────────
+public interface TurnCommand {
+    TurnResult execute();
+    void undo();
+}
+
+// ─── PlayerTurnCommand: concrete command ────────────────────────────
+public class PlayerTurnCommand implements TurnCommand {
+    private final Player player;
+    private final Dice   dice;
+    private final Board  board;
+
+    private int prevPosition; // saved for undo
+    private int lastRoll;     // saved for result replay
+
+    public PlayerTurnCommand(Player player, Dice dice, Board board) {
+        this.player = player;
+        this.dice   = dice;
+        this.board  = board;
+    }
+
+    @Override
+    public TurnResult execute() {
+        prevPosition = player.getCurrentPosition();
+        lastRoll     = dice.roll();
+
+        int rawPos   = prevPosition + lastRoll;
+        boolean overshoot = rawPos &gt; board.getSize();
+        int finalPos = overshoot ? prevPosition : board.getDestination(rawPos);
+
+        if (!overshoot) {
+            player.moveTo(finalPos);
+        }
+
+        boolean snakeHit = !overshoot &amp;&amp; board.hasSnakeAt(rawPos);
+        boolean ladderUp = !overshoot &amp;&amp; board.hasLadderAt(rawPos);
+        boolean won      = finalPos == board.getSize();
+
+        return new TurnResult(player, prevPosition, finalPos, lastRoll,
+                              snakeHit, ladderUp, won);
+    }
+
+    @Override
+    public void undo() {
+        // Restore the player to the position before this turn
+        player.moveTo(prevPosition);
+    }
+}
+
+// ─── CommandHistory: invoker with undo support ───────────────────────
+public class CommandHistory {
+    private final Deque&lt;TurnCommand&gt; history = new ArrayDeque&lt;&gt;();
+
+    public TurnResult execute(TurnCommand command) {
+        TurnResult result = command.execute();
+        history.push(command); // push to stack for LIFO undo
+        return result;
+    }
+
+    public boolean undoLast() {
+        if (history.isEmpty()) return false;
+        history.pop().undo();
+        return true;
+    }
+
+    public int size() { return history.size(); }
+    public boolean isEmpty() { return history.isEmpty(); }
+}</code></pre>
+
+    <div class="callout"><b>Replay via Command:</b> Store all executed <code>TurnCommand</code>s in a list. To replay a game: create fresh Board and Players at position 0, then iterate through all stored commands and call <code>execute()</code> again — every game state is reconstructible. Useful for spectators, highlight reels, or post-game analysis.</div>
+  </section>
+
+  <!-- ─── SECTION 07 ─── -->
+  <section class="step" id="s7">
+    <h2><span class="num">07</span> Observer Pattern: Game Events</h2>
+
+    <pre><code class="language-java">// ─── GameObserver interface ──────────────────────────────────────────
+public interface GameObserver {
+    void onPlayerMoved(Player player, int from, int to, int diceRoll);
+    void onSnakeEncountered(Player player, int landedAt, int slidTo);
+    void onLadderClimbed(Player player, int landedAt, int climbedTo);
+    void onPlayerWon(Player player, int totalTurns);
+    void onOvershoot(Player player, int currentPos, int roll);
+}
+
+// ─── ConsoleLogger: pretty-prints events to stdout ───────────────────
+public class ConsoleLogger implements GameObserver {
+
+    @Override
+    public void onPlayerMoved(Player p, int from, int to, int roll) {
+        System.out.printf("🎲  %-10s rolled %d  |  %3d → %3d%n",
+                          p.getName(), roll, from, to);
+    }
+
+    @Override
+    public void onSnakeEncountered(Player p, int landedAt, int slidTo) {
+        System.out.printf("🐍  %s hit a SNAKE at %d → slides down to %d!%n",
+                          p.getName(), landedAt, slidTo);
+    }
+
+    @Override
+    public void onLadderClimbed(Player p, int landedAt, int climbedTo) {
+        System.out.printf("🪜  %s found a LADDER at %d → climbs up to %d!%n",
+                          p.getName(), landedAt, climbedTo);
+    }
+
+    @Override
+    public void onPlayerWon(Player p, int totalTurns) {
+        System.out.printf("🏆  %s WINS in %d turns! Congratulations!%n",
+                          p.getName(), totalTurns);
+    }
+
+    @Override
+    public void onOvershoot(Player p, int currentPos, int roll) {
+        System.out.printf("⛔  %s at %d rolled %d → overshoots! Stays at %d.%n",
+                          p.getName(), currentPos, roll, currentPos);
+    }
+}
+
+// ─── ScoreTracker: gathers statistics per player ─────────────────────
+public class ScoreTracker implements GameObserver {
+    private final Map&lt;String, Integer&gt; turnsCount   = new HashMap&lt;&gt;();
+    private final Map&lt;String, Integer&gt; snakesHit    = new HashMap&lt;&gt;();
+    private final Map&lt;String, Integer&gt; laddersFound = new HashMap&lt;&gt;();
+
+    @Override
+    public void onPlayerMoved(Player p, int from, int to, int roll) {
+        turnsCount.merge(p.getName(), 1, Integer::sum);
+    }
+
+    @Override
+    public void onSnakeEncountered(Player p, int at, int to) {
+        snakesHit.merge(p.getName(), 1, Integer::sum);
+    }
+
+    @Override
+    public void onLadderClimbed(Player p, int at, int to) {
+        laddersFound.merge(p.getName(), 1, Integer::sum);
+    }
+
+    @Override
+    public void onPlayerWon(Player p, int totalTurns) {
+        System.out.println("=== GAME STATS ===");
+        turnsCount.forEach((name, turns) -&gt;
+            System.out.printf("  %-10s : %2d turns, %d snakes, %d ladders%n",
+                name, turns,
+                snakesHit.getOrDefault(name, 0),
+                laddersFound.getOrDefault(name, 0)));
+    }
+
+    @Override
+    public void onOvershoot(Player p, int pos, int roll) {
+        // Not tracked in stats; ignored here
+    }
+
+    public int getTurns(String playerName) {
+        return turnsCount.getOrDefault(playerName, 0);
+    }
+}</code></pre>
+
+    <div class="callout"><b>Zero coupling:</b> The <code>Game</code> class calls <code>notifySnakeEncountered(player, from, to)</code> — it doesn't know whether a ConsoleLogger, an AnimationController, or a NetworkBroadcaster is listening. Adding WebSocket broadcast for a multiplayer UI means implementing <code>GameObserver</code> once, zero changes to <code>Game</code>.</div>
+  </section>
+
+  <!-- ─── SECTION 08 ─── -->
+  <section class="step" id="s8">
+    <h2><span class="num">08</span> Game Loop</h2>
+
+    <pre><code class="language-java">public class Game {
+    private final Board               board;
+    private final List&lt;Player&gt;        players         = new ArrayList&lt;&gt;();
+    private final List&lt;GameObserver&gt;  observers       = new ArrayList&lt;&gt;();
+    private final CommandHistory      commandHistory  = new CommandHistory();
+    private Dice                      dice;
+    private int                       currentPlayerIndex = 0;
+    private boolean                   gameOver        = false;
+
+    public Game(Board board, Dice dice) {
+        this.board = board;
+        this.dice  = dice;
+    }
+
+    // ── Configuration ────────────────────────────────────────────────
+    public void addPlayer(Player player)         { players.add(player); }
+    public void addObserver(GameObserver observer){ observers.add(observer); }
+    public void setDice(Dice dice)               { this.dice = dice; }
+
+    // ── Main game loop ────────────────────────────────────────────────
+    public void start() {
+        if (players.size() &lt; 2) {
+            throw new IllegalStateException("Need at least 2 players to start.");
+        }
+        gameOver = false;
+        currentPlayerIndex = 0;
+        while (!gameOver) {
+            playTurn();
+        }
+    }
+
+    public void playTurn() {
+        if (gameOver) return;
+
+        Player player = players.get(currentPlayerIndex);
+        TurnCommand cmd = new PlayerTurnCommand(player, dice, board);
+        TurnResult result = commandHistory.execute(cmd);
+
+        // ── Notify observers ─────────────────────────────────────────
+        if (result.getFromPosition() == result.getToPosition()
+                &amp;&amp; result.getDiceRoll() + result.getFromPosition() &gt; board.getSize()) {
+            // Overshoot
+            notifyOvershoot(player, result.getFromPosition(), result.getDiceRoll());
+        } else {
+            notifyMoved(player, result.getFromPosition(), result.getToPosition(), result.getDiceRoll());
+            if (result.isSnakeEncountered()) {
+                int landedAt = result.getFromPosition() + result.getDiceRoll();
+                notifySnake(player, landedAt, result.getToPosition());
+            }
+            if (result.isLadderClimbed()) {
+                int landedAt = result.getFromPosition() + result.getDiceRoll();
+                notifyLadder(player, landedAt, result.getToPosition());
+            }
+        }
+
+        if (result.isWon()) {
+            gameOver = true;
+            notifyWon(player, commandHistory.size());
+        } else {
+            // Advance to next player (circular)
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+        }
+    }
+
+    /** Undo the last turn (house rule / debugging). */
+    public boolean undoLastTurn() {
+        if (!commandHistory.undoLast()) return false;
+        // Roll back the turn index
+        currentPlayerIndex = (currentPlayerIndex - 1 + players.size()) % players.size();
+        return true;
+    }
+
+    // ── Observer notification helpers ─────────────────────────────────
+    private void notifyMoved(Player p, int from, int to, int roll) {
+        observers.forEach(o -&gt; o.onPlayerMoved(p, from, to, roll));
+    }
+    private void notifySnake(Player p, int from, int to) {
+        observers.forEach(o -&gt; o.onSnakeEncountered(p, from, to));
+    }
+    private void notifyLadder(Player p, int from, int to) {
+        observers.forEach(o -&gt; o.onLadderClimbed(p, from, to));
+    }
+    private void notifyWon(Player p, int turns) {
+        observers.forEach(o -&gt; o.onPlayerWon(p, turns));
+    }
+    private void notifyOvershoot(Player p, int pos, int roll) {
+        observers.forEach(o -&gt; o.onOvershoot(p, pos, roll));
+    }
+
+    public boolean isGameOver()        { return gameOver; }
+    public Board   getBoard()          { return board; }
+    public Player  getCurrentPlayer()  { return players.get(currentPlayerIndex); }
+}</code></pre>
+
+    <div class="callout"><b>Single Responsibility:</b> <code>Game</code> orchestrates — it doesn't contain game logic (that's in <code>Board</code> and <code>Player</code>), doesn't track stats (that's in <code>ScoreTracker</code>), and doesn't print (that's in <code>ConsoleLogger</code>). It just drives the loop and fires events.</div>
+  </section>
+
+  <!-- ─── SECTION 09 ─── -->
+  <section class="step" id="s9">
+    <h2><span class="num">09</span> Walking a Flow</h2>
+
+    <div class="label gold">Setup</div>
+    <pre class="ascii">
+Board: snake at 54→20, 99→5. Ladder at 26→60, 4→14.
+Players: Alice (pos 0), Bob (pos 0)
+Dice: StandardDice
+Observers: ConsoleLogger, ScoreTracker
+    </pre>
+
+    <div class="label gold">Turn-by-Turn Trace</div>
+    <table>
+      <thead>
+        <tr><th>Turn</th><th>Player</th><th>Roll</th><th>Raw Pos</th><th>Jump?</th><th>Final Pos</th><th>Event</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>Alice</td><td>4</td><td>0+4=4</td><td>🪜 Ladder 4→14</td><td><b>14</b></td><td>onLadderClimbed(Alice, 4, 14)</td></tr>
+        <tr><td>2</td><td>Bob</td><td>6</td><td>0+6=6</td><td>None</td><td><b>6</b></td><td>onPlayerMoved(Bob, 0, 6, 6)</td></tr>
+        <tr><td>3</td><td>Alice</td><td>6</td><td>14+6=20</td><td>None</td><td><b>20</b></td><td>onPlayerMoved(Alice, 14, 20, 6)</td></tr>
+        <tr><td>4</td><td>Bob</td><td>5</td><td>6+5=11</td><td>None</td><td><b>11</b></td><td>onPlayerMoved(Bob, 6, 11, 5)</td></tr>
+        <tr><td>5</td><td>Alice</td><td>6</td><td>20+6=26</td><td>🪜 Ladder 26→60</td><td><b>60</b></td><td>onLadderClimbed(Alice, 26, 60)</td></tr>
+        <tr><td>6</td><td>Bob</td><td>5</td><td>11+5=16</td><td>None</td><td><b>16</b></td><td>onPlayerMoved(Bob, 11, 16, 5)</td></tr>
+        <tr><td>7</td><td>Alice</td><td>6</td><td>60+6=66</td><td>None</td><td><b>66</b></td><td>onPlayerMoved(Alice, 60, 66, 6)</td></tr>
+        <tr><td>8</td><td>Bob</td><td>6</td><td>16+6=22</td><td>None</td><td><b>22</b></td><td>onPlayerMoved(Bob, 16, 22, 6)</td></tr>
+        <tr><td>9</td><td>Alice</td><td>5</td><td>66+5=71</td><td>None</td><td><b>71</b></td><td>onPlayerMoved(Alice, 66, 71, 5)</td></tr>
+        <tr><td>10</td><td>Bob</td><td>6</td><td>22+6=28</td><td>None</td><td><b>28</b></td><td>onPlayerMoved(Bob, 22, 28, 6)</td></tr>
+        <tr><td>11</td><td>Alice</td><td>6</td><td>71+6=77</td><td>None</td><td><b>77</b></td><td>onPlayerMoved(Alice, 71, 77, 6)</td></tr>
+        <tr><td>12</td><td>Bob</td><td>3</td><td>28+3=31</td><td>None</td><td><b>31</b></td><td>onPlayerMoved(Bob, 28, 31, 3)</td></tr>
+        <tr><td>13</td><td>Alice</td><td>6</td><td>77+6=83</td><td>None</td><td><b>83</b></td><td>onPlayerMoved(Alice, 77, 83, 6)</td></tr>
+        <tr><td>14</td><td>Bob</td><td>6</td><td>31+6=37</td><td>None</td><td><b>37</b></td><td>onPlayerMoved(Bob, 31, 37, 6)</td></tr>
+        <tr><td>15</td><td>Alice</td><td>6</td><td>83+6=89</td><td>None</td><td><b>89</b></td><td>onPlayerMoved(Alice, 83, 89, 6)</td></tr>
+        <tr><td>16</td><td>Bob</td><td>6</td><td>37+6=43</td><td>None</td><td><b>43</b></td><td>onPlayerMoved(Bob, 37, 43, 6)</td></tr>
+        <tr><td>17</td><td>Alice</td><td>5</td><td>89+5=94</td><td>None</td><td><b>94</b></td><td>onPlayerMoved(Alice, 89, 94, 5)</td></tr>
+        <tr><td>18</td><td>Bob</td><td>6</td><td>43+6=49</td><td>None</td><td><b>49</b></td><td>onPlayerMoved(Bob, 43, 49, 6)</td></tr>
+        <tr><td>19</td><td>Alice</td><td>6</td><td>94+6=100</td><td>None (100=WIN)</td><td><b>100</b></td><td>onPlayerWon(Alice, 19) 🏆</td></tr>
+      </tbody>
+    </table>
+
+    <pre class="ascii">
+Turn 19 — Command execution detail:
+  PlayerTurnCommand.execute():
+    prevPosition = 94
+    lastRoll     = 6
+    rawPosition  = 94 + 6 = 100
+    100 &gt; 100?   false → no overshoot
+    board.getDestination(100) = 100 (no jump)
+    board.hasSnakeAt(100)     = false
+    board.hasLadderAt(100)    = false
+    finalPos = 100 == board.getSize() → won = TRUE
+    player.moveTo(100)
+    return TurnResult(Alice, 94, 100, 6, false, false, true)
+
+  Game receives result:
+    result.isWon() = true → gameOver = true
+    notifyWon(Alice, commandHistory.size()=19)
+
+Console output:
+  🎲  Alice      rolled 6  |   94 → 100
+  🏆  Alice WINS in 19 turns! Congratulations!
+  === GAME STATS ===
+    Alice      : 10 turns, 0 snakes, 2 ladders
+    Bob        :  9 turns, 0 snakes, 0 ladders
+    </pre>
+  </section>
+
+  <!-- ─── SECTION 10 ─── -->
+  <section class="step" id="s10">
+    <h2><span class="num">10</span> Extensions</h2>
+
+    <div class="label gold">Power-Up Cells</div>
+    <pre><code class="language-java">// Cell effect strategy
+public interface CellEffect {
+    void apply(Player player, Game game);
+    String describe();
+}
+
+public class FreezeEffect implements CellEffect {
+    @Override
+    public void apply(Player player, Game game) {
+        game.skipNextTurnFor(player); // Game tracks skip-set
+    }
+    @Override public String describe() { return "FROZEN — skip next turn"; }
+}
+
+public class DoubleRollEffect implements CellEffect {
+    @Override
+    public void apply(Player player, Game game) {
+        game.grantBonusRoll(player); // Game sets bonus flag
+    }
+    @Override public String describe() { return "BONUS — roll again!"; }
+}
+
+// Board stores effects separately from jumps
+public class Board {
+    private final Map&lt;Integer, CellEffect&gt; effects = new HashMap&lt;&gt;();
+
+    public void addEffect(int position, CellEffect effect) {
+        effects.put(position, effect);
+    }
+
+    public Optional&lt;CellEffect&gt; getEffect(int position) {
+        return Optional.ofNullable(effects.get(position));
+    }
+}
+
+// In Game.playTurn(), after applying jump:
+board.getEffect(result.getToPosition())
+     .ifPresent(effect -&gt; effect.apply(player, this));</code></pre>
+
+    <div class="label gold">Undo with Timeout</div>
+    <div class="define"><b>Timed undo:</b> Store a timestamp in <code>TurnResult</code>. In <code>Game.undoLastTurn()</code>, check if the last turn was within 5 seconds (<code>Duration.between(lastTurn.getTimestamp(), Instant.now()).getSeconds() &lt;= 5</code>). Reject undo if too late.<em>Prevents players from using undo as a cheat after seeing a snake result.</em></div>
+
+    <div class="label gold">Multiplayer Web (State Serialization)</div>
+    <div class="define"><b>GameState POJO:</b> <code>Game.getState()</code> returns a <code>GameState</code> with: List of PlayerState (name, position), currentPlayer, gameOver flag, boardSize. Serialize to JSON via Jackson. WebSocket server broadcasts GameState after each turn to all connected clients.<em>This is also the foundation for game replay: store GameState after each turn.</em></div>
+
+    <div class="label gold">AI Player</div>
+    <pre><code class="language-java">public class AIPlayer extends Player {
+    public AIPlayer(String name) { super(name); }
+
+    /**
+     * Simple AI: just rolls and moves (same as human).
+     * Advanced AI could use simulation to pick best move among multiple dice options.
+     */
+    public TurnResult takeTurn(Dice dice, Board board) {
+        int roll = dice.roll();
+        int finalPos = applyMove(roll, board);
+        boolean won = finalPos == board.getSize();
+        return new TurnResult(this, getCurrentPosition(), finalPos, roll,
+                              board.hasSnakeAt(getCurrentPosition() + roll),
+                              board.hasLadderAt(getCurrentPosition() + roll),
+                              won);
+    }
+}
+
+// Game loop checks type and auto-plays AI turns without waiting for input:
+if (player instanceof AIPlayer) {
+    // Play immediately without waiting for user input
+    playTurn();
+}</code></pre>
+  </section>
+
+  <!-- ─── SECTION 11 ─── -->
+  <section class="step" id="s11">
+    <h2><span class="num">11</span> Interview Talking Points</h2>
+
+    <div class="define"><b>On Board jump lookup:</b> "Map&lt;Integer, Integer&gt; for jumps is O(1) lookup — cleaner than a Cell[] array where you'd have to check a type field, and cheaper than keeping separate snake and ladder lists that you'd have to search. A single getOrDefault() call tells a player where to land."</div>
+
+    <div class="define"><b>On Command Pattern:</b> "Command enables both undo and replay. TurnCommand.undo() restores the player's previous position in one line — no scattered state management in Game. CommandHistory stores all commands, so you can re-execute them on a fresh board to reconstruct any historical game state for spectators or post-game analysis."</div>
+
+    <div class="define"><b>On Observer Pattern:</b> "Observer completely decouples game logic from output concerns. Adding animated UI or network broadcast means implementing GameObserver — zero changes to the Game class. The game doesn't know whether it's running in a console, a GUI, or a distributed multiplayer server."</div>
+
+    <div class="define"><b>On Dice Strategy (testability):</b> "Dice interface makes the game deterministic in tests. LoadedDice with a fixed sequence lets me verify exact win conditions, overshoot behavior, and snake encounters without any randomness. I can write: 'assert player wins after exactly 8 turns' with complete confidence."</div>
+
+    <div class="define"><b>On the overshoot boundary condition:</b> "Overshoot is the most commonly missed edge case. Player at 97 rolls 5 → 102 &gt; 100 → stays at 97. It's a one-liner in applyMove() but easy to forget without an explicit test. I'd write a dedicated unit test: LoadedDice(97) → player starts at 97, rolls 5, assert position still 97."</div>
+
+
+  </section>
+
+  <nav class="page-nav">
+    <a class="nav-btn prev" href="splitwise.html">← Prev: Splitwise</a>
+    <a class="nav-btn home" href="index.html">⌂ LLD Index</a>
+    <span class="nav-btn next" style="visibility:hidden">Next →</span>
+  </nav>
+
+</div>
+
+<footer>Built with <b>BuildLikeASenior</b> · LLD Interview Prep</footer>
+<a href="#" class="top">↑</a>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script>
+const top=document.querySelector('.top');
+window.addEventListener('scroll',()=>top.classList.toggle('show',scrollY>300));
+</script>
+</body>
+</html>

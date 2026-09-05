@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Design a Parking Lot · BuildLikeASenior</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" />
+<style>
+  :root{
+    --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+    --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+    --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+  code,pre{font-family:'JetBrains Mono',monospace}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+  header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+  header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header.hero .crumb a{color:var(--muted)}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+  h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+  h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+  .meta{margin-top:14px;color:var(--muted);font-size:13px;font-family:'JetBrains Mono',monospace}
+  .meta b{color:var(--gold)}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+  .toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+  .toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+  .toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+  .toc li:hover{background:rgba(0,212,170,.08)}
+  .toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .toc a{color:var(--text)}
+  section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+  section.step h2{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+  .label{color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 8px;font-weight:700}
+  .label.gold{color:var(--gold)}
+  .define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+  .define b{color:var(--gold)}
+  .define em{color:var(--muted);font-style:normal;display:block;font-size:13px;margin-top:4px}
+  .callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+  .callout b{color:var(--teal)}
+  .warn{background:rgba(239,68,68,.06);border-left:3px solid #ef4444;padding:14px 18px;border-radius:8px;margin:10px 0}
+  .warn b{color:#ef4444}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  td code,th code{background:rgba(0,212,170,.10);padding:1px 6px;border-radius:4px;color:var(--teal);font-size:12px}
+  pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto}
+  ul.bullets{padding-left:22px}
+  ul.bullets li{margin:6px 0}
+  ol.steps{padding-left:22px}
+  ol.steps li{margin:8px 0}
+  .top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+  .top.show{opacity:1}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+  footer b{color:var(--teal)}
+  .page-nav{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:20px 0;flex-wrap:wrap}
+  .nav-btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--line);color:var(--muted);background:linear-gradient(180deg,var(--card),var(--card2));transition:border-color .2s,color .2s;text-decoration:none;font-family:'JetBrains Mono',monospace}
+  .nav-btn:hover{border-color:var(--teal);color:var(--teal);text-decoration:none}
+  .nav-btn.home{background:rgba(0,212,170,.08);border-color:rgba(0,212,170,.25);color:var(--teal)}
+  .nav-btn.prev:empty,.nav-btn.next:empty{visibility:hidden}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="crumb"><a href="index.html">LLD Index</a> · <a href="../index.html">Home</a></div>
+  <span class="badge">Strategy + Factory + Concurrency</span>
+  <h1 class="title">Design a <span>Parking Lot</span></h1>
+  <p class="sub">Multi-floor parking lot with vehicles of varying sizes, dynamic pricing, and concurrent slot allocation — a classic LLD warm-up problem.</p>
+  <div class="meta"><b>Patterns:</b> Strategy · Factory · Singleton · Template · OCP &nbsp;|&nbsp; <b>Difficulty:</b> Medium &nbsp;|&nbsp; <b>Frequency:</b> ★★★★★</div>
+</header>
+
+<div class="wrap">
+
+  <nav class="page-nav">
+    <span class="nav-btn prev" style="visibility:hidden">← Prev</span>
+    <a class="nav-btn home" href="index.html">⌂ LLD Index</a>
+    <a class="nav-btn next" href="vending-machine.html">Next: Vending Machine →</a>
+  </nav>
+
+  <div class="toc">
+    <h3>Table of Contents</h3>
+    <ol>
+      <li><a href="#s01">Requirements &amp; Scope</a></li>
+      <li><a href="#s02">Entity Identification</a></li>
+      <li><a href="#s03">Core Classes &amp; Code</a></li>
+      <li><a href="#s04">Strategy Pattern: Slot Allocation</a></li>
+      <li><a href="#s05">Strategy Pattern: Pricing</a></li>
+      <li><a href="#s06">Factory Pattern: Vehicle Creation</a></li>
+      <li><a href="#s07">Singleton: ParkingLot</a></li>
+      <li><a href="#s08">Concurrency Deep Dive</a></li>
+      <li><a href="#s09">Walking a Flow</a></li>
+      <li><a href="#s10">Extensions &amp; Edge Cases</a></li>
+      <li><a href="#s11">Interview Talking Points</a></li>
+    </ol>
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 01 ═══════════════════════════════ -->
+  <section class="step" id="s01">
+    <h2><span class="num">01</span> Requirements &amp; Scope</h2>
+
+    <div class="label gold">Functional Requirements</div>
+    <ul class="bullets">
+      <li><b>Park vehicle</b> — accept a vehicle at an entry gate, allocate the best available slot, issue a timestamped ticket.</li>
+      <li><b>Unpark vehicle</b> — accept a ticket at an exit gate, compute the fee, vacate the slot, return change.</li>
+      <li><b>Multi-floor support</b> — the lot has <em>N</em> floors; each floor has <em>M</em> slots of varying types (COMPACT, REGULAR, LARGE).</li>
+      <li><b>Ticket generation</b> — every entry produces a unique ticket with vehicleId, slotId, floorNumber, and entryTime.</li>
+      <li><b>Fee calculation</b> — on exit, fee = f(duration, vehicleType, pricingStrategy); strategy is configurable at runtime.</li>
+      <li><b>Display available slots</b> — query per floor and per slot type; used by overhead signage and mobile apps.</li>
+    </ul>
+
+    <div class="label gold">Non-Functional Requirements</div>
+    <ul class="bullets">
+      <li><b>Thread-safe slot allocation</b> — hundreds of vehicles may arrive concurrently; no two threads may book the same slot.</li>
+      <li><b>Extensible vehicle types</b> — adding a new vehicle type (e.g., Bus) must not touch existing allocation code.</li>
+      <li><b>Extensible pricing</b> — swap from hourly to flat-rate or add surge pricing by injecting a different strategy.</li>
+      <li><b>Single ParkingLot instance</b> — Singleton: there is only one lot; all gates share the same state.</li>
+      <li><b>Low latency on park/unpark</b> — each operation should complete in O(F×S) where F=floors and S=slots per floor.</li>
+    </ul>
+
+    <div class="label gold">Clarifying Questions — ask these in the interview</div>
+    <table>
+      <thead><tr><th>Question</th><th>Why it matters</th><th>Reasonable default</th></tr></thead>
+      <tbody>
+        <tr><td>Can a Bike park in a Car (REGULAR) slot?</td><td>Determines if slot matching is strict or flexible.</td><td>Yes — bikes can use larger slots when compact slots are full.</td></tr>
+        <tr><td>Are all floors identical in layout?</td><td>Affects whether per-floor slot configuration is needed.</td><td>Assume uniform for now; make configurable via constructor.</td></tr>
+        <tr><td>Is pricing flat-rate or hourly?</td><td>Drives PricingStrategy design.</td><td>Hourly; pluggable via strategy.</td></tr>
+        <tr><td>What happens when the lot is full?</td><td>Determines whether park() throws or returns empty.</td><td>Return <code>Optional.empty()</code>; gate displays "LOT FULL".</td></tr>
+        <tr><td>Do we need reservation / pre-booking?</td><td>Adds a new slot state (RESERVED) and a Reservation entity.</td><td>Out of scope for now; mention as extension.</td></tr>
+        <tr><td>Multi-currency support?</td><td>Affects PricingStrategy return type and display formatting.</td><td>Single currency; note multi-currency as extension.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <b>Interview tip:</b> Always spend 3–4 minutes here. Interviewers explicitly reward clarifying questions — it signals that you think about the problem domain before jumping to code. Mentioning thread-safety upfront distinguishes senior candidates.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 02 ═══════════════════════════════ -->
+  <section class="step" id="s02">
+    <h2><span class="num">02</span> Entity Identification</h2>
+
+    <div class="label gold">Nouns → Classes</div>
+    <table>
+      <thead><tr><th>Entity</th><th>Role</th><th>Key Fields</th></tr></thead>
+      <tbody>
+        <tr><td><code>ParkingLot</code></td><td>Singleton context; orchestrates everything</td><td>floors, slotAllocationStrategy, pricingStrategy, activeTickets</td></tr>
+        <tr><td><code>Floor</code></td><td>Grouping of slots on one level</td><td>floorNumber, List&lt;ParkingSlot&gt;</td></tr>
+        <tr><td><code>ParkingSlot</code></td><td>Single physical parking space</td><td>slotId, floorNumber, SlotType, isOccupied, parkedVehicle</td></tr>
+        <tr><td><code>Vehicle</code></td><td>Abstract base for all vehicle types</td><td>vehicleId, licensePlate, VehicleType</td></tr>
+        <tr><td><code>Car / Bike / Truck</code></td><td>Concrete vehicle subtypes</td><td>inherit Vehicle fields</td></tr>
+        <tr><td><code>VehicleType</code></td><td>Enum discriminator</td><td>CAR, BIKE, TRUCK</td></tr>
+        <tr><td><code>SlotType</code></td><td>Enum for slot size</td><td>COMPACT, REGULAR, LARGE</td></tr>
+        <tr><td><code>Ticket</code></td><td>Immutable entry record, mutable on exit</td><td>ticketId, vehicle, slot, entryTime, exitTime, totalFee</td></tr>
+        <tr><td><code>Gate</code></td><td>Entry/Exit facade; thin wrapper around ParkingLot</td><td>gateId, gateType (ENTRY/EXIT)</td></tr>
+        <tr><td><code>SlotAllocationStrategy</code></td><td>Interface — where should this vehicle park?</td><td>findSlot(floors, vehicle)</td></tr>
+        <tr><td><code>PricingStrategy</code></td><td>Interface — what does this stay cost?</td><td>calculateFee(ticket)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="label gold">Class Relationship Diagram</div>
+<pre class="ascii">
+ParkingLot (Singleton)
+  ├── has many ──▶ Floor
+  │                 └── has many ──▶ ParkingSlot
+  │                                    ├── slotType: SlotType (COMPACT | REGULAR | LARGE)
+  │                                    └── parked by ──▶ Vehicle  (abstract)
+  │                                                        ├── Car        (VehicleType.CAR)
+  │                                                        ├── Bike       (VehicleType.BIKE)
+  │                                                        └── Truck      (VehicleType.TRUCK)
+  │
+  ├── uses ──▶ SlotAllocationStrategy  «interface»
+  │                ▲                ▲
+  │    NearestSlotStrategy   TypeBasedStrategy
+  │
+  ├── uses ──▶ PricingStrategy  «interface»
+  │                ▲                  ▲
+  │   HourlyPricingStrategy   FlatRatePricingStrategy
+  │
+  ├── issues ──▶ Ticket
+  │                └── references ParkingSlot + Vehicle
+  │
+  └── composed via ──▶ VehicleFactory  (static utility)
+</pre>
+
+    <div class="define">
+      <b>Open/Closed Principle</b> — the ParkingLot class is closed for modification but open for extension. New vehicle types, slot allocation algorithms, and pricing schemes are added as new classes, not as edits to existing ones.
+      <em>This is the central design goal the interviewer is testing.</em>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 03 ═══════════════════════════════ -->
+  <section class="step" id="s03">
+    <h2><span class="num">03</span> Core Classes &amp; Code</h2>
+
+    <div class="label gold">Enums</div>
+<pre><code class="language-java">public enum VehicleType {
+    BIKE, CAR, TRUCK
+}
+
+public enum SlotType {
+    COMPACT,   // for bikes
+    REGULAR,   // for cars
+    LARGE      // for trucks
+}
+</code></pre>
+
+    <div class="label gold">Abstract Vehicle + Concrete Subtypes</div>
+<pre><code class="language-java">public abstract class Vehicle {
+    private final String vehicleId;
+    private final String licensePlate;
+    private final VehicleType vehicleType;
+
+    protected Vehicle(String vehicleId, String licensePlate, VehicleType vehicleType) {
+        this.vehicleId    = vehicleId;
+        this.licensePlate = licensePlate;
+        this.vehicleType  = vehicleType;
+    }
+
+    public String getVehicleId()       { return vehicleId; }
+    public String getLicensePlate()    { return licensePlate; }
+    public VehicleType getVehicleType(){ return vehicleType; }
+
+    @Override
+    public String toString() {
+        return vehicleType + "[" + licensePlate + "]";
+    }
+}
+
+public class Car extends Vehicle {
+    public Car(String vehicleId, String licensePlate) {
+        super(vehicleId, licensePlate, VehicleType.CAR);
+    }
+}
+
+public class Bike extends Vehicle {
+    public Bike(String vehicleId, String licensePlate) {
+        super(vehicleId, licensePlate, VehicleType.BIKE);
+    }
+}
+
+public class Truck extends Vehicle {
+    public Truck(String vehicleId, String licensePlate) {
+        super(vehicleId, licensePlate, VehicleType.TRUCK);
+    }
+}
+</code></pre>
+
+    <div class="label gold">ParkingSlot — with AtomicBoolean for thread safety</div>
+<pre><code class="language-java">import java.util.concurrent.atomic.AtomicBoolean;
+
+public class ParkingSlot {
+    private final String  slotId;
+    private final int     floorNumber;
+    private final SlotType slotType;
+    private final AtomicBoolean isOccupied = new AtomicBoolean(false);
+    private volatile Vehicle parkedVehicle;
+
+    public ParkingSlot(String slotId, int floorNumber, SlotType slotType) {
+        this.slotId       = slotId;
+        this.floorNumber  = floorNumber;
+        this.slotType     = slotType;
+    }
+
+    /**
+     * Atomically marks the slot as occupied by the given vehicle.
+     * Uses CAS (Compare-And-Swap) so only one thread can succeed.
+     *
+     * @return true if occupation succeeded, false if slot was already taken
+     */
+    public boolean occupy(Vehicle vehicle) {
+        if (isOccupied.compareAndSet(false, true)) {
+            this.parkedVehicle = vehicle;
+            return true;
+        }
+        return false;   // another thread beat us to it
+    }
+
+    /**
+     * Frees the slot. Called by unpark flow only after fee is collected.
+     */
+    public void vacate() {
+        this.parkedVehicle = null;
+        isOccupied.set(false);
+    }
+
+    public boolean isAvailable()      { return !isOccupied.get(); }
+    public String  getSlotId()        { return slotId; }
+    public int     getFloorNumber()   { return floorNumber; }
+    public SlotType getSlotType()     { return slotType; }
+    public Vehicle getParkedVehicle() { return parkedVehicle; }
+
+    @Override
+    public String toString() {
+        return "Slot[" + floorNumber + "-" + slotId + " " + slotType + "]";
+    }
+}
+</code></pre>
+
+    <div class="label gold">Floor</div>
+<pre><code class="language-java">import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class Floor {
+    private final int floorNumber;
+    private final List&lt;ParkingSlot&gt; slots;
+
+    public Floor(int floorNumber, List&lt;ParkingSlot&gt; slots) {
+        this.floorNumber = floorNumber;
+        this.slots       = new ArrayList&lt;&gt;(slots);
+    }
+
+    public int getFloorNumber() { return floorNumber; }
+
+    public List&lt;ParkingSlot&gt; getSlots() {
+        return slots;
+    }
+
+    public List&lt;ParkingSlot&gt; getAvailableSlots(SlotType type) {
+        return slots.stream()
+                .filter(s -&gt; s.getSlotType() == type &amp;&amp; s.isAvailable())
+                .collect(Collectors.toList());
+    }
+
+    public long countAvailableSlots(SlotType type) {
+        return slots.stream()
+                .filter(s -&gt; s.getSlotType() == type &amp;&amp; s.isAvailable())
+                .count();
+    }
+
+    public long countTotalAvailable() {
+        return slots.stream().filter(ParkingSlot::isAvailable).count();
+    }
+}
+</code></pre>
+
+    <div class="label gold">Ticket</div>
+<pre><code class="language-java">import java.time.LocalDateTime;
+
+public class Ticket {
+    private final String        ticketId;
+    private final Vehicle       vehicle;
+    private final ParkingSlot   slot;
+    private final LocalDateTime entryTime;
+    private LocalDateTime       exitTime;
+    private double              totalFee;
+    private boolean             closed;
+
+    public Ticket(String ticketId, Vehicle vehicle, ParkingSlot slot, LocalDateTime entryTime) {
+        this.ticketId  = ticketId;
+        this.vehicle   = vehicle;
+        this.slot      = slot;
+        this.entryTime = entryTime;
+        this.closed    = false;
+    }
+
+    public void closeTicket(LocalDateTime exitTime, double totalFee) {
+        if (closed) throw new IllegalStateException("Ticket " + ticketId + " is already closed.");
+        this.exitTime = exitTime;
+        this.totalFee = totalFee;
+        this.closed   = true;
+    }
+
+    public String        getTicketId()   { return ticketId; }
+    public Vehicle       getVehicle()    { return vehicle; }
+    public ParkingSlot   getSlot()       { return slot; }
+    public LocalDateTime getEntryTime()  { return entryTime; }
+    public LocalDateTime getExitTime()   { return exitTime; }
+    public double        getTotalFee()   { return totalFee; }
+    public boolean       isClosed()      { return closed; }
+
+    @Override
+    public String toString() {
+        return String.format("Ticket[%s | %s | %s | entry=%s]",
+                ticketId, vehicle, slot, entryTime);
+    }
+}
+</code></pre>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 04 ═══════════════════════════════ -->
+  <section class="step" id="s04">
+    <h2><span class="num">04</span> Strategy Pattern: Slot Allocation</h2>
+
+    <div class="callout">
+      <b>Why Strategy?</b> If we put slot-selection logic inside ParkingLot, it becomes one giant if-else: <em>"Is it a bike? Go to floor 1. Is it a truck? Find a large slot. Is it peak hour? Use a different floor…"</em> Every new allocation rule means opening ParkingLot.java — a file that has nothing to do with the rule. Strategy extracts the algorithm into its own class family.
+    </div>
+
+    <div class="label gold">Strategy Interface</div>
+<pre><code class="language-java">import java.util.List;
+import java.util.Optional;
+
+public interface SlotAllocationStrategy {
+    /**
+     * Given all floors and the incoming vehicle, return the best available slot.
+     * Returns Optional.empty() if no slot is found (lot is full for this type).
+     */
+    Optional&lt;ParkingSlot&gt; findSlot(List&lt;Floor&gt; floors, Vehicle vehicle);
+}
+</code></pre>
+
+    <div class="label gold">NearestSlotStrategy — scan floors top-down, first available match</div>
+<pre><code class="language-java">import java.util.List;
+import java.util.Optional;
+
+public class NearestSlotStrategy implements SlotAllocationStrategy {
+
+    @Override
+    public Optional&lt;ParkingSlot&gt; findSlot(List&lt;Floor&gt; floors, Vehicle vehicle) {
+        SlotType required = mapVehicleToSlotType(vehicle.getVehicleType());
+
+        for (Floor floor : floors) {
+            // First: try the exact slot type match
+            Optional&lt;ParkingSlot&gt; exact = floor.getSlots().stream()
+                    .filter(s -&gt; s.getSlotType() == required &amp;&amp; s.isAvailable())
+                    .findFirst();
+            if (exact.isPresent()) return exact;
+
+            // Fallback: allow smaller vehicles to use a larger slot
+            if (vehicle.getVehicleType() == VehicleType.BIKE) {
+                Optional&lt;ParkingSlot&gt; larger = floor.getSlots().stream()
+                        .filter(s -&gt; s.getSlotType() == SlotType.REGULAR &amp;&amp; s.isAvailable())
+                        .findFirst();
+                if (larger.isPresent()) return larger;
+            }
+            if (vehicle.getVehicleType() == VehicleType.CAR) {
+                Optional&lt;ParkingSlot&gt; larger = floor.getSlots().stream()
+                        .filter(s -&gt; s.getSlotType() == SlotType.LARGE &amp;&amp; s.isAvailable())
+                        .findFirst();
+                if (larger.isPresent()) return larger;
+            }
+        }
+        return Optional.empty();
+    }
+
+    private SlotType mapVehicleToSlotType(VehicleType type) {
+        return switch (type) {
+            case BIKE  -&gt; SlotType.COMPACT;
+            case CAR   -&gt; SlotType.REGULAR;
+            case TRUCK -&gt; SlotType.LARGE;
+        };
+    }
+}
+</code></pre>
+
+    <div class="label gold">TypeBasedStrategy — strict type enforcement, no cross-type parking</div>
+<pre><code class="language-java">import java.util.List;
+import java.util.Optional;
+
+public class TypeBasedStrategy implements SlotAllocationStrategy {
+
+    @Override
+    public Optional&lt;ParkingSlot&gt; findSlot(List&lt;Floor&gt; floors, Vehicle vehicle) {
+        SlotType required = switch (vehicle.getVehicleType()) {
+            case BIKE  -&gt; SlotType.COMPACT;
+            case CAR   -&gt; SlotType.REGULAR;
+            case TRUCK -&gt; SlotType.LARGE;
+        };
+
+        return floors.stream()
+                .flatMap(floor -&gt; floor.getSlots().stream())
+                .filter(slot -&gt; slot.getSlotType() == required &amp;&amp; slot.isAvailable())
+                .findFirst();
+    }
+}
+</code></pre>
+
+    <div class="define">
+      <b>Open/Closed in action:</b> To add an "EV priority" strategy that assigns the nearest charging-capable slot, you create <code>EVPriorityStrategy implements SlotAllocationStrategy</code> and inject it. ParkingLot.java is never touched.
+      <em>This is precisely the answer that scores full marks in an LLD interview.</em>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 05 ═══════════════════════════════ -->
+  <section class="step" id="s05">
+    <h2><span class="num">05</span> Strategy Pattern: Pricing</h2>
+
+    <div class="label gold">PricingStrategy Interface</div>
+<pre><code class="language-java">public interface PricingStrategy {
+    /**
+     * Calculates the fee for a completed (or completing) parking session.
+     * The ticket's exitTime must be set before this is called.
+     *
+     * @param ticket  the ticket with entry/exit time and vehicle info
+     * @return        fee in dollars
+     */
+    double calculateFee(Ticket ticket);
+}
+</code></pre>
+
+    <div class="label gold">HourlyPricingStrategy — rate varies by vehicle type</div>
+<pre><code class="language-java">import java.time.temporal.ChronoUnit;
+import java.util.EnumMap;
+import java.util.Map;
+
+public class HourlyPricingStrategy implements PricingStrategy {
+
+    // Rates in dollars per hour
+    private static final Map&lt;VehicleType, Double&gt; HOURLY_RATES = new EnumMap&lt;&gt;(VehicleType.class);
+
+    static {
+        HOURLY_RATES.put(VehicleType.BIKE,  1.00);
+        HOURLY_RATES.put(VehicleType.CAR,   2.00);
+        HOURLY_RATES.put(VehicleType.TRUCK, 4.00);
+    }
+
+    @Override
+    public double calculateFee(Ticket ticket) {
+        if (ticket.getExitTime() == null) {
+            throw new IllegalArgumentException("Exit time not set on ticket " + ticket.getTicketId());
+        }
+
+        long hours = ChronoUnit.HOURS.between(ticket.getEntryTime(), ticket.getExitTime());
+        // Minimum 1-hour charge
+        hours = Math.max(1, hours);
+
+        double rate = HOURLY_RATES.getOrDefault(
+                ticket.getVehicle().getVehicleType(), 2.00);
+
+        return hours * rate;
+    }
+}
+</code></pre>
+
+    <div class="label gold">FlatRatePricingStrategy — one fixed fee per vehicle type per visit</div>
+<pre><code class="language-java">import java.util.EnumMap;
+import java.util.Map;
+
+public class FlatRatePricingStrategy implements PricingStrategy {
+
+    private static final Map&lt;VehicleType, Double&gt; FLAT_RATES = new EnumMap&lt;&gt;(VehicleType.class);
+
+    static {
+        FLAT_RATES.put(VehicleType.BIKE,  5.00);
+        FLAT_RATES.put(VehicleType.CAR,  10.00);
+        FLAT_RATES.put(VehicleType.TRUCK, 20.00);
+    }
+
+    @Override
+    public double calculateFee(Ticket ticket) {
+        return FLAT_RATES.getOrDefault(ticket.getVehicle().getVehicleType(), 10.00);
+    }
+}
+</code></pre>
+
+    <div class="callout">
+      <b>Runtime swappability:</b> Because both strategies share the <code>PricingStrategy</code> interface, the ParkingLot can switch from hourly to flat-rate dynamically — e.g., flat-rate on weekends — with a single setter call: <code>lot.setPricingStrategy(new FlatRatePricingStrategy())</code>.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 06 ═══════════════════════════════ -->
+  <section class="step" id="s06">
+    <h2><span class="num">06</span> Factory Pattern: Vehicle Creation</h2>
+
+    <div class="callout">
+      <b>Why Factory?</b> Without it, every entry-gate call site does: <code>if (type == CAR) new Car(...) else if (type == BIKE) new Bike(...)</code>. The day you add <code>ElectricBus</code>, you hunt down every such block. Factory centralizes object construction in one place — all callers are insulated from subtype details.
+    </div>
+
+    <div class="label gold">VehicleFactory</div>
+<pre><code class="language-java">import java.util.UUID;
+
+public class VehicleFactory {
+
+    private VehicleFactory() {} // prevent instantiation
+
+    /**
+     * Creates the correct Vehicle subtype based on VehicleType.
+     * Auto-generates a UUID vehicle ID.
+     *
+     * @param type         VehicleType discriminator
+     * @param licensePlate the vehicle's plate (must be unique in practice)
+     * @return             a fully constructed Vehicle
+     * @throws IllegalArgumentException for unknown vehicle types
+     */
+    public static Vehicle createVehicle(VehicleType type, String licensePlate) {
+        String vehicleId = UUID.randomUUID().toString();
+        return switch (type) {
+            case CAR   -&gt; new Car(vehicleId, licensePlate);
+            case BIKE  -&gt; new Bike(vehicleId, licensePlate);
+            case TRUCK -&gt; new Truck(vehicleId, licensePlate);
+            // Adding ElectricBus? Add one case here — nowhere else.
+        };
+    }
+}
+</code></pre>
+
+    <div class="define">
+      <b>Factory Method vs Abstract Factory:</b> This is a <em>static factory method</em> — a single factory that creates one product family. If we had different factories for Sedan, SUV, and MotorCycle (sub-families), that would be Abstract Factory.
+      <em>Knowing this distinction lands extra points in LLD interviews.</em>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 07 ═══════════════════════════════ -->
+  <section class="step" id="s07">
+    <h2><span class="num">07</span> Singleton: ParkingLot</h2>
+
+    <div class="label gold">Thread-Safe Double-Checked Locking Singleton</div>
+<pre><code class="language-java">import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class ParkingLot {
+
+    // ── Singleton boilerplate ──────────────────────────────────────────────────
+    private static volatile ParkingLot instance;
+
+    private ParkingLot() {}
+
+    public static ParkingLot getInstance() {
+        if (instance == null) {
+            synchronized (ParkingLot.class) {
+                if (instance == null) {
+                    instance = new ParkingLot();
+                }
+            }
+        }
+        return instance;
+    }
+
+    // ── State ──────────────────────────────────────────────────────────────────
+    private List&lt;Floor&gt;              floors;
+    private SlotAllocationStrategy   slotAllocationStrategy;
+    private PricingStrategy          pricingStrategy;
+
+    // ConcurrentHashMap: multiple threads can read active tickets simultaneously
+    private final Map&lt;String, Ticket&gt; activeTickets = new ConcurrentHashMap&lt;&gt;();
+    private final AtomicLong          ticketCounter  = new AtomicLong(1);
+
+    // Lock that guards the find-then-occupy critical section
+    private final ReentrantLock allocationLock = new ReentrantLock();
+
+    // ── Initialization (call once after getInstance()) ─────────────────────────
+    public void initialize(List&lt;Floor&gt; floors,
+                           SlotAllocationStrategy allocationStrategy,
+                           PricingStrategy pricingStrategy) {
+        this.floors                  = floors;
+        this.slotAllocationStrategy  = allocationStrategy;
+        this.pricingStrategy         = pricingStrategy;
+    }
+
+    // ── Core: park ─────────────────────────────────────────────────────────────
+    /**
+     * Parks a vehicle: finds a slot, occupies it atomically, issues a ticket.
+     *
+     * @return the issued Ticket, or Optional.empty() if the lot is full
+     */
+    public Optional&lt;Ticket&gt; park(Vehicle vehicle) {
+        allocationLock.lock();
+        try {
+            Optional&lt;ParkingSlot&gt; slotOpt = slotAllocationStrategy.findSlot(floors, vehicle);
+            if (slotOpt.isEmpty()) {
+                return Optional.empty();   // lot full for this vehicle type
+            }
+
+            ParkingSlot slot = slotOpt.get();
+            boolean occupied = slot.occupy(vehicle);
+            if (!occupied) {
+                // Slot was grabbed by another thread between findSlot and occupy
+                // Retry once with full search (simplified — production would loop)
+                return park(vehicle);
+            }
+
+            String ticketId = "T-" + String.format("%05d", ticketCounter.getAndIncrement());
+            Ticket ticket   = new Ticket(ticketId, vehicle, slot, LocalDateTime.now());
+            activeTickets.put(ticketId, ticket);
+
+            System.out.printf("[PARK]   %s → %s  ticket=%s%n", vehicle, slot, ticketId);
+            return Optional.of(ticket);
+
+        } finally {
+            allocationLock.unlock();
+        }
+    }
+
+    // ── Core: unpark ───────────────────────────────────────────────────────────
+    /**
+     * Unparks a vehicle: computes fee, vacates slot, closes ticket.
+     *
+     * @return the closed Ticket with fee populated
+     */
+    public Ticket unpark(String ticketId) {
+        Ticket ticket = activeTickets.get(ticketId);
+        if (ticket == null) {
+            throw new IllegalArgumentException("No active ticket found: " + ticketId);
+        }
+        if (ticket.isClosed()) {
+            throw new IllegalStateException("Ticket already closed: " + ticketId);
+        }
+
+        LocalDateTime exitTime = LocalDateTime.now();
+        ticket.closeTicket(exitTime, 0.0);            // set exit time first
+        double fee = pricingStrategy.calculateFee(ticket);
+        ticket.closeTicket(exitTime, fee);             // re-close with actual fee
+
+        ticket.getSlot().vacate();
+        activeTickets.remove(ticketId);
+
+        System.out.printf("[UNPARK] %s ← %s  fee=$%.2f  duration=%s→%s%n",
+                ticket.getVehicle(), ticket.getSlot(), fee,
+                ticket.getEntryTime(), exitTime);
+        return ticket;
+    }
+
+    // ── Queries ────────────────────────────────────────────────────────────────
+    public long getAvailableCount(SlotType type) {
+        return floors.stream()
+                .mapToLong(f -&gt; f.countAvailableSlots(type))
+                .sum();
+    }
+
+    public void displayAvailability() {
+        System.out.println("=== Parking Lot Availability ===");
+        for (Floor floor : floors) {
+            System.out.printf("  Floor %d: COMPACT=%d  REGULAR=%d  LARGE=%d%n",
+                    floor.getFloorNumber(),
+                    floor.countAvailableSlots(SlotType.COMPACT),
+                    floor.countAvailableSlots(SlotType.REGULAR),
+                    floor.countAvailableSlots(SlotType.LARGE));
+        }
+    }
+
+    // ── Setters for runtime strategy swap ─────────────────────────────────────
+    public void setSlotAllocationStrategy(SlotAllocationStrategy s) {
+        this.slotAllocationStrategy = s;
+    }
+    public void setPricingStrategy(PricingStrategy p) {
+        this.pricingStrategy = p;
+    }
+}
+</code></pre>
+
+    <div class="warn">
+      <b>volatile is mandatory on the instance field.</b> Without it, the CPU may reorder instructions and a second thread could observe a partially-constructed ParkingLot object. <code>volatile</code> establishes a happens-before relationship — the full construction is visible before the reference is published.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 08 ═══════════════════════════════ -->
+  <section class="step" id="s08">
+    <h2><span class="num">08</span> Concurrency Deep Dive</h2>
+
+    <div class="label gold">The Double-Booking Problem</div>
+<pre class="ascii">
+Thread 1 (Car A)                          Thread 2 (Car B)
+────────────────                          ────────────────
+findSlot()  → slot 1-A is FREE            findSlot()  → slot 1-A is FREE
+                                          occupy(1-A) → isOccupied = true  ✓
+occupy(1-A) → reads isOccupied = true     ← BOTH see FREE before either sets true!
+              sets isOccupied = true       ← Both "win" with non-atomic check+set
+              parkedVehicle = Car A        ← Car B is already there → CRASH
+
+                  ↑ THIS IS THE BUG WITHOUT ATOMIC OPS
+</pre>
+
+    <div class="label gold">Fix 1: AtomicBoolean.compareAndSet — CAS operation</div>
+<pre><code class="language-java">// Inside ParkingSlot
+public boolean occupy(Vehicle vehicle) {
+    // compareAndSet(expected=false, update=true)
+    // Only ONE thread can succeed — the one that finds isOccupied==false
+    // and atomically flips it to true. All others get false back.
+    if (isOccupied.compareAndSet(false, true)) {
+        this.parkedVehicle = vehicle;
+        return true;   // this thread wins
+    }
+    return false;      // slot was taken — caller must retry
+}
+</code></pre>
+
+    <div class="warn">
+      <b>AtomicBoolean alone is NOT enough.</b> There is still a TOCTOU (Time-of-Check-to-Time-of-Use) gap between <code>findSlot()</code> reading <code>isAvailable()</code> and the later <code>occupy()</code> call. Between those two calls, another thread may sneak in. The solution: wrap the entire <em>find + occupy</em> in a single <code>ReentrantLock</code>.
+    </div>
+
+    <div class="label gold">Fix 2: ReentrantLock wrapping find + occupy (used in ParkingLot.park)</div>
+<pre><code class="language-java">private final ReentrantLock allocationLock = new ReentrantLock();
+
+public Optional&lt;Ticket&gt; park(Vehicle vehicle) {
+    allocationLock.lock();       // ← CRITICAL SECTION STARTS
+    try {
+        // findSlot + occupy are now atomic as a unit
+        Optional&lt;ParkingSlot&gt; slotOpt = slotAllocationStrategy.findSlot(floors, vehicle);
+        if (slotOpt.isEmpty()) return Optional.empty();
+
+        ParkingSlot slot = slotOpt.get();
+        slot.occupy(vehicle);    // cannot fail now — we hold the lock
+
+        String id     = "T-" + ticketCounter.getAndIncrement();
+        Ticket ticket = new Ticket(id, vehicle, slot, LocalDateTime.now());
+        activeTickets.put(id, ticket);
+        return Optional.of(ticket);
+
+    } finally {
+        allocationLock.unlock(); // ← CRITICAL SECTION ENDS — always released
+    }
+}
+</code></pre>
+
+    <div class="label gold">Why ConcurrentHashMap for activeTickets?</div>
+    <ul class="bullets">
+      <li><b>Multiple exit gates</b> may call <code>unpark()</code> simultaneously on <em>different</em> tickets — ConcurrentHashMap allows these concurrent reads without full locking.</li>
+      <li><b>Segment-level locking</b> inside ConcurrentHashMap means only same-bucket operations block each other.</li>
+      <li>We still use the <code>allocationLock</code> for the park path to protect the find+occupy unit.</li>
+    </ul>
+
+    <div class="callout">
+      <b>Interview answer:</b> "I use <code>AtomicBoolean.compareAndSet()</code> on the slot as a lock-free CAS operation, and I additionally wrap <code>findSlot + occupy</code> in a <code>ReentrantLock</code> to eliminate the TOCTOU window. The CAS is the last-line defense; the lock prevents even reaching a contested slot in the first place."
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 09 ═══════════════════════════════ -->
+  <section class="step" id="s09">
+    <h2><span class="num">09</span> Walking a Flow</h2>
+
+    <div class="label gold">Happy Path: Car ABC-123 parks and then exits</div>
+    <ol class="steps">
+      <li><b>Car arrives at Entry Gate.</b> Gate calls <code>VehicleFactory.createVehicle(VehicleType.CAR, "ABC-123")</code> → returns <code>Car[ABC-123]</code> with a UUID.</li>
+      <li><b>Gate calls</b> <code>ParkingLot.getInstance().park(car)</code>.</li>
+      <li><b>ParkingLot acquires allocationLock</b> (no contention — proceeds immediately).</li>
+      <li><b>Calls</b> <code>slotAllocationStrategy.findSlot(floors, car)</code>. NearestSlotStrategy scans Floor 1 → finds slot <code>1-A</code> (REGULAR, isOccupied=false) → returns it.</li>
+      <li><b>Calls</b> <code>slot.occupy(car)</code> → <code>compareAndSet(false, true)</code> → succeeds → <code>parkedVehicle = car</code>.</li>
+      <li><b>Creates Ticket:</b> <code>ticketId="T-00001"</code>, vehicle=Car[ABC-123], slot=1-A, entryTime=10:00:00.</li>
+      <li><b>Puts ticket</b> in <code>activeTickets</code> map: key="T-00001".</li>
+      <li><b>allocationLock released.</b> Gate prints ticket to driver. Driver parks.</li>
+      <li><em>[2 hours pass]</em></li>
+      <li><b>Driver arrives at Exit Gate</b> with ticket T-00001.</li>
+      <li><b>Gate calls</b> <code>ParkingLot.getInstance().unpark("T-00001")</code>.</li>
+      <li><b>ParkingLot looks up</b> ticket in activeTickets map → found.</li>
+      <li><b>Sets exitTime</b> = 12:00:00 on ticket.</li>
+      <li><b>Calls</b> <code>pricingStrategy.calculateFee(ticket)</code> → HourlyPricingStrategy: <code>hours=2, rate=$2/hr → fee=$4.00</code>.</li>
+      <li><b>Calls</b> <code>slot.vacate()</code> → <code>isOccupied.set(false)</code>, parkedVehicle=null. Slot is now available for the next car.</li>
+      <li><b>Calls</b> <code>ticket.closeTicket(12:00:00, 4.00)</code> → marks ticket closed.</li>
+      <li><b>Removes</b> "T-00001" from activeTickets.</li>
+      <li><b>Returns</b> closed Ticket to Gate. Gate displays: <em>"Total: $4.00. Thank you!"</em></li>
+    </ol>
+
+<pre class="ascii">
+Timeline:
+10:00 ─── Car ABC-123 arrives ──▶ park() ──▶ Ticket T-00001 issued
+          Slot 1-A: FREE → OCCUPIED
+
+             [2 hours parked]
+
+12:00 ─── Exit Gate scans T-00001 ──▶ unpark()
+          calculateFee() = 2hr × $2 = $4.00
+          Slot 1-A: OCCUPIED → FREE
+          Ticket T-00001 → CLOSED ($4.00)
+</pre>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 10 ═══════════════════════════════ -->
+  <section class="step" id="s10">
+    <h2><span class="num">10</span> Extensions &amp; Edge Cases</h2>
+
+    <div class="label gold">EV Charging Slots</div>
+    <ul class="bullets">
+      <li>Add <code>EV_CHARGING</code> to the <code>SlotType</code> enum.</li>
+      <li>Create <code>EVSlotStrategy implements SlotAllocationStrategy</code> — prefers EV_CHARGING slots for electric cars, falls back to REGULAR if none available.</li>
+      <li><b>Zero changes to ParkingLot.java.</b> Inject <code>new EVSlotStrategy()</code> at construction time.</li>
+    </ul>
+
+    <div class="label gold">Reservation / Pre-booking</div>
+    <ul class="bullets">
+      <li>Add <code>SlotState</code> enum: <code>FREE, OCCUPIED, RESERVED</code>. Replace <code>AtomicBoolean</code> with <code>AtomicReference&lt;SlotState&gt;</code>.</li>
+      <li>Add <code>Reservation</code> class: reservationId, vehicle, slot, startTime, endTime.</li>
+      <li><code>ParkingLot.reserve(vehicle, duration)</code> transitions slot to RESERVED and returns a <code>Reservation</code>.</li>
+      <li>On arrival, <code>park(vehicle, reservationId)</code> uses the pre-assigned slot directly.</li>
+    </ul>
+
+    <div class="label gold">Monthly / Season Passes</div>
+    <ul class="bullets">
+      <li>Add <code>PassHolder</code> class: passId, vehicleId, validFrom, validUntil, passType.</li>
+      <li>In <code>unpark()</code>, check <code>passRegistry.hasValidPass(vehicle)</code> before calling <code>pricingStrategy.calculateFee()</code>. If valid, fee = 0.</li>
+    </ul>
+
+    <div class="label gold">Lot Full Handling</div>
+<pre><code class="language-java">// In the entry gate controller:
+Optional&lt;Ticket&gt; result = ParkingLot.getInstance().park(vehicle);
+if (result.isEmpty()) {
+    display.show("LOT FULL — Please try another garage.");
+    // Optionally: redirect to nearest available lot via external service
+} else {
+    display.printTicket(result.get());
+}
+</code></pre>
+
+    <div class="label gold">Multi-Currency</div>
+    <ul class="bullets">
+      <li>Add <code>Currency</code> parameter to PricingStrategy: <code>Money calculateFee(Ticket ticket, Currency currency)</code>.</li>
+      <li>Return a <code>Money</code> value object wrapping amount + currency instead of a raw <code>double</code>.</li>
+    </ul>
+
+    <div class="callout">
+      <b>OCP in every extension:</b> Every one of these additions creates a new class or extends an interface. The core ParkingLot, ParkingSlot, and Vehicle classes remain untouched. This is Open/Closed Principle demonstrated in practice — the answer interviewers love to hear.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 11 ═══════════════════════════════ -->
+  <section class="step" id="s11">
+    <h2><span class="num">11</span> Interview Talking Points</h2>
+
+    <div class="label gold">Five Lines That Show Senior Depth</div>
+
+    <div class="define">
+      <b>1. On Concurrency</b>
+      "I use <code>AtomicBoolean.compareAndSet(false, true)</code> for slot occupation — it's a lock-free CAS operation that prevents double-booking without synchronized overhead. I additionally wrap findSlot and occupy in a <code>ReentrantLock</code> to close the TOCTOU window between checking availability and claiming the slot."
+    </div>
+
+    <div class="define">
+      <b>2. On OCP / Strategy</b>
+      "Strategy Pattern on SlotAllocation means adding EV parking is a new class, not a rewrite. I pass the new strategy to ParkingLot's constructor — every caller is unaware. That's Open/Closed: the lot is open for new behaviors, closed to modification."
+    </div>
+
+    <div class="define">
+      <b>3. On Singleton</b>
+      "My Singleton uses double-checked locking with a <code>volatile</code> field. The <code>volatile</code> is critical — without it, the JVM's memory model allows partial initialization to be observed by a second thread, which would return a half-built ParkingLot and cause silent corruption."
+    </div>
+
+    <div class="define">
+      <b>4. On LSP</b>
+      "Vehicle hierarchy follows the Liskov Substitution Principle — <code>Car</code>, <code>Bike</code>, <code>Truck</code> are all Vehicles and pass through every method that accepts a Vehicle identically. No code downcasts to Car to do something special; VehicleType drives behavior through strategy dispatch, not instanceof."
+    </div>
+
+    <div class="define">
+      <b>5. On Extensibility Under Pressure</b>
+      "If the interviewer says 'trucks can now park across 2 consecutive slots', I add <code>MultiSlotAllocationStrategy implements SlotAllocationStrategy</code> that finds two adjacent LARGE slots and occupies both. <code>ParkingLot.park()</code> never changes — it still just calls <code>strategy.findSlot()</code>. The change is fully encapsulated in the new strategy class."
+    </div>
+
+    <div class="callout">
+      <b>Bonus point getter:</b> Mention that <code>ConcurrentHashMap</code> for <code>activeTickets</code> is intentional — multiple exit gates query and remove tickets concurrently, and CHM provides segment-level locking so they don't block each other on different ticket lookups.
+    </div>
+  </section>
+
+  <nav class="page-nav">
+    <span class="nav-btn prev" style="visibility:hidden">← Prev</span>
+    <a class="nav-btn home" href="index.html">⌂ LLD Index</a>
+    <a class="nav-btn next" href="vending-machine.html">Next: Vending Machine →</a>
+  </nav>
+
+</div><!-- /.wrap -->
+
+<a href="#" class="top">↑</a>
+
+<footer>Built with <b>BuildLikeASenior</b> · LLD Interview Prep</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script>
+const top=document.querySelector('.top');
+window.addEventListener('scroll',()=>top.classList.toggle('show',scrollY>300));
+</script>
+</body>
+</html>

@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Design Splitwise – LLD Interview Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"/>
+<style>
+:root{
+  --bg:#060d1a; --bg2:#0d1b35; --card:#0f1f3d; --card2:#142a52;
+  --teal:#00d4aa; --blue:#5b8dee; --gold:#f5c842; --rose:#ff6b9d;
+  --text:#e6edf7; --muted:#8aa0c4; --line:rgba(255,255,255,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.65;scroll-behavior:smooth}
+body{background:radial-gradient(1200px 600px at 10% -10%,rgba(0,212,170,.12),transparent 60%),radial-gradient(1000px 500px at 100% 0%,rgba(91,141,238,.10),transparent 60%),var(--bg)}
+code,pre{font-family:'JetBrains Mono',monospace}
+a{color:var(--teal);text-decoration:none}
+a:hover{text-decoration:underline}
+header.hero{padding:48px 24px 24px;text-align:center;border-bottom:1px solid var(--line)}
+header.hero .crumb{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+header.hero .crumb a{color:var(--muted)}
+.badge{display:inline-block;padding:6px 14px;background:rgba(0,212,170,.12);color:var(--teal);border:1px solid rgba(0,212,170,.3);border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+h1.title{font-size:clamp(28px,5vw,46px);font-weight:800;margin:14px 0 8px;letter-spacing:-.02em}
+h1.title span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);max-width:780px;margin:0 auto;font-size:15px}
+.meta{margin-top:14px;color:var(--muted);font-size:13px;font-family:'JetBrains Mono',monospace}
+.meta b{color:var(--gold)}
+.wrap{max-width:1100px;margin:0 auto;padding:24px}
+.toc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0}
+.toc h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;counter-reset:tocnum}
+.toc li{counter-increment:tocnum;font-size:14px;padding:6px 8px;border-radius:8px;transition:background .15s}
+.toc li:hover{background:rgba(0,212,170,.08)}
+.toc li::before{content:counter(tocnum,decimal-leading-zero);color:var(--teal);font-weight:700;margin-right:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+.toc a{color:var(--text)}
+section.step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:24px 0;scroll-margin-top:20px;box-shadow:0 10px 40px -20px rgba(0,0,0,.6)}
+section.step h2{margin:0 0 8px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+section.step h2 .num{display:inline-block;background:rgba(91,141,238,.18);color:var(--blue);border:1px solid rgba(91,141,238,.35);border-radius:8px;padding:2px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;margin-right:10px;vertical-align:middle}
+.label{color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 8px;font-weight:700}
+.label.gold{color:var(--gold)}
+.define{display:block;background:rgba(245,200,66,.06);border-left:3px solid var(--gold);padding:12px 16px;margin:8px 0;border-radius:8px;font-size:14px;color:#cdd9ee}
+.define b{color:var(--gold)}
+.define em{color:var(--muted);font-style:normal;display:block;font-size:13px;margin-top:4px}
+.callout{background:rgba(0,212,170,.06);border-left:3px solid var(--teal);padding:14px 18px;border-radius:8px;margin:10px 0}
+.callout b{color:var(--teal)}
+.warn{background:rgba(239,68,68,.06);border-left:3px solid #ef4444;padding:14px 18px;border-radius:8px;margin:10px 0}
+.warn b{color:#ef4444}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:rgba(91,141,238,.10);color:var(--blue);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+tr:last-child td{border-bottom:none}
+td code,th code{background:rgba(0,212,170,.10);padding:1px 6px;border-radius:4px;color:var(--teal);font-size:12px}
+pre.ascii{background:#0a1428;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12.5px;line-height:1.5;color:#cdd9ee;overflow-x:auto}
+ul.bullets{padding-left:22px}
+ul.bullets li{margin:6px 0}
+ol.steps{padding-left:22px}
+ol.steps li{margin:8px 0}
+.top{position:fixed;right:22px;bottom:22px;background:var(--teal);color:#04221a;border:none;width:44px;height:44px;border-radius:50%;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,212,170,.4);opacity:0;transition:opacity .2s;z-index:99;text-decoration:none;display:flex;align-items:center;justify-content:center}
+.top.show{opacity:1}
+footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+footer b{color:var(--teal)}
+.page-nav{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:20px 0;flex-wrap:wrap}
+.nav-btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--line);color:var(--muted);background:linear-gradient(180deg,var(--card),var(--card2));transition:border-color .2s,color .2s;text-decoration:none;font-family:'JetBrains Mono',monospace}
+.nav-btn:hover{border-color:var(--teal);color:var(--teal);text-decoration:none}
+.nav-btn.home{background:rgba(0,212,170,.08);border-color:rgba(0,212,170,.25);color:var(--teal)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="crumb"><a href="index.html">LLD Index</a> · <a href="../index.html">Home</a></div>
+  <div class="badge">Strategy · Expense Sharing · Debt Simplification</div>
+  <h1 class="title">Design <span>Splitwise</span></h1>
+  <p class="sub">Track group expenses with multiple split types, simplify debts to minimum transactions, and handle multi-currency — a Strategy Pattern showcase.</p>
+  <div class="meta"><b>Patterns:</b> Strategy · Builder · Observer · Greedy Algorithm &nbsp;|&nbsp; <b>Difficulty:</b> Medium-High</div>
+</header>
+
+<div class="wrap">
+
+  <nav class="page-nav">
+    <a class="nav-btn prev" href="lru-cache.html">← Prev: LRU Cache</a>
+    <a class="nav-btn home" href="index.html">⌂ LLD Index</a>
+    <a class="nav-btn next" href="snake-ladder.html">Next: Snake &amp; Ladder →</a>
+  </nav>
+
+  <div class="toc">
+    <h3>Table of Contents</h3>
+    <ol>
+      <li><a href="#s1">Requirements &amp; Scope</a></li>
+      <li><a href="#s2">Entity Identification</a></li>
+      <li><a href="#s3">Strategy Pattern: Split Types</a></li>
+      <li><a href="#s4">Expense Class</a></li>
+      <li><a href="#s5">Balance Tracking</a></li>
+      <li><a href="#s6">Debt Simplification Algorithm</a></li>
+      <li><a href="#s7">Group Management</a></li>
+      <li><a href="#s8">Concurrency</a></li>
+      <li><a href="#s9">Walking a Flow</a></li>
+      <li><a href="#s10">Extensions</a></li>
+      <li><a href="#s11">Interview Talking Points</a></li>
+    </ol>
+  </div>
+
+  <!-- ─── SECTION 01 ─── -->
+  <section class="step" id="s1">
+    <h2><span class="num">01</span> Requirements &amp; Scope</h2>
+
+    <div class="label gold">Functional Requirements</div>
+    <ul class="bullets">
+      <li><b>Add expense:</b> one person paid on behalf of several; record who paid and how much</li>
+      <li><b>Split types:</b> equal split (everyone pays same), exact split (each person pays a precise amount), percent split (each person pays a percentage of the total)</li>
+      <li><b>View balances:</b> "who owes whom and how much" — both per-group and globally</li>
+      <li><b>Settle up:</b> record a payment between two users, reducing their outstanding balance</li>
+      <li><b>Simplify debts:</b> transform a complex web of IOUs into the minimum number of transactions needed to zero all balances</li>
+    </ul>
+
+    <div class="label gold">Non-Functional Requirements</div>
+    <ul class="bullets">
+      <li>Consistent balance state — no lost updates when multiple expenses are added concurrently</li>
+      <li>Accurate floating-point handling — use epsilon comparisons, not <code>==</code> on doubles</li>
+      <li>Extensible split strategies — adding a new split type should not require changing existing expense logic</li>
+    </ul>
+
+    <div class="label gold">Clarifying Questions to Ask the Interviewer</div>
+    <div class="define"><b>Q:</b> Individual or group expenses?<em>Impacts whether we model a Group entity or just track expenses per user-pair.</em></div>
+    <div class="define"><b>Q:</b> Multi-currency support?<em>Needs CurrencyConversionStrategy and a base currency for balance storage.</em></div>
+    <div class="define"><b>Q:</b> Push notifications on expense add?<em>Suggests Observer pattern over ExpenseService.</em></div>
+    <div class="define"><b>Q:</b> Expense history and audit trail?<em>Immutable expense records vs. soft-delete requirement.</em></div>
+    <div class="define"><b>Q:</b> Does "settle up" record the payment or actually move money (payment gateway)?<em>If gateway, adds async payment state machine.</em></div>
+    <div class="define"><b>Q:</b> Can one expense have mixed split types (person A pays exact, person B pays percent)?<em>If yes, validation must sum heterogeneous splits.</em></div>
+  </section>
+
+  <!-- ─── SECTION 02 ─── -->
+  <section class="step" id="s2">
+    <h2><span class="num">02</span> Entity Identification</h2>
+
+    <table>
+      <thead><tr><th>Entity</th><th>Role</th><th>Key Fields</th></tr></thead>
+      <tbody>
+        <tr><td><code>User</code></td><td>Person using the app</td><td>userId, name, email</td></tr>
+        <tr><td><code>Group</code></td><td>Collection of users sharing expenses</td><td>groupId, name, members, expenses, groupBalance</td></tr>
+        <tr><td><code>Expense</code></td><td>A recorded spend event</td><td>expenseId, paidBy, totalAmount, splits, description, timestamp</td></tr>
+        <tr><td><code>Split</code> (abstract)</td><td>One user's share of an expense</td><td>user, amount (computed)</td></tr>
+        <tr><td><code>EqualSplit</code></td><td>Each participant pays totalAmount/n</td><td>inherits Split</td></tr>
+        <tr><td><code>ExactSplit</code></td><td>Participant pays a precise dollar amount</td><td>exactAmount (provided by caller)</td></tr>
+        <tr><td><code>PercentSplit</code></td><td>Participant pays a % of total</td><td>percent (e.g. 33.33)</td></tr>
+        <tr><td><code>Balance</code></td><td>Tracks net IOUs across all users</td><td>owes: Map&lt;userId, Map&lt;userId, Double&gt;&gt;</td></tr>
+        <tr><td><code>Transaction</code></td><td>A single payment from→to</td><td>from (User), to (User), amount</td></tr>
+        <tr><td><code>ExpenseService</code></td><td>Orchestration façade</td><td>addExpense, simplifyDebts, getGroupBalances</td></tr>
+      </tbody>
+    </table>
+
+    <div class="label gold">Class Relationship Diagram</div>
+    <pre class="ascii">
+ExpenseService
+  ├── manages ──▶ Group
+  │               ├── has many ──▶ User
+  │               └── has many ──▶ Expense
+  │                               ├── paidBy ──▶ User
+  │                               └── has many ──▶ Split ◀─── EqualSplit
+  │                                                       ◀─── ExactSplit
+  │                                                       ◀─── PercentSplit
+  └── tracks ──▶ Balance
+                  └── simplifies to ──▶ Transaction[]
+    </pre>
+
+    <div class="callout"><b>Design principle:</b> Split is the Strategy interface. EqualSplit, ExactSplit, and PercentSplit are concrete strategies. Expense doesn't know which strategy it holds — it just calls <code>split.computeAmount()</code> and <code>split.validate()</code> on each one. This is the Open/Closed Principle in action.</div>
+  </section>
+
+  <!-- ─── SECTION 03 ─── -->
+  <section class="step" id="s3">
+    <h2><span class="num">03</span> Strategy Pattern: Split Types</h2>
+
+    <div class="label gold">Abstract Split Base</div>
+    <pre><code class="language-java">public abstract class Split {
+    protected User user;
+    protected double amount; // computed share — filled by computeAmount()
+
+    public Split(User user) {
+        this.user = user;
+    }
+
+    public User getUser()   { return user; }
+    public double getAmount() { return amount; }
+
+    /**
+     * Compute this user's share.
+     * @param totalAmount  full expense amount
+     * @param n            number of participants (used by EqualSplit)
+     */
+    public abstract void computeAmount(double totalAmount, int n);
+
+    /**
+     * Validate that this split is internally consistent.
+     * Called with all sibling splits available so percentages/amounts can be cross-checked.
+     */
+    public abstract void validate(double totalAmount, List&lt;Split&gt; allSplits)
+            throws InvalidSplitException;
+}</code></pre>
+
+    <div class="label gold">EqualSplit</div>
+    <pre><code class="language-java">public class EqualSplit extends Split {
+
+    public EqualSplit(User user) {
+        super(user);
+    }
+
+    @Override
+    public void computeAmount(double totalAmount, int n) {
+        // Simple: divide total evenly
+        this.amount = totalAmount / n;
+    }
+
+    @Override
+    public void validate(double totalAmount, List&lt;Split&gt; allSplits)
+            throws InvalidSplitException {
+        // EqualSplit is always valid on its own; cross-sum is checked in Expense
+    }
+}</code></pre>
+
+    <div class="label gold">ExactSplit</div>
+    <pre><code class="language-java">public class ExactSplit extends Split {
+
+    private final double exactAmount;
+
+    public ExactSplit(User user, double exactAmount) {
+        super(user);
+        this.exactAmount = exactAmount;
+        this.amount = exactAmount; // pre-set — no computation needed
+    }
+
+    @Override
+    public void computeAmount(double totalAmount, int n) {
+        // Amount is caller-provided; nothing to compute
+        this.amount = exactAmount;
+    }
+
+    @Override
+    public void validate(double totalAmount, List&lt;Split&gt; allSplits)
+            throws InvalidSplitException {
+        // All exact splits must sum to totalAmount (checked at Expense level)
+        double sum = allSplits.stream()
+                              .mapToDouble(Split::getAmount)
+                              .sum();
+        if (Math.abs(sum - totalAmount) &gt; 0.01) {
+            throw new InvalidSplitException(
+                "ExactSplits sum=" + sum + " does not equal totalAmount=" + totalAmount);
+        }
+    }
+}</code></pre>
+
+    <div class="label gold">PercentSplit</div>
+    <pre><code class="language-java">public class PercentSplit extends Split {
+
+    private final double percent; // 0–100
+
+    public PercentSplit(User user, double percent) {
+        super(user);
+        this.percent = percent;
+    }
+
+    @Override
+    public void computeAmount(double totalAmount, int n) {
+        this.amount = (percent / 100.0) * totalAmount;
+    }
+
+    @Override
+    public void validate(double totalAmount, List&lt;Split&gt; allSplits)
+            throws InvalidSplitException {
+        double totalPercent = allSplits.stream()
+                .filter(s -&gt; s instanceof PercentSplit)
+                .map(s -&gt; (PercentSplit) s)
+                .mapToDouble(ps -&gt; ps.percent)
+                .sum();
+        if (Math.abs(totalPercent - 100.0) &gt; 0.001) {
+            throw new InvalidSplitException(
+                "PercentSplits must sum to 100%, but got: " + totalPercent + "%");
+        }
+    }
+}</code></pre>
+
+    <div class="callout"><b>Open/Closed Principle:</b> To add a <em>WeightSplit</em> (give each person a weight ratio), you create a new class extending <code>Split</code> and implement <code>computeAmount()</code> and <code>validate()</code>. The Expense class, Balance class, and Group class are untouched.</div>
+  </section>
+
+  <!-- ─── SECTION 04 ─── -->
+  <section class="step" id="s4">
+    <h2><span class="num">04</span> Expense Class</h2>
+
+    <div class="label gold">Expense with Builder Pattern</div>
+    <pre><code class="language-java">public class Expense {
+    private final String expenseId;
+    private final User paidBy;
+    private final double totalAmount;
+    private final String description;
+    private final List&lt;Split&gt; splits;
+    private final LocalDateTime timestamp;
+
+    private Expense(Builder builder) {
+        this.expenseId   = builder.expenseId;
+        this.paidBy      = builder.paidBy;
+        this.totalAmount = builder.totalAmount;
+        this.description = builder.description;
+        this.splits      = new ArrayList&lt;&gt;(builder.splits);
+        this.timestamp   = LocalDateTime.now();
+    }
+
+    public String       getExpenseId()  { return expenseId; }
+    public User         getPaidBy()     { return paidBy; }
+    public double       getTotalAmount(){ return totalAmount; }
+    public String       getDescription(){ return description; }
+    public List&lt;Split&gt;  getSplits()     { return Collections.unmodifiableList(splits); }
+    public LocalDateTime getTimestamp() { return timestamp; }
+
+    /**
+     * Compute each split's share. Call BEFORE validateSplits().
+     */
+    public void computeSplitAmounts() {
+        int n = splits.size();
+        for (Split split : splits) {
+            split.computeAmount(totalAmount, n);
+        }
+    }
+
+    /**
+     * Validate splits. Call AFTER computeSplitAmounts().
+     * Checks: (1) each split internally valid, (2) amounts sum to totalAmount.
+     */
+    public void validateSplits() throws InvalidSplitException {
+        for (Split split : splits) {
+            split.validate(totalAmount, splits);
+        }
+        double computedSum = splits.stream().mapToDouble(Split::getAmount).sum();
+        if (Math.abs(computedSum - totalAmount) &gt; 0.01) {
+            throw new InvalidSplitException(
+                "Split amounts sum to " + computedSum
+                + " but totalAmount is " + totalAmount);
+        }
+    }
+
+    // ── Builder ──────────────────────────────────────────────────────
+    public static class Builder {
+        private String expenseId = UUID.randomUUID().toString();
+        private User paidBy;
+        private double totalAmount;
+        private String description = "";
+        private List&lt;Split&gt; splits = new ArrayList&lt;&gt;();
+
+        public Builder paidBy(User user)         { this.paidBy = user;          return this; }
+        public Builder totalAmount(double amount){ this.totalAmount = amount;   return this; }
+        public Builder description(String desc)  { this.description = desc;     return this; }
+        public Builder addSplit(Split split)     { this.splits.add(split);      return this; }
+
+        public Expense build() {
+            Objects.requireNonNull(paidBy,      "paidBy is required");
+            if (totalAmount &lt;= 0)
+                throw new IllegalArgumentException("totalAmount must be positive");
+            if (splits.isEmpty())
+                throw new IllegalArgumentException("At least one split is required");
+            return new Expense(this);
+        }
+    }
+
+    public static Builder builder() { return new Builder(); }
+}</code></pre>
+
+    <div class="callout"><b>Builder advantage:</b> Callers chain <code>.paidBy(alice).totalAmount(60).description("Dinner").addSplit(...)</code> and call <code>.build()</code>. The <code>build()</code> method validates all required fields, preventing half-constructed Expense objects from entering the system.</div>
+  </section>
+
+  <!-- ─── SECTION 05 ─── -->
+  <section class="step" id="s5">
+    <h2><span class="num">05</span> Balance Tracking</h2>
+
+    <div class="label gold">Balance Class</div>
+    <pre><code class="language-java">public class Balance {
+    // owes[A][B] = amount A owes B (always positive or absent)
+    private final Map&lt;String, Map&lt;String, Double&gt;&gt; owes = new HashMap&lt;&gt;();
+
+    /** Update owes map after a new expense is recorded. */
+    public void updateBalances(Expense expense) {
+        User paidBy = expense.getPaidBy();
+        for (Split split : expense.getSplits()) {
+            User debtor = split.getUser();
+            if (debtor.getUserId().equals(paidBy.getUserId())) {
+                continue; // Payer's own share doesn't create a debt
+            }
+            double share = split.getAmount();
+            // Check if paidBy already owes debtor — net it out first
+            double reverseDebt = getOwed(paidBy.getUserId(), debtor.getUserId());
+            if (reverseDebt &gt; 0) {
+                if (reverseDebt &gt;= share) {
+                    // Fully offset: reduce reverse debt
+                    setOwed(paidBy.getUserId(), debtor.getUserId(), reverseDebt - share);
+                    continue;
+                } else {
+                    // Partially offset: zero reverse, record remainder forward
+                    setOwed(paidBy.getUserId(), debtor.getUserId(), 0.0);
+                    share -= reverseDebt;
+                }
+            }
+            // Add remaining share to debtor→paidBy
+            double existing = getOwed(debtor.getUserId(), paidBy.getUserId());
+            setOwed(debtor.getUserId(), paidBy.getUserId(), existing + share);
+        }
+    }
+
+    /** Record a settlement payment. */
+    public void settle(String payerId, String payeeId, double amount) {
+        double current = getOwed(payerId, payeeId);
+        double newAmount = Math.max(0, current - amount);
+        setOwed(payerId, payeeId, newAmount);
+    }
+
+    /** How much does userA owe userB? Returns 0 if no debt. */
+    public double getOwed(String userAId, String userBId) {
+        return owes.getOrDefault(userAId, Collections.emptyMap())
+                   .getOrDefault(userBId, 0.0);
+    }
+
+    /** Net balance for a user: positive = others owe them; negative = they owe others. */
+    public double getNetBalance(String userId) {
+        double totalOwedToUser = owes.values().stream()
+                .mapToDouble(m -&gt; m.getOrDefault(userId, 0.0))
+                .sum();
+        double totalOwedByUser = owes.getOrDefault(userId, Collections.emptyMap())
+                .values().stream().mapToDouble(Double::doubleValue).sum();
+        return totalOwedToUser - totalOwedByUser;
+    }
+
+    /** Net balance between exactly two users.
+     *  Positive = A owes B. Negative = B owes A. */
+    public double getBalanceWithUser(String userAId, String userBId) {
+        return getOwed(userAId, userBId) - getOwed(userBId, userAId);
+    }
+
+    /** Returns a copy of all outstanding debts (userId -&gt; (userId -&gt; amount)). */
+    public Map&lt;String, Map&lt;String, Double&gt;&gt; getAllDebts() {
+        return Collections.unmodifiableMap(owes);
+    }
+
+    private void setOwed(String fromId, String toId, double amount) {
+        owes.computeIfAbsent(fromId, k -&gt; new HashMap&lt;&gt;()).put(toId, amount);
+    }
+}</code></pre>
+
+    <div class="warn"><b>Floating-point pitfall:</b> Never compare <code>balance == 0.0</code>. Use <code>Math.abs(balance) &lt; 0.001</code>. Repeated additions of 60/3 = 19.999...997 accumulate error. Always use epsilon comparisons when checking if a debt is "effectively zero".</div>
+  </section>
+
+  <!-- ─── SECTION 06 ─── -->
+  <section class="step" id="s6">
+    <h2><span class="num">06</span> Debt Simplification Algorithm</h2>
+
+    <div class="label gold">Problem Statement</div>
+    <p>After 5 expenses among 4 friends you may have: Alice→Bob $20, Bob→Charlie $15, Charlie→Alice $10, Bob→Alice $5. That's 4 transactions. The simplified version: Alice→Bob $5, Charlie→Bob $5 — just 2 transactions. Goal: find the minimum number of transactions to zero all balances.</p>
+
+    <div class="define"><b>Key Insight — Proof of N-1 bound:</b> Each transaction brings at least one person's net balance to exactly zero (the smaller side of the transaction is fully settled). N people → at most N-1 transactions to zero everyone. The greedy max-heap approach achieves this bound.<em>This is the "minimum transactions to settle debts" classical problem — mention it by name in interviews.</em></div>
+
+    <div class="label gold">Algorithm Steps</div>
+    <ol class="steps">
+      <li>Compute <code>netBalance[user] = totalOwedToUser − totalOwedByUser</code> for each user using the Balance map</li>
+      <li>Split users into <b>creditors</b> (netBalance &gt; 0, they are owed money) and <b>debtors</b> (netBalance &lt; 0, they owe money)</li>
+      <li>Use two max-heaps: creditors sorted by amount descending, debtors sorted by |amount| descending</li>
+      <li>While both heaps non-empty: pop maxCreditor and maxDebtor, compute <code>transaction = min(|debtor|, creditor)</code>, reduce both by transaction amount, re-insert if non-zero remainder</li>
+    </ol>
+
+    <div class="label gold">Full Implementation</div>
+    <pre><code class="language-java">public class DebtSimplifier {
+
+    /**
+     * Given a map of net balances (positive = owed to user, negative = user owes),
+     * return the minimum list of transactions to zero all balances.
+     */
+    public List&lt;Transaction&gt; simplifyDebts(Map&lt;User, Double&gt; netBalances) {
+        List&lt;Transaction&gt; result = new ArrayList&lt;&gt;();
+
+        // Max-heap: creditors (most owed first)
+        PriorityQueue&lt;Map.Entry&lt;User, Double&gt;&gt; creditors =
+            new PriorityQueue&lt;&gt;((a, b) -&gt; Double.compare(b.getValue(), a.getValue()));
+
+        // Max-heap by absolute value: debtors (most owing first)
+        PriorityQueue&lt;Map.Entry&lt;User, Double&gt;&gt; debtors =
+            new PriorityQueue&lt;&gt;((a, b) -&gt; Double.compare(a.getValue(), b.getValue()));
+
+        for (Map.Entry&lt;User, Double&gt; entry : netBalances.entrySet()) {
+            if (entry.getValue() &gt; 0.001) {
+                creditors.offer(entry);
+            } else if (entry.getValue() &lt; -0.001) {
+                debtors.offer(entry);
+            }
+            // Near-zero balances are already settled — skip
+        }
+
+        while (!creditors.isEmpty() &amp;&amp; !debtors.isEmpty()) {
+            Map.Entry&lt;User, Double&gt; creditor = creditors.poll();
+            Map.Entry&lt;User, Double&gt; debtor   = debtors.poll();
+
+            double amount = Math.min(creditor.getValue(), -debtor.getValue());
+
+            result.add(new Transaction(debtor.getKey(), creditor.getKey(), amount));
+
+            double creditorRemainder = creditor.getValue() - amount;
+            double debtorRemainder   = debtor.getValue()   + amount; // becomes less negative
+
+            if (creditorRemainder &gt; 0.001) {
+                creditors.offer(Map.entry(creditor.getKey(), creditorRemainder));
+            }
+            if (debtorRemainder &lt; -0.001) {
+                debtors.offer(Map.entry(debtor.getKey(), debtorRemainder));
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Convenience: compute net balances from a Balance object, then simplify.
+     */
+    public List&lt;Transaction&gt; simplifyGroupDebts(List&lt;User&gt; members, Balance balance) {
+        Map&lt;User, Double&gt; netBalances = new HashMap&lt;&gt;();
+        for (User member : members) {
+            netBalances.put(member, balance.getNetBalance(member.getUserId()));
+        }
+        return simplifyDebts(netBalances);
+    }
+}</code></pre>
+
+    <div class="label gold">Worked Example</div>
+    <pre class="ascii">
+Net balances BEFORE simplification:
+  Alice:   +$15  (others owe her $15 net)
+  Bob:     -$5   (he owes $5 net)
+  Charlie: -$10  (he owes $10 net)
+
+Heaps:
+  creditors: [Alice +15]
+  debtors:   [Charlie -10, Bob -5]
+
+Step 1: creditor=Alice(+15), debtor=Charlie(-10)
+  amount = min(15, 10) = $10
+  → Transaction: Charlie pays Alice $10
+  creditorRemainder = 15-10 = 5  → re-insert Alice(+5)
+  debtorRemainder   = -10+10 = 0 → discard Charlie
+
+Step 2: creditor=Alice(+5), debtor=Bob(-5)
+  amount = min(5, 5) = $5
+  → Transaction: Bob pays Alice $5
+  creditorRemainder = 0 → discard
+  debtorRemainder   = 0 → discard
+
+Result: 2 transactions (was potentially 4+ raw IOUs)
+    </pre>
+  </section>
+
+  <!-- ─── SECTION 07 ─── -->
+  <section class="step" id="s7">
+    <h2><span class="num">07</span> Group Management</h2>
+
+    <pre><code class="language-java">public class Group {
+    private final String groupId;
+    private final String name;
+    private final List&lt;User&gt; members    = new ArrayList&lt;&gt;();
+    private final List&lt;Expense&gt; expenses = new ArrayList&lt;&gt;();
+    private final Balance groupBalance   = new Balance();
+    private final DebtSimplifier simplifier = new DebtSimplifier();
+
+    public Group(String groupId, String name) {
+        this.groupId = groupId;
+        this.name    = name;
+    }
+
+    public void addMember(User user) {
+        if (!members.contains(user)) {
+            members.add(user);
+        }
+    }
+
+    /**
+     * Remove member only if they have no pending balances.
+     */
+    public void removeMember(User user) throws IllegalStateException {
+        double net = groupBalance.getNetBalance(user.getUserId());
+        if (Math.abs(net) &gt; 0.01) {
+            throw new IllegalStateException(
+                user.getName() + " has outstanding balance of " + net
+                + ". Settle before removing.");
+        }
+        members.remove(user);
+    }
+
+    /**
+     * Thread-safe expense addition. Compute amounts and validate before recording.
+     */
+    public synchronized void addExpense(Expense expense) {
+        expense.computeSplitAmounts();
+        expense.validateSplits();
+        expenses.add(expense);
+        groupBalance.updateBalances(expense);
+    }
+
+    public Balance getGroupBalance() {
+        return groupBalance;
+    }
+
+    public double getMemberNetBalance(User user) {
+        return groupBalance.getNetBalance(user.getUserId());
+    }
+
+    public List&lt;Transaction&gt; getSimplifiedSettlements() {
+        return simplifier.simplifyGroupDebts(members, groupBalance);
+    }
+
+    public List&lt;Expense&gt; getExpenses() {
+        return Collections.unmodifiableList(expenses);
+    }
+
+    public List&lt;User&gt; getMembers() {
+        return Collections.unmodifiableList(members);
+    }
+
+    public String getGroupId() { return groupId; }
+    public String getName()    { return name; }
+}</code></pre>
+
+    <div class="callout"><b>Encapsulation:</b> <code>getExpenses()</code> returns an unmodifiable view. Callers cannot directly mutate the expenses list — they must use <code>addExpense()</code> which applies validation and balance updates atomically.</div>
+  </section>
+
+  <!-- ─── SECTION 08 ─── -->
+  <section class="step" id="s8">
+    <h2><span class="num">08</span> Concurrency</h2>
+
+    <div class="label gold">The Race Condition Scenario</div>
+    <p>Alice and Bob both add expenses to the same group at the same instant. Without synchronization:</p>
+    <pre class="ascii">
+Thread A (Alice's expense)          Thread B (Bob's expense)
+───────────────────────────         ─────────────────────────
+1. expense.computeSplitAmounts()    1. expense.computeSplitAmounts()
+2. groupBalance.updateBalances()    2. groupBalance.updateBalances()
+   reads owes["charlie"]["alice"]      reads owes["charlie"]["alice"]  ← BOTH read 0.0
+   computes 0.0 + 20 = 20             computes 0.0 + 15 = 15
+   writes owes["charlie"]["alice"]=20  writes owes["charlie"]["alice"]=15  ← LOST $20!
+    </pre>
+
+    <div class="warn"><b>ConcurrentHashMap alone is insufficient.</b> It protects individual key reads/writes but a compound <em>read → compute → write</em> is still a race. Thread A reads 0, Thread B reads 0, both compute independently, one write clobbers the other. You need synchronization at the addExpense level.</div>
+
+    <div class="label gold">Solutions</div>
+    <table>
+      <thead><tr><th>Mechanism</th><th>Applied To</th><th>Guarantees</th></tr></thead>
+      <tbody>
+        <tr><td><code>synchronized</code> on <code>addExpense()</code></td><td>Group class</td><td>Only one expense added at a time; read-modify-write is atomic</td></tr>
+        <tr><td><code>AtomicLong</code> for expense ID</td><td>ExpenseService</td><td>Thread-safe sequential ID generation without synchronization overhead</td></tr>
+        <tr><td><code>ConcurrentHashMap</code> for owes</td><td>Balance</td><td>Safe concurrent reads; still need synchronized on writes</td></tr>
+        <tr><td>Immutable <code>Expense</code> after build</td><td>Expense class</td><td>No mutable shared state once built — safe to read from multiple threads</td></tr>
+      </tbody>
+    </table>
+
+    <pre><code class="language-java">// Thread-safe expense addition in Group.java
+public synchronized void addExpense(Expense expense) {
+    expense.computeSplitAmounts();  // idempotent — safe to call once
+    expense.validateSplits();       // throws InvalidSplitException if bad
+    expenses.add(expense);          // CopyOnWriteArrayList alternative for reads
+    groupBalance.updateBalances(expense); // the critical compound operation
+}
+
+// Thread-safe ID generation in ExpenseService.java
+private final AtomicLong expenseIdCounter = new AtomicLong(0);
+
+public String generateExpenseId() {
+    return "EXP-" + expenseIdCounter.incrementAndGet();
+}</code></pre>
+
+    <div class="callout"><b>Read-heavy optimization:</b> If reads vastly outnumber writes (typical in a real app where users view balances often but add expenses rarely), replace <code>synchronized</code> with <code>ReadWriteLock</code>: shared read lock for <code>getGroupBalance()</code>, exclusive write lock for <code>addExpense()</code>.</div>
+  </section>
+
+  <!-- ─── SECTION 09 ─── -->
+  <section class="step" id="s9">
+    <h2><span class="num">09</span> Walking a Flow</h2>
+
+    <div class="label gold">Setup: Three Friends, Two Expenses</div>
+    <pre class="ascii">
+Users: Alice (A), Bob (B), Charlie (C)
+Group: "Weekend Trip"
+Starting balance: all zero
+    </pre>
+
+    <div class="label gold">Expense 1: Alice pays $60 for dinner (equal split among all 3)</div>
+    <ol class="steps">
+      <li>Caller builds expense:
+        <br><code>Expense dinner = Expense.builder().paidBy(alice).totalAmount(60).description("Dinner").addSplit(new EqualSplit(alice)).addSplit(new EqualSplit(bob)).addSplit(new EqualSplit(charlie)).build();</code></li>
+      <li><code>group.addExpense(dinner)</code> acquires synchronized lock</li>
+      <li><code>dinner.computeSplitAmounts()</code>: each EqualSplit.computeAmount(60, 3) → amount = 60/3 = <b>$20</b> each</li>
+      <li><code>dinner.validateSplits()</code>: sum = 20+20+20 = 60 ✓</li>
+      <li><code>groupBalance.updateBalances(dinner)</code>:
+        <ul class="bullets">
+          <li>Alice's split: paidBy==split.user → skip (she paid, her own share covered)</li>
+          <li>Bob's split: Bob owes Alice $20 → <code>owes[bob][alice] = 20</code></li>
+          <li>Charlie's split: Charlie owes Alice $20 → <code>owes[charlie][alice] = 20</code></li>
+        </ul>
+      </li>
+    </ol>
+
+    <pre class="ascii">
+Balance state after Expense 1:
+  Bob    → Alice :  $20
+  Charlie → Alice:  $20
+    </pre>
+
+    <div class="label gold">Expense 2: Bob pays $30 for taxi (Alice and Bob split equally = $15 each)</div>
+    <ol class="steps">
+      <li>Caller builds expense:
+        <br><code>Expense taxi = Expense.builder().paidBy(bob).totalAmount(30).description("Taxi").addSplit(new EqualSplit(alice)).addSplit(new EqualSplit(bob)).build();</code></li>
+      <li><code>taxi.computeSplitAmounts()</code>: each share = 30/2 = <b>$15</b></li>
+      <li><code>groupBalance.updateBalances(taxi)</code>:
+        <ul class="bullets">
+          <li>Bob's split: paidBy==split.user → skip</li>
+          <li>Alice's split: Alice owes Bob $15. But check reverse: does Bob owe Alice? Yes, $20! Reverse debt $20 ≥ $15 → <b>net it out</b>: reduce <code>owes[bob][alice]</code> from $20 to $5. Alice's forward debt zeroed.</li>
+        </ul>
+      </li>
+    </ol>
+
+    <pre class="ascii">
+Balance state after Expense 2 (automatically netted):
+  Bob     → Alice :  $5    (was $20, reduced by $15)
+  Charlie → Alice :  $20   (unchanged)
+
+Simplified settlements (same as raw here — already minimal):
+  Bob     pays Alice  $5
+  Charlie pays Alice  $20
+    </pre>
+  </section>
+
+  <!-- ─── SECTION 10 ─── -->
+  <section class="step" id="s10">
+    <h2><span class="num">10</span> Extensions</h2>
+
+    <div class="label gold">Multi-Currency Support</div>
+    <div class="define"><b>CurrencyConversionStrategy:</b> Interface with <code>double convert(double amount, Currency from, Currency to)</code>. FixedRateConverter for tests, ExchangeRateAPIConverter for production.<em>Expense stores its Currency. Balance always stores in base currency (e.g., USD). On updateBalances, convert split.getAmount() from expense.getCurrency() to base before storing.</em></div>
+
+    <div class="label gold">Expense Notifications (Observer)</div>
+    <pre><code class="language-java">public interface ExpenseObserver {
+    void onExpenseAdded(Expense expense, Group group);
+    void onSettlementDone(String payerId, String payeeId, double amount);
+}
+
+// In Group:
+private final List&lt;ExpenseObserver&gt; observers = new ArrayList&lt;&gt;();
+
+public void addObserver(ExpenseObserver observer) { observers.add(observer); }
+
+public synchronized void addExpense(Expense expense) {
+    expense.computeSplitAmounts();
+    expense.validateSplits();
+    expenses.add(expense);
+    groupBalance.updateBalances(expense);
+    observers.forEach(o -&gt; o.onExpenseAdded(expense, this)); // notify AFTER commit
+}</code></pre>
+
+    <div class="label gold">Expense Categories</div>
+    <div class="define"><b>Category enum:</b> FOOD, TRANSPORT, RENT, ENTERTAINMENT, UTILITIES, OTHER. Add <code>Category category</code> field to Expense. Group can then provide <code>getExpensesByCategory(Category)</code> for analytics.</div>
+
+    <div class="label gold">Recurring Expenses</div>
+    <div class="define"><b>RecurringExpense:</b> Wraps an Expense template with a RecurrenceRule (DAILY/WEEKLY/MONTHLY) and nextDueDate. A ScheduledExecutorService checks daily and auto-creates expenses when nextDueDate is reached.<em>E.g., shared Netflix subscription billed monthly to the group.</em></div>
+
+    <div class="label gold">Pluggable Debt Simplification</div>
+    <pre><code class="language-java">public interface DebtSimplificationStrategy {
+    List&lt;Transaction&gt; simplify(Map&lt;User, Double&gt; netBalances);
+}
+
+public class GreedySimplification implements DebtSimplificationStrategy { /* max-heap */ }
+public class MinCostFlowSimplification implements DebtSimplificationStrategy { /* exact optimal */ }
+
+// ExpenseService accepts strategy via constructor injection
+public class ExpenseService {
+    private final DebtSimplificationStrategy simplificationStrategy;
+    public ExpenseService(DebtSimplificationStrategy strategy) {
+        this.simplificationStrategy = strategy;
+    }
+}</code></pre>
+  </section>
+
+  <!-- ─── SECTION 11 ─── -->
+  <section class="step" id="s11">
+    <h2><span class="num">11</span> Interview Talking Points</h2>
+
+    <div class="define"><b>On Strategy Pattern (OCP):</b> "Strategy for split types means adding PercentageSplit requires zero changes to Expense class — that's the Open/Closed Principle. I just create a new Split subclass, implement computeAmount() and validate(), and the Expense class polymorphically calls it without knowing the concrete type."</div>
+
+    <div class="define"><b>On Debt Simplification:</b> "The greedy algorithm guarantees at most N-1 transactions for N people. The proof: each step of the algorithm eliminates at least one person from the debt graph because the smaller side of the transaction reaches exactly zero. So N people → N-1 steps maximum."</div>
+
+    <div class="define"><b>On Concurrency:</b> "ConcurrentHashMap alone isn't enough for balance updates. It protects individual key reads/writes, but updateBalances() is a compound read-modify-write — I read the old balance, add the new amount, then write back. Two concurrent calls can both read 0, both compute independently, and one write clobbers the other. I need synchronized on addExpense() to make the entire operation atomic."</div>
+
+    <div class="define"><b>On Builder Pattern:</b> "Builder on Expense lets callers set paidBy, amount, and description fluently, then validates all required fields in build(). This prevents partially constructed Expense objects from entering the system — you either build a valid Expense or throw an exception."</div>
+
+    <div class="define"><b>On Observer Pattern:</b> "For notifications I'd use Observer — Group holds a list of ExpenseObservers and notifies them after each addExpense. Email notification, push notification, and UI refresh all subscribe independently. Adding WhatsApp notifications later means implementing ExpenseObserver once, zero changes to Group."</div>
+
+
+  </section>
+
+  <nav class="page-nav">
+    <a class="nav-btn prev" href="lru-cache.html">← Prev: LRU Cache</a>
+    <a class="nav-btn home" href="index.html">⌂ LLD Index</a>
+    <a class="nav-btn next" href="snake-ladder.html">Next: Snake &amp; Ladder →</a>
+  </nav>
+
+</div>
+
+<footer>Built with <b>BuildLikeASenior</b> · LLD Interview Prep</footer>
+<a href="#" class="top">↑</a>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script>
+const top=document.querySelector('.top');
+window.addEventListener('scroll',()=>top.classList.toggle('show',scrollY>300));
+</script>
+</body>
+</html>
